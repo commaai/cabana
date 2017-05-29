@@ -1,0 +1,31 @@
+{
+  "name": "can-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "aphrodite": "^1.2.1",
+    "create-react-class": "^15.5.3",
+    "int64-buffer": "^0.1.9",
+    "prop-types": "^15.5.10",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-infinite": "^0.11.0",
+    "react-list": "^0.8.6",
+    "react-measure": "^1.4.7",
+    "react-vega": "^3.0.0"
+  },
+  "devDependencies": {
+    "react-scripts": "0.9.5"
+  },
+  "scripts": {
+    "start": "python simple-cors-http-server.py & react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "esLintConfig": {
+    "rules": {
+      "no-use-before-define": "off"
+    }
+  }
+}
