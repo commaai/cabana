@@ -46,7 +46,7 @@ export default class CanHistogram extends Component {
         this.view = view;
         const {binDuration} = this.state.bins;
         const options = {showAllFields: false,
-                         fields: [{field: 'count'}, {field: 'startTime', title: `from`}],
+                         fields: [{field: 'count'}, {field: 'relStartTime', title: `from`}],
                          colorTheme: 'dark'}
 
         VegaTooltip.vega(view, options);
