@@ -14,3 +14,38 @@ html, body {
 * {
     box-sizing: border-box;
 }
+.vg-tooltip {
+  visibility: hidden;
+  padding: 6px;
+  border-radius: 3px;
+  position: fixed;
+  z-index: 2000;
+  font-family: sans-serif;
+    font-size: 1em;
+
+  /* The default look of the tooltip is the same as .light-theme
+  but it can be overwritten by .dark-theme */
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d9d9d9;
+  color: black;
+}
+.vg-tooltip td.key, .vg-tooltip td.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vg-tooltip td.key {
+  max-width: 150px;
+  text-align: right;
+  padding-right: 1px;
+  font-weight: bold;
+}
+.vg-tooltip td.value {
+  max-width: 200px;
+  text-align: left;
+}
+
+/* Dark and light color themes */
+.vg-tooltip.dark-theme {
+  background-color: rgba(64, 64, 64, 0.9);
+  color: rgba(255,255,255,0.95);
+}

@@ -6,71 +6,24 @@ import PropTypes from 'prop-types';
 import Signal from '../models/can/signal';
 import CanPlot from '../vega/CanPlot';
 
-const spec =  {
-  "$schema": "https://vega.github.io/schema/vega/v3.0.json",
-  "width": 500,
-  "height": 200,
-  "padding": 5,
-
-
-  "data": [
-    {
-      "name": "table"
-    }
-  ],
-
-  "scales": [
-    {
-      "name": "xscale",
-      "type": "linear",
-      "range": "width",
-      "zero": false,
-      "domain": {"data": "table", "field": "x"}
-    },
-    {
-      "name": "yscale",
-      "type": "linear",
-      "range": "height",
-      "zero": true,
-      "domain": {"data": "table", "field": "y"}
-    }
-  ],
-
-  "axes": [
-    {"orient": "bottom", "scale": "xscale"},
-    {"orient": "left", "scale": "yscale"}
-  ],
-
-  "marks": [
-    {
-      "type": "line",
-      "from": {"data": "table"},
-      "encode": {
-        "enter": {
-          "x": {"scale": "xscale", "field": "x"},
-          "y": {"scale": "yscale", "field": "y"},
-        },
-        "hover": {
-          "fillOpacity": {"value": 0.5}
-        }
-      }
-    }
-  ]
-};
-
-
 export default class CanGraph extends Component {
+  static MAX_POINTS = 10000;
+
   static propTypes = {
     data: PropTypes.array,
     messageName: PropTypes.string,
     signalSpec: PropTypes.instanceOf(Signal),
-    segment: PropTypes.array
+    segment: PropTypes.array,
+    unplot: PropTypes.func,
+    onTimeClick: PropTypes.func,
+    currentTime: PropTypes.number
   };
 
   constructor(props) {
     super(props);
 
     this.onNewView = this.onNewView.bind(this);
+    this.onSignalClickTime = this.onSignalClickTime.bind(this);
   }
 
   segmentIsNew(newSegment) {
@@ -81,6 +34,7 @@ export default class CanGraph extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(this.view) {
       // only update if segment is new
+      let segmentChanged = false;
       if(this.segmentIsNew(nextProps.segment)) {
         if(nextProps.segment.length > 0) {
           // Set segmented domain
@@ -92,6 +46,15 @@ export default class CanGraph extends Component {
           const max = Math.max.apply(null, xVals);
           this.view.signal('segment', [min, max]);
         }
+        segmentChanged = true;
+      }
+
+      if(nextProps.currentTime != this.props.currentTime) {
+          this.view.signal('videoTime', nextProps.currentTime);
+          segmentChanged = true;
+      }
+
+      if(segmentChanged) {
         this.view.run();
       }
     }
@@ -106,14 +69,25 @@ export default class CanGraph extends Component {
     }
   }
 
+  onSignalClickTime(signal, clickTime) {
+    if(clickTime !== undefined) {
+      this.props.onTimeClick(clickTime);
+    }
+  }
+
   render() {
       return (<div className={css(Styles.root)}>
                 <p className={css(Styles.messageName)}>{this.props.messageName}</p>
-                <p className={css(Styles.signalName)}>{this.props.signalSpec.name}</p>
-                <CanPlot logLevel={0}
-                         data={{table: this.props.data}}
-                         onNewView={this.onNewView}
-                                 />
+                <p className={css(Styles.signalName)}>{this.props.signalSpec.name}
+                    &nbsp; <span className={css(Styles.unplot)}
+                          onClick={this.props.unplot}>(unplot)</span></p>
+                <div className={css(Styles.pointer)}>
+                  <CanPlot logLevel={0}
+                           data={{table: this.props.data}}
+                           onNewView={this.onNewView}
+                           onSignalClickTime={this.onSignalClickTime}
+                  />
+                </div>
               </div>);
   }
 }
@@ -122,6 +96,9 @@ const Styles = StyleSheet.create({
     root: {
         borderBottomWidth: '1px',
         borderColor: 'gray',
+        width: '100%',
+        maxWidth: 640,
+        paddingTop: 10
     },
     messageName: {
       fontSize: 12,
@@ -131,5 +108,13 @@ const Styles = StyleSheet.create({
     signalName: {
       fontSize: 16,
       margin: 0
+    },
+    unplot: {
+      cursor: 'pointer',
+      fontSize: 14,
+      color: 'rgba(0,0,0,0.5)'
+    },
+    pointer: {
+      cursor: 'pointer'
     }
 });

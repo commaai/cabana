@@ -1,6 +1,10 @@
-const Uint64BE = require('int64-buffer').Uint64BE
 const UINT64 = require('cuint').UINT64
+
+import Bitarray from '../bitarray';
+
 import Signal from './signal';
+import Frame from './frame';
+import DbcUtils from '../../utils/dbc';
 
 const BO_RE = /^BO\_ (\w+) (\w+) *: (\w+) (\w+)/
 // normal signal
@@ -30,14 +34,39 @@ export function swapOrder(arr, wordSize, gSize) {
 }
 
 export default class DBC {
+
     constructor(dbcString) {
+        this.dbcText = dbcString;
         this.importDbcString(dbcString);
-        this.bits = [];
-        for(let i = 0; i < 64; i += 8) {
-            for(let j = 7; j > -1; j--) {
-                this.bits.push(i + j);
-            }
+    }
+
+    nextNewFrameName() {
+        const messageNames = [];
+
+        for(let msg of this.messages.values()) {
+            messageNames.push(msg.name);
         }
+
+        let msgNum = 1, msgName;
+        do {
+            msgName = 'NEW_MSG_' + msgNum;
+            msgNum++;
+        } while(messageNames.indexOf(msgName) !== -1);
+
+        return msgName;
+    }
+
+    text() {
+        // Strips non-message/signal lines from dbcText,
+        // then appends parsed messages to bottom.
+        // When fully spec compliant DBC parser is written,
+        // this functionality will be removed.
+        const parts = [];
+        for(let [msgId, frame] of this.messages.entries()) {
+            parts.push(frame.text());
+        }
+
+        return parts.join("\n");
     }
 
     getMessageName(msgId) {
@@ -46,28 +75,50 @@ export default class DBC {
         return null;
     }
 
-    getSignalSpecs(msgId) {
+    getSignals(msgId) {
         const msg = this.messages.get(msgId);
         if(msg) return msg.signals;
         return null;
     }
 
+    setSignals(msgId, signals) {
+        const msg = this.messages.get(msgId);
+        if(msg) {
+            msg.signals = signals;
+            this.messages.set(msgId, msg);
+        } else {
+            const msg = new Frame({name: this.nextNewFrameName(),
+                                   id: msgId,
+                                   size: 8});
+            msg.signals = signals;
+            this.messages.set(msgId, msg);
+        }
+    }
+
+    addSignal(msgId, signal) {
+        const msg = this.messages.get(msgId);
+        if(msg) {
+            msg.signals.push(signal);
+        }
+    }
+
     importDbcString(dbcString) {
         const messages = new Map();
-        let ids = 0;
+        let id = 0;
 
         dbcString.split('\n').forEach((line, idx) => {
             line = line.trim();
+
             if(line.indexOf("BO_") === 0) {
                 let matches = line.match(BO_RE)
                 if (matches === null) {
                     console.log('Bad BO', line)
                     return
                 }
-                let [idString, name, size] = matches.slice(1);
-                ids = parseInt(idString, 0); // 0 radix parses hex or dec
-
-                messages.set(ids, {name, size, signals: {}});
+                let [idString, name, size, transmitter] = matches.slice(1);
+                id = parseInt(idString, 0); // 0 radix parses hex or dec
+                const frame = new Frame({name, id, size, transmitter})
+                messages.set(id, frame);
 
             } else if(line.indexOf("SG_") === 0) {
                 let matches = line.match(SG_RE);
@@ -84,7 +135,7 @@ export default class DBC {
                 }
 
                 let [name, startBit, size, isLittleEndian, isSigned,
-                       factor, offset, min, max, unit] = matches;
+                       factor, offset, min, max, unit, receiverStr] = matches;
                 startBit = parseInt(startBit);
                 size = parseInt(size);
                 isLittleEndian = parseInt(isLittleEndian) === 1
@@ -93,19 +144,21 @@ export default class DBC {
                 offset = floatOrInt(offset);
                 min = floatOrInt(min);
                 max = floatOrInt(max);
+                const receiver = receiverStr.split(",");
 
                 const signalProperties= {name, startBit, size, isLittleEndian,
-                                         isSigned, factor, offset, unit, min, max};
+                                         isSigned, factor, offset, unit, min, max,
+                                         receiver};
                 const signal = new Signal(signalProperties);
 
-                messages.get(ids).signals[name] = signal;
+                messages.get(id).signals[name] = signal;
             }
         });
 
         this.messages = messages;
     }
 
-    valueForSignal(signalSpec, hexData) {
+    valueForInt64Signal(signalSpec, hexData) {
         const blen = hexData.length * 4;
         let value, startBit, dataBitPos;
 
@@ -117,11 +170,9 @@ export default class DBC {
             // big endian
             value = UINT64(hexData, 16);
 
-            startBit = this.bits.indexOf(signalSpec.startBit);
+            startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
             dataBitPos = UINT64(blen - (startBit + signalSpec.size));
         }
-        // console.log('startBit', startBit)
-        // console.log('dataBitPos', dataBitPos)
         if(dataBitPos < 0) {
             return null;
         }
@@ -136,19 +187,50 @@ export default class DBC {
         return ival;
     }
 
+    valueForInt32Signal(signalSpec, bits, bitsSwapped) {
+        let value, startBit, dataBitPos, bitArr;
+
+        if (signalSpec.isLittleEndian) {
+            bitArr = bitsSwapped;
+            startBit = signalSpec.startBit;
+        } else {
+            bitArr = bits;
+            startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
+        }
+        let ival = Bitarray.extract(bitArr, startBit, signalSpec.size);
+
+        if(signalSpec.isSigned && (ival & (1<<(signalSpec.size - 1)))) {
+            ival -= 1<<signalSpec.size
+        }
+        ival = (ival * signalSpec.factor) + signalSpec.offset;
+        return ival;
+    }
+
     getSignalValues(messageId, data) {
-        const hexData = Buffer.from(data).toString('hex');
+        const buffer = Buffer.from(data);
+
+        const hexData = buffer.toString('hex');
+        const bufferSwapped = Buffer.from(buffer).swap64();
+
+        const bits = Bitarray.fromBytes(data);
+        const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
+
         if(!this.messages.has(messageId)) {
-            return [];
+            return {};
         }
         const {signals} = this.messages.get(messageId);
 
         const signalValuesByName = {};
         Object.values(signals).forEach((signalSpec) => {
-            signalValuesByName[signalSpec.name] = this.valueForSignal(signalSpec, hexData);
+            let value;
+            if(signalSpec.size > 32) {
+                value = this.valueForInt64Signal(signalSpec, hexData);
+            } else {
+                value = this.valueForInt32Signal(signalSpec, bits, bitsSwapped);
+            }
+            signalValuesByName[signalSpec.name] = value;
         });
 
         return signalValuesByName;
     }
-
 }

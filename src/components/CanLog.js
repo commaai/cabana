@@ -5,14 +5,19 @@ import Measure from 'react-measure';
 
 import { StyleSheet, css } from 'aphrodite/no-important';
 import { formatMsgDec, formatMsgHex } from '../models/can-msg-fmt';
+import { elementWiseEquals } from '../utils/array';
 
 export default class CanLog extends Component {
     static ITEMS_PER_PAGE = 50;
 
     static propTypes = {
       plottedSignals: PropTypes.array,
+      segmentIndices: PropTypes.array,
       onSignalUnplotPressed: PropTypes.func,
-      onSignalPlotPressed: PropTypes.func
+      onSignalPlotPressed: PropTypes.func,
+      message: PropTypes.object,
+      showAddSignal: PropTypes.func,
+      messageIndex: PropTypes.number
     };
 
     constructor(props) {
@@ -21,9 +26,8 @@ export default class CanLog extends Component {
       // offset, length
 
       this.state = {
-        offset: 0,
         length: 0,
-        msgDisplayFormat: 'name',
+        msgDisplayFormat: props.message && props.message.name ? 'name' : 'hex',
         expandedMessages: [],
         messageHeights: []
       }
@@ -36,23 +40,40 @@ export default class CanLog extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-      if(nextProps.data) {
+      if(nextProps.message && !this.props.message) {
         this.addDisplayedMessages();
       }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+      const curMessageLength = this.props.message ? this.props.message.entries.length : 0;
+      const nextMessageLength = nextProps.message ? nextProps.message.entries.length : 0;
+
+      return nextMessageLength != curMessageLength
+        || nextProps.plottedSignals.length != this.props.plottedSignals.length
+        || JSON.stringify(nextProps.segmentIndices) != JSON.stringify(this.props.segmentIndices)
+        || JSON.stringify(nextState) != JSON.stringify(this.state)
+        || (this.props.message !== undefined
+            && nextProps.message !== undefined
+            && this.props.message.signals
+            && nextProps.message.signals
+            && !elementWiseEquals(
+                Object.keys(this.props.message.signals),
+                Object.keys(nextProps.message.signals)));
     }
 
     addDisplayedMessages() {
       const {length, messageHeights} = this.state;
       const newLength = length + CanLog.ITEMS_PER_PAGE;
       for(let i = length; i < newLength; i++) {
-        messageHeights.push(Styles.dataRow.height);
+        messageHeights.push(Styles.messageRow.height);
       }
 
       this.setState({length: newLength, messageHeights});
     }
 
     onChoicePress(fmt) {
-      this.setState({msgDisplayFormat: fmt})
+      this.setState({msgDisplayFormat: fmt});
     }
 
     expandMessage(msg, msgIdx) {
@@ -79,30 +100,25 @@ export default class CanLog extends Component {
               <table>
                 <tbody>
                   {Object.entries(msg.signals).map(([name, value]) => {
-                    return [name, value, this.isSignalPlotted(this.props.data.id, name)]
-                  }).sort(([name1, value1, isPlotted1], [name2, value2, isPlotted2]) => {
-                    // Display plotted signals first
-                    if(isPlotted1 && !isPlotted2) {
-                      return -1;
-                    } else if(isPlotted1 && isPlotted2) {
-                      return 0;
-                    } else {
-                      return 1;
-                    }
+                    return [name, value, this.isSignalPlotted(this.props.message.id, name)]
                   }).map(([name, value, isPlotted]) => {
-                    const {unit} = this.props.data.signalSpecs[name];
+                    const {unit} = this.props.message.signals[name];
                     return (<tr key={name}>
                               <td>{name}</td>
                               <td>{value} {unit}</td>
                               {isPlotted ?
-                                <td className={css(Styles.plotSignal)}
-                                    onClick={() => {this.props.onSignalUnplotPressed(this.props.data.id, name)}}>[unplot]</td>
+                                <td className={css(Styles.pointerUnderlineHover)}
+                                    onClick={() => {this.props.onSignalUnplotPressed(this.props.message.id, name)}}>[unplot]</td>
                                 :
-                                <td className={css(Styles.plotSignal)}
-                                    onClick={() => {this.props.onSignalPlotPressed(this.props.data.id, name)}}>[plot]</td>
+                                <td className={css(Styles.pointerUnderlineHover)}
+                                    onClick={() => {this.props.onSignalPlotPressed(this.props.message.id, name)}}>[plot]</td>
                               }
                             </tr>);
                   })}
+                  <tr>
+                    <td onClick={this.props.showAddSignal}
+                        className={css(Styles.pointerUnderlineHover)}>Edit Signals</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -115,10 +131,12 @@ export default class CanLog extends Component {
     }
 
     messageRow(msg, key) {
+      const {msgDisplayFormat} = this.state;
       const msgIsExpanded = this.isMessageExpanded(msg);
+      let messageStyle = msgDisplayFormat === 'hex' ? Styles.hex : null;
 
       const row = [<div key={key}
-                        className={css(Styles.dataRow, Styles.row)}
+                        className={css(Styles.messageRow, Styles.row)}
                         onClick={() => {
                          if(msgIsExpanded) {
                            this.collapseMessage(msg);
@@ -129,8 +147,14 @@ export default class CanLog extends Component {
                           {msgIsExpanded ? <div className={css(Styles.col)}>&uarr;</div>
                           :
                           <div className={css(Styles.col)}>&darr;</div>}
-                    <div className={css(Styles.col, Styles.timefieldCol)}>{msg.time}</div>
-                    <div className={css(Styles.col, Styles.dataCol)}>{this.state.msgDisplayFormat == 'name' ? this.props.data.name : msg.hexData}</div>
+                    <div className={css(Styles.col, Styles.timefieldCol)}>
+                      {msg.relTime}
+                    </div>
+                    <div className={css(Styles.col,
+                                        Styles.messageCol,
+                                        messageStyle)}>
+                      {msgDisplayFormat == 'name' ? this.props.message.name : msg.hexData}
+                    </div>
                   </div>];
 
       if(msgIsExpanded) {
@@ -141,7 +165,12 @@ export default class CanLog extends Component {
     }
 
     renderMessage(index, key) {
-      return this.messageRow(this.props.data.entries[this.state.offset + index], key);
+      let offset = this.props.messageIndex;
+      if(offset === 0 && this.props.segmentIndices.length === 2) {
+        offset = this.props.segmentIndices[0];
+      }
+
+      return this.messageRow(this.props.message.entries[offset + index], key);
     }
 
     renderTable(items, ref) {
@@ -149,7 +178,7 @@ export default class CanLog extends Component {
                 <div className={css(Styles.row)}>
                   <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
                   <div className={css(Styles.col, Styles.timefieldCol)}>Time</div>
-                  <div className={css(Styles.dataCol)}>
+                  <div className={css(Styles.messageCol)}>
                     Message
                      (<span className={css(Styles.messageFormatChoice,
                                           (this.state.msgDisplayFormat == 'name' ? Styles.messageFormatChoiceSelected
@@ -169,13 +198,30 @@ export default class CanLog extends Component {
               </div>)
     }
 
+    listLength() {
+      const {segmentIndices, messageIndex} = this.props;
+      if(messageIndex > 0) {
+        return this.props.message.entries.length - messageIndex;
+      } else if(segmentIndices.length == 2) {
+        return segmentIndices[1] - segmentIndices[0];
+      } else if(this.props.message) {
+        return this.props.message.entries.length;
+      } else {
+        // no message yet
+        return 0;
+      }
+    }
+
     render() {
-        return  <ReactList
+      return  <div>
+                  <ReactList
                   itemRenderer={this.renderMessage}
                   itemsRenderer={this.renderTable}
-                  length={this.props.data ? this.props.data.entries.length : 0}
+                  length={this.listLength()}
                   pageSize={50}
-                  type='variable' />;
+                  updateWhenThisValueChanges={this.props.messageIndex}
+                  type='variable' />
+              </div>;
     }
 }
 
@@ -192,7 +238,7 @@ const Styles = StyleSheet.create({
       width: 'auto',
       clear: 'both',
     },
-    dataRow: {
+    messageRow: {
       cursor: 'pointer',
     },
     tableRowGroup: {
@@ -212,7 +258,7 @@ const Styles = StyleSheet.create({
     timefieldCol: {
 
     },
-    dataCol: {
+    messageCol: {
 
     },
     messageFormatHeader: {
@@ -227,10 +273,13 @@ const Styles = StyleSheet.create({
     messageFormatChoiceUnselected: {
       color: 'gray'
     },
-    plotSignal: {
+    pointerUnderlineHover: {
       cursor: 'pointer',
       ':hover': {
         textDecoration: 'underline'
       }
+    },
+    hex: {
+      fontFamily: 'monospace'
     }
 });

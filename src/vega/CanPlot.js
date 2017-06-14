@@ -5,7 +5,6 @@ export default createClassFromSpec('CanPlot', {
   "width": 500,
   "height": 200,
   "padding": 5,
-
   "signals": [
     {
       "name": "tipTime",
@@ -14,6 +13,13 @@ export default createClassFromSpec('CanPlot', {
         "update": "invert('xscale', x())"
       }]
     },
+    {"name": "clickTime",
+     "on": [{
+        "events": "mouseup",
+        "update": "invert('xscale', x())"
+     }]
+    },
+    {"name": "videoTime"},
     {"name": "segment", "value": {"data": "table", "field": "x"}}
   ],
   "data": [
@@ -43,8 +49,9 @@ export default createClassFromSpec('CanPlot', {
       "name": "xscale",
       "type": "linear",
       "range": "width",
-      "zero": false,
       "domain": {"data": "table", "field": "x"},
+      "zero": false,
+      "clamp": true,
       "domainRaw": {"signal": "segment"}
     },
     {
@@ -73,6 +80,34 @@ export default createClassFromSpec('CanPlot', {
         },
         "hover": {
           "fillOpacity": {"value": 0.5}
+        },
+        "enter": {
+          "clip": {"value": true}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "update": {
+          "y": {"value": 0},
+          "y2": {"field": {"group": "height"}},
+          "stroke": {"value": "#000"},
+          "strokeWidth": {"value": 2},
+          "x": {"value": 2460}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "encode": {
+        "update": {
+          "y": {"value": 0},
+          "y2": {"field": {"group": "height"}},
+          "stroke": {"value": "#000"},
+          "strokeWidth": {"value": 2},
+          "x": {"scale": "xscale",
+                "signal": "videoTime", "offset": 0.5}
         }
       }
     },

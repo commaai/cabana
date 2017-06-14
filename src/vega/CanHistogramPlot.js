@@ -13,28 +13,7 @@ const canHistogramSpec = {
   ],
   "data": [
     {
-      "name": "points"
-    },
-    {
-      "name": "binned",
-      "source": "points",
-      "transform": [
-        {
-            "type": "extent",
-            "field": "time",
-            "signal": "extent"
-        },
-        {
-          "type": "bin", "field": "time",
-          "extent": {"signal": "extent"},
-          "nice": false
-        },
-        {
-          "type": "aggregate",
-          "key": "bin0", "groupby": ["bin0", "bin1"],
-          "fields": ["bin0"], "ops": ["count"], "as": ["count"]
-        }
-      ]
+      "name": "binned"
     }
   ],
 
@@ -44,7 +23,14 @@ const canHistogramSpec = {
       "type": "linear",
       "zero": false,
       "range": "width",
-      "domain": {"data": "points", "field": "time"}
+      "domain": {"data": "binned", "field": "startTime"}
+    },
+    {
+      "name": "xrelscale",
+      "type": "linear",
+      "zero": false,
+      "range": "width",
+      "domain": {"data": "binned", "field": "relStartTime"}
     },
     {
       "name": "yscale",
@@ -56,13 +42,14 @@ const canHistogramSpec = {
   ],
 
   "axes": [
-    {"orient": "bottom", "scale": "xscale", "zindex": 1},
+    {"orient": "bottom", "scale": "xrelscale", "zindex": 1, "tickCount": 10},
     {"orient": "left", "scale": "yscale", "tickCount": 5, "zindex": 1}
   ],
 
   "marks": [
     {"type": "group",
      "name": "histogram",
+     "interactive": true,
      "encode": {
       "enter": {
         "height": {"value": 75},
@@ -75,11 +62,11 @@ const canHistogramSpec = {
           "name": "brush", "value": 0,
           "on": [
             {
-              "events": "@histogram:mousedown",
+              "events": "@bins:mousedown",
               "update": "[x(), x()]"
             },
             {
-              "events": "[@histogram:mousedown, window:mouseup] > window:mousemove!",
+              "events": "[@bins:mousedown, window:mouseup] > window:mousemove!",
               "update": "[brush[0], clamp(x(), 0, width)]"
             },
             {
@@ -119,35 +106,27 @@ const canHistogramSpec = {
      "marks": [
        {
           "type": "rect",
+          "interactive": true,
           "from": {"data": "binned"},
-          "interactive": false,
+          "name": "bins",
           "encode": {
             "update": {
-              "x": {"scale": "xscale", "field": "bin0"},
-              "x2": {"scale": "xscale", "field": "bin1",
+              "x": {"scale": "xscale", "field": "startTime"},
+              "x2": {"scale": "xscale", "field": "endTime",
                      "offset": 0},
               "y": {"scale": "yscale", "field": "count"},
               "y2": {"scale": "yscale", "value": 0},
               "fill": {"value": "steelblue"}
+            },
+            "hover": {
+              "fill": {"value": "goldenrod"},
+              "cursor": {"value": "ew-resize"}
             }
           }
         },
         {
           "type": "rect",
-          "from": {"data": "points"},
-          "encode": {
-            "enter": {
-              "x": {"scale": "xscale", "field": "time"},
-              "width": {"value": 1},
-              "y": {"value": 25, "offset": {"signal": "height"}},
-              "height": {"value": 5},
-              "fill": {"value": "steelblue"},
-              "fillOpacity": {"value": 0.4}
-            }
-          }
-        },
-        {
-          "type": "rect",
+          "interactive": true,
           "name": "brush",
           "encode": {
             "enter": {
