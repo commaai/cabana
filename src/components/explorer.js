@@ -68,6 +68,7 @@ export default class Explorer extends Component {
 
         return samples.map((entry) => {
             return {x: entry.time,
+                    xRel: entry.time - this.props.firstCanTime,
                     y: entry.signals[signalName],
                     unit: msg.signals[signalName].unit}
         });
@@ -134,9 +135,11 @@ export default class Explorer extends Component {
     }
 
     onGraphTimeClick(time) {
+        const canTime = time + this.props.firstCanTime;
+
         const {segmentIndices} = this.state;
         const {entries} = this.props.messages[this.props.selectedMessage];
-        const userSeekIndex = Entries.findTimeIndex(entries, time);
+        const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
         this.setState({userSeekIndex, playing: true});
     }
@@ -189,6 +192,15 @@ export default class Explorer extends Component {
         const {userSeekIndex} = this.state;
         const msg = this.props.messages[this.props.selectedMessage];
         return msg.entries[userSeekIndex].time;
+    }
+
+    relativeSegment() {
+        const {segment} = this.state;
+        if(segment.length === 2) {
+            return [segment[0] - this.props.firstCanTime,
+                    segment[1] - this.props.firstCanTime];
+        }
+        return [];
     }
 
     render() {
@@ -249,10 +261,10 @@ export default class Explorer extends Component {
                                                  unplot={() => {this.onSignalUnplotPressed(messageId, name)}}
                                                  messageName={msg.name}
                                                  signalSpec={msg.signals[name]}
-                                                 segment={this.state.segment}
+                                                 segment={this.relativeSegment()}
                                                  data={this.graphData(msg, name)}
-                                                 onTimeClick={this.onGraphTimeClick}
-                                                 currentTime={this.state.seekTime} />;
+                                                 onRelativeTimeClick={this.onGraphTimeClick}
+                                                 currentTime={this.state.seekTime - this.props.firstCanTime} />;
                             })}
                         </div>
                     </div>

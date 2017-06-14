@@ -76,17 +76,15 @@ export default class NearestFrame extends Component {
         return (<div className={css(Styles.loadingOverlay)}>
                     <img className={css(Styles.loadingSpinner)}
                          src="/img/loading.svg"
-                        />}
+                        />
                 </div>);
     }
 
     onLoadStart() {
-        console.log('onLoadStart')
         this.setState({isLoading: true});
     }
 
     onLoadEnd() {
-        console.log('onLoadEnd')
         this.setState({isLoading: false});
     }
 

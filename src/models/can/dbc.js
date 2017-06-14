@@ -34,7 +34,6 @@ export function swapOrder(arr, wordSize, gSize) {
 }
 
 export default class DBC {
-
     constructor(dbcString) {
         this.dbcText = dbcString;
         this.importDbcString(dbcString);

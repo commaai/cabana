@@ -10,17 +10,17 @@ export default createClassFromSpec('CanPlot', {
       "name": "tipTime",
       "on": [{
         "events": "mousemove",
-        "update": "invert('xscale', x())"
+        "update": "invert('xrelscale', x())"
       }]
     },
     {"name": "clickTime",
      "on": [{
         "events": "mouseup",
-        "update": "invert('xscale', x())"
+        "update": "invert('xrelscale', x())"
      }]
     },
     {"name": "videoTime"},
-    {"name": "segment", "value": {"data": "table", "field": "x"}}
+    {"name": "segment", "value": {"data": "table", "field": "xRel"}}
   ],
   "data": [
     {
@@ -32,24 +32,30 @@ export default createClassFromSpec('CanPlot', {
       "transform": [
         {
           "type": "filter",
-          "expr": "abs(datum.x - tipTime) <= 0.1"
+          "expr": "abs(datum.xRel - tipTime) <= 0.1"
         },
         {
           "type": "aggregate",
-          "fields": ["x", "y", "unit"],
+          "fields": ["xRel", "y", "unit"],
           "ops": ["min", "argmin", "argmin"],
           "as": ["min", "argmin", "argmin"]
         }
       ]
     }
   ],
-
   "scales": [
     {
       "name": "xscale",
       "type": "linear",
       "range": "width",
       "domain": {"data": "table", "field": "x"},
+      "zero": false
+    },
+    {
+      "name": "xrelscale",
+      "type": "linear",
+      "range": "width",
+      "domain": {"data": "table", "field": "xRel"},
       "zero": false,
       "clamp": true,
       "domainRaw": {"signal": "segment"}
@@ -62,12 +68,10 @@ export default createClassFromSpec('CanPlot', {
       "domain": {"data": "table", "field": "y"}
     }
   ],
-
   "axes": [
-    {"orient": "bottom", "scale": "xscale"},
+    {"orient": "bottom", "scale": "xrelscale"},
     {"orient": "left", "scale": "yscale"}
   ],
-
   "marks": [
     {
       "type": "line",
@@ -75,7 +79,7 @@ export default createClassFromSpec('CanPlot', {
       "interactive": true,
       "encode": {
         "update": {
-          "x": {"scale": "xscale", "field": "x"},
+          "x": {"scale": "xrelscale", "field": "xRel"},
           "y": {"scale": "yscale", "field": "y"}
         },
         "hover": {
@@ -94,19 +98,7 @@ export default createClassFromSpec('CanPlot', {
           "y2": {"field": {"group": "height"}},
           "stroke": {"value": "#000"},
           "strokeWidth": {"value": 2},
-          "x": {"value": 2460}
-        }
-      }
-    },
-    {
-      "type": "rule",
-      "encode": {
-        "update": {
-          "y": {"value": 0},
-          "y2": {"field": {"group": "height"}},
-          "stroke": {"value": "#000"},
-          "strokeWidth": {"value": 2},
-          "x": {"scale": "xscale",
+          "x": {"scale": "xrelscale",
                 "signal": "videoTime", "offset": 0.5}
         }
       }
@@ -116,7 +108,7 @@ export default createClassFromSpec('CanPlot', {
       "from": {"data": "tooltip"},
       "encode": {
         "update": {
-          "x": {"scale": "xscale", "field": "argmin.x"},
+          "x": {"scale": "xrelscale", "field": "argmin.xRel"},
           "y": {"scale": "yscale", "field": "argmin.y"},
           "size": {"value": 50},
           "fill": {"value": "black"}
@@ -129,7 +121,7 @@ export default createClassFromSpec('CanPlot', {
       "interactive": false,
       "encode": {
         "update": {
-          "x": {"scale": "xscale", "field": "argmin.x"},
+          "x": {"scale": "xrelscale", "field": "argmin.xRel"},
           "y": {"scale": "yscale", "field": "argmin.y"},
           "height": {"value": 20},
           "width": {"value": 150},
@@ -145,7 +137,7 @@ export default createClassFromSpec('CanPlot', {
           "interactive": false,
           "encode": {
             "update": {
-              "text": {"signal": "parent.argmin.x + ': ' + parent.argmin.y + ' ' + parent.argmin.unit"},
+              "text": {"signal": "parent.argmin.xRel + ': ' + parent.argmin.y + ' ' + parent.argmin.unit"},
               "fill": {"value": "black"},
               "fontWeight": {"value": "bold"}
             }

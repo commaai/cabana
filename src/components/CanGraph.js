@@ -15,7 +15,7 @@ export default class CanGraph extends Component {
     signalSpec: PropTypes.instanceOf(Signal),
     segment: PropTypes.array,
     unplot: PropTypes.func,
-    onTimeClick: PropTypes.func,
+    onRelativeTimeClick: PropTypes.func,
     currentTime: PropTypes.number
   };
 
@@ -41,7 +41,7 @@ export default class CanGraph extends Component {
           this.view.signal('segment', nextProps.segment)
         } else {
           // Reset segment to full domain
-          const xVals = this.props.data.map((d) => d.x);
+          const xVals = this.props.data.map((d) => d.xRel);
           const min = Math.min.apply(null, xVals);
           const max = Math.max.apply(null, xVals);
           this.view.signal('segment', [min, max]);
@@ -71,7 +71,7 @@ export default class CanGraph extends Component {
 
   onSignalClickTime(signal, clickTime) {
     if(clickTime !== undefined) {
-      this.props.onTimeClick(clickTime);
+      this.props.onRelativeTimeClick(clickTime);
     }
   }
 
