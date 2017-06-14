@@ -9,6 +9,6 @@ ReactDOM.render(
   <CanExplorer
      dbc={AcuraDbc}
      dongleId={"2d7526b1faf1a2ca"}
-     name={"2017-05-22--23-13-46"} />,
+     name={"2017-04-02--08-11-11"} />,
   document.getElementById('root')
 );

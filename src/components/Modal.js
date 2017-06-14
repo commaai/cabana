@@ -59,8 +59,10 @@ const Styles = StyleSheet.create({
       translate: 'translate(-50%, 0)',
       zIndex: 10,
       backgroundColor: 'white',
-      borderRadius: '3px',
-      border: '1px solid #000'
+      borderRadius: '4px',
+      border: '1px solid #000',
+      boxShadow: '1px 1px 1px #000',
+      padding: 20
   },
   finishButton: {
     borderRadius: 5,

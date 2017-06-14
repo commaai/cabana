@@ -140,6 +140,7 @@ const Styles = StyleSheet.create({
     root: {
         padding: 10,
         flex: 1,
+        maxWidth: 420,
         borderColor: 'gray',
         borderRight: 'solid',
         borderRightWidth: 2,
@@ -161,7 +162,8 @@ const Styles = StyleSheet.create({
         ':hover' : {
             backgroundColor: 'rgba(0,0,0,0.1)'
         },
-        marginTop: 5
+        marginTop: 5,
+        fontSize: 14
     },
     messageList: {
         margin: 0,
