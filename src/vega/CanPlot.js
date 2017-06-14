@@ -137,9 +137,10 @@ export default createClassFromSpec('CanPlot', {
           "interactive": false,
           "encode": {
             "update": {
-              "text": {"signal": "parent.argmin.xRel + ': ' + parent.argmin.y + ' ' + parent.argmin.unit"},
+              "text": {"signal": "format(parent.argmin.xRel, ',.2f') + ': ' + format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit"},
               "fill": {"value": "black"},
-              "fontWeight": {"value": "bold"}
+              "fontWeight": {"value": "bold"},
+              "y": {"value": 20}
             }
           }
         }

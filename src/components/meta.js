@@ -94,6 +94,7 @@ export default class Meta extends Component {
                 <div>
                     <p className={css(Styles.loadDbc)}
                        onClick={this.props.showLoadDbc}>Load DBC</p>
+                        &nbsp;/&nbsp;
                     <p className={css(Styles.loadDbc)}
                        onClick={this.props.showSaveDbc}>Save DBC</p>
                     {this.props.dbcLastSaved !== null ?
@@ -183,6 +184,7 @@ const Styles = StyleSheet.create({
         cursor: 'pointer',
         ':hover': {
             textDecoration: 'underline'
-        }
+        },
+        display: 'inline'
     }
 });

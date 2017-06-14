@@ -32,8 +32,21 @@ export default class HLS extends Component {
     this.player = new Hls();
     this.player.loadSource(this.props.source);
     this.player.attachMedia(this.videoElement);
+    // these events fire when video is playing
     this.videoElement.addEventListener('waiting', this.props.onLoadStart);
     this.videoElement.addEventListener('playing', this.props.onLoadEnd);
+
+    // these events fire when video is paused & seeked
+    this.videoElement.addEventListener('seeking', () => {
+      if(!this.props.playing) {
+        this.props.onLoadStart();
+      }
+    });
+    this.videoElement.addEventListener('seeked', () => {
+      if(!this.props.playing) {
+        this.props.onLoadEnd();
+      }
+    });
 
     this.props.onVideoElementAvailable(this.videoElement);
   }

@@ -9,7 +9,7 @@ import Video from '../api/video';
 
 export default class NearestFrame extends Component {
     static propTypes = {
-        messageIndex: PropTypes.number.isRequired,
+        userSeekIndex: PropTypes.number.isRequired,
         message: PropTypes.object.isRequired,
         canFrameOffset: PropTypes.number.isRequired,
         url: PropTypes.string.isRequired,
@@ -20,7 +20,6 @@ export default class NearestFrame extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            lastUpdatedIndex: Moment(),
             isLoading: false
         };
 
@@ -28,42 +27,17 @@ export default class NearestFrame extends Component {
         this.onLoadEnd = this.onLoadEnd.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        const now = Moment();
-
-        if(this.props.playing
-            && nextProps.messageIndex != this.props.messageIndex
-            && now.diff(this.state.lastUpdatedIndex) > 500) {
-            this.setState({lastUpdatedIndex: Moment()})
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        const now = Moment();
-        if(nextState.isLoading != this.state.isLoading) {
-            return true;
-        }
-
-        if(this.props.playing != nextProps.playing) {
-            return true;
-        } else if(this.props.playing) {
-            // only update every 500ms if we are receiving
-            // messageindex updates
-            return (nextProps.messageIndex != this.props.messageIndex
-                    && now.diff(this.state.lastUpdatedIndex) > 500);
-
-        } else {
-            return true;
-        }
-    }
-
     nearestFrameTime() {
-        const {messageIndex, message, canFrameOffset} = this.props;
+        const {userSeekIndex, message, canFrameOffset} = this.props;
+        const firstEntry = message.entries[0], curEntry = message.entries[userSeekIndex];
+        if(firstEntry !== undefined && curEntry !== undefined) {
+            const firstMsgTime = message.entries[0].time;
+            const curMsgTime = message.entries[userSeekIndex].time;
 
-        const firstMsgTime = message.entries[0].time;
-        const curMsgTime = message.entries[messageIndex].time;
-
-        return canFrameOffset + (curMsgTime - firstMsgTime);
+            return canFrameOffset + (curMsgTime - firstMsgTime);
+        } else {
+            return 0;
+        }
     }
 
     nearestFrameUrl() {

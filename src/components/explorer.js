@@ -141,7 +141,7 @@ export default class Explorer extends Component {
         const {entries} = this.props.messages[this.props.selectedMessage];
         const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
-        this.setState({userSeekIndex, playing: true});
+        this.setState({userSeekIndex});
     }
 
     onVideoElementAvailable(videoElement) {
@@ -246,7 +246,7 @@ export default class Explorer extends Component {
                         <div className={css(Styles.right)}>
                             {this.props.messages[this.props.selectedMessage] !== undefined ?
                                 <NearestFrame message={this.props.messages[this.props.selectedMessage]}
-                                              messageIndex={this.state.userSeekIndex}
+                                              userSeekIndex={this.state.userSeekIndex}
                                               playing={this.state.playing}
                                               url={this.props.url}
                                               canFrameOffset={this.props.canFrameOffset}
