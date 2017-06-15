@@ -2,22 +2,29 @@ function findTimeIndex(entries, time) {
     return entries.findIndex((e) => e.time >= time);
 }
 
-function findSegmentIndices(entries, [segmentTimeLow, segmentTimeHi]) {
+function findRelativeTimeIndex(entries, relTime) {
+   return entries.findIndex((e) => e.relTime >= relTime);
+}
+
+function findSegmentIndices(entries, [segmentTimeLow, segmentTimeHi], isRelative) {
     /*
     Finds pair of indices (inclusive, exclusive) within entries array
     whose timestamps match segmentTimeLow and segmentTimeHi.
+    if isRelative === true, then the segment times
+    are assumed to correspond to the `relTime` field of each entry.
 
     Returns `[segmentIdxLow, segmentIdxHigh]`
-            (inclusive, exclusive)
+             (inclusive, exclusive)
     */
+    let timeIndexFunc = (isRelative === true ? findRelativeTimeIndex : findTimeIndex);
 
-    const segmentIdxLow = findTimeIndex(entries, segmentTimeLow);
+    const segmentIdxLow = timeIndexFunc(entries, segmentTimeLow);
 
     const upperSegments = entries.slice(segmentIdxLow);
-    let upperSegmentIdxHi = findTimeIndex(upperSegments, segmentTimeHi);
+    let upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
     const segmentIdxHi = (upperSegmentIdxHi >= 0 ? upperSegmentIdxHi + segmentIdxLow + 1 : entries.length - 1)
 
     return [segmentIdxLow, Math.min(segmentIdxHi, entries.length - 1)]
 }
 
-export default {findTimeIndex, findSegmentIndices};
+export default {findTimeIndex, findRelativeTimeIndex, findSegmentIndices};

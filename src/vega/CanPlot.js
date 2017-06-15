@@ -73,78 +73,183 @@ export default createClassFromSpec('CanPlot', {
     {"orient": "left", "scale": "yscale"}
   ],
   "marks": [
-    {
-      "type": "line",
-      "from": {"data": "table"},
-      "interactive": true,
-      "encode": {
-        "update": {
-          "x": {"scale": "xrelscale", "field": "xRel"},
-          "y": {"scale": "yscale", "field": "y"}
-        },
-        "hover": {
-          "fillOpacity": {"value": 0.5}
-        },
-        "enter": {
-          "clip": {"value": true}
-        }
+    {"type": "group",
+     "interactive": true,
+     "encode": {
+      "enter": {
+        "width": 500,
+        "height": 200,
+        "fill": {"value": "transparent"}
       }
-    },
-    {
-      "type": "rule",
-      "encode": {
-        "update": {
-          "y": {"value": 0},
-          "y2": {"field": {"group": "height"}},
-          "stroke": {"value": "#000"},
-          "strokeWidth": {"value": 2},
-          "x": {"scale": "xrelscale",
-                "signal": "videoTime", "offset": 0.5}
-        }
-      }
-    },
-    {
-      "type": "symbol",
-      "from": {"data": "tooltip"},
-      "encode": {
-        "update": {
-          "x": {"scale": "xrelscale", "field": "argmin.xRel"},
-          "y": {"scale": "yscale", "field": "argmin.y"},
-          "size": {"value": 50},
-          "fill": {"value": "black"}
-        }
-      }
-    },
-    {
-      "type": "group",
-      "from": {"data": "tooltip"},
-      "interactive": false,
-      "encode": {
-        "update": {
-          "x": {"scale": "xrelscale", "field": "argmin.xRel"},
-          "y": {"scale": "yscale", "field": "argmin.y"},
-          "height": {"value": 20},
-          "width": {"value": 150},
-          "fill": {"value": "#fff"},
-          "fillOpacity": {"value": 0.85},
-          "stroke": {"value": "#aaa"},
-          "strokeWidth": {"value": 0.5}
-        }
-      },
-      "marks": [
+     },
+     "signals": [
         {
-          "type": "text",
-          "interactive": false,
-          "encode": {
-            "update": {
-              "text": {"signal": "format(parent.argmin.xRel, ',.2f') + ': ' + format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit"},
-              "fill": {"value": "black"},
-              "fontWeight": {"value": "bold"},
-              "y": {"value": 20}
+          "name": "brush", "value": 0,
+          "on": [
+            {
+              "events": "@bins:mousedown",
+              "update": "[x(), x()]"
+            },
+            {
+              "events": "[@bins:mousedown, window:mouseup] > window:mousemove!",
+              "update": "[brush[0], clamp(x(), 0, width)]"
+            },
+            {
+              "events": {"signal": "delta"},
+              "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
             }
+          ]
+        },
+        {
+          "name": "anchor", "value": null,
+          "on": [{"events": "@brush:mousedown", "update": "slice(brush)"}]
+        },
+        {
+          "name": "xdown", "value": 0,
+          "on": [{"events": "@brush:mousedown", "update": "x()"}]
+        },
+        {
+          "name": "delta", "value": 0,
+          "on": [
+            {
+              "events": "[@brush:mousedown, window:mouseup] > window:mousemove!",
+              "update": "x() - xdown"
+            }
+          ]
+        },
+        {
+          "name": "segment",
+          "push": "outer",
+          "on": [
+            {
+              "events": {"signal": "brush"},
+              "update": "span(brush) ? invert('xrelscale', brush) : null"
+            }
+          ]
+        }
+     ],
+     "marks": [
+      {
+        "type": "line",
+        "from": {"data": "table"},
+        "interactive": true,
+        "encode": {
+          "update": {
+            "x": {"scale": "xrelscale", "field": "xRel"},
+            "y": {"scale": "yscale", "field": "y"}
+          },
+          "hover": {
+            "fillOpacity": {"value": 0.5}
+          },
+          "enter": {
+            "clip": {"value": true}
           }
         }
-      ]
+      },
+      {
+        "type": "rect",
+        "interactive": true,
+        "name": "brush",
+        "encode": {
+          "enter": {
+            "y": {"value": 0},
+            "height": {"value": 100},
+            "fill": {"value": "#333"},
+            "fillOpacity": {"value": 0.2}
+          },
+          "update": {
+            "x": {"signal": "brush[0]"},
+            "x2": {"signal": "brush[1]"}
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "interactive": false,
+        "encode": {
+          "enter": {
+            "y": {"value": 0},
+            "height": {"value": 100},
+            "width": {"value": 2},
+            "fill": {"value": "firebrick"}
+          },
+          "update": {
+            "x": {"signal": "brush[0]"}
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "interactive": false,
+        "encode": {
+          "enter": {
+            "y": {"value": 0},
+            "height": {"value": 100},
+            "width": {"value": 2},
+            "fill": {"value": "firebrick"}
+          },
+          "update": {
+            "x": {"signal": "brush[1]"}
+          }
+        }
+      },
+      {
+        "type": "rule",
+        "encode": {
+          "update": {
+            "y": {"value": 0},
+            "y2": {"field": {"group": "height"}},
+            "stroke": {"value": "#000"},
+            "strokeWidth": {"value": 2},
+            "x": {"scale": "xrelscale",
+                  "signal": "videoTime", "offset": 0.5}
+          }
+        }
+      },
+      {
+        "type": "symbol",
+        "from": {"data": "tooltip"},
+        "encode": {
+          "update": {
+            "x": {"scale": "xrelscale", "field": "argmin.xRel"},
+            "y": {"scale": "yscale", "field": "argmin.y"},
+            "size": {"value": 50},
+            "fill": {"value": "black"}
+          }
+        }
+      },
+      {
+        "type": "group",
+        "from": {"data": "tooltip"},
+        "interactive": false,
+        "encode": {
+          "update": {
+            "x": {"scale": "xrelscale", "field": "argmin.xRel"},
+            "y": {"scale": "yscale", "field": "argmin.y"},
+            "height": {"value": 20},
+            "width": {"value": 150},
+            "fill": {"value": "#fff"},
+            "fillOpacity": {"value": 0.85},
+            "stroke": {"value": "#aaa"},
+            "strokeWidth": {"value": 0.5}
+          }
+        },
+        "marks": [
+          {
+            "type": "text",
+            "interactive": false,
+            "encode": {
+              "update": {
+                "text": {"signal": "format(parent.argmin.xRel, ',.2f') + ': ' + format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit"},
+                "fill": {"value": "black"},
+                "fontWeight": {"value": "bold"},
+                "y": {"value": 20}
+              }
+            }
+          }
+        ]
+      }
+     ]
     }
   ]
 });

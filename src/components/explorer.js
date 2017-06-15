@@ -84,7 +84,7 @@ export default class Explorer extends Component {
 
     updateSegment = debounce((segment) => {
         const {entries} = this.props.messages[this.props.selectedMessage];
-        const segmentIndices = Entries.findSegmentIndices(entries, segment)
+        const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
         this.setState({segment, segmentIndices, userSeekIndex: segmentIndices[0]})
     }, 250);
@@ -209,12 +209,6 @@ export default class Explorer extends Component {
 
     render() {
         return (<div className={css(Styles.root)}>
-                    <CanHistogram
-                        message={this.props.messages[this.props.selectedMessage]}
-                        indices={this.state.segmentIndices}
-                        onSegmentChanged={this.onSegmentChanged}
-                        onResetClicked={this.resetSegment}
-                    />
                     <div className={css(Styles.dataContainer)}>
                         <div className={css(Styles.left)}>
                             {this.addSignalsHeader()}
@@ -259,6 +253,7 @@ export default class Explorer extends Component {
                                                  unplot={() => {this.onSignalUnplotPressed(messageId, name)}}
                                                  messageName={msg.name}
                                                  signalSpec={msg.signals[name]}
+                                                 onSegmentChanged={this.onSegmentChanged}
                                                  segment={this.relativeSegment()}
                                                  data={this.graphData(msg, name)}
                                                  onRelativeTimeClick={this.onGraphTimeClick}
