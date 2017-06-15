@@ -110,13 +110,11 @@ export default class RouteSeeker extends Component {
             if(videoElement === null) return;
 
             const {currentTime} = videoElement;
-            const newRatio = this.props.segmentProgress(currentTime);
+            let newRatio = this.props.segmentProgress(currentTime);
 
             if(newRatio >= 1) {
-                window.clearInterval(this.playTimer);
-                this.setState({ratio: 1})
-                this.onPause();
-                return;
+                newRatio = 0;
+                this.props.onUserSeek(newRatio);
             }
             this.updateSeekedBar(newRatio);
             this.props.onPlaySeek(newRatio);

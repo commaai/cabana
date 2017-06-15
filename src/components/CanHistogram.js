@@ -31,6 +31,7 @@ export default class CanHistogram extends Component {
         if(nextProps.message) {
             // if this is the first message or a new one
             if(this.props.message == null
+                || nextProps.message.entries.length != this.props.message.entries.length
                 || nextProps.partsLoaded != this.props.partsLoaded
                 || JSON.stringify(nextProps.indices) !== JSON.stringify(this.props.indices)) {
 

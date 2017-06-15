@@ -53,7 +53,7 @@ export default class CanExplorer extends Component {
 
           if(this.props.dbc !== undefined) {
             this.setState({dbc: this.props.dbc, dbcFilename: 'acura_ilx_2016.dbc', route}, () => {
-              this.spawnWorker(0, 4)
+              this.spawnWorker(0, 2)
             });
           }
           this.setState({route})
@@ -67,7 +67,7 @@ export default class CanExplorer extends Component {
         const {route} = this.state;
 
         // Pass DBC text to webworker b/c can't pass instance of es6 class
-        this.spawnWorker(0, 4);
+        this.spawnWorker(0, 2);
       });
     }
 

@@ -15,9 +15,9 @@ function findSegmentIndices(entries, [segmentTimeLow, segmentTimeHi]) {
 
     const upperSegments = entries.slice(segmentIdxLow);
     let upperSegmentIdxHi = findTimeIndex(upperSegments, segmentTimeHi);
-    const segmentIdxHi = (upperSegmentIdxHi ? upperSegmentIdxHi + segmentIdxLow + 1 : entries.length)
+    const segmentIdxHi = (upperSegmentIdxHi >= 0 ? upperSegmentIdxHi + segmentIdxLow + 1 : entries.length - 1)
 
-    return [segmentIdxLow, segmentIdxHi]
+    return [segmentIdxLow, Math.min(segmentIdxHi, entries.length - 1)]
 }
 
 export default {findTimeIndex, findSegmentIndices};

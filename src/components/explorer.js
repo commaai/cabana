@@ -141,7 +141,6 @@ export default class Explorer extends Component {
         this.setState({userSeekIndex});
     }
 
-
     onPlay() {
         this.setState({playing: true});
     }
