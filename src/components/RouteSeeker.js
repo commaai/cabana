@@ -14,7 +14,8 @@ export default class RouteSeeker extends Component {
         onPause: PropTypes.func,
         onPlay: PropTypes.func,
         playing: PropTypes.bool,
-        segmentProgress: PropTypes.func
+        segmentProgress: PropTypes.func,
+        nearestFrameTime: PropTypes.number
     };
 
     static hiddenMarkerStyle = StyleSheet.create({marker: {display: 'none', left: 0}});
@@ -48,6 +49,11 @@ export default class RouteSeeker extends Component {
             // adjust ratio in line with new secondsLoaded
             const secondsSeeked = ratio * this.props.secondsLoaded;
             const newRatio = secondsSeeked / nextProps.secondsLoaded;
+            this.updateSeekedBar(newRatio);
+        }
+
+        if(this.props.nearestFrameTime != nextProps.nearestFrameTime) {
+            const newRatio = this.props.segmentProgress(nextProps.nearestFrameTime);
             this.updateSeekedBar(newRatio);
         }
 

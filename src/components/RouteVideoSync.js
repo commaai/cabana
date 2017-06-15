@@ -98,7 +98,7 @@ export default class RouteVideoSync extends Component {
                          segmentProgress={this.segmentProgress} />
                      <RouteSeeker
                          className={css(Styles.seekBar)}
-                         seekIndex={this.props.userSeekIndex}
+                         nearestFrameTime={this.nearestFrameTime()}
                          segmentProgress={this.segmentProgress}
                          secondsLoaded={this.props.secondsLoaded}
                          segmentIndices={this.props.segmentIndices}

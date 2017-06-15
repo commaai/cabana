@@ -27,7 +27,7 @@ export default class CanExplorer extends Component {
             canFrameOffset: -1,
             firstCanTime: null,
             selectedMessage: null,
-            partsLoaded: 0,
+            currentParts: [0,0],
             showLoadDbc: false,
             showSaveDbc: false,
             dbc: null,
@@ -43,6 +43,7 @@ export default class CanExplorer extends Component {
         this.onDbcSelected = this.onDbcSelected.bind(this);
         this.onDbcSaved = this.onDbcSaved.bind(this);
         this.onConfirmedSignalChange = this.onConfirmedSignalChange.bind(this);
+        this.onPartChange = this.onPartChange.bind(this);
     }
 
     componentWillMount() {
@@ -52,8 +53,11 @@ export default class CanExplorer extends Component {
           const route = routes[name];
 
           if(this.props.dbc !== undefined) {
-            this.setState({dbc: this.props.dbc, dbcFilename: 'acura_ilx_2016.dbc', route}, () => {
-              this.spawnWorker(0, 2)
+            this.setState({dbc: this.props.dbc,
+                           dbcFilename: 'acura_ilx_2016.dbc',
+                           route,
+                           currentParts: [0,2]}, () => {
+              this.spawnWorker(this.state.currentParts);
             });
           }
           this.setState({route})
@@ -63,11 +67,11 @@ export default class CanExplorer extends Component {
 
     onDbcSelected(filename, dbcInstance) {
       this.hideLoadDbc();
-      this.setState({dbc: dbcInstance, dbcFilename: filename}, () => {
+      this.setState({dbc: dbcInstance, dbcFilename: filename, currentParts: [0,2]}, () => {
         const {route} = this.state;
 
         // Pass DBC text to webworker b/c can't pass instance of es6 class
-        this.spawnWorker(0, 2);
+        this.spawnWorker(this.state.currentParts);
       });
     }
 
@@ -109,7 +113,17 @@ export default class CanExplorer extends Component {
       return messagesSortedByStartTime[0].entries;
     }
 
-    spawnWorker(part, max) {
+    spawnWorker(parts, part) {
+      if(JSON.stringify(parts) != JSON.stringify(this.state.currentParts)) {
+        // Parts changed, stop spawning workers.
+        return;
+      }
+
+      const [minPart, maxPart] = parts;
+      if(part === undefined) {
+        part = minPart;
+      }
+
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
@@ -134,8 +148,8 @@ export default class CanExplorer extends Component {
         }
         this.setState({messages,
                        partsLoaded: this.state.partsLoaded + 1}, () => {
-          if(part < max) {
-            this.spawnWorker(part + 1, max);
+          if(part < maxPart) {
+            this.spawnWorker(parts, part + 1);
           }
         })
       }
@@ -189,24 +203,29 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
+    onPartChange([first, last]) {
+      // update this.state.messages
+      //
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <Meta url={this.state.route.url}
                           messages={this.state.messages}
-                          partsLoaded={this.state.partsLoaded}
+                          partsLoaded={this.state.currentParts}
                           partsCount={this.state.route ? this.state.route.proclog : 0}
                           onMessageSelected={(msg) => {this.setState({selectedMessage: msg})}}
                           showLoadDbc={this.showLoadDbc}
                           showSaveDbc={this.showSaveDbc}
                           dbcFilename={this.state.dbcFilename}
-                          dbcLastSaved={this.state.dbcLastSaved} />
+                          dbcLastSaved={this.state.dbcLastSaved}
+                          onPartChange={this.onPartChange} />
                     {Object.keys(this.state.messages).length > 0
                       && this.state.selectedMessage ?
                       <Explorer
                           url={this.state.route.url}
                           messages={this.state.messages}
                           selectedMessage={this.state.selectedMessage}
-                          partsLoaded={this.state.partsLoaded}
                           onConfirmedSignalChange={this.onConfirmedSignalChange}
                           canFrameOffset={this.state.canFrameOffset}
                           firstCanTime={this.state.firstCanTime} /> : null}

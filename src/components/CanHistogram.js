@@ -32,7 +32,6 @@ export default class CanHistogram extends Component {
             // if this is the first message or a new one
             if(this.props.message == null
                 || nextProps.message.entries.length != this.props.message.entries.length
-                || nextProps.partsLoaded != this.props.partsLoaded
                 || JSON.stringify(nextProps.indices) !== JSON.stringify(this.props.indices)) {
 
                 const bins = Histogram.binMessages(nextProps.message.entries,

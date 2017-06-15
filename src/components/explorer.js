@@ -17,7 +17,6 @@ export default class Explorer extends Component {
        selectedMessage: PropTypes.string,
        url: PropTypes.string,
        messages: PropTypes.objectOf(PropTypes.object),
-       partsLoaded: PropTypes.number,
        onConfirmedSignalChange: PropTypes.func,
        canFrameOffset: PropTypes.number,
        firstCanTime: PropTypes.number
@@ -215,7 +214,6 @@ export default class Explorer extends Component {
                         indices={this.state.segmentIndices}
                         onSegmentChanged={this.onSegmentChanged}
                         onResetClicked={this.resetSegment}
-                        partsLoaded={this.props.partsLoaded}
                     />
                     <div className={css(Styles.dataContainer)}>
                         <div className={css(Styles.left)}>
