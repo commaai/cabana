@@ -37,14 +37,14 @@ export default class AddSignals extends Component {
         this.state = {
             bits: [],
             signals: signals,
-            signalStyles: {},
+            signalStyles: this.calcSignalStyles(signals),
             highlightedSignal: null,
             dragStartBit: null,
             dragSignal: null,
             dragCurrentBit: null
         };
 
-        this.calcSignalStyles = this.calcSignalStyles.bind(this);
+        this.updateSignalStyles = this.updateSignalStyles.bind(this);
         this.onSignalHover = this.onSignalHover.bind(this);
         this.onBitHover = this.onBitHover.bind(this);
         this.onSignalHoverEnd = this.onSignalHoverEnd.bind(this);
@@ -62,7 +62,7 @@ export default class AddSignals extends Component {
         }
 
         let colorRgbStr, backgroundColor;
-        if(this.state.highlightedSignal === signal.name) {
+        if(this.state && this.state.highlightedSignal === signal.name) {
             // when signal highlighted,
             // darkened background and lightened text.
 
@@ -81,23 +81,29 @@ export default class AddSignals extends Component {
         return style;
     }
 
-    calcSignalStyles() {
+    updateSignalStyles() {
+        const signalStyles = this.calcSignalStyles(this.state.signals);
+
+        this.setState({signalStyles})
+    }
+
+    calcSignalStyles(signals) {
         const signalStyles = {};
-        Object.values(this.state.signals).forEach((signal) => {
+        Object.values(signals).forEach((signal) => {
             signalStyles[signal.name] = this.signalColorStyle(signal);
         });
 
-        this.setState({signalStyles})
+        return signalStyles;
     }
 
     componentWillReceiveProps({message}) {
         const isNewMessage = message.name != this.props.message.name;
 
         if(isNewMessage) {
-            const signalStyles = this.calcSignalStyles(message.signals);
+            const signalStyles = this.updateSignalStyles(message.signals);
             const signals = {};
             Object.assign(signals, message.signals);
-            this.setState({signals}, this.calcSignalStyles);
+            this.setState({signals}, this.updateSignalStyles);
         }
     }
 
@@ -113,7 +119,7 @@ export default class AddSignals extends Component {
     onSignalHover(signal) {
         if(!signal) return;
 
-        this.setState({highlightedSignal: signal.name}, this.calcSignalStyles);
+        this.setState({highlightedSignal: signal.name}, this.updateSignalStyles);
     }
 
     signalBitIndex(bitIdx, signal)  {
@@ -150,7 +156,7 @@ export default class AddSignals extends Component {
     onSignalHoverEnd(signal) {
         if(!signal) return;
 
-        this.setState({highlightedSignal: null}, this.calcSignalStyles);
+        this.setState({highlightedSignal: null}, this.updateSignalStyles);
     }
 
     nextNewSignalName() {
