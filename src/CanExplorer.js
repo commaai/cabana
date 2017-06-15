@@ -203,9 +203,10 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
-    onPartChange([first, last]) {
-      // update this.state.messages
-      //
+    onPartChange(parts) {
+      this.setState({currentParts: parts}, () => {
+        this.spawnWorker(parts, 0);
+      });
     }
 
     render() {

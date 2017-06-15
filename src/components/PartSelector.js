@@ -16,6 +16,9 @@ export default class PartSelector extends Component {
             selectedPartStyle: this.makePartStyle(props.partsCount, 0),
             selectedPart: 0
         };
+
+        this.selectNextPart = this.selectNextPart.bind(this);
+        this.selectPrevPart = this.selectPrevPart.bind(this);
     }
 
     makePartStyle(partsCount, selectedPart) {
@@ -34,26 +37,59 @@ export default class PartSelector extends Component {
         }
     }
 
+    selectNextPart() {
+        let {selectedPart} = this.state;
+        selectedPart++;
+
+        this.setState({selectedPart,
+                       selectedPartStyle: this.makePartStyle(this.props.partsCount,
+                                                             selectedPart)});
+    }
+
+    selectPrevPart() {
+        let {selectedPart} = this.state;
+        selectedPart--;
+
+        this.setState({selectedPart,
+                       selectedPartStyle: this.makePartStyle(this.props.partsCount,
+                                                             selectedPart)});
+    }
+
     render() {
         const {selectedPartStyle} = this.state;
 
         return (<div className={css(Styles.root)}>
-                    <div className={css(Styles.selectedPart, selectedPartStyle.selectedPart)}></div>
-                    <span>Next</span>
-                    <span>Prev</span>
+                    <div className={css(Styles.selector)}>
+                        <div className={css(Styles.selectedPart, selectedPartStyle.selectedPart)}></div>
+                    </div>
+                    <div className={css(Styles.nudge)}>
+                        <span className={css(Styles.nudgeButton)}
+                              onClick={this.selectNextPart}>Next</span>
+                        <span className={css(Styles.nudgeButton)}
+                              onClick={this.selectPrevPart}>Prev</span>
+                    </div>
                 </div>);
     }
 }
 
 const Styles = StyleSheet.create({
     root: {
+        flexDirection: 'row',
+        display: 'flex',
+        flex: 1
+    },
+    selector: {
         width: PartSelector.selectorWidth,
         height: 30,
         border: '1px solid #000',
-        flexDirection: 'row'
     },
     selectedPart: {
         backgroundColor: 'black',
         height: '100%'
+    },
+    nudge: {
+    },
+    nudgeButton: {
+        cursor: 'pointer'
     }
 });

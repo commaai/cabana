@@ -27,12 +27,10 @@ export default class CanLog extends Component {
 
       this.state = {
         length: 0,
-        msgDisplayFormat: props.message && props.message.name ? 'name' : 'hex',
         expandedMessages: [],
         messageHeights: []
       }
 
-      this.onChoicePress = this.onChoicePress.bind(this);
       this.messageRow = this.messageRow.bind(this);
       this.addDisplayedMessages = this.addDisplayedMessages.bind(this);
       this.renderMessage = this.renderMessage.bind(this);
@@ -72,10 +70,6 @@ export default class CanLog extends Component {
       }
 
       this.setState({length: newLength, messageHeights});
-    }
-
-    onChoicePress(fmt) {
-      this.setState({msgDisplayFormat: fmt});
     }
 
     expandMessage(msg, msgIdx) {
@@ -130,9 +124,7 @@ export default class CanLog extends Component {
     }
 
     messageRow(msg, key) {
-      const {msgDisplayFormat} = this.state;
       const msgIsExpanded = this.isMessageExpanded(msg);
-      let messageStyle = msgDisplayFormat === 'hex' ? Styles.hex : null;
 
       const row = [<div key={key}
                         className={css(Styles.messageRow, Styles.row)}
@@ -147,12 +139,16 @@ export default class CanLog extends Component {
                           :
                           <div className={css(Styles.col)}>&darr;</div>}
                     <div className={css(Styles.col, Styles.timefieldCol)}>
-                      {msg.relTime}
+                      {msg.relTime.toFixed(3)}
+                    </div>
+                    <div className={css(Styles.col,
+                                        Styles.messageCol)}>
+                      {this.props.message.name}
                     </div>
                     <div className={css(Styles.col,
                                         Styles.messageCol,
-                                        messageStyle)}>
-                      {msgDisplayFormat == 'name' ? this.props.message.name : msg.hexData}
+                                        Styles.hex)}>
+                       {msg.hexData}
                     </div>
                   </div>];
 
@@ -177,17 +173,11 @@ export default class CanLog extends Component {
                 <div className={css(Styles.row)}>
                   <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
                   <div className={css(Styles.col, Styles.timefieldCol)}>Time</div>
-                  <div className={css(Styles.messageCol)}>
-                    Message
-                     (<span className={css(Styles.messageFormatChoice,
-                                          (this.state.msgDisplayFormat == 'name' ? Styles.messageFormatChoiceSelected
-                                                                                : Styles.messageFormatChoiceUnselected))}
-                            onClick={() => {this.onChoicePress('name')}}>Name</span>
-                    <span> / </span>
-                    <span className={css(Styles.messageFormatChoice,
-                                        (this.state.msgDisplayFormat == 'hex' ? Styles.messageFormatChoiceSelected
-                                                                                : Styles.messageFormatChoiceUnselected))}
-                          onClick={() => {this.onChoicePress('hex')}}>Hex</span>)
+                  <div className={css(Styles.col)}>
+                    Message Name
+                  </div>
+                  <div className={css(Styles.col)}>
+                    Bytes
                   </div>
                 </div>
                 <div className={css(Styles.tableRowGroup)}
@@ -262,15 +252,6 @@ const Styles = StyleSheet.create({
     },
     messageFormatHeader: {
 
-    },
-    messageFormatChoice: {
-      cursor: 'pointer',
-    },
-    messageFormatChoiceSelected: {
-      fontWeight: 'bold'
-    },
-    messageFormatChoiceUnselected: {
-      color: 'gray'
     },
     pointerUnderlineHover: {
       cursor: 'pointer',
