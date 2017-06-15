@@ -7,14 +7,14 @@ import PlayButton from './PlayButton';
 export default class RouteSeeker extends Component {
     static propTypes = {
         secondsLoaded: PropTypes.number.isRequired,
-        startOffset: PropTypes.number.isRequired,
         segmentIndices: PropTypes.arrayOf(PropTypes.number),
         onUserSeek: PropTypes.func,
         onPlaySeek: PropTypes.func,
         video: PropTypes.node,
         onPause: PropTypes.func,
         onPlay: PropTypes.func,
-        playing: PropTypes.bool
+        playing: PropTypes.bool,
+        segmentProgress: PropTypes.func
     };
 
     static hiddenMarkerStyle = StyleSheet.create({marker: {display: 'none', left: 0}});
@@ -103,10 +103,6 @@ export default class RouteSeeker extends Component {
         this.props.onUserSeek(ratio);
     }
 
-    videoTimeProgress(currentTime) {
-        return (currentTime - this.props.startOffset) / this.props.secondsLoaded;
-    }
-
     onPlay() {
         window.clearInterval(this.playTimer);
         this.playTimer = window.setInterval(() => {
@@ -114,7 +110,7 @@ export default class RouteSeeker extends Component {
             if(videoElement === null) return;
 
             const {currentTime} = videoElement;
-            const newRatio = this.videoTimeProgress(currentTime);
+            const newRatio = this.props.segmentProgress(currentTime);
 
             if(newRatio >= 1) {
                 window.clearInterval(this.playTimer);
@@ -141,51 +137,54 @@ export default class RouteSeeker extends Component {
 
     render() {
         const {seekedBarStyle, markerStyle} = this.state;
-        return (<div className={css(Styles.root)}>
-                    <div className={css(Styles.playButton)}>
-                        <PlayButton
-                            onPlay={this.onPlay}
-                            onPause={this.onPause}
-                            isPlaying={this.state.isPlaying}
-                        />
-                    </div>
-                    <div className={css(Styles.progress)}>
-                        <div className={css(Styles.progressBar)}
-                             onMouseMove={this.onMouseMove}
-                             onMouseLeave={this.onMouseLeave}
-                             onClick={this.onClick}
-                             ref={(ref) => this.progressBar = ref}>
-                            <div className={css(Styles.marker, markerStyle.marker)}
-                                 onMouseMove={(e) => e.stopPropagation()}></div>
-                            <div className={css(Styles.progressBarInner,
-                                                seekedBarStyle.seekedBar)}></div>
+        return (<div className={this.props.className}>
+                    <div className={css(Styles.root)}>
+                            <PlayButton
+                                className={css(Styles.playButton)}
+                                onPlay={this.onPlay}
+                                onPause={this.onPause}
+                                isPlaying={this.state.isPlaying}
+                            />
+                        <div className={css(Styles.progress)}>
+                            <div className={css(Styles.progressBar)}
+                                 onMouseMove={this.onMouseMove}
+                                 onMouseLeave={this.onMouseLeave}
+                                 onClick={this.onClick}
+                                 ref={(ref) => this.progressBar = ref}>
+                                <div className={css(Styles.marker, markerStyle.marker)}
+                                     onMouseMove={(e) => e.stopPropagation()}></div>
+                                <div className={css(Styles.progressBarInner,
+                                                    seekedBarStyle.seekedBar)}></div>
+                            </div>
                         </div>
                     </div>
                 </div>);
     }
 }
 
+const controlsColor = 'rgba(255,255,255,0.8)';
+
 const Styles = StyleSheet.create({
     root: {
         flex: 1,
         flexDirection: 'row',
         display: 'flex',
+        background: 'linear-gradient(top, rgba(0,0,0,0.0), rgba(0,0,0,0.5))',
     },
     playButton: {
+        height: 25,
+        width: 25,
         display: 'flex',
         alignSelf: 'center',
-        height: 25,
-        width: 25
+        opacity: 0.8
     },
     progress: {
         display: 'flex',
         flex: 10
     },
     progressBar: {
-        height: 25,
+        height: 15,
         width: '100%',
-        borderColor: 'rgba(0,0,0,0.5)',
-        border: 'solid 1px',
         marginTop: 10,
         marginBottom: 10,
         position: 'relative',
@@ -193,21 +192,19 @@ const Styles = StyleSheet.create({
     },
     progressBarInner: {
         position: 'absolute',
-        height: 24,
+        height: 14,
         left: 0,
         top: 0,
-        backgroundColor: 'rgba(0,0,0,0.9)',
+        backgroundColor: controlsColor,
         zIndex: 2,
     },
     marker: {
         position: 'absolute',
-        width: 33,
-        height: 33,
+        width: 20,
+        height: 20,
         backgroundColor: 'white',
         borderRadius: '50%',
-        border: '4px solid #000',
         top: '-15%',
         zIndex: 3,
-        boxShadow: '2px 2px 1px rgba(0,0,0,0.2)'
     },
 });

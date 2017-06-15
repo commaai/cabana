@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, css } from 'aphrodite/no-important';
 
 export default class PlayButton extends Component {
   static propTypes = {
     onPlay: PropTypes.func,
     onPause: PropTypes.func,
-    isPlaying: PropTypes.bool
+    isPlaying: PropTypes.bool,
+    className: PropTypes.string
   };
 
   constructor(props) {
@@ -21,15 +21,15 @@ export default class PlayButton extends Component {
     const {isPlaying} = this.props;
     if(isPlaying) {
       if(hover) {
-        return ("/img/ic_pause_circle_filled_black_24px.svg");
+        return ("/img/ic_pause_circle_filled_white_24px.svg");
       } else {
-        return ("/img/ic_pause_circle_outline_black_24px.svg");
+        return ("/img/ic_pause_circle_outline_white_24px.svg");
       }
     } else {
       if(hover) {
-        return ("/img/ic_play_circle_filled_black_24px.svg");
+        return ("/img/ic_play_circle_filled_white_24px.svg");
       } else {
-        return ("/img/ic_play_circle_outline_black_24px.svg");
+        return ("/img/ic_play_circle_outline_white_24px.svg");
       }
     }
   }
@@ -47,17 +47,9 @@ export default class PlayButton extends Component {
 
   render() {
     return <img src={this.imageSource()}
-                className={css(Styles.button)}
+                className={this.props.className}
                 onClick={this.onClick}
                 onMouseOver={() => this.setState({hover: true})}
                 onMouseLeave={() => this.setState({hover: false})} />;
   }
 }
-
-const Styles = StyleSheet.create({
-  button: {
-    cursor: 'pointer',
-    height: 30,
-    width: 30
-  }
-});

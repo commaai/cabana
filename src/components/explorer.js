@@ -6,7 +6,7 @@ import { StyleSheet, css } from 'aphrodite/no-important';
 import AddSignals from './AddSignals';
 import CanHistogram from './CanHistogram';
 import CanGraph from './CanGraph';
-import NearestFrame from './NearestFrame';
+import RouteVideoSync from './RouteVideoSync';
 import CanLog from './CanLog';
 import RouteSeeker from './RouteSeeker';
 import Entries from '../models/can/entries';
@@ -35,7 +35,6 @@ export default class Explorer extends Component {
             seekIndex: 0,
             seekTime: 0,
             playing: false,
-            videoElement: null
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
         this.onSignalUnplotPressed = this.onSignalUnplotPressed.bind(this);
@@ -45,8 +44,6 @@ export default class Explorer extends Component {
         this.onGraphTimeClick = this.onGraphTimeClick.bind(this);
         this.onUserSeek = this.onUserSeek.bind(this);
         this.onPlaySeek = this.onPlaySeek.bind(this);
-
-        this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
         this.onVideoClick = this.onVideoClick.bind(this);
@@ -144,9 +141,6 @@ export default class Explorer extends Component {
         this.setState({userSeekIndex});
     }
 
-    onVideoElementAvailable(videoElement) {
-        this.setState({videoElement});
-    }
 
     onPlay() {
         this.setState({playing: true});
@@ -205,20 +199,6 @@ export default class Explorer extends Component {
 
     render() {
         return (<div className={css(Styles.root)}>
-                    {this.props.messages[this.props.selectedMessage] !== undefined ?
-                        <RouteSeeker
-                            seekIndex={this.state.seekIndex}
-                            secondsLoaded={this.secondsLoaded()}
-                            startOffset={this.startOffset()}
-                            segmentIndices={this.state.segmentIndices}
-                            onUserSeek={this.onUserSeek}
-                            onPlaySeek={this.onPlaySeek}
-                            message={this.props.messages[this.props.selectedMessage]}
-                            videoElement={this.state.videoElement}
-                            onPlay={this.onPlay}
-                            onPause={this.onPause}
-                            playing={this.state.playing}
-                       /> : null}
                     <CanHistogram
                         message={this.props.messages[this.props.selectedMessage]}
                         indices={this.state.segmentIndices}
@@ -245,13 +225,20 @@ export default class Explorer extends Component {
                         </div>
                         <div className={css(Styles.right)}>
                             {this.props.messages[this.props.selectedMessage] !== undefined ?
-                                <NearestFrame message={this.props.messages[this.props.selectedMessage]}
-                                              userSeekIndex={this.state.userSeekIndex}
-                                              playing={this.state.playing}
-                                              url={this.props.url}
-                                              canFrameOffset={this.props.canFrameOffset}
-                                              onVideoElementAvailable={this.onVideoElementAvailable}
-                                              onVideoClick={this.onVideoClick}
+                                <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
+                                                secondsLoaded={this.secondsLoaded()}
+                                                startOffset={this.startOffset()}
+                                                segmentProgress={this.segmentProgress}
+                                                seekIndex={this.state.seekIndex}
+                                                userSeekIndex={this.state.userSeekIndex}
+                                                playing={this.state.playing}
+                                                url={this.props.url}
+                                                canFrameOffset={this.props.canFrameOffset}
+                                                onVideoClick={this.onVideoClick}
+                                                onPlaySeek={this.onPlaySeek}
+                                                onUserSeek={this.onUserSeek}
+                                                onPlay={this.onPlay}
+                                                onPause={this.onPause}
                                 /> : null}
 
                             {this.state.plottedSignals.map(({messageId, name}) => {

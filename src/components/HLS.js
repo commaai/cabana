@@ -12,7 +12,9 @@ export default class HLS extends Component {
     onVideoElementAvailable: PropTypes.func,
     onClick: PropTypes.func,
     onLoadStart: PropTypes.func,
-    onLoadEnd: PropTypes.func
+    onLoadEnd: PropTypes.func,
+    onPlaySeek: PropTypes.func,
+    segmentProgress: PropTypes.func
   };
 
   componentWillReceiveProps(nextProps) {
@@ -40,6 +42,8 @@ export default class HLS extends Component {
     this.videoElement.addEventListener('seeking', () => {
       if(!this.props.playing) {
         this.props.onLoadStart();
+        const progress = this.props.segmentProgress(this.videoElement.currentTime);
+        this.props.onPlaySeek(progress);
       }
     });
     this.videoElement.addEventListener('seeked', () => {

@@ -6,25 +6,34 @@ import Moment from 'moment';
 import HLS from './HLS';
 import {cameraPath} from '../api/routes';
 import Video from '../api/video';
+import RouteSeeker from './RouteSeeker';
 
-export default class NearestFrame extends Component {
+export default class RouteVideoSync extends Component {
     static propTypes = {
         userSeekIndex: PropTypes.number.isRequired,
+        secondsLoaded: PropTypes.number.isRequired,
+        startOffset: PropTypes.number.isRequired,
         message: PropTypes.object.isRequired,
         canFrameOffset: PropTypes.number.isRequired,
         url: PropTypes.string.isRequired,
         playing: PropTypes.bool.isRequired,
-        onVideoElementAvailable: PropTypes.func
+        onPlaySeek: PropTypes.func.isRequired,
+        onUserSeek: PropTypes.func.isRequired,
+        onPlay: PropTypes.func.isRequired,
+        onPause: PropTypes.func.isRequired
     };
 
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: false
+            isLoading: true,
+            videoElement: null
         };
 
         this.onLoadStart = this.onLoadStart.bind(this);
         this.onLoadEnd = this.onLoadEnd.bind(this);
+        this.segmentProgress = this.segmentProgress.bind(this);
+        this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
     }
 
     nearestFrameTime() {
@@ -62,6 +71,16 @@ export default class NearestFrame extends Component {
         this.setState({isLoading: false});
     }
 
+    segmentProgress(currentTime) {
+        // returns progress as number in [0,1]
+
+        return (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+    }
+
+    onVideoElementAvailable(videoElement) {
+        this.setState({videoElement});
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ? this.loadingOverlay() : null}
@@ -70,11 +89,25 @@ export default class NearestFrame extends Component {
                          source={Video.videoUrlForRouteUrl(this.props.url)}
                          startTime={this.nearestFrameTime()}
                          playbackSpeed={1}
-                         onVideoElementAvailable={this.props.onVideoElementAvailable}
+                         onVideoElementAvailable={this.onVideoElementAvailable}
                          playing={this.props.playing}
                          onClick={this.props.onVideoClick}
                          onLoadStart={this.onLoadStart}
-                         onLoadEnd={this.onLoadEnd} />
+                         onLoadEnd={this.onLoadEnd}
+                         onPlaySeek={this.props.onPlaySeek}
+                         segmentProgress={this.segmentProgress} />
+                     <RouteSeeker
+                         className={css(Styles.seekBar)}
+                         seekIndex={this.props.userSeekIndex}
+                         segmentProgress={this.segmentProgress}
+                         secondsLoaded={this.props.secondsLoaded}
+                         segmentIndices={this.props.segmentIndices}
+                         onUserSeek={this.props.onUserSeek}
+                         onPlaySeek={this.props.onPlaySeek}
+                         videoElement={this.state.videoElement}
+                         onPlay={this.props.onPlay}
+                         onPause={this.props.onPause}
+                         playing={this.props.playing} />
                 </div>);
     }
 }
@@ -84,12 +117,11 @@ const Styles = StyleSheet.create({
         borderBottomWidth: '1px',
         borderColor: 'gray',
         flex: 1,
-        height: 480,
-        position: 'relative'
+        position: 'relative',
+        height: 480
     },
     loadingOverlay: {
         position: 'absolute',
-        backgroundColor: 'rgba(0,0,0,0.5)',
         top: 0,
         left: 0,
         width: '100%',
@@ -109,6 +141,15 @@ const Styles = StyleSheet.create({
         display: 'block'
     },
     hls: {
-        zIndex: 1
+        zIndex: 1,
+        height: 480,
+        backgroundColor: 'rgba(0,0,0,0.9)'
+    },
+    seekBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 4
     }
 });
