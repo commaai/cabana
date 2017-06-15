@@ -11,7 +11,7 @@ export default class PartSelector extends Component {
 
     constructor(props) {
         super(props);
-        console.log('PartSelector', props);
+
         this.state = {
             selectedPartStyle: this.makePartStyle(props.partsCount, 0),
             selectedPart: 0
@@ -19,7 +19,6 @@ export default class PartSelector extends Component {
     }
 
     makePartStyle(partsCount, selectedPart) {
-        console.log('makePartStyle', partsCount, selectedPart);
         return StyleSheet.create({
             selectedPart: {
                 left: (selectedPart / partsCount) * PartSelector.selectorWidth,

@@ -16,7 +16,8 @@ export default class CanLog extends Component {
       onSignalUnplotPressed: PropTypes.func,
       onSignalPlotPressed: PropTypes.func,
       message: PropTypes.object,
-      messageIndex: PropTypes.number
+      messageIndex: PropTypes.number,
+      onMessageExpanded: PropTypes.func
     };
 
     constructor(props) {
@@ -82,6 +83,7 @@ export default class CanLog extends Component {
       // messageHeights[msgIdx] =  TODO dynamic height calc if message expanded.
       // Also could pre-compute height of each message Id instead of row (as signals are consistent), which would be cheaper.
       this.setState({expandedMessages: this.state.expandedMessages.concat([msg.time])})
+      this.props.onMessageExpanded();
     }
 
     collapseMessage(msg, msgIdx) {

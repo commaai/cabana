@@ -170,16 +170,6 @@ const Styles = StyleSheet.create({
         margin: 0,
         padding: 0
     },
-    progressBar: {
-        height: 30,
-        width: '100%',
-        borderColor: 'rgba(0,0,0,0.5)',
-        border: 'solid 1px',
-        marginBottom: 10
-    },
-    progressBarInner: {
-        backgroundColor: 'rgba(0,0,0,0.9)'
-    },
     loadDbc: {
         cursor: 'pointer',
         ':hover': {

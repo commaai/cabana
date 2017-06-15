@@ -234,7 +234,8 @@ export default class Explorer extends Component {
                                     plottedSignals={this.state.plottedSignals}
                                     onSignalPlotPressed={this.onSignalPlotPressed}
                                     onSignalUnplotPressed={this.onSignalUnplotPressed}
-                                    showAddSignal={this.showAddSignal} />
+                                    showAddSignal={this.showAddSignal}
+                                    onMessageExpanded={this.onPause} />
                         </div>
                         <div className={css(Styles.right)}>
                             {this.props.messages[this.props.selectedMessage] !== undefined ?
