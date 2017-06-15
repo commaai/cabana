@@ -27,7 +27,6 @@ export default class HLS extends Component {
     } else {
       this.videoElement.pause();
     }
-
   }
 
   componentDidMount() {

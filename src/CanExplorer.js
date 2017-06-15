@@ -200,7 +200,8 @@ export default class CanExplorer extends Component {
                           showSaveDbc={this.showSaveDbc}
                           dbcFilename={this.state.dbcFilename}
                           dbcLastSaved={this.state.dbcLastSaved} />
-                    {Object.keys(this.state.messages).length > 0 ?
+                    {Object.keys(this.state.messages).length > 0
+                      && this.state.selectedMessage ?
                       <Explorer
                           url={this.state.route.url}
                           messages={this.state.messages}

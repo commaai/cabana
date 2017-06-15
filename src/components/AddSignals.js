@@ -323,11 +323,6 @@ export default class AddSignals extends Component {
 
     render() {
         return (<div className={css(Styles.root)}>
-                    <p>Edit Signals</p>
-                    <p onClick={this.props.onClose}
-                       className={css(Styles.pointer)}>
-                       Close
-                    </p>
                     {this.bitMatrix()}
                     <SignalLegend
                         signals={this.state.signals}

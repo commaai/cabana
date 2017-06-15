@@ -197,6 +197,18 @@ export default class Explorer extends Component {
         return [];
     }
 
+    addSignalsHeader() {
+        const {shouldShowAddSignal} = this.state;
+        return (<div className={css(Styles.addSignalsHeader)}
+                     onClick={() => this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal})}>
+                    {shouldShowAddSignal ?
+                        <p>&darr;</p>
+                        :
+                        <p>&rarr;</p>}
+                    <p>Edit Signals</p>
+                </div>);
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <CanHistogram
@@ -208,6 +220,7 @@ export default class Explorer extends Component {
                     />
                     <div className={css(Styles.dataContainer)}>
                         <div className={css(Styles.left)}>
+                            {this.addSignalsHeader()}
                             {this.state.shouldShowAddSignal ?
                                 <AddSignals
                                     onConfirmedSignalChange={this.props.onConfirmedSignalChange}
@@ -280,5 +293,11 @@ const Styles = StyleSheet.create({
     },
     right: {
         flex: '4 1',
+    },
+    addSignalsHeader: {
+        cursor: 'pointer',
+        borderBottom: '1px solid #000',
+        display: 'flex',
+        flexDirection: 'row'
     }
 })

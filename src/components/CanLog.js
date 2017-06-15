@@ -16,7 +16,6 @@ export default class CanLog extends Component {
       onSignalUnplotPressed: PropTypes.func,
       onSignalPlotPressed: PropTypes.func,
       message: PropTypes.object,
-      showAddSignal: PropTypes.func,
       messageIndex: PropTypes.number
     };
 
@@ -49,7 +48,8 @@ export default class CanLog extends Component {
       const curMessageLength = this.props.message ? this.props.message.entries.length : 0;
       const nextMessageLength = nextProps.message ? nextProps.message.entries.length : 0;
 
-      return nextMessageLength != curMessageLength
+      const shouldUpdate = nextMessageLength != curMessageLength
+        || nextProps.messageIndex != this.props.messageIndex
         || nextProps.plottedSignals.length != this.props.plottedSignals.length
         || JSON.stringify(nextProps.segmentIndices) != JSON.stringify(this.props.segmentIndices)
         || JSON.stringify(nextState) != JSON.stringify(this.state)
@@ -60,6 +60,7 @@ export default class CanLog extends Component {
             && !elementWiseEquals(
                 Object.keys(this.props.message.signals),
                 Object.keys(nextProps.message.signals)));
+      return shouldUpdate;
     }
 
     addDisplayedMessages() {
@@ -115,10 +116,6 @@ export default class CanLog extends Component {
                               }
                             </tr>);
                   })}
-                  <tr>
-                    <td onClick={this.props.showAddSignal}
-                        className={css(Styles.pointerUnderlineHover)}>Edit Signals</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -144,7 +141,7 @@ export default class CanLog extends Component {
                            this.expandMessage(msg);
                          }
                          }}>
-                          {msgIsExpanded ? <div className={css(Styles.col)}>&uarr;</div>
+                          {msgIsExpanded ? <div className={css(Styles.col)}>&rarr;</div>
                           :
                           <div className={css(Styles.col)}>&darr;</div>}
                     <div className={css(Styles.col, Styles.timefieldCol)}>
