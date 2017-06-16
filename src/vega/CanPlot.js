@@ -74,11 +74,12 @@ export default createClassFromSpec('CanPlot', {
   ],
   "marks": [
     {"type": "group",
+     "name": "plot",
      "interactive": true,
      "encode": {
       "enter": {
-        "width": 500,
-        "height": 200,
+        "width": {"value": 500},
+        "height": {"value": 200},
         "fill": {"value": "transparent"}
       }
      },
@@ -87,16 +88,20 @@ export default createClassFromSpec('CanPlot', {
           "name": "brush", "value": 0,
           "on": [
             {
-              "events": "@bins:mousedown",
+              "events": "@boundingRect:mousedown",
               "update": "[x(), x()]"
             },
             {
-              "events": "[@bins:mousedown, window:mouseup] > window:mousemove!",
+              "events": "[@boundingRect:mousedown, window:mouseup] > window:mousemove!",
               "update": "[brush[0], clamp(x(), 0, width)]"
             },
             {
               "events": {"signal": "delta"},
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+            },
+            {
+              "events": "window:mouseup",
+              "update": "[]"
             }
           ]
         },
@@ -117,12 +122,13 @@ export default createClassFromSpec('CanPlot', {
             }
           ]
         },
+
         {
           "name": "segment",
           "push": "outer",
           "on": [
             {
-              "events": {"signal": "brush"},
+              "events": "window:mouseup",
               "update": "span(brush) ? invert('xrelscale', brush) : null"
             }
           ]
@@ -130,7 +136,20 @@ export default createClassFromSpec('CanPlot', {
      ],
      "marks": [
       {
+        "type": "rect",
+        "name": "boundingRect",
+        "interactive": true,
+        "encode": {
+          "enter": {
+            "width": {"value": 500},
+            "height": {"value": 200},
+            "fill": {"value": "transparent"}
+          }
+        }
+      },
+      {
         "type": "line",
+        "name": "lineMark",
         "from": {"data": "table"},
         "interactive": true,
         "encode": {

@@ -16,7 +16,8 @@ export default class CanGraph extends Component {
     segment: PropTypes.array,
     unplot: PropTypes.func,
     onRelativeTimeClick: PropTypes.func,
-    currentTime: PropTypes.number
+    currentTime: PropTypes.number,
+    onSegmentChanged: PropTypes.func
   };
 
   constructor(props) {
@@ -24,6 +25,7 @@ export default class CanGraph extends Component {
 
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
+    this.onSignalSegment = this.onSignalSegment.bind(this);
   }
 
   segmentIsNew(newSegment) {
@@ -35,19 +37,19 @@ export default class CanGraph extends Component {
     if(this.view) {
       // only update if segment is new
       let segmentChanged = false;
-      if(this.segmentIsNew(nextProps.segment)) {
-        if(nextProps.segment.length > 0) {
-          // Set segmented domain
-          this.view.signal('segment', nextProps.segment)
-        } else {
-          // Reset segment to full domain
-          const xVals = this.props.data.map((d) => d.xRel);
-          const min = Math.min.apply(null, xVals);
-          const max = Math.max.apply(null, xVals);
-          this.view.signal('segment', [min, max]);
-        }
-        segmentChanged = true;
-      }
+      // if(this.segmentIsNew(nextProps.segment)) {
+      //   if(nextProps.segment.length > 0) {
+      //     // Set segmented domain
+      //     this.view.signal('segment', nextProps.segment)
+      //   } else {
+      //     // Reset segment to full domain
+      //     const xVals = this.props.data.map((d) => d.xRel);
+      //     const min = Math.min.apply(null, xVals);
+      //     const max = Math.max.apply(null, xVals);
+      //     this.view.signal('segment', [min, max]);
+      //   }
+      //   segmentChanged = true;
+      // }
 
       if(nextProps.currentTime != this.props.currentTime) {
           this.view.signal('videoTime', nextProps.currentTime);
@@ -75,6 +77,11 @@ export default class CanGraph extends Component {
     }
   }
 
+  onSignalSegment(signal, segment) {
+      console.log(signal, segment);
+      this.props.onSegmentChanged(segment);
+  }
+
   render() {
       return (<div className={css(Styles.root)}>
                 <p className={css(Styles.messageName)}>{this.props.messageName}</p>
@@ -86,6 +93,7 @@ export default class CanGraph extends Component {
                            data={{table: this.props.data}}
                            onNewView={this.onNewView}
                            onSignalClickTime={this.onSignalClickTime}
+                           onSignalSegment={this.onSignalSegment}
                   />
                 </div>
               </div>);

@@ -26,6 +26,7 @@ export default class RouteVideoSync extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            shouldShowJpeg: true,
             isLoading: true,
             videoElement: null
         };
@@ -64,11 +65,13 @@ export default class RouteVideoSync extends Component {
     }
 
     onLoadStart() {
-        this.setState({isLoading: true});
+        this.setState({shouldShowJpeg: true,
+                       isLoading: true});
     }
 
     onLoadEnd() {
-        this.setState({isLoading: false});
+        this.setState({shouldShowJpeg: false,
+                       isLoading: false});
     }
 
     segmentProgress(currentTime) {
@@ -84,6 +87,10 @@ export default class RouteVideoSync extends Component {
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ? this.loadingOverlay() : null}
+                    {this.state.shouldShowJpeg ?
+                        <img src={this.nearestFrameUrl()}
+                             className={css(Styles.img)} />
+                        : null }
                     <HLS
                          className={css(Styles.hls)}
                          source={Video.videoUrlForRouteUrl(this.props.url)}
@@ -138,7 +145,9 @@ const Styles = StyleSheet.create({
     },
     img: {
         height: 480,
-        display: 'block'
+        display: 'block',
+        position: 'absolute',
+        zIndex: 2
     },
     hls: {
         zIndex: 1,
