@@ -168,7 +168,7 @@ export default createClassFromSpec('CanPlot', {
         "encode": {
           "enter": {
             "y": {"value": 0},
-            "height": {"value": 100},
+            "height": {"value": 200},
             "fill": {"value": "#333"},
             "fillOpacity": {"value": 0.2}
           },
@@ -184,7 +184,7 @@ export default createClassFromSpec('CanPlot', {
         "encode": {
           "enter": {
             "y": {"value": 0},
-            "height": {"value": 100},
+            "height": {"value": 200},
             "width": {"value": 2},
             "fill": {"value": "firebrick"}
           },
@@ -199,7 +199,7 @@ export default createClassFromSpec('CanPlot', {
         "encode": {
           "enter": {
             "y": {"value": 0},
-            "height": {"value": 100},
+            "height": {"value": 200},
             "width": {"value": 2},
             "fill": {"value": "firebrick"}
           },
