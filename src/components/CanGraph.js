@@ -37,19 +37,19 @@ export default class CanGraph extends Component {
     if(this.view) {
       // only update if segment is new
       let segmentChanged = false;
-      // if(this.segmentIsNew(nextProps.segment)) {
-      //   if(nextProps.segment.length > 0) {
-      //     // Set segmented domain
-      //     this.view.signal('segment', nextProps.segment)
-      //   } else {
-      //     // Reset segment to full domain
-      //     const xVals = this.props.data.map((d) => d.xRel);
-      //     const min = Math.min.apply(null, xVals);
-      //     const max = Math.max.apply(null, xVals);
-      //     this.view.signal('segment', [min, max]);
-      //   }
-      //   segmentChanged = true;
-      // }
+      if(this.segmentIsNew(nextProps.segment)) {
+        if(nextProps.segment.length > 0) {
+          // Set segmented domain
+          this.view.signal('segment', nextProps.segment)
+        } else {
+          // Reset segment to full domain
+          const xVals = this.props.data.map((d) => d.xRel);
+          const min = Math.min.apply(null, xVals);
+          const max = Math.max.apply(null, xVals);
+          this.view.signal('segment', [min, max]);
+        }
+        segmentChanged = true;
+      }
 
       if(nextProps.currentTime != this.props.currentTime) {
           this.view.signal('videoTime', nextProps.currentTime);
@@ -78,8 +78,16 @@ export default class CanGraph extends Component {
   }
 
   onSignalSegment(signal, segment) {
-      console.log(signal, segment);
+      if(!Array.isArray(segment)) {
+        return;
+      }
+
       this.props.onSegmentChanged(segment);
+      if(this.view) {
+        const state = this.view.getState();
+        state.subcontext[0].signals.brush = 0;
+        this.view = this.view.setState(state);
+      }
   }
 
   render() {

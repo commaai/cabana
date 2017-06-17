@@ -38,7 +38,6 @@ export default class Explorer extends Component {
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
         this.onSignalUnplotPressed = this.onSignalUnplotPressed.bind(this);
         this.onSegmentChanged = this.onSegmentChanged.bind(this);
-        this.resetSegment = this.resetSegment.bind(this);
         this.showAddSignal = this.showAddSignal.bind(this);
         this.onGraphTimeClick = this.onGraphTimeClick.bind(this);
         this.onUserSeek = this.onUserSeek.bind(this);
@@ -186,15 +185,6 @@ export default class Explorer extends Component {
         return msg.entries[userSeekIndex].time;
     }
 
-    relativeSegment() {
-        const {segment} = this.state;
-        if(segment.length === 2) {
-            return [segment[0] - this.props.firstCanTime,
-                    segment[1] - this.props.firstCanTime];
-        }
-        return [];
-    }
-
     addSignalsHeader() {
         const {shouldShowAddSignal} = this.state;
         return (<div className={css(Styles.addSignalsHeader)}
@@ -246,6 +236,12 @@ export default class Explorer extends Component {
                                                 onPause={this.onPause}
                                 /> : null}
 
+                            {this.state.segment.length > 0 ?
+                                <div className={css(Styles.reset)}
+                                     onClick={() => this.resetSegment()}>
+                                    <p>Reset Segment</p>
+                                </div>
+                                : null}
                             {this.state.plottedSignals.map(({messageId, name}) => {
                                 const msg = this.props.messages[messageId];
 
@@ -254,7 +250,7 @@ export default class Explorer extends Component {
                                                  messageName={msg.name}
                                                  signalSpec={msg.signals[name]}
                                                  onSegmentChanged={this.onSegmentChanged}
-                                                 segment={this.relativeSegment()}
+                                                 segment={this.state.segment}
                                                  data={this.graphData(msg, name)}
                                                  onRelativeTimeClick={this.onGraphTimeClick}
                                                  currentTime={this.state.seekTime - this.props.firstCanTime} />;
@@ -292,5 +288,19 @@ const Styles = StyleSheet.create({
         borderBottom: '1px solid #000',
         display: 'flex',
         flexDirection: 'row'
+    },
+    reset: {
+        cursor: 'pointer',
+        backgroundColor: 'RGB(63, 135, 255)',
+        borderRadius: 5,
+        height: 30,
+        width: 120,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        ':hover': {
+            backgroundColor: 'RGBA(63, 135, 255, 0.5)'
+        }
     }
 })

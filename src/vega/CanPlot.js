@@ -98,10 +98,6 @@ export default createClassFromSpec('CanPlot', {
             {
               "events": {"signal": "delta"},
               "update": "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
-            },
-            {
-              "events": "window:mouseup",
-              "update": "[]"
             }
           ]
         },
@@ -129,7 +125,7 @@ export default createClassFromSpec('CanPlot', {
           "on": [
             {
               "events": "window:mouseup",
-              "update": "span(brush) ? invert('xrelscale', brush) : null"
+              "update": "span(brush) ? invert('xrelscale', brush) : segment"
             }
           ]
         }
