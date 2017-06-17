@@ -54,9 +54,15 @@ test('Signal.bitDescription returns proper description for a big endian signal',
                                            size: 16,
                                            isLittleEndian: false});
 
-    expect(bigEndianSignal.bitDescription(15).bitNumber).toBe(0);
-    expect(bigEndianSignal.bitDescription(0).bitNumber).toBe(15);
-    expect(bigEndianSignal.bitDescription(16)).toBe(null);
+    const bitFifteenDescription = {bitNumber: 8, isLsb: false, isMsb: false, range: [0,15]};
+    const bitZeroDescription = {bitNumber: 7, isLsb: false, isMsb: false, range: [0,15]};
+    const bitEightDescription = {bitNumber: 15, isLsb: true, isMsb: false, range: [0,15]};
+    const bitSevenDescription = {bitNumber: 0, isLsb: false, isMsb: true, range: [0,15]};
+
+    expect(bigEndianSignal.bitDescription(15)).toEqual(bitFifteenDescription);
+    expect(bigEndianSignal.bitDescription(0)).toEqual(bitZeroDescription);
+    expect(bigEndianSignal.bitDescription(8)).toEqual(bitEightDescription);
+    expect(bigEndianSignal.bitDescription(7)).toEqual(bitSevenDescription);
 });
 
 
@@ -66,6 +72,6 @@ test('Signal.bitDescription returns null for bit index that is not in its range'
                                    size: 4,
                                    isLittleEndian: false});
 
-    expect(someSignal.bitDescription(18)).toBe(null);
-    expect(someSignal.bitDescription(23)).toBe(null);
+    expect(someSignal.bitDescription(21)).toBe(null);
+    expect(someSignal.bitDescription(16)).toBe(null);
 });

@@ -5,5 +5,5 @@ test('segment index low is inclusive and index high is exclusive', () => {
     const [segmentIdxLow, segmentIdxHi] = Entries.findSegmentIndices(entries, [3.45, 5.55]);
 
     expect(segmentIdxLow).toBe(1);
-    expect(segmentIdxHi).toBe(entries.length);
+    expect(segmentIdxHi).toBe(entries.length - 1);
 })
