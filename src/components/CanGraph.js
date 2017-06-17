@@ -43,10 +43,7 @@ export default class CanGraph extends Component {
           this.view.signal('segment', nextProps.segment)
         } else {
           // Reset segment to full domain
-          const xVals = this.props.data.map((d) => d.xRel);
-          const min = Math.min.apply(null, xVals);
-          const max = Math.max.apply(null, xVals);
-          this.view.signal('segment', [min, max]);
+          this.view.signal('segment', 0);
         }
         segmentChanged = true;
       }
