@@ -3,6 +3,7 @@ import { css, StyleSheet } from 'aphrodite/no-important';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
 
+import * as GithubAuth from './api/github-auth';
 import DBC from './models/can/dbc';
 import Meta from './components/meta';
 import Explorer from './components/explorer';
@@ -67,7 +68,11 @@ export default class CanExplorer extends Component {
 
     onDbcSelected(filename, dbcInstance) {
       this.hideLoadDbc();
-      this.setState({dbc: dbcInstance, dbcFilename: filename, currentParts: [0,2]}, () => {
+      this.setState({dbc: dbcInstance,
+                     dbcFilename: filename,
+                     currentParts: [0,2],
+                     selectedMessage: null,
+                     messages: {}}, () => {
         const {route} = this.state;
 
         // Pass DBC text to webworker b/c can't pass instance of es6 class
@@ -124,13 +129,16 @@ export default class CanExplorer extends Component {
         part = minPart;
       }
 
+      const {dbc, dbcFilename, route, firstCanTime} = this.state;
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
         const {messages} = this.state;
-        // Ensure signal consistency with DBC state.
-        // possible that during worker run, local DBC changed
-        // so we might have to re-parse the part.
+        if(this.state.dbcFilename != dbcFilename) {
+          // DBC changed while this worker was running
+          // -- don't update messages and halt recursion.
+          return;
+        }
 
         const newMessages = e.data;
         for(var key in newMessages) {
@@ -154,10 +162,10 @@ export default class CanExplorer extends Component {
         })
       }
 
-      worker.postMessage({dbcText: this.state.dbc.text(),
-                          base: this.state.route.url,
+      worker.postMessage({dbcText: dbc.text(),
+                          base: route.url,
                           num: part,
-                          canStartTime: this.state.firstCanTime});
+                          canStartTime: firstCanTime});
     }
 
     showLoadDbc() {
@@ -233,7 +241,8 @@ export default class CanExplorer extends Component {
 
                     {this.state.showLoadDbc ? <LoadDbcModal
                                                 onDbcSelected={this.onDbcSelected}
-                                                onCancel={this.hideLoadDbc} /> : null}
+                                                onCancel={this.hideLoadDbc}
+                                                hasGithubAuth={GithubAuth.hasValidAccessToken()} /> : null}
                     {this.state.showSaveDbc ? <SaveDbcModal
                                                 dbc={this.state.dbc}
                                                 sourceDbcFilename={this.state.dbcFilename}

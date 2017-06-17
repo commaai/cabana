@@ -16,13 +16,36 @@ async function setUser() {
 }
 setUser();
 
-async function list() {
-  const response = await openDbcSourceRepo.getContents('master', '');
+async function list(repoFullName) {
+  /*
+  Lists files in a github repository.
+  If no argument provided, assumes OpenDBC source repo
+  (commaai/opendbc)
+  */
+
+  let repo;
+  if(repoFullName === undefined) {
+    repo = openDbcSourceRepo;
+  } else {
+    const [username, repoName] = repoFullName.split('/');
+    repo = github.getRepo(username, repoName);
+  }
+
+  const response = await repo.getContents('master', '');
+
   return response.data.map((content) => content.path);
 }
 
-async function getDbcContents(dbcPath) {
-  const fileContents = await openDbcSourceRepo.getContents('master', dbcPath);
+async function getDbcContents(dbcPath, repoFullName) {
+  let repo;
+  if(repoFullName === undefined) {
+    repo = openDbcSourceRepo;
+  } else {
+    const [username, repoName] = repoFullName.split('/');
+    repo = github.getRepo(username, repoName);
+  }
+
+  const fileContents = await repo.getContents('master', dbcPath);
 
   const rawContentsUrl = fileContents.data.download_url;
   const resp = await fetch(rawContentsUrl);
