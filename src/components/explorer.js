@@ -126,6 +126,7 @@ export default class Explorer extends Component {
         const {entries} = this.props.messages[this.props.selectedMessage];
 
         const seekIndex = this.indexFromSeekRatio(ratio);
+
         this.setState({seekIndex, seekTime: entries[seekIndex].time});
     }
 

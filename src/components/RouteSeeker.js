@@ -122,8 +122,12 @@ export default class RouteSeeker extends Component {
                 newRatio = 0;
                 this.props.onUserSeek(newRatio);
             }
-            this.updateSeekedBar(newRatio);
-            this.props.onPlaySeek(newRatio);
+
+            if(newRatio >= 0) {
+                this.updateSeekedBar(newRatio);
+                this.props.onPlaySeek(newRatio);
+                console.log(newRatio);
+            }
         }, 30);
         let {ratio} = this.state;
         if(ratio >= 1) {

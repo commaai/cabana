@@ -28,13 +28,23 @@ export default class RouteVideoSync extends Component {
         this.state = {
             shouldShowJpeg: true,
             isLoading: true,
-            videoElement: null
+            videoElement: null,
+            shouldRestartHls: false
         };
 
         this.onLoadStart = this.onLoadStart.bind(this);
         this.onLoadEnd = this.onLoadEnd.bind(this);
         this.segmentProgress = this.segmentProgress.bind(this);
         this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
+        this.onUserSeek = this.onUserSeek.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.userSeekIndex != nextProps.userSeekIndex
+            || this.props.canFrameOffset != nextProps.canFrameOffset
+            || this.props.message.entries.length != nextProps.message.entries.length){
+            this.setState({shouldRestartHls: true});
+        }
     }
 
     nearestFrameTime() {
@@ -77,6 +87,10 @@ export default class RouteVideoSync extends Component {
     segmentProgress(currentTime) {
         // returns progress as number in [0,1]
 
+        if(currentTime < this.props.startOffset) {
+            currentTime = this.props.startOffset;
+        }
+
         return (currentTime - this.props.startOffset) / this.props.secondsLoaded;
     }
 
@@ -84,6 +98,21 @@ export default class RouteVideoSync extends Component {
         this.setState({videoElement});
     }
 
+    onUserSeek(ratio) {
+        /* ratio in [0,1] */
+        const funcSeekToRatio = () => this.props.onUserSeek(ratio);
+        if(ratio == 0) {
+            this.setState({shouldRestartHls: true},
+                          funcSeekToRatio);
+        } else {
+            funcSeekToRatio();
+        }
+    }
+
+    onHlsRestart() {
+        this.setState({shouldRestartHls: false})
+
+    }
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ? this.loadingOverlay() : null}
@@ -101,15 +130,18 @@ export default class RouteVideoSync extends Component {
                          onClick={this.props.onVideoClick}
                          onLoadStart={this.onLoadStart}
                          onLoadEnd={this.onLoadEnd}
+                         onUserSeek={this.onUserSeek}
                          onPlaySeek={this.props.onPlaySeek}
-                         segmentProgress={this.segmentProgress} />
+                         segmentProgress={this.segmentProgress}
+                         shouldRestart={this.state.shouldRestartHls}
+                         onRestart={this.onHlsRestart} />
                      <RouteSeeker
                          className={css(Styles.seekBar)}
                          nearestFrameTime={this.nearestFrameTime()}
                          segmentProgress={this.segmentProgress}
                          secondsLoaded={this.props.secondsLoaded}
                          segmentIndices={this.props.segmentIndices}
-                         onUserSeek={this.props.onUserSeek}
+                         onUserSeek={this.onUserSeek}
                          onPlaySeek={this.props.onPlaySeek}
                          videoElement={this.state.videoElement}
                          onPlay={this.props.onPlay}

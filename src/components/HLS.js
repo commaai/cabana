@@ -14,12 +14,17 @@ export default class HLS extends Component {
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
     onPlaySeek: PropTypes.func,
-    segmentProgress: PropTypes.func
+    onUserSeek: PropTypes.func,
+    segmentProgress: PropTypes.func,
+    shouldRestart: PropTypes.bool,
+    onRestart: PropTypes.func
   };
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.startTime != this.props.startTime) {
+    if(nextProps.shouldRestart) {
+
       this.videoElement.currentTime = nextProps.startTime;
+      this.props.onRestart();
     }
 
     if(nextProps.playing) {
