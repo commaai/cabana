@@ -14,15 +14,17 @@ const MP_SIGNAL_RE = /^SG\_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+
 
 const VAL_RE = /^VAL\_ (\w+) (\w+) (.*);/;
 const MSG_TRANSMITTER_RE = /^BO_TX_BU_ ([0-9]+) *: *(.+);/;
+
 const SIGNAL_COMMENT_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)\";/;
 const SIGNAL_COMMENT_MULTI_LINE_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)/
-const SIGNAL_COMMENT_MESSAGE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)\";/
-const SIGNAL_COMMENT_MESSAGE_MULTI_LINE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)/;
+
+// Message Comments (CM_ BO_ )
+const MESSAGE_COMMENT_RE = /^CM\_ BO\_ *(\w+) *\"(.*)\";/;
+const MESSAGE_COMMENT_MULTI_LINE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)/;
 
 // Follow ups are used to parse multi-line comment definitions
-
 const FOLLOW_UP_SIGNAL_COMMENT = "FollowUpSignalComment";
-const FOLLOW_UP_FRAME_COMMENT = "FollowUpFrameComment";
+const FOLLOW_UP_MSG_COMMENT = "FollowUpMsgComment";
 const FOLLOW_UP_BOARD_UNIT_COMMENT = "FollowUpBoardUnitComment";
 
 function floatOrInt(numericStr) {
@@ -130,6 +132,10 @@ export default class DBC {
                     const signal = data;
 
                     signal.comment += `\n${line.substr(0, line.length - 2)}`;
+                } else if(type === FOLLOW_UP_MSG_COMMENT) {
+                    const msg = data;
+
+                    msg.comment += `\n${line.substr(0, line.length - 2)}`;
                 }
             }
 
@@ -231,6 +237,26 @@ export default class DBC {
 
                 if(isFollowUp) {
                     followUp = {type: FOLLOW_UP_SIGNAL_COMMENT, data: signal}
+                }
+            } else if(line.indexOf("CM_ BO_ ") === 0) {
+                let matches = line.match(MESSAGE_COMMENT_RE);
+                let isFollowUp = false;
+                if(matches === null) {
+                    matches = line.match(MESSAGE_COMMENT_MULTI_LINE_RE);
+                    isFollowUp = true;
+                    if(matches === null) {
+                        console.warn('invalid message comment', line);
+                        return;
+                    }
+                }
+
+                let [messageId, comment] = matches.slice(1);
+                messageId = parseInt(messageId);
+                const msg = messages.get(messageId);
+                msg.comment = comment;
+
+                if(isFollowUp) {
+                    followUp = {type: FOLLOW_UP_MSG_COMMENT, data: msg};
                 }
             }
         });

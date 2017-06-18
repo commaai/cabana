@@ -75,6 +75,33 @@ BO_ 228 STEERING_CONTROL: 5 ADAS
 CM_ SG_ 228 STEER_TORQUE "steer torque is the
  amount of torque in Nm applied";`;
 
+const DBC_MESSAGE_WITH_COMMENT = `
+BO_ 228 STEERING_CONTROL: 5 ADAS
+ SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
+ SG_ STEER_TORQUE_REQUEST : 23|1@0+ (1,0) [0|1] "" EPS
+ SG_ SET_ME_X00 : 22|7@0+ (1,0) [0|127] "" EPS
+ SG_ SET_ME_X00_2 : 31|8@0+ (1,0) [0|0] "" EPS
+ SG_ CHECKSUM : 39|4@0+ (1,0) [0|15] "" EPS
+ SG_ COUNTER : 33|2@0+ (1,0) [0|3] "" EPS
+
+
+CM_ BO_ 228 "this message contains steer torque information";
+`;
+
+const DBC_MESSAGE_WITH_MULTI_LINE_COMMENT = `
+BO_ 228 STEERING_CONTROL: 5 ADAS
+ SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
+ SG_ STEER_TORQUE_REQUEST : 23|1@0+ (1,0) [0|1] "" EPS
+ SG_ SET_ME_X00 : 22|7@0+ (1,0) [0|127] "" EPS
+ SG_ SET_ME_X00_2 : 31|8@0+ (1,0) [0|0] "" EPS
+ SG_ CHECKSUM : 39|4@0+ (1,0) [0|15] "" EPS
+ SG_ COUNTER : 33|2@0+ (1,0) [0|3] "" EPS
+
+
+CM_ BO_ 228 "this message contains
+steer torque information";
+`;
+
 const DBC_SIGNALS_WITH_VAL = `
 BO_ 228 STEERING_CONTROL: 5 ADAS
  SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
@@ -120,6 +147,20 @@ test('DBC parses multi-line signal comment', () => {
     const {signals} = dbcParsed.messages.get(228);
 
     expect(signals.STEER_TORQUE.comment).toEqual("steer torque is the\namount of torque in Nm applied");
+});
+
+test('DBC parses message comment', () => {
+    const dbcParsed = new DBC(DBC_MESSAGE_WITH_COMMENT);
+    const msg = dbcParsed.messages.get(228);
+
+    expect(msg.comment).toEqual("this message contains steer torque information");
+});
+
+test('DBC parses multi-line message comment', () => {
+    const dbcParsed = new DBC(DBC_MESSAGE_WITH_MULTI_LINE_COMMENT);
+    const msg = dbcParsed.messages.get(228);
+
+    expect(msg.comment).toEqual("this message contains\nsteer torque information");
 });
 
 test('DBC parses signal value descriptions', () => {
