@@ -2,14 +2,14 @@ export default class Frame {
     constructor({name,
                 id = 0,
                 size = 0,
-                transmitter = "XXX",
+                transmitters = [],
                 extended = 0,
                 comment = null,
                 signals = {}}) {
         Object.assign(this, {name,
                              id,
                              size,
-                             transmitter,
+                             transmitters,
                              extended,
                              comment,
                              signals})
@@ -17,7 +17,7 @@ export default class Frame {
 
     header() {
         return `BO_ ${this.id} ${this.name}: ${this.size} ` +
-               `${this.transmitter}`;
+               `${this.transmitters.join(" ")}`;
     }
 
     text() {

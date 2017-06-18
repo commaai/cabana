@@ -6,11 +6,24 @@ import Signal from './signal';
 import Frame from './frame';
 import DbcUtils from '../../utils/dbc';
 
-const BO_RE = /^BO\_ (\w+) (\w+) *: (\w+) (\w+)/
-// normal signal
-const SG_RE = /^SG\_ (\w+) : (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
+const MSG_RE = /^BO\_ (\w+) (\w+) *: (\w+) (\w+)/
+
+const SIGNAL_RE = /^SG\_ (\w+) : (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
 // Multiplexed signal
-const SGM_RE = /^SG\_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
+const MP_SIGNAL_RE = /^SG\_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
+
+const VAL_RE = /^VAL\_ (\w+) (\w+) (.*);/;
+const MSG_TRANSMITTER_RE = /^BO_TX_BU_ ([0-9]+) *: *(.+);/;
+const SIGNAL_COMMENT_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)\";/;
+const SIGNAL_COMMENT_MULTI_LINE_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)/
+const SIGNAL_COMMENT_MESSAGE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)\";/
+const SIGNAL_COMMENT_MESSAGE_MULTI_LINE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)/;
+
+// Follow ups are used to parse multi-line comment definitions
+
+const FOLLOW_UP_SIGNAL_COMMENT = "FollowUpSignalComment";
+const FOLLOW_UP_FRAME_COMMENT = "FollowUpFrameComment";
+const FOLLOW_UP_BOARD_UNIT_COMMENT = "FollowUpBoardUnitComment";
 
 function floatOrInt(numericStr) {
     if(Number.isInteger(numericStr)) {
@@ -104,26 +117,38 @@ export default class DBC {
     importDbcString(dbcString) {
         const messages = new Map();
         let id = 0;
+        let followUp = null;
 
         dbcString.split('\n').forEach((line, idx) => {
             line = line.trim();
 
-            if(line.indexOf("BO_") === 0) {
-                let matches = line.match(BO_RE)
+            if(line.length === 0) return;
+
+            if(followUp != null) {
+                const {type, data} = followUp;
+                if(type === FOLLOW_UP_SIGNAL_COMMENT) {
+                    const signal = data;
+
+                    signal.comment += `\n${line.substr(0, line.length - 2)}`;
+                }
+            }
+
+            if(line.indexOf("BO_ ") === 0) {
+                let matches = line.match(MSG_RE)
                 if (matches === null) {
                     console.log('Bad BO', line)
                     return
                 }
                 let [idString, name, size, transmitter] = matches.slice(1);
                 id = parseInt(idString, 0); // 0 radix parses hex or dec
-                const frame = new Frame({name, id, size, transmitter})
+                const frame = new Frame({name, id, size, transmitters: [transmitter]})
                 messages.set(id, frame);
 
             } else if(line.indexOf("SG_") === 0) {
-                let matches = line.match(SG_RE);
+                let matches = line.match(SIGNAL_RE);
 
                 if(matches === null) {
-                    matches = line.match(SGM_RE);
+                    matches = line.match(MP_SIGNAL_RE);
                     if(matches === null) {
                         return;
                     }
@@ -151,6 +176,50 @@ export default class DBC {
                 const signal = new Signal(signalProperties);
 
                 messages.get(id).signals[name] = signal;
+            } else if(line.indexOf("VAL_ ") === 0) {
+                let matches = line.match(VAL_RE);
+
+                if(matches !== null) {
+
+                }
+            } else if(line.indexOf("BO_TX_BU_ ") === 0) {
+                let matches = line.match(MSG_TRANSMITTER_RE);
+
+                if(matches !== null) {
+                    let [messageId, transmitter] = matches.slice(1);
+                    messageId = parseInt(messageId)
+
+                    const msg = messages.get(messageId);
+                    msg.transmitters.push(transmitter);
+                    messages.set(messageId, msg);
+                }
+            } else if(line.indexOf("CM_ SG_ ") === 0) {
+                let matches = line.match(SIGNAL_COMMENT_RE);
+                let isFollowUp = false;
+                if(matches === null) {
+                    matches = line.match(SIGNAL_COMMENT_MULTI_LINE_RE);
+                    isFollowUp = true;
+                }
+                if(matches === null) {
+                    console.warn('invalid signal comment', line);
+                    return;
+                }
+
+                let [messageId, signalName, comment] = matches.slice(1);
+
+                messageId = parseInt(messageId);
+                const msg = messages.get(messageId);
+                const signal = msg.signals[signalName];
+                if(signal === undefined) {
+                    console.warn('signal ', signalName, ' undefined');
+                } else {
+                    signal.comment = comment;
+                    messages.set(messageId, msg);
+                }
+
+                if(isFollowUp) {
+                    followUp = {type: FOLLOW_UP_SIGNAL_COMMENT, data: signal}
+                }
             }
         });
 
