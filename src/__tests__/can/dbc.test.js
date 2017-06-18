@@ -130,6 +130,11 @@ CM_ BU_ first_board_unit "first board unit
 comment";
 `;
 
+const DBC_VALUE_TABLE = `
+VAL_TABLE_ DI_state 4 "DI_STATE_ENABLE" 3 "DI_STATE_FAULT" 2 "DI_STATE_CLEAR_FAULT" 1 "DI_STATE_STANDBY" 0 "DI_STATE_PREAUTH" ;
+VAL_TABLE_ DI_speedUnits 1 "DI_SPEED_KPH" 0 "DI_SPEED_MPH" ;
+`;
+
 const steerTorqueSignal = new Signal({
     name: 'STEER_TORQUE',
     startBit: 7,
@@ -202,6 +207,23 @@ test('DBC parses signal value descriptions', () => {
     const expectedTorqueRequestVals = {'1': 'requesting torque',
                                        '0': 'not requesting torque'};
     expect(signals.STEER_TORQUE_REQUEST.valueDescriptions).toEqual(expectedTorqueRequestVals);
+});
+
+test('DBC parses value tables', () => {
+    const dbcParsed = new DBC(DBC_VALUE_TABLE);
+    const stateTableEntries = [['4', "DI_STATE_ENABLE"],
+                               ['3', "DI_STATE_FAULT"],
+                               ['2', "DI_STATE_CLEAR_FAULT"],
+                               ['1', "DI_STATE_STANDBY"],
+                               ['0', "DI_STATE_PREAUTH"]]
+    const stateTable = new Map(stateTableEntries);
+    const speedUnitsEntries = [['1',"DI_SPEED_KPH"],
+                               ['0',"DI_SPEED_MPH"]]
+    const speedUnitsTable = new Map(speedUnitsEntries);
+
+    const valueTableEntries = Array.from(dbcParsed.valueTables.entries());
+    expect(valueTableEntries[0]).toEqual(['DI_state', stateTable]);
+    expect(valueTableEntries[1]).toEqual(['DI_speedUnits', speedUnitsTable]);
 });
 
 test('swapOrder properly converts little endian to big endian', () => {

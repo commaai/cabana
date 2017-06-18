@@ -14,6 +14,8 @@ const SIGNAL_RE = /^SG\_ (\w+) : (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([
 const MP_SIGNAL_RE = /^SG\_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
 
 const VAL_RE = /^VAL\_ (\w+) (\w+) (.*);/;
+const VAL_TABLE_RE = /^VAL\_TABLE\_ (\w+) (.*);/;
+
 const MSG_TRANSMITTER_RE = /^BO_TX_BU_ ([0-9]+) *: *(.+);/;
 
 const SIGNAL_COMMENT_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)\";/;
@@ -124,6 +126,7 @@ export default class DBC {
     importDbcString(dbcString) {
         const messages = new Map();
         let boardUnits = [];
+        let valueTables = new Map();
         let id = 0;
         let followUp = null;
 
@@ -207,6 +210,22 @@ export default class DBC {
                         const value = vals[i].trim(), description = vals[i + 1].trim();
                         signal.valueDescriptions[value] = description;
                     }
+                }
+            } else if(line.indexOf("VAL_TABLE_ ") === 0) {
+                let matches = line.match(VAL_TABLE_RE);
+
+                if(matches !== null) {
+                    const table = new Map();
+                    let [tableName, items] = matches.slice(1);
+                    items = items.split('"')
+                                  .map((s) => s.trim())
+                                  .filter((s) => s.length > 0);
+
+                    for(let i = 0; i < items.length; i += 2) {
+                        const key = items[i], value = items[i + 1];
+                        table.set(key, value);
+                    }
+                    valueTables.set(tableName, table);
                 }
             } else if(line.indexOf("BO_TX_BU_ ") === 0) {
                 let matches = line.match(MSG_TRANSMITTER_RE);
@@ -303,6 +322,7 @@ export default class DBC {
 
         this.messages = messages;
         this.boardUnits = boardUnits;
+        this.valueTables = valueTables;
     }
 
     valueForInt64Signal(signalSpec, hexData) {
