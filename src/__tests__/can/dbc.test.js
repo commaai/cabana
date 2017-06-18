@@ -114,6 +114,22 @@ BO_ 228 STEERING_CONTROL: 5 ADAS
 
 VAL_ 228 STEER_TORQUE_REQUEST 1 "requesting torque" 0 "not requesting torque" ;
 `;
+
+const DBC_BOARD_UNITS = `
+BU_: first_board_unit second_board_unit
+`;
+
+const DBC_BOARD_UNITS_WITH_COMMENT = `
+BU_: first_board_unit second_board_unit
+CM_ BU_ first_board_unit "first board unit comment";
+`;
+
+const DBC_BOARD_UNITS_WITH_COMMENT_LINES = `
+BU_: first_board_unit second_board_unit
+CM_ BU_ first_board_unit "first board unit
+comment";
+`;
+
 const steerTorqueSignal = new Signal({
     name: 'STEER_TORQUE',
     startBit: 7,
@@ -161,6 +177,22 @@ test('DBC parses multi-line message comment', () => {
     const msg = dbcParsed.messages.get(228);
 
     expect(msg.comment).toEqual("this message contains\nsteer torque information");
+});
+
+test('DBC parses board unit names', () => {
+    const dbcParsed = new DBC(DBC_BOARD_UNITS);
+    expect(dbcParsed.boardUnits[0].name).toEqual("first_board_unit");
+    expect(dbcParsed.boardUnits[1].name).toEqual("second_board_unit");
+});
+
+test('DBC parses board unit comments', () => {
+    const dbcParsed = new DBC(DBC_BOARD_UNITS_WITH_COMMENT);
+    expect(dbcParsed.boardUnits[0].comment).toEqual("first board unit comment");
+});
+
+test('DBC parses multi-line board unit comments', () => {
+    const dbcParsed = new DBC(DBC_BOARD_UNITS_WITH_COMMENT_LINES);
+    expect(dbcParsed.boardUnits[0].comment).toEqual("first board unit\ncomment");
 });
 
 test('DBC parses signal value descriptions', () => {

@@ -4,6 +4,7 @@ import Bitarray from '../bitarray';
 
 import Signal from './signal';
 import Frame from './frame';
+import BoardUnit from './BoardUnit';
 import DbcUtils from '../../utils/dbc';
 
 const MSG_RE = /^BO\_ (\w+) (\w+) *: (\w+) (\w+)/
@@ -21,6 +22,10 @@ const SIGNAL_COMMENT_MULTI_LINE_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)/
 // Message Comments (CM_ BO_ )
 const MESSAGE_COMMENT_RE = /^CM\_ BO\_ *(\w+) *\"(.*)\";/;
 const MESSAGE_COMMENT_MULTI_LINE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)/;
+
+const BOARD_UNIT_RE = /^BU\_\:(.*)/;
+const BOARD_UNIT_COMMENT_RE = /^CM\_ BU\_ *(\w+) *\"(.*)\";/;
+const BOARD_UNIT_COMMENT_MULTI_LINE_RE = /^CM\_ BU\_ *(\w+) *\"(.*)/;
 
 // Follow ups are used to parse multi-line comment definitions
 const FOLLOW_UP_SIGNAL_COMMENT = "FollowUpSignalComment";
@@ -118,6 +123,7 @@ export default class DBC {
 
     importDbcString(dbcString) {
         const messages = new Map();
+        let boardUnits = [];
         let id = 0;
         let followUp = null;
 
@@ -128,14 +134,16 @@ export default class DBC {
 
             if(followUp != null) {
                 const {type, data} = followUp;
+                const followUpLine = `\n${line.substr(0, line.length - 2)}`;
                 if(type === FOLLOW_UP_SIGNAL_COMMENT) {
                     const signal = data;
-
-                    signal.comment += `\n${line.substr(0, line.length - 2)}`;
+                    signal.comment += followUpLine;
                 } else if(type === FOLLOW_UP_MSG_COMMENT) {
                     const msg = data;
-
-                    msg.comment += `\n${line.substr(0, line.length - 2)}`;
+                    msg.comment += followUpLine;
+                } else if(type === FOLLOW_UP_BOARD_UNIT_COMMENT) {
+                    const boardUnit = data;
+                    boardUnit.comment += followUpLine;
                 }
             }
 
@@ -213,10 +221,10 @@ export default class DBC {
                 }
             } else if(line.indexOf("CM_ SG_ ") === 0) {
                 let matches = line.match(SIGNAL_COMMENT_RE);
-                let isFollowUp = false;
+                let hasFollowUp = false;
                 if(matches === null) {
                     matches = line.match(SIGNAL_COMMENT_MULTI_LINE_RE);
-                    isFollowUp = true;
+                    hasFollowUp = true;
                 }
                 if(matches === null) {
                     console.warn('invalid signal comment', line);
@@ -235,15 +243,15 @@ export default class DBC {
                     messages.set(messageId, msg);
                 }
 
-                if(isFollowUp) {
+                if(hasFollowUp) {
                     followUp = {type: FOLLOW_UP_SIGNAL_COMMENT, data: signal}
                 }
             } else if(line.indexOf("CM_ BO_ ") === 0) {
                 let matches = line.match(MESSAGE_COMMENT_RE);
-                let isFollowUp = false;
+                let hasFollowUp = false;
                 if(matches === null) {
                     matches = line.match(MESSAGE_COMMENT_MULTI_LINE_RE);
-                    isFollowUp = true;
+                    hasFollowUp = true;
                     if(matches === null) {
                         console.warn('invalid message comment', line);
                         return;
@@ -255,13 +263,46 @@ export default class DBC {
                 const msg = messages.get(messageId);
                 msg.comment = comment;
 
-                if(isFollowUp) {
+                if(hasFollowUp) {
                     followUp = {type: FOLLOW_UP_MSG_COMMENT, data: msg};
+                }
+            } else if(line.indexOf("BU_: ") === 0) {
+                let matches = line.match(BOARD_UNIT_RE);
+
+                if(matches !== null) {
+                    const [boardUnitNameStr] = matches.slice(1);
+                    const newBoardUnits = boardUnitNameStr.split(' ')
+                                                       .map((s) => s.trim())
+                                                       .filter((s) => s.length > 0)
+                                                       .map((name) => new BoardUnit(name));
+
+                    boardUnits = boardUnits.concat(newBoardUnits);
+                }
+            } else if(line.indexOf("CM_ BU_ ") === 0) {
+                let matches = line.match(BOARD_UNIT_COMMENT_RE);
+                let hasFollowUp = false;
+                if(matches === null) {
+                    matches = line.match(BOARD_UNIT_COMMENT_MULTI_LINE_RE)
+                    hasFollowUp = true;
+                    if(matches === null) {
+                        console.warn('invalid board unit comment', line);
+                    }
+                }
+
+                let [boardUnitName, comment] = matches.slice(1);
+                let boardUnit = boardUnits.find((bu) => bu.name == boardUnitName);
+                if(boardUnit) {
+                    boardUnit.comment = comment;
+                }
+
+                if(hasFollowUp) {
+                    followUp = {type: FOLLOW_UP_BOARD_UNIT_COMMENT, data: boardUnit};
                 }
             }
         });
 
         this.messages = messages;
+        this.boardUnits = boardUnits;
     }
 
     valueForInt64Signal(signalSpec, hexData) {
