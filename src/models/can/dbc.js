@@ -180,7 +180,19 @@ export default class DBC {
                 let matches = line.match(VAL_RE);
 
                 if(matches !== null) {
+                    let [messageId, signalName, vals] = matches.slice(1);
+                    vals = vals.split('"')
+                                .map((s) => s.trim())
+                                .filter((s) => s.length > 0);
 
+                    messageId = parseInt(messageId);
+                    const msg = messages.get(messageId);
+                    const signal = msg.signals[signalName];
+
+                    for(let i = 0; i < vals.length; i+= 2) {
+                        const value = vals[i].trim(), description = vals[i + 1].trim();
+                        signal.valueDescriptions[value] = description;
+                    }
                 }
             } else if(line.indexOf("BO_TX_BU_ ") === 0) {
                 let matches = line.match(MSG_TRANSMITTER_RE);

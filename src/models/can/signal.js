@@ -17,7 +17,8 @@ export default class Signal {
                 comment = null,
                 multiplex = null,
                 min = null,
-                max = null
+                max = null,
+                valueDescriptions = {}
                 }) {
         Object.assign(this,
             {name,
@@ -31,7 +32,8 @@ export default class Signal {
             unit,
             receiver,
             comment,
-            multiplex});
+            multiplex,
+            valueDescriptions});
 
         if(min == null) {
             min = this.calculateMin();

@@ -72,9 +72,21 @@ BO_ 228 STEERING_CONTROL: 5 ADAS
  SG_ COUNTER : 33|2@0+ (1,0) [0|3] "" EPS
 
 
- CM_ SG_ 228 STEER_TORQUE "steer torque is the
+CM_ SG_ 228 STEER_TORQUE "steer torque is the
  amount of torque in Nm applied";`;
 
+const DBC_SIGNALS_WITH_VAL = `
+BO_ 228 STEERING_CONTROL: 5 ADAS
+ SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
+ SG_ STEER_TORQUE_REQUEST : 23|1@0+ (1,0) [0|1] "" EPS
+ SG_ SET_ME_X00 : 22|7@0+ (1,0) [0|127] "" EPS
+ SG_ SET_ME_X00_2 : 31|8@0+ (1,0) [0|0] "" EPS
+ SG_ CHECKSUM : 39|4@0+ (1,0) [0|15] "" EPS
+ SG_ COUNTER : 33|2@0+ (1,0) [0|3] "" EPS
+
+
+VAL_ 228 STEER_TORQUE_REQUEST 1 "requesting torque" 0 "not requesting torque" ;
+`;
 const steerTorqueSignal = new Signal({
     name: 'STEER_TORQUE',
     startBit: 7,
@@ -110,6 +122,14 @@ test('DBC parses multi-line signal comment', () => {
     expect(signals.STEER_TORQUE.comment).toEqual("steer torque is the\namount of torque in Nm applied");
 });
 
+test('DBC parses signal value descriptions', () => {
+    const dbcParsed = new DBC(DBC_SIGNALS_WITH_VAL);
+    const {signals} = dbcParsed.messages.get(228);
+
+    const expectedTorqueRequestVals = {'1': 'requesting torque',
+                                       '0': 'not requesting torque'};
+    expect(signals.STEER_TORQUE_REQUEST.valueDescriptions).toEqual(expectedTorqueRequestVals);
+});
 
 test('swapOrder properly converts little endian to big endian', () => {
     const littleEndianHex = 'e2d62a0bd0d3b5e5';
