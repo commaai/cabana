@@ -37,6 +37,7 @@ export default class RouteVideoSync extends Component {
         this.segmentProgress = this.segmentProgress.bind(this);
         this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
         this.onUserSeek = this.onUserSeek.bind(this);
+        this.onHlsRestart = this.onHlsRestart.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
