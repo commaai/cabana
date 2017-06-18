@@ -253,8 +253,14 @@ export default class AddSignals extends Component {
     bitMatrix() {
         const {bits} = this.state;
         const rows = [];
+        let rowCount;
+        if(this.props.message.frame && this.props.message.frame.size) {
+            rowCount = Math.floor((this.props.message.frame.size * 8) / 8);
+        } else {
+            rowCount = 8;
+        }
 
-        for(var i = 0; i < 8; i++) {
+        for(var i = 0; i < rowCount; i++) {
             const rowBits = [];
             for(var j = 7; j >= 0; j--) {
                 const bitIdx = i * 8 + j;

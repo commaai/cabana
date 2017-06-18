@@ -5,10 +5,11 @@ const Int64LE = require('int64-buffer').Int64LE
 
 function createMessageSpec(dbc, address, id, bus) {
     return {name: dbc.getMessageName(address),
-              address: address,
-              id: id,
-              bus: bus,
-              entries: []}
+            address: address,
+            id: id,
+            bus: bus,
+            entries: [],
+            frame: dbc.messages.get(address)}
 }
 
 function loadCanPart(dbc, base, num, canStartTime) {
