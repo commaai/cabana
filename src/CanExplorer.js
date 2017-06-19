@@ -13,7 +13,7 @@ import LoadDbcModal from './components/LoadDbcModal';
 const CanFetcher = require('./workers/can-fetcher.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
-console.log(CanOffsetFinder, MessageParser)
+
 export default class CanExplorer extends Component {
     static propTypes = {
         dongleId: PropTypes.string,
