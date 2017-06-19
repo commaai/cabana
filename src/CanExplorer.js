@@ -13,6 +13,7 @@ import LoadDbcModal from './components/LoadDbcModal';
 const CanFetcher = require('./workers/can-fetcher.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
+import debounce from './utils/debounce';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -99,11 +100,6 @@ export default class CanExplorer extends Component {
     }
 
     spawnWorker(parts, part) {
-      if(JSON.stringify(parts) != JSON.stringify(this.state.currentParts)) {
-        // Parts changed, stop spawning workers.
-        return;
-      }
-
       const [minPart, maxPart] = parts;
       if(part === undefined) {
         part = minPart;
@@ -113,6 +109,11 @@ export default class CanExplorer extends Component {
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
+        if(JSON.stringify(parts) != JSON.stringify(this.state.currentParts)) {
+          // Parts changed, stop spawning workers.
+          return;
+        }
+
         const {messages} = this.state;
         if(this.state.dbcFilename != dbcFilename) {
           // DBC changed while this worker was running
@@ -187,7 +188,7 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
-    onPartChange(part) {
+    onPartChange = debounce((part) => {
       let {currentParts} = this.state;
       const currentPartSpan = currentParts[1] - currentParts[0];
       currentParts = [part, part + currentPartSpan];
@@ -195,7 +196,7 @@ export default class CanExplorer extends Component {
       this.setState({currentParts, selectedMessage: null, messages: {}}, () => {
         this.spawnWorker(currentParts);
       });
-    }
+    }, 500);
 
     render() {
         return (<div className={css(Styles.root)}>
