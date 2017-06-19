@@ -11,6 +11,7 @@ import CanLog from './CanLog';
 import RouteSeeker from './RouteSeeker';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
+import CommonStyles from '../styles/styles';
 
 export default class Explorer extends Component {
     static propTypes = {
@@ -25,11 +26,16 @@ export default class Explorer extends Component {
     constructor(props) {
         super(props);
 
+        const msg = props.messages[props.selectedMessage];
+
+        const shouldShowAddSignal = (
+            msg && Object.keys(msg.signals).length === 0);
+
         this.state = {
             plottedSignals: [],
             segment: [],
             segmentIndices: [],
-            shouldShowAddSignal: false,
+            shouldShowAddSignal,
             userSeekIndex: 0,
             seekIndex: 0,
             seekTime: 0,
@@ -45,6 +51,17 @@ export default class Explorer extends Component {
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
         this.onVideoClick = this.onVideoClick.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const nextMessage = nextProps.messages[nextProps.selectedMessage];
+        const curMessage = this.props.messages[this.props.selectedMessage];
+
+        if(nextMessage && nextMessage !== curMessage) {
+            if(Object.keys(nextMessage.signals).length === 0) {
+                this.setState({shouldShowAddSignal: true});
+            }
+        }
     }
 
     graphData(msg, signalName) {
@@ -239,7 +256,7 @@ export default class Explorer extends Component {
                                     /> : null}
 
                                 {this.state.segment.length > 0 ?
-                                    <div className={css(Styles.reset)}
+                                    <div className={css(CommonStyles.button)}
                                          onClick={() => this.resetSegment()}>
                                         <p>Reset Segment</p>
                                     </div>
@@ -284,11 +301,12 @@ const Styles = StyleSheet.create({
     },
     right: {
         flex: '4',
+        overflow: 'auto'
     },
     fixed: {
-        position: 'fixed',
         top: 0,
-        width: 480
+        width: '100%',
+        overflow: 'auto'
     },
     addSignalsHeader: {
         cursor: 'pointer',
@@ -296,18 +314,5 @@ const Styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row'
     },
-    reset: {
-        cursor: 'pointer',
-        backgroundColor: 'RGB(63, 135, 255)',
-        borderRadius: 5,
-        height: 30,
-        width: 120,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        ':hover': {
-            backgroundColor: 'RGBA(63, 135, 255, 0.5)'
-        }
-    }
+
 })

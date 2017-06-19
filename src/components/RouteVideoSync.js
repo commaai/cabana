@@ -158,7 +158,8 @@ const Styles = StyleSheet.create({
         borderColor: 'gray',
         flex: 1,
         position: 'relative',
-        height: 480
+        height: 480,
+        width: 640
     },
     loadingOverlay: {
         position: 'absolute',

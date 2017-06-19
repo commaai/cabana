@@ -136,7 +136,7 @@ export default class DBC {
     getSignals(msgId) {
         const msg = this.messages.get(msgId);
         if(msg) return msg.signals;
-        return null;
+        return {};
     }
 
     setSignals(msgId, signals) {

@@ -143,7 +143,7 @@ export default class CanLog extends Component {
                     </div>
                     <div className={css(Styles.col,
                                         Styles.messageCol)}>
-                      {this.props.message.name}
+                      {this.props.message.name || this.props.message.id}
                     </div>
                     <div className={css(Styles.col,
                                         Styles.messageCol,
@@ -172,9 +172,9 @@ export default class CanLog extends Component {
       return (<div className={css(Styles.root)}>
                 <div className={css(Styles.row)}>
                   <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
-                  <div className={css(Styles.col, Styles.timefieldCol)}>Time</div>
+                  <div className={css(Styles.col, Styles.timefieldCol)}>Time (s)</div>
                   <div className={css(Styles.col)}>
-                    Message Name
+                    Message
                   </div>
                   <div className={css(Styles.col)}>
                     Bytes
@@ -220,7 +220,7 @@ const Styles = StyleSheet.create({
         borderColor: 'gray',
         width: '100%',
         display: 'table',
-        tableLayout: 'fixed'
+
     },
     row: {
       display: 'table-row',

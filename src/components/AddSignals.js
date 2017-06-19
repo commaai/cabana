@@ -314,7 +314,6 @@ export default class AddSignals extends Component {
         signals[signal.name] = signal;
 
         this.setState({signals}, this.propagateUpSignalChange);
-
     }
 
     onSignalRemove(signal) {
@@ -335,6 +334,9 @@ export default class AddSignals extends Component {
 
     render() {
         return (<div className={css(Styles.root)}>
+                    {Object.keys(this.state.signals).length === 0 ?
+                        <p>Drag to add a signal</p> : null
+                    }
                     {this.bitMatrix()}
                     <SignalLegend
                         signals={this.state.signals}
