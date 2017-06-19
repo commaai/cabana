@@ -258,5 +258,67 @@ test('int64 parser produces correct value for steer torque signal', () => {
     expect(value).toBe(-7466);
 });
 
-const EXPECTED_DBC_TEXT = DBC_MESSAGE_DEF;
+function dbcInt32SignalValue(dbc, signalSpec, hex) {
+    const buffer = Buffer.from(hex, 'hex');
+    const bufferSwapped = Buffer.from(buffer).swap64();
+
+    const bits = Bitarray.fromBytes(buffer);
+    const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
+
+    return dbc.valueForInt32Signal(signalSpec, bits, bitsSwapped);
+}
+
+const DBC_BINARY_LE_SIGNAL = `
+BO_ 768 NEW_MSG_1: 8 XXX
+ SG_ NEW_SIGNAL_1 : 37|1@1+ (1,0) [0|1] "" XXX
+`;
+
+test('int32 parsers produces correct value for binary little endian signal', () => {
+    const dbc = new DBC(DBC_BINARY_LE_SIGNAL)
+    const signalSpec = dbc.messages.get(768).signals['NEW_SIGNAL_1'];
+
+    const hexDataSet    = '0000000020000000';
+    const hexDataNotSet = '0000000000000000';
+
+
+    const setValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSet);
+    const notSetValue = dbcInt32SignalValue(dbc, signalSpec, hexDataNotSet);
+
+    expect(setValue).toEqual(1);
+    expect(notSetValue).toEqual(0);
+});
+
+const DBC_TWO_BIT_LE_SIGNAL = `
+BO_ 768 NEW_MSG_1: 8 XXX
+ SG_ NEW_SIGNAL_1 : 35|2@1+ (1,0) [0|3] "" XXX
+`;
+test('int32 parser produces correct value for 2-bit little endian signal spanning words', () => {
+    const dbc = new DBC(DBC_TWO_BIT_LE_SIGNAL);
+    const signalSpec = dbc.messages.get(768).signals['NEW_SIGNAL_1'];
+
+    const hexData = '00000001f8000000';
+
+    const value = dbcInt32SignalValue(dbc, signalSpec, hexData);
+    expect(value).toEqual(3);
+});
+
+const DBC_FOUR_BIT_LE_SIGNAL = `
+BO_ 768 NEW_MSG_1: 8 XXX
+ SG_ NEW_SIGNAL_1 : 6|4@1+ (1,0) [0|15] "" XXX
+`;
+test('int32 parser produces correct value for 4-bit little endian signal', () => {
+    const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL);
+    const signalSpec = dbc.messages.get(768).signals['NEW_SIGNAL_1'];
+
+    // this data is symmetric, the data bits are 1111
+    const hexDataSymmetric = 'f00f000000000000';
+    const symValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSymmetric);
+    expect(symValue).toEqual(15);
+
+    // this data is asymmetric, the data bits are 1101
+    const hexDataAsymmetric = 'f002000000000000';
+    const aSymValue = dbcInt32SignalValue(dbc, signalSpec, hexDataAsymmetric);
+    expect(aSymValue).toEqual(11);
+});
+
 

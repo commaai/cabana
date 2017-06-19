@@ -8,7 +8,7 @@ export default class Signal {
                 startBit = 0,
                 size = 0,
                 isLittleEndian = true,
-                isSigned = true,
+                isSigned = false,
                 isFloat = false,
                 factor = 1,
                 offset = 0,

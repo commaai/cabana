@@ -396,7 +396,7 @@ export default class DBC {
 
         if (signalSpec.isLittleEndian) {
             bitArr = bitsSwapped;
-            startBit = signalSpec.startBit;
+            startBit = 64 - signalSpec.startBit - signalSpec.size;
         } else {
             bitArr = bits;
             startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
