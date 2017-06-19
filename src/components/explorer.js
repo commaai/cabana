@@ -62,6 +62,47 @@ export default class Explorer extends Component {
                 this.setState({shouldShowAddSignal: true});
             }
         }
+
+        if(nextProps.selectedMessage != this.props.selectedMessage) {
+            // Update segment and seek state
+            // by finding new message entry indices
+            // corresponding to old message segment/seek times.
+
+            let {segment, segmentIndices, userSeekIndex, seekIndex, seekTime} = this.state;
+            if(segment.length === 2) {
+                const segmentStartIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[0]);
+                let segmentEndIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[1]);
+                if(segmentStartIdx !== -1) {
+                    if(segmentEndIdx === -1) {
+                        // previous segment end is past bounds of this message
+                        segmentEndIdx = nextMessage.entries.length - 1;
+                    }
+                    const segmentStartTime = nextMessage.entries[segmentStartIdx].relTime;
+                    const segmentEndTime = nextMessage.entries[segmentEndIdx].relTime;
+
+                    segment = [segmentStartTime, segmentEndTime];
+                    segmentIndices = [segmentStartIdx, segmentEndIdx];
+                } else {
+                    // segment times are out of boudns for this message
+                    segment = [], segmentIndices = [];
+                }
+            }
+
+            if(seekTime > 0) {
+                seekIndex = nextMessage.entries.findIndex((e) => e.relTime >= seekTime);
+                if(seekIndex === -1) {
+                    seekIndex = 0;
+                }
+
+                seekTime = nextMessage.entries[seekIndex].relTime;
+            }
+
+            this.setState({segment,
+                           segmentIndices,
+                           seekIndex,
+                           seekTime,
+                           userSeekIndex: seekIndex})
+        }
     }
 
     graphData(msg, signalName) {
