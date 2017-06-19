@@ -63,19 +63,13 @@ export default class CanLog extends Component {
     }
 
     addDisplayedMessages() {
-      const {length, messageHeights} = this.state;
+      const {length} = this.state;
       const newLength = length + CanLog.ITEMS_PER_PAGE;
-      for(let i = length; i < newLength; i++) {
-        messageHeights.push(Styles.messageRow.height);
-      }
 
-      this.setState({length: newLength, messageHeights});
+      this.setState({length: newLength});
     }
 
     expandMessage(msg, msgIdx) {
-      // const {messageHeights} = this.state;
-      // messageHeights[msgIdx] =  TODO dynamic height calc if message expanded.
-      // Also could pre-compute height of each message Id instead of row (as signals are consistent), which would be cheaper.
       this.setState({expandedMessages: this.state.expandedMessages.concat([msg.time])})
       this.props.onMessageExpanded();
     }
@@ -125,19 +119,25 @@ export default class CanLog extends Component {
 
     messageRow(msg, key) {
       const msgIsExpanded = this.isMessageExpanded(msg);
-
+      const hasSignals = Object.keys(msg.signals).length > 0;
+      const rowStyle = (hasSignals ? Styles.pointer : null);
       const row = [<div key={key}
-                        className={css(Styles.messageRow, Styles.row)}
+                        className={css(Styles.row, rowStyle)}
                         onClick={() => {
+                         if(!hasSignals) return;
                          if(msgIsExpanded) {
                            this.collapseMessage(msg);
                          } else {
                            this.expandMessage(msg);
                          }
                          }}>
-                          {msgIsExpanded ? <div className={css(Styles.col)}>&rarr;</div>
-                          :
-                          <div className={css(Styles.col)}>&darr;</div>}
+                          {hasSignals ?
+                            (msgIsExpanded ? <div className={css(Styles.col)}>&rarr;</div>
+                              :
+                              <div className={css(Styles.col)}>&darr;</div>
+                            )
+                            : <div className={css(Styles.col)}></div>
+                          }
                     <div className={css(Styles.col, Styles.timefieldCol)}>
                       {msg.relTime.toFixed(3)}
                     </div>
@@ -171,6 +171,7 @@ export default class CanLog extends Component {
     renderTable(items, ref) {
       return (<div className={css(Styles.root)}>
                 <div className={css(Styles.row)}>
+
                   <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
                   <div className={css(Styles.col, Styles.timefieldCol)}>Time (s)</div>
                   <div className={css(Styles.col)}>
@@ -227,7 +228,7 @@ const Styles = StyleSheet.create({
       width: 'auto',
       clear: 'both',
     },
-    messageRow: {
+    pointer: {
       cursor: 'pointer',
     },
     tableRowGroup: {
