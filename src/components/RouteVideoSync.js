@@ -14,6 +14,7 @@ export default class RouteVideoSync extends Component {
         secondsLoaded: PropTypes.number.isRequired,
         startOffset: PropTypes.number.isRequired,
         message: PropTypes.object.isRequired,
+        firstCanTime: PropTypes.number.isRequired,
         canFrameOffset: PropTypes.number.isRequired,
         url: PropTypes.string.isRequired,
         playing: PropTypes.bool.isRequired,
@@ -49,13 +50,12 @@ export default class RouteVideoSync extends Component {
     }
 
     nearestFrameTime() {
-        const {userSeekIndex, message, canFrameOffset} = this.props;
+        const {userSeekIndex, message, canFrameOffset, firstCanTime} = this.props;
         const firstEntry = message.entries[0], curEntry = message.entries[userSeekIndex];
         if(firstEntry !== undefined && curEntry !== undefined) {
-            const firstMsgTime = message.entries[0].time;
             const curMsgTime = message.entries[userSeekIndex].time;
 
-            return canFrameOffset + (curMsgTime - firstMsgTime);
+            return canFrameOffset + (curMsgTime - firstCanTime);
         } else {
             return 0;
         }
@@ -112,8 +112,8 @@ export default class RouteVideoSync extends Component {
 
     onHlsRestart() {
         this.setState({shouldRestartHls: false})
-
     }
+
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ? this.loadingOverlay() : null}

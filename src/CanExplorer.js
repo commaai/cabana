@@ -12,7 +12,8 @@ import SaveDbcModal from './components/SaveDbcModal';
 import LoadDbcModal from './components/LoadDbcModal';
 const CanFetcher = require('./workers/can-fetcher.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
-
+const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
+console.log(CanOffsetFinder, MessageParser)
 export default class CanExplorer extends Component {
     static propTypes = {
         dongleId: PropTypes.string,
@@ -58,12 +59,23 @@ export default class CanExplorer extends Component {
                            dbcFilename: 'acura_ilx_2016.dbc',
                            route,
                            currentParts: [0,2]}, () => {
-              this.spawnWorker(this.state.currentParts);
+              const offsetFinder = new CanOffsetFinder();
+              offsetFinder.postMessage({partCount: route.proclog,
+                                        base: route.url});
+
+              offsetFinder.onmessage = (e) => {
+                const {canFrameOffset, firstCanTime} = e.data;
+
+                this.setState({canFrameOffset, firstCanTime}, () => {
+                  this.spawnWorker(this.state.currentParts);
+                });
+              };
             });
           }
+
           this.setState({route})
         }
-      })
+      });
     }
 
     onDbcSelected(filename, dbcInstance) {
@@ -84,38 +96,6 @@ export default class CanExplorer extends Component {
       const dbcLastSaved = Moment();
       this.setState({dbcLastSaved, dbcFilename})
       this.hideSaveDbc();
-    }
-
-    updateCanFrameOffset(firstCanPart, firstCanPartEntries) {
-      /*
-      firstCanPart is >= 0
-      firstCanPartEntries is an array of entries
-      */
-      const firstCanTime = firstCanPartEntries[0].time;
-      const firstPartLastCanTime = firstCanPartEntries[firstCanPartEntries.length - 1].time;
-
-      const canFrameOffsetFloat = (60 * firstCanPart
-        - (60 - (firstPartLastCanTime - firstCanTime)));
-      const canFrameOffset = Math.round(canFrameOffsetFloat);
-
-      this.setState({canFrameOffset, firstCanTime});
-    }
-
-    earliestCanEntries(messages) {
-      const messagesSortedByStartTime = Object.values(messages).sort(
-        (msg1, msg2) => {
-          const firstMessageFirstTime = msg1.entries[0].time;
-          const secondMessageFirstTime = msg2.entries[0].time;
-          if(firstMessageFirstTime < secondMessageFirstTime) {
-            return -1;
-          } else if(firstMessageFirstTime === secondMessageFirstTime) {
-            return 0;
-          } else {
-            return 1;
-          }
-      });
-
-      return messagesSortedByStartTime[0].entries;
     }
 
     spawnWorker(parts, part) {
@@ -150,10 +130,6 @@ export default class CanExplorer extends Component {
           }
         }
 
-        if(Object.keys(newMessages).length > 0 && this.state.canFrameOffset < 0) {
-          // this part has messages, and we haven't encountered a can part yet
-          this.updateCanFrameOffset(part, this.earliestCanEntries(newMessages));
-        }
         this.setState({messages,
                        partsLoaded: this.state.partsLoaded + 1}, () => {
           if(part < maxPart) {
@@ -211,9 +187,13 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
-    onPartChange(parts) {
-      this.setState({currentParts: parts}, () => {
-        this.spawnWorker(parts, 0);
+    onPartChange(part) {
+      let {currentParts} = this.state;
+      const currentPartSpan = currentParts[1] - currentParts[0];
+      currentParts = [part, part + currentPartSpan];
+
+      this.setState({currentParts, selectedMessage: null, messages: {}}, () => {
+        this.spawnWorker(currentParts);
       });
     }
 

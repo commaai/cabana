@@ -180,16 +180,15 @@ export default class Explorer extends Component {
         const {entries} = this.props.messages[this.props.selectedMessage];
         const {segmentIndices} = this.state;
         const {canFrameOffset, firstCanTime} = this.props;
+        let startEntry;
         if(segmentIndices.length === 2) {
             const [low, _] = segmentIndices;
-            const startEntry = entries[low];
-            // can frame offset is time from first frame to first can
-            // add time from first can to first can in segment
-
-            return canFrameOffset + (startEntry.time - firstCanTime);
+            startEntry = entries[low];
         } else {
-            return canFrameOffset;
+            startEntry = entries[0];
         }
+
+        return canFrameOffset + (startEntry.time - firstCanTime);
     }
 
     onVideoClick() {
@@ -248,6 +247,7 @@ export default class Explorer extends Component {
                                                     playing={this.state.playing}
                                                     url={this.props.url}
                                                     canFrameOffset={this.props.canFrameOffset}
+                                                    firstCanTime={this.props.firstCanTime}
                                                     onVideoClick={this.onVideoClick}
                                                     onPlaySeek={this.onPlaySeek}
                                                     onUserSeek={this.onUserSeek}

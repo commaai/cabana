@@ -40,7 +40,11 @@ export default class PartSelector extends Component {
     selectNextPart() {
         let {selectedPart} = this.state;
         selectedPart++;
+        if(selectedPart >= this.props.partsCount) {
+            return;
+        }
 
+        this.props.onPartChange(selectedPart);
         this.setState({selectedPart,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
                                                              selectedPart)});
@@ -49,7 +53,11 @@ export default class PartSelector extends Component {
     selectPrevPart() {
         let {selectedPart} = this.state;
         selectedPart--;
+        if(selectedPart < 0) {
+            return;
+        }
 
+        this.props.onPartChange(selectedPart);
         this.setState({selectedPart,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
                                                              selectedPart)});
@@ -82,10 +90,12 @@ const Styles = StyleSheet.create({
         width: PartSelector.selectorWidth,
         height: 30,
         border: '1px solid #000',
+        position: 'relative'
     },
     selectedPart: {
         backgroundColor: 'black',
-        height: '100%'
+        height: '100%',
+        position: 'absolute',
     },
     nudge: {
     },

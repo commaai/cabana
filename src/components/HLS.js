@@ -21,7 +21,7 @@ export default class HLS extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.shouldRestart) {
+    if(nextProps.shouldRestart || nextProps.startTime != this.props.startTime) {
 
       this.videoElement.currentTime = nextProps.startTime;
       this.props.onRestart();
@@ -50,8 +50,13 @@ export default class HLS extends Component {
         this.props.onPlaySeek(progress);
       }
     });
+    let shouldInitVideoTime = true;
     this.videoElement.addEventListener('seeked', () => {
       if(!this.props.playing) {
+        if(shouldInitVideoTime) {
+          this.videoElement.currentTime = this.props.startTime;
+          shouldInitVideoTime = false;
+        }
         this.props.onLoadEnd();
       }
     });
