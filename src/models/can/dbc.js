@@ -82,12 +82,49 @@ export default class DBC {
         // then appends parsed messages to bottom.
         // When fully spec compliant DBC parser is written,
         // this functionality will be removed.
-        const parts = [];
-        for(let [msgId, frame] of this.messages.entries()) {
-            parts.push(frame.text());
-        }
+        let txt = 'VERSION ""\n\n\n';
+        txt += 'NS_ :' + this._newSymbols();
+        txt += '\n\nBS_:\n';
 
-        return parts.join("\n");
+        const boardUnitsText = this.boardUnits.map((bu) => bu.text())
+                                              .join(" ");
+        txt += '\nBU_: ' + boardUnitsText + '\n\n\n';
+
+        const frames = [];
+        for(let [msgId, frame] of this.messages.entries()) {
+            frames.push(frame);
+        }
+        txt += frames.map((f) => f.text()).join("\n\n") + '\n\n';
+
+        const messageTxs = frames.map((f) => [f.id, f.transmitters.slice(1)])
+                            .filter(([addr, txs]) => txs.length > 0);
+        txt += messageTxs.map(([addr, txs]) =>
+                `BO_TX_BU_ ${addr} : ${txs.join(",")};`)
+                .join("\n") + '\n\n\n';
+
+        txt += this.boardUnits.filter((bu) => bu.comment !== null)
+                               .map((bu) =>
+                                `CM_ BU_ ${bu.name} "${bu.comment}";`)
+                               .join("\n");
+
+        txt += frames.filter((f) => f.comment !== null)
+                     .map((msg) => `CM_ BO_ ${msg.address} "${msg.comment}";`)
+                     .join("\n");
+
+        const signalsByMsgId = frames.map((f) =>
+                                           Object.values(f.signals)
+                                           .map((sig) => [f.id, sig]))
+                                           .reduce((s1, s2) => s1.concat(s2), []);
+
+        txt += signalsByMsgId.filter(([msgAddr, sig]) => sig.comment !== null)
+                             .map(([msgAddr, sig]) =>
+                                `CM_ SG_ ${msgAddr} ${sig.name} "${sig.comment}";`)
+                             .join("\n") + '\n';
+
+        txt += signalsByMsgId.filter(([msgAddr, sig]) => sig.valueDescriptions.size > 0)
+                             .map(([msgAddr, sig]) => sig.valueDescriptionText(msgAddr))
+                             .join("\n");
+        return txt + '\n';
     }
 
     getMessageName(msgId) {
@@ -208,7 +245,7 @@ export default class DBC {
 
                     for(let i = 0; i < vals.length; i+= 2) {
                         const value = vals[i].trim(), description = vals[i + 1].trim();
-                        signal.valueDescriptions[value] = description;
+                        signal.valueDescriptions.set(value, description);
                     }
                 }
             } else if(line.indexOf("VAL_TABLE_ ") === 0) {
@@ -399,5 +436,37 @@ export default class DBC {
         });
 
         return signalValuesByName;
+    }
+
+    _newSymbols() {
+        return `
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_`;
     }
 }

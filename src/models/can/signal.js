@@ -18,7 +18,7 @@ export default class Signal {
                 multiplex = null,
                 min = null,
                 max = null,
-                valueDescriptions = {}
+                valueDescriptions = new Map()
                 }) {
         Object.assign(this,
             {name,
@@ -55,6 +55,14 @@ export default class Signal {
                ` (${this.factor},${this.offset})` +
                ` [${this.min}|${this.max}]` +
                ` "${this.unit}" ${this.receiver}`
+    }
+
+    valueDescriptionText(msgId) {
+        const entryPairs = Array.from(this.valueDescriptions.entries());
+        const values = entryPairs.reduce((str,
+                        [value, desc]) => str + value + ` "${desc}" `,
+                        '');
+        return `VAL_ ${msgId} ${this.name} ${values};`;
     }
 
     littleEndianBitDescription(bitIndex) {

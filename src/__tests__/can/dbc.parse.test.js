@@ -204,8 +204,8 @@ test('DBC parses signal value descriptions', () => {
     const dbcParsed = new DBC(DBC_SIGNALS_WITH_VAL);
     const {signals} = dbcParsed.messages.get(228);
 
-    const expectedTorqueRequestVals = {'1': 'requesting torque',
-                                       '0': 'not requesting torque'};
+    const expectedTorqueRequestVals = new Map([['1', 'requesting torque'],
+                                               ['0', 'not requesting torque']]);
     expect(signals.STEER_TORQUE_REQUEST.valueDescriptions).toEqual(expectedTorqueRequestVals);
 });
 

@@ -17,7 +17,7 @@ export default class Frame {
 
     header() {
         return `BO_ ${this.id} ${this.name}: ${this.size} ` +
-               `${this.transmitters.join(" ")}`;
+               `${this.transmitters[0] || 'XXX'}`;
     }
 
     text() {
@@ -25,6 +25,10 @@ export default class Frame {
                             .map((signal) => " " + signal.text()) // indent
                             .join("\n");
 
-        return this.header() + "\n" + signals;
+        if(signals.length > 0) {
+            return this.header() + "\n" + signals;
+        } else {
+            return this.header();
+        }
     }
 }
