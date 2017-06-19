@@ -220,42 +220,44 @@ export default class Explorer extends Component {
                                     onMessageExpanded={this.onPause} />
                         </div>
                         <div className={css(Styles.right)}>
-                            {this.props.messages[this.props.selectedMessage] !== undefined ?
-                                <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
-                                                secondsLoaded={this.secondsLoaded()}
-                                                startOffset={this.startOffset()}
-                                                segmentProgress={this.segmentProgress}
-                                                seekIndex={this.state.seekIndex}
-                                                userSeekIndex={this.state.userSeekIndex}
-                                                playing={this.state.playing}
-                                                url={this.props.url}
-                                                canFrameOffset={this.props.canFrameOffset}
-                                                onVideoClick={this.onVideoClick}
-                                                onPlaySeek={this.onPlaySeek}
-                                                onUserSeek={this.onUserSeek}
-                                                onPlay={this.onPlay}
-                                                onPause={this.onPause}
-                                /> : null}
+                            <div className={css(Styles.fixed)}>
+                                {this.props.messages[this.props.selectedMessage] !== undefined ?
+                                    <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
+                                                    secondsLoaded={this.secondsLoaded()}
+                                                    startOffset={this.startOffset()}
+                                                    segmentProgress={this.segmentProgress}
+                                                    seekIndex={this.state.seekIndex}
+                                                    userSeekIndex={this.state.userSeekIndex}
+                                                    playing={this.state.playing}
+                                                    url={this.props.url}
+                                                    canFrameOffset={this.props.canFrameOffset}
+                                                    onVideoClick={this.onVideoClick}
+                                                    onPlaySeek={this.onPlaySeek}
+                                                    onUserSeek={this.onUserSeek}
+                                                    onPlay={this.onPlay}
+                                                    onPause={this.onPause}
+                                    /> : null}
 
-                            {this.state.segment.length > 0 ?
-                                <div className={css(Styles.reset)}
-                                     onClick={() => this.resetSegment()}>
-                                    <p>Reset Segment</p>
-                                </div>
-                                : null}
-                            {this.state.plottedSignals.map(({messageId, name}) => {
-                                const msg = this.props.messages[messageId];
+                                {this.state.segment.length > 0 ?
+                                    <div className={css(Styles.reset)}
+                                         onClick={() => this.resetSegment()}>
+                                        <p>Reset Segment</p>
+                                    </div>
+                                    : null}
+                                {this.state.plottedSignals.map(({messageId, name}) => {
+                                    const msg = this.props.messages[messageId];
 
-                                return <CanGraph key={messageId + '_' + name}
-                                                 unplot={() => {this.onSignalUnplotPressed(messageId, name)}}
-                                                 messageName={msg.name}
-                                                 signalSpec={msg.signals[name]}
-                                                 onSegmentChanged={this.onSegmentChanged}
-                                                 segment={this.state.segment}
-                                                 data={this.graphData(msg, name)}
-                                                 onRelativeTimeClick={this.onGraphTimeClick}
-                                                 currentTime={this.state.seekTime - this.props.firstCanTime} />;
-                            })}
+                                    return <CanGraph key={messageId + '_' + name}
+                                                     unplot={() => {this.onSignalUnplotPressed(messageId, name)}}
+                                                     messageName={msg.name}
+                                                     signalSpec={msg.signals[name]}
+                                                     onSegmentChanged={this.onSegmentChanged}
+                                                     segment={this.state.segment}
+                                                     data={this.graphData(msg, name)}
+                                                     onRelativeTimeClick={this.onGraphTimeClick}
+                                                     currentTime={this.state.seekTime - this.props.firstCanTime} />;
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>);
@@ -278,11 +280,15 @@ const Styles = StyleSheet.create({
         height: '100vh'
     },
     left: {
-        flex: '2 3 auto',
-        overflow: 'auto'
+        flex: '2',
     },
     right: {
-        flex: '4 1',
+        flex: '4',
+    },
+    fixed: {
+        position: 'fixed',
+        top: 0,
+        width: 480
     },
     addSignalsHeader: {
         cursor: 'pointer',
