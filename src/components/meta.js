@@ -111,11 +111,13 @@ export default class Meta extends Component {
     }
 
     hoverButtons(key) {
-        return ([<div className={css(Styles.hoverButton, Styles.editButton)}
+        return ([<div key={"edit"}
+                      className={css(Styles.hoverButton, Styles.editButton)}
                       onClick={() => this.onMsgEditClick(key)}>
                     <p>Edit</p>
                 </div>,
-                <div className={css(Styles.hoverButton, Styles.removeButton)}
+                <div key={"remove"}
+                     className={css(Styles.hoverButton, Styles.removeButton)}
                      onClick={() => this.onRemoveSelectedMsg(key)}>
                     <p>Remove</p>
                 </div>]);
@@ -163,7 +165,6 @@ export default class Meta extends Component {
         return (<div>
                     <p>Available Messages</p>
                     <input type="text"
-                           defaultValue="Filter"
                            value={this.state.filterText}
                            onFocus={this.onFilterFocus}
                            onChange={this.onFilterChanged} />
