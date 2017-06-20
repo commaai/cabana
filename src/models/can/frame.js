@@ -1,11 +1,11 @@
 export default class Frame {
     constructor({name,
-                id = 0,
-                size = 0,
-                transmitters = [],
-                extended = 0,
-                comment = null,
-                signals = {}}) {
+                 id = 0,
+                 size = 0,
+                 transmitters = [],
+                 extended = 0,
+                 comment = null,
+                 signals = {}}) {
         Object.assign(this, {name,
                              id,
                              size,

@@ -33,6 +33,7 @@ export default class Explorer extends Component {
 
         this.state = {
             plottedSignals: [],
+            graphData: {},
             segment: [],
             segmentIndices: [],
             shouldShowAddSignal,
@@ -103,6 +104,19 @@ export default class Explorer extends Component {
                            seekTime,
                            userSeekIndex: seekIndex})
         }
+
+        if(nextMessage && curMessage) {
+            // Refresh graph data
+            const {graphData} = this.state;
+            const msgGraphData = graphData[nextProps.selectedMessage];
+            console.log({msgGraphData})
+            if(msgGraphData) {
+                for(let signalName in msgGraphData) {
+                    graphData[nextProps.selectedMessage][signalName] = this.calcGraphData(nextMessage, signalName);
+                }
+                this.setState({graphData});
+            }
+        }
     }
 
     graphData(msg, signalName) {
@@ -127,14 +141,44 @@ export default class Explorer extends Component {
         });
     }
 
-    onSignalPlotPressed(messageId, name) {
-        const {plottedSignals} = this.state;
-        this.setState({plottedSignals: plottedSignals.concat([{messageId, name}])})
+    calcGraphData(msg, signalName) {
+        if(!msg) return null;
+
+        let samples = [];
+        let skip = Math.floor(msg.entries.length / CanGraph.MAX_POINTS);
+
+        if(skip == 0){
+            samples = msg.entries;
+        } else {
+            for(let i = 0; i < msg.entries.length; i += skip) {
+                samples.push(msg.entries[i]);
+            }
+        }
+
+        return samples.map((entry) => {
+            return {x: entry.time,
+                    xRel: entry.time - this.props.firstCanTime,
+                    y: entry.signals[signalName],
+                    unit: msg.signals[signalName].unit}
+        });
+    }
+
+    onSignalPlotPressed(messageId, signalName) {
+        const {plottedSignals, graphData} = this.state;
+        if(!(messageId in graphData)) {
+            graphData[messageId] = {};
+        }
+
+        const msg = this.props.messages[messageId];
+        graphData[messageId][signalName] = this.calcGraphData(msg, signalName);
+
+        this.setState({plottedSignals: plottedSignals.concat([{messageId, signalName}]),
+                       graphData})
     }
 
     onSignalUnplotPressed(messageId, name) {
      const {plottedSignals} = this.state;
-     const newPlottedSignals = plottedSignals.filter((signal) => !(signal.messageId == messageId && signal.name == name));
+     const newPlottedSignals = plottedSignals.filter((signal) => !(signal.messageId == messageId && signal.signalName == name));
 
      this.setState({plottedSignals: newPlottedSignals})
     }
@@ -302,16 +346,16 @@ export default class Explorer extends Component {
                                         <p>Reset Segment</p>
                                     </div>
                                     : null}
-                                {this.state.plottedSignals.map(({messageId, name}) => {
+                                {this.state.plottedSignals.map(({messageId, signalName}) => {
                                     const msg = this.props.messages[messageId];
 
-                                    return <CanGraph key={messageId + '_' + name}
-                                                     unplot={() => {this.onSignalUnplotPressed(messageId, name)}}
+                                    return <CanGraph key={messageId + '_' + signalName}
+                                                     unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
                                                      messageName={msg.name}
-                                                     signalSpec={msg.signals[name]}
+                                                     signalSpec={msg.signals[signalName]}
                                                      onSegmentChanged={this.onSegmentChanged}
                                                      segment={this.state.segment}
-                                                     data={this.graphData(msg, name)}
+                                                     data={this.state.graphData[messageId][signalName]}
                                                      onRelativeTimeClick={this.onGraphTimeClick}
                                                      currentTime={this.state.seekTime - this.props.firstCanTime} />;
                                 })}

@@ -80,7 +80,7 @@ export default class CanLog extends Component {
     }
 
     isSignalPlotted(msgId, signalName) {
-      const plottedSignal = this.props.plottedSignals.find((signal) => signal.messageId == msgId && signal.name == signalName);
+      const plottedSignal = this.props.plottedSignals.find((signal) => signal.messageId == msgId && signal.signalName == signalName);
       return plottedSignal !== undefined;
     }
 
