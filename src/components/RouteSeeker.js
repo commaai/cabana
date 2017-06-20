@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite/no-important';
 
 import PlayButton from './PlayButton';
+import debounce from '../utils/debounce';
 
 export default class RouteSeeker extends Component {
     static propTypes = {
@@ -27,11 +28,14 @@ export default class RouteSeeker extends Component {
             seekedBarStyle: RouteSeeker.zeroSeekedBarStyle,
             markerStyle: RouteSeeker.hiddenMarkerStyle,
             ratio: 0,
-            isPlaying: false
+            isPlaying: false,
+            isDragging: false
         };
 
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
         this.onClick = this.onClick.bind(this);
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
@@ -75,6 +79,8 @@ export default class RouteSeeker extends Component {
         return 100 * (x / this.progressBar.offsetWidth);
     }
 
+    updateDraggingSeek = debounce((ratio) => this.props.onUserSeek(ratio), 250);
+
     onMouseMove(e) {
         const markerOffsetPct = this.mouseEventXOffsetPercent(e);
 
@@ -86,11 +92,16 @@ export default class RouteSeeker extends Component {
                 left: `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`
             }
         });
+        if(this.state.isDragging) {
+            const ratio = Math.max(0, markerOffsetPct / 100);
+            this.updateSeekedBar(ratio);
+            this.updateDraggingSeek(ratio);
+        }
         this.setState({markerStyle});
     }
 
     onMouseLeave(e) {
-        this.setState({markerStyle: RouteSeeker.hiddenMarkerStyle});
+        this.setState({markerStyle: RouteSeeker.hiddenMarkerStyle, isDragging: false});
     }
 
     updateSeekedBar(ratio) {
@@ -142,6 +153,18 @@ export default class RouteSeeker extends Component {
         this.props.onPause();
     }
 
+    onMouseDown() {
+        if(!this.state.isDragging) {
+            this.setState({isDragging: true});
+        }
+    }
+
+    onMouseUp() {
+        if(this.state.isDragging) {
+            this.setState({isDragging: false});
+        }
+    }
+
     render() {
         const {seekedBarStyle, markerStyle} = this.state;
         return (<div className={this.props.className}>
@@ -156,6 +179,8 @@ export default class RouteSeeker extends Component {
                             <div className={css(Styles.progressBar)}
                                  onMouseMove={this.onMouseMove}
                                  onMouseLeave={this.onMouseLeave}
+                                 onMouseDown={this.onMouseDown}
+                                 onMouseUp={this.onMouseUp}
                                  onClick={this.onClick}
                                  ref={(ref) => this.progressBar = ref}>
                                 <div className={css(Styles.marker, markerStyle.marker)}

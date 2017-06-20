@@ -232,15 +232,17 @@ export default class CanExplorer extends Component {
                           dbcLastSaved={this.state.dbcLastSaved}
                           onPartChange={this.onPartChange}
                           showEditMessageModal={this.showEditMessageModal} />
-                    {Object.keys(this.state.messages).length > 0
-                      && this.state.selectedMessage ?
-                      <Explorer
-                          url={this.state.route.url}
-                          messages={this.state.messages}
-                          selectedMessage={this.state.selectedMessage}
-                          onConfirmedSignalChange={this.onConfirmedSignalChange}
-                          canFrameOffset={this.state.canFrameOffset}
-                          firstCanTime={this.state.firstCanTime} /> : null}
+                    <div className={css(Styles.right)}>
+                      {Object.keys(this.state.messages).length > 0
+                        && this.state.selectedMessage ?
+                        <Explorer
+                            url={this.state.route.url}
+                            messages={this.state.messages}
+                            selectedMessage={this.state.selectedMessage}
+                            onConfirmedSignalChange={this.onConfirmedSignalChange}
+                            canFrameOffset={this.state.canFrameOffset}
+                            firstCanTime={this.state.firstCanTime} /> : null}
+                    </div>
 
                     {this.state.showLoadDbc ? <LoadDbcModal
                                                 onDbcSelected={this.onDbcSelected}
@@ -264,5 +266,8 @@ const Styles = StyleSheet.create({
     root: {
         flexDirection: 'row',
         display: 'flex',
+    },
+    right: {
+      flex: 8,
     }
 });

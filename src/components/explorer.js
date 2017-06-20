@@ -370,7 +370,6 @@ export default class Explorer extends Component {
 const Styles = StyleSheet.create({
     root: {
         flexDirection: 'column',
-        flex: 4,
         width: '100%',
     },
     dataContainer: {

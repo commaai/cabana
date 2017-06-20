@@ -125,7 +125,7 @@ export default class CanLog extends Component {
       const hasSignals = Object.keys(msg.signals).length > 0;
       const rowStyle = (hasSignals ? Styles.pointer : null);
       const row = [<div key={key}
-                        className={css(Styles.row, rowStyle)}
+                        className={css(Styles.row, Styles.messageRow, rowStyle)}
                         onClick={() => {
                          if(!hasSignals) return;
                          if(msgIsExpanded) {
@@ -237,8 +237,12 @@ const Styles = StyleSheet.create({
     tableRowGroup: {
       display: 'table-row-group'
     },
+    messageRow: {
+      lineHeight: '24px'
+    },
     signalCol: {
-      width: '1px'
+      width: '1px',
+      paddingBottom: '15px'
     },
     col: {
       display: 'table-cell',

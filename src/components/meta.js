@@ -237,6 +237,7 @@ const Styles = StyleSheet.create({
         borderColor: 'gray',
         borderRight: 'solid',
         borderRightWidth: 2,
+        backgroundColor: 'rgb(246,246,246)'
     },
     titleText: {
         fontFamily: 'monospace',
