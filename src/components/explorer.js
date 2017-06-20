@@ -109,7 +109,7 @@ export default class Explorer extends Component {
             // Refresh graph data
             const {graphData} = this.state;
             const msgGraphData = graphData[nextProps.selectedMessage];
-            console.log({msgGraphData})
+
             if(msgGraphData) {
                 for(let signalName in msgGraphData) {
                     graphData[nextProps.selectedMessage][signalName] = this.calcGraphData(nextMessage, signalName);
