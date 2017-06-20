@@ -12,6 +12,7 @@ import RouteSeeker from './RouteSeeker';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
 import CommonStyles from '../styles/styles';
+import Images from '../styles/images';
 
 export default class Explorer extends Component {
     static propTypes = {
@@ -292,9 +293,9 @@ export default class Explorer extends Component {
         return (<div className={css(Styles.addSignalsHeader)}
                      onClick={() => this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal})}>
                     {shouldShowAddSignal ?
-                        <p>&darr;</p>
+                        <Images.downArrow />
                         :
-                        <p>&rarr;</p>}
+                        <Images.rightArrow />}
                     <p>Edit Signals</p>
                 </div>);
     }
@@ -397,7 +398,8 @@ const Styles = StyleSheet.create({
         cursor: 'pointer',
         borderBottom: '1px solid #000',
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center'
     },
 
 })

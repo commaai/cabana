@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ReactList from 'react-list';
-import Measure from 'react-measure';
 
 import { StyleSheet, css } from 'aphrodite/no-important';
 import { formatMsgDec, formatMsgHex } from '../models/can-msg-fmt';
 import { elementWiseEquals } from '../utils/array';
+import Images from '../styles/images';
 
 export default class CanLog extends Component {
     static ITEMS_PER_PAGE = 50;
@@ -135,9 +135,9 @@ export default class CanLog extends Component {
                          }
                          }}>
                           {hasSignals ?
-                            (msgIsExpanded ? <div className={css(Styles.col)}>&rarr;</div>
+                            (msgIsExpanded ? <div className={css(Styles.col, Styles.cellCenter)}>{<Images.downArrow />}</div>
                               :
-                              <div className={css(Styles.col)}>&darr;</div>
+                              <div className={css(Styles.col, Styles.cellCenter)}>{<Images.rightArrow />}</div>
                             )
                             : <div className={css(Styles.col)}></div>
                           }
@@ -242,6 +242,10 @@ const Styles = StyleSheet.create({
     },
     col: {
       display: 'table-cell',
+    },
+    cellCenter: {
+      verticalAlign: 'middle',
+      textAlign: 'center',
     },
     dropdownCol: {
       width: '10px',
