@@ -9,31 +9,32 @@ import {copyOmittingKey} from '../utils/object';
 export default class EditMessageModal extends Component {
     static propTypes = {
         onCancel: PropTypes.func.isRequired,
-        onMessageEdited: PropTypes.func.isRequired,
-        messageFrame: PropTypes.instanceOf(Frame).isRequired
+        onMessageFrameEdited: PropTypes.func.isRequired,
+        message: PropTypes.object.isRequired,
     };
 
     constructor(props) {
         super(props);
 
         this.state = {
-            messageFrame: Object.assign(Object.create(props.messageFrame), props.messageFrame)
+            messageFrame: Object.assign(Object.create(props.message.frame), props.message.frame)
         }
         this.onContinue = this.onContinue.bind(this);
     }
 
     onContinue() {
-        this.props.onMessageEdited(this.state.messageFrame);
+        this.props.onMessageFrameEdited(this.state.messageFrame);
     }
 
     render() {
-        return (<Modal title={"Edit Message " + this.state.messageFrame.id}
+        return (<Modal title={"Edit Message " + this.props.message.id}
                        continueEnabled={true}
                        onCancel={this.props.onCancel}
                        onContinue={this.onContinue}>
+
                     <div>
                         <div>
-                            <p>Name</p>
+                            <p className={css(Styles.inputField)}>Name</p>
                             <input type="text"
                                    value={this.state.messageFrame.name}
                                    onChange={(e) => {
@@ -41,11 +42,15 @@ export default class EditMessageModal extends Component {
                                     messageFrame.name = e.target.value;
                                     this.setState({messageFrame});
                                    }} />
-                            <p>Size</p>
+                            <p className={css(Styles.inputField)}>Size</p>
                             <input type="number"
+                                   className={css(Styles.inputSmall)}
                                    value={this.state.messageFrame.size}
                                    onChange={(e) => {
                                     const {messageFrame} = this.state;
+                                    if(e.target.value > 8) {
+                                      return;
+                                    }
                                     messageFrame.size = parseInt(e.target.value);
                                     this.setState({messageFrame});
                                    }} />
@@ -54,3 +59,12 @@ export default class EditMessageModal extends Component {
                 </Modal>);
     }
 }
+
+const Styles = StyleSheet.create({
+  inputField: {
+    fontWeight: 'bold'
+  },
+  inputSmall: {
+    width: 30
+  }
+});

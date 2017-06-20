@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
 import * as GithubAuth from '../api/github-auth';
+import Images from '../styles/images';
 
 export default class Meta extends Component {
     static propTypes = {
@@ -32,6 +33,7 @@ export default class Meta extends Component {
         };
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onFilterFocus = this.onFilterFocus.bind(this);
+        this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
         this.msgKeyFilter = this.msgKeyFilter.bind(this);
     }
 
@@ -61,12 +63,21 @@ export default class Meta extends Component {
     }
 
     onFilterChanged(e) {
-        this.setState({filterText: e.target.value})
+        let val = e.target.value;
+        if(val.trim() === 'Filter') val = '';
+
+        this.setState({filterText: val})
     }
 
     onFilterFocus(e) {
-        if(this.state.filterText == 'Filter') {
+        if(this.state.filterText.trim() == 'Filter') {
             this.setState({filterText: ''})
+        }
+    }
+
+    onFilterUnfocus(e) {
+        if(this.state.filterText.trim() == '') {
+            this.setState({filterText: 'Filter'})
         }
     }
 
@@ -162,12 +173,22 @@ export default class Meta extends Component {
             return null;
         }
 
+        const defaultTextVisible = this.state.filterText.trim() === 'Filter';
+
         return (<div>
                     <p>Available Messages</p>
-                    <input type="text"
-                           value={this.state.filterText}
-                           onFocus={this.onFilterFocus}
-                           onChange={this.onFilterChanged} />
+                    <div className={css(Styles.filter)}>
+                        <input type="text"
+                               value={this.state.filterText}
+                               onFocus={this.onFilterFocus}
+                               onBlur={this.onFilterUnfocus}
+                               onChange={this.onFilterChanged}
+                               className={css(defaultTextVisible ? Styles.defaultFilterText: null)}
+                               />
+                        {this.state.filterText.trim().length > 0 && this.state.filterText !== 'Filter' ?
+                        <Images.clear onClick={() => this.setState({filterText: 'Filter'})} />
+                        : null}
+                    </div>
                     <ul className={css(Styles.messageList)}>
                         {Object.keys(this.props.messages)
                             .filter(this.msgKeyFilter)
@@ -234,9 +255,6 @@ const Styles = StyleSheet.create({
         padding: 10,
         flex: 1,
         maxWidth: 420,
-        borderColor: 'gray',
-        borderRight: 'solid',
-        borderRightWidth: 2,
         backgroundColor: 'rgb(246,246,246)'
     },
     titleText: {
@@ -257,7 +275,7 @@ const Styles = StyleSheet.create({
             backgroundColor: 'rgba(0,0,0,0.1)'
         },
         marginTop: 5,
-        fontSize: 14,
+        fontSize: 12,
         display: 'flex',
         flexDirection: 'row'
     },
@@ -288,5 +306,13 @@ const Styles = StyleSheet.create({
     removeButton: {
         backgroundColor: 'RGBA(255, 34, 59, 0.83)',
         color: 'RGBA(251, 253, 242, 1.00)'
+    },
+    defaultFilterText: {
+        color: 'rgb(205,205,205)'
+    },
+    filter: {
+        display: 'flex',
+        flexDirection: 'row',
+        height: 24
     }
 });

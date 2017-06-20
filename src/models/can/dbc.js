@@ -141,15 +141,21 @@ export default class DBC {
         return {};
     }
 
+    createFrame(msgId) {
+        const msg = new Frame({name: this.nextNewFrameName(),
+                               id: msgId,
+                               size: 8});
+        this.messages.set(msgId, msg);
+        return msg;
+    }
+
     setSignals(msgId, signals) {
         const msg = this.messages.get(msgId);
         if(msg) {
             msg.signals = signals;
             this.messages.set(msgId, msg);
         } else {
-            const msg = new Frame({name: this.nextNewFrameName(),
-                                   id: msgId,
-                                   size: 8});
+            const msg = this.createFrame(msgId);
             msg.signals = signals;
             this.messages.set(msgId, msg);
         }

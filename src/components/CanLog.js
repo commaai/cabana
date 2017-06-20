@@ -52,6 +52,7 @@ export default class CanLog extends Component {
         || nextProps.plottedSignals.length != this.props.plottedSignals.length
         || JSON.stringify(nextProps.segmentIndices) != JSON.stringify(this.props.segmentIndices)
         || JSON.stringify(nextState) != JSON.stringify(this.state)
+        || this.props.message != nextProps.message
         || (this.props.message !== undefined
             && nextProps.message !== undefined
             &&
@@ -62,6 +63,7 @@ export default class CanLog extends Component {
               ||
                 (JSON.stringify(this.props.message.frame) != JSON.stringify(nextProps.message.frame))
               ));
+
       return shouldUpdate;
     }
 

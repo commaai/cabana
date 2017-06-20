@@ -51,7 +51,7 @@ export default class CanExplorer extends Component {
         this.onDbcSaved = this.onDbcSaved.bind(this);
         this.onConfirmedSignalChange = this.onConfirmedSignalChange.bind(this);
         this.onPartChange = this.onPartChange.bind(this);
-        this.onMessageEdited = this.onMessageEdited.bind(this);
+        this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
     }
 
     componentWillMount() {
@@ -204,18 +204,28 @@ export default class CanExplorer extends Component {
     }, 500);
 
     showEditMessageModal(msgKey) {
+      const msg = this.state.messages[msgKey];
+      if(!msg.frame) {
+        msg.frame = this.state.dbc.createFrame(msg.address);
+      }
+
       this.setState({showEditMessageModal: true,
-                     editMessageModalMessage: msgKey});
+                     editMessageModalMessage: msgKey,
+                     messages: this.state.messages});
     }
 
     hideEditMessageModal() {
       this.setState({showEditMessageModal: false});
     }
 
-    onMessageEdited(messageFrame) {
-      const message = this.state.messages[this.state.editMessageModalMessage];
+    onMessageFrameEdited(messageFrame) {
+      const msgKey = this.state.editMessageModalMessage
+      const message = Object.assign({}, this.state.messages[msgKey]);
       message.frame = messageFrame;
-      this.setState({messages: this.state.messages});
+
+      const {messages} = this.state;
+      messages[msgKey] = message;
+      this.setState({messages});
       this.hideEditMessageModal();
     }
 
@@ -256,8 +266,8 @@ export default class CanExplorer extends Component {
                     {this.state.showEditMessageModal ?
                       <EditMessageModal
                         onCancel={this.hideEditMessageModal}
-                        onMessageEdited={this.onMessageEdited}
-                        messageFrame={this.state.messages[this.state.editMessageModalMessage].frame} /> : null}
+                        onMessageFrameEdited={this.onMessageFrameEdited}
+                        message={this.state.messages[this.state.editMessageModalMessage]} /> : null}
                 </div>);
     }
 }
@@ -266,6 +276,10 @@ const Styles = StyleSheet.create({
     root: {
         flexDirection: 'row',
         display: 'flex',
+        fontFamily: `apple-system, BlinkMacSystemFont,
+                     "Segoe UI", "Roboto", "Oxygen",
+                     "Ubuntu", "Cantarell", "Fira Sans",
+                     "Droid Sans", "Helvetica Neue", sans-serif`
     },
     right: {
       flex: 8,

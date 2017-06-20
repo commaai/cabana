@@ -53,6 +53,9 @@ const Styles = StyleSheet.create({
     backgroundColor: 'white',
     opacity: 0.75
   },
+  title: {
+    fontSize: 20
+  },
   box: {
       position: 'absolute',
       left: '50%',
@@ -62,16 +65,26 @@ const Styles = StyleSheet.create({
       borderRadius: '4px',
       border: '1px solid #000',
       boxShadow: '1px 1px 1px #000',
-      padding: 20
+      padding: 20,
+      minWidth: 480
+  },
+  select: {
+    paddingTop: 20,
+    display: 'flex',
+    flexDirection: 'row'
   },
   finishButton: {
     borderRadius: 5,
     height: 40,
     width: 80,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   selectButton: {
-    backgroundColor: 'rgb(77,144,254)'
+    backgroundColor: 'rgb(77,144,254)',
+    color: 'white'
   },
   selectButtonDisabled: {
     cursor: 'default',
