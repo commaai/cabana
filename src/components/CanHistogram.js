@@ -80,7 +80,7 @@ export default class CanHistogram extends Component {
                                               data={{binned: this.state.bins.bins}}
                                               onSignalSegment={this.onSignalSegment}
                             />
-                            <p className={css(Styles.label)}>{this.props.message.name} per time</p>
+                            <p className={css(Styles.label)}>{this.props.message.frame ? this.props.message.frame.name : this.props.message.id} per time</p>
                         </div>)
                         : null}
 

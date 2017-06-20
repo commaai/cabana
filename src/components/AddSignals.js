@@ -97,7 +97,7 @@ export default class AddSignals extends Component {
     }
 
     componentWillReceiveProps({message}) {
-        const isNewMessage = message.name != this.props.message.name;
+        const isNewMessage = message.address != this.props.message.address;
 
         if(isNewMessage) {
             const signalStyles = this.updateSignalStyles(message.signals);

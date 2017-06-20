@@ -351,7 +351,7 @@ export default class Explorer extends Component {
 
                                     return <CanGraph key={messageId + '_' + signalName}
                                                      unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
-                                                     messageName={msg.name}
+                                                     messageName={msg.frame ? msg.frame.name : null}
                                                      signalSpec={msg.signals[signalName]}
                                                      onSegmentChanged={this.onSegmentChanged}
                                                      segment={this.state.segment}

@@ -17,7 +17,8 @@ export default class Meta extends Component {
         showLoadDbc: PropTypes.func,
         showSaveDbc: PropTypes.func,
         dbcFilename: PropTypes.string,
-        dbcLastSaved: PropTypes.object // moment.js object
+        dbcLastSaved: PropTypes.object, // moment.js object,
+        showEditMessageModal: PropTypes.func
     };
 
     constructor(props) {
@@ -25,7 +26,9 @@ export default class Meta extends Component {
         const {dbcLastSaved} = props;
         this.state = {
             filterText: 'Filter',
-            lastSaved: dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null
+            lastSaved: dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
+            selectedMessages: [],
+            hoveredMessages: []
         };
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onFilterFocus = this.onFilterFocus.bind(this);
@@ -48,6 +51,13 @@ export default class Meta extends Component {
         if(nextProps.lastSaved !== this.props.lastSaved && typeof nextProps === 'object') {
             this.setState({lastSaved: nextProps.dbcLastSaved.fromNow()})
         }
+
+        const nextMsgKeys = Object.keys(nextProps.messages);
+        if(JSON.stringify(nextMsgKeys) != JSON.stringify(Object.keys(this.props.messages))) {
+            let {selectedMessages} = this.state;
+            selectedMessages = selectedMessages.filter((m) => nextMsgKeys.indexOf(m) !== -1);
+            this.setState({selectedMessages, hoveredMessages: []});
+        }
     }
 
     onFilterChanged(e) {
@@ -62,7 +72,8 @@ export default class Meta extends Component {
 
     msgKeyFilter(key) {
         const {filterText} = this.state;
-        const msgName = this.props.messages[key].name || '';
+        const msg = this.props.messages[key];
+        const msgName = (msg.frame ? msg.frame.name : '');
 
         return (filterText == 'Filter'
                 || filterText == ''
@@ -73,6 +84,101 @@ export default class Meta extends Component {
     lastSavedPretty() {
         const {dbcLastSaved} = this.props;
         return dbcLastSaved.fromNow();
+    }
+
+    onMessageHover(key) {
+        let {hoveredMessages} = this.state;
+        if(hoveredMessages.indexOf(key) !== -1) return;
+
+        hoveredMessages.push(key);
+        this.setState({hoveredMessages});
+    }
+
+    onMessageHoverEnd(key) {
+        let {hoveredMessages} = this.state;
+        hoveredMessages = hoveredMessages.filter((m) => m != key);
+        this.setState({hoveredMessages});
+    }
+
+    onMsgEditClick(key) {
+        this.props.showEditMessageModal(key);
+    }
+
+    onMsgRemoveClick(key) {
+        let {selectedMessages} = this.state;
+        selectedMessages = selectedMessages.filter((m) => m != key);
+        this.setState({selectedMessages});
+    }
+
+    hoverButtons(key) {
+        return ([<div className={css(Styles.hoverButton, Styles.editButton)}
+                      onClick={() => this.onMsgEditClick(key)}>
+                    <p>Edit</p>
+                </div>,
+                <div className={css(Styles.hoverButton, Styles.removeButton)}
+                     onClick={() => this.onRemoveSelectedMsg(key)}>
+                    <p>Remove</p>
+                </div>]);
+    }
+
+    selectedMessagesList() {
+        const {selectedMessages, hoveredMessages} = this.state;
+        if(selectedMessages.length === 0) return null;
+
+        const messages = selectedMessages
+                            .sort()
+                            .map((key) => {
+                                const msg = this.props.messages[key];
+                                return <li key={key}
+                                        className={css(Styles.message,
+                                                       Styles.selectedMessage)}
+                                        onMouseEnter={() => this.onMessageHover(key)}
+                                        onMouseLeave={() => this.onMessageHoverEnd(key)}>
+                                        {msg.frame ? msg.frame.name : ''} ({key})
+                                        {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
+                                    </li>
+                            });
+        return (<div>
+                    <p>Selected Messages</p>
+                    <ul className={css(Styles.messageList)}>
+                        {messages}
+                    </ul>
+                </div>);
+    }
+
+    onMessageSelected(key) {
+        // uncomment when we support multiple messages
+        // const selectedMessages = this.state.selectedMessages.filter((m) => m != key);
+        const selectedMessages = [];
+        selectedMessages.push(key);
+        this.setState({selectedMessages});
+        this.props.onMessageSelected(key);
+    }
+
+    availableMessagesList() {
+        if(Object.keys(this.props.messages).length === 0) {
+            return null;
+        }
+
+        return (<div>
+                    <p>Available Messages</p>
+                    <input type="text"
+                           defaultValue="Filter"
+                           value={this.state.filterText}
+                           onFocus={this.onFilterFocus}
+                           onChange={this.onFilterChanged} />
+                    <ul className={css(Styles.messageList)}>
+                        {Object.keys(this.props.messages)
+                            .filter(this.msgKeyFilter)
+                            .sort()
+                            .map((key) => {
+                                const msg = this.props.messages[key];
+                                return <li onClick={() => {this.onMessageSelected(key)}}
+                                        key={key}
+                                        className={css(Styles.message)}>{msg.frame ? msg.frame.name : ''} ({key})</li>
+                            })}
+                    </ul>
+                </div>);
     }
 
     render() {
@@ -115,23 +221,8 @@ export default class Meta extends Component {
                     onPartChange={this.props.onPartChange}
                     partsCount={this.props.partsCount}
                 />
-                <div>
-                    <input type="text"
-                           defaultValue="Filter"
-                           value={this.state.filterText}
-                           onFocus={this.onFilterFocus}
-                           onChange={this.onFilterChanged} />
-                    <ul className={css(Styles.messageList)}>
-                        {Object.keys(this.props.messages)
-                            .filter(this.msgKeyFilter)
-                            .sort()
-                            .map((key) => (
-                                <li onClick={() => {this.props.onMessageSelected(key)}}
-                                    key={key}
-                                    className={css(Styles.message)}>{this.props.messages[key].name} ({key})</li>
-                            ))}
-                    </ul>
-                </div>
+                {this.selectedMessagesList()}
+                {this.availableMessagesList()}
             </div>
         );
     }
@@ -164,7 +255,9 @@ const Styles = StyleSheet.create({
             backgroundColor: 'rgba(0,0,0,0.1)'
         },
         marginTop: 5,
-        fontSize: 14
+        fontSize: 14,
+        display: 'flex',
+        flexDirection: 'row'
     },
     messageList: {
         margin: 0,
@@ -176,5 +269,22 @@ const Styles = StyleSheet.create({
             textDecoration: 'underline'
         },
         display: 'inline'
+    },
+    hoverButton: {
+        height: 15,
+        padding: 8,
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        display: 'flex',
+        marginLeft: 15
+    },
+    editButton: {
+        backgroundColor: 'RGBA(105, 69, 33, 1.00)',
+        color: 'RGBA(251, 253, 242, 1.00)'
+    },
+    removeButton: {
+        backgroundColor: 'RGBA(255, 34, 59, 0.83)',
+        color: 'RGBA(251, 253, 242, 1.00)'
     }
 });

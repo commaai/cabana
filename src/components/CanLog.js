@@ -54,11 +54,14 @@ export default class CanLog extends Component {
         || JSON.stringify(nextState) != JSON.stringify(this.state)
         || (this.props.message !== undefined
             && nextProps.message !== undefined
-            && this.props.message.signals
-            && nextProps.message.signals
-            && !elementWiseEquals(
-                Object.keys(this.props.message.signals),
-                Object.keys(nextProps.message.signals)));
+            &&
+              (
+                (this.props.message.signals
+                && nextProps.message.signals
+                && JSON.stringify(this.props.message.signals) != JSON.stringify(nextProps.message.signals))
+              ||
+                (JSON.stringify(this.props.message.frame) != JSON.stringify(nextProps.message.frame))
+              ));
       return shouldUpdate;
     }
 
@@ -143,7 +146,7 @@ export default class CanLog extends Component {
                     </div>
                     <div className={css(Styles.col,
                                         Styles.messageCol)}>
-                      {this.props.message.name || this.props.message.id}
+                      {(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}
                     </div>
                     <div className={css(Styles.col,
                                         Styles.messageCol,

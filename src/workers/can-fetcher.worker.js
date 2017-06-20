@@ -6,8 +6,7 @@ import * as CanApi from '../api/can';
 const Int64LE = require('int64-buffer').Int64LE
 
 function createMessageSpec(dbc, address, id, bus) {
-    return {name: dbc.getMessageName(address),
-            address: address,
+    return {address: address,
             id: id,
             bus: bus,
             entries: [],

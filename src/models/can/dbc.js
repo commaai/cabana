@@ -65,7 +65,9 @@ export default class DBC {
         const messageNames = [];
 
         for(let msg of this.messages.values()) {
-            messageNames.push(msg.name);
+            if(msg.frame) {
+                messageNames.push(msg.frame.name);
+            }
         }
 
         let msgNum = 1, msgName;
@@ -129,7 +131,7 @@ export default class DBC {
 
     getMessageName(msgId) {
         const msg = this.messages.get(msgId);
-        if(msg) return msg.name;
+        if(msg && msg.frame) return msg.frame.name;
         return null;
     }
 

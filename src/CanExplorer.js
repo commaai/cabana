@@ -14,6 +14,7 @@ const CanFetcher = require('./workers/can-fetcher.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
 import debounce from './utils/debounce';
+import EditMessageModal from './components/EditMessageModal';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -33,6 +34,8 @@ export default class CanExplorer extends Component {
             currentParts: [0,0],
             showLoadDbc: false,
             showSaveDbc: false,
+            showEditMessageModal: false,
+            editMessageModalMessage: null,
             dbc: null,
             dbcFilename: null,
             dbcLastSaved: null
@@ -42,11 +45,13 @@ export default class CanExplorer extends Component {
         this.hideLoadDbc = this.hideLoadDbc.bind(this);
         this.showSaveDbc = this.showSaveDbc.bind(this);
         this.hideSaveDbc = this.hideSaveDbc.bind(this);
-
+        this.showEditMessageModal = this.showEditMessageModal.bind(this);
+        this.hideEditMessageModal = this.hideEditMessageModal.bind(this);
         this.onDbcSelected = this.onDbcSelected.bind(this);
         this.onDbcSaved = this.onDbcSaved.bind(this);
         this.onConfirmedSignalChange = this.onConfirmedSignalChange.bind(this);
         this.onPartChange = this.onPartChange.bind(this);
+        this.onMessageEdited = this.onMessageEdited.bind(this);
     }
 
     componentWillMount() {
@@ -198,6 +203,22 @@ export default class CanExplorer extends Component {
       });
     }, 500);
 
+    showEditMessageModal(msgKey) {
+      this.setState({showEditMessageModal: true,
+                     editMessageModalMessage: msgKey});
+    }
+
+    hideEditMessageModal() {
+      this.setState({showEditMessageModal: false});
+    }
+
+    onMessageEdited(messageFrame) {
+      const message = this.state.messages[this.state.editMessageModalMessage];
+      message.frame = messageFrame;
+      this.setState({messages: this.state.messages});
+      this.hideEditMessageModal();
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <Meta url={this.state.route.url}
@@ -209,7 +230,8 @@ export default class CanExplorer extends Component {
                           showSaveDbc={this.showSaveDbc}
                           dbcFilename={this.state.dbcFilename}
                           dbcLastSaved={this.state.dbcLastSaved}
-                          onPartChange={this.onPartChange} />
+                          onPartChange={this.onPartChange}
+                          showEditMessageModal={this.showEditMessageModal} />
                     {Object.keys(this.state.messages).length > 0
                       && this.state.selectedMessage ?
                       <Explorer
@@ -229,6 +251,11 @@ export default class CanExplorer extends Component {
                                                 sourceDbcFilename={this.state.dbcFilename}
                                                 onDbcSaved={this.onDbcSaved}
                                                 onCancel={this.hideSaveDbc} /> : null}
+                    {this.state.showEditMessageModal ?
+                      <EditMessageModal
+                        onCancel={this.hideEditMessageModal}
+                        onMessageEdited={this.onMessageEdited}
+                        messageFrame={this.state.messages[this.state.editMessageModalMessage].frame} /> : null}
                 </div>);
     }
 }
