@@ -129,7 +129,7 @@ export default class Meta extends Component {
                 </div>,
                 <div key={"remove"}
                      className={css(Styles.hoverButton, Styles.removeButton)}
-                     onClick={() => this.onRemoveSelectedMsg(key)}>
+                     onClick={() => this.onMsgRemoveClick(key)}>
                     <p>Remove</p>
                 </div>]);
     }

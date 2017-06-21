@@ -28,13 +28,15 @@ export default class CanLog extends Component {
       this.state = {
         length: 0,
         expandedMessages: [],
-        messageHeights: []
+        messageHeights: [],
+        expandAllChecked: false
       }
 
       this.messageRow = this.messageRow.bind(this);
       this.addDisplayedMessages = this.addDisplayedMessages.bind(this);
       this.renderMessage = this.renderMessage.bind(this);
       this.renderTable = this.renderTable.bind(this);
+      this.onExpandAllChanged = this.onExpandAllChanged.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -93,7 +95,7 @@ export default class CanLog extends Component {
       return (<div className={css(Styles.row, Styles.signalRow)} key={msg.time + '-expanded'}>
           <div className={css(Styles.col)}>
             <div className={css(Styles.signalCol)}>
-              <table>
+              <table className={css(Styles.signalTable)}>
                 <tbody>
                   {Object.entries(msg.signals).map(([name, value]) => {
                     return [name, value, this.isSignalPlotted(this.props.message.id, name)]
@@ -101,7 +103,7 @@ export default class CanLog extends Component {
                     const {unit} = this.props.message.signals[name];
                     return (<tr key={name}>
                               <td>{name}</td>
-                              <td>{value} {unit}</td>
+                              <td><p className={css(Styles.signalValue)}>{value} {unit}</p></td>
                               {isPlotted ?
                                 <td className={css(Styles.pointerUnderlineHover)}
                                     onClick={() => {this.props.onSignalUnplotPressed(this.props.message.id, name)}}>[unplot]</td>
@@ -123,7 +125,7 @@ export default class CanLog extends Component {
     }
 
     messageRow(msg, key) {
-      const msgIsExpanded = this.isMessageExpanded(msg);
+      const msgIsExpanded = this.state.expandAllChecked || this.isMessageExpanded(msg);
       const hasSignals = Object.keys(msg.signals).length > 0;
       const rowStyle = (hasSignals ? Styles.pointer : null);
       const row = [<div key={key}
@@ -137,9 +139,9 @@ export default class CanLog extends Component {
                          }
                          }}>
                           {hasSignals ?
-                            (msgIsExpanded ? <div className={css(Styles.col, Styles.cellCenter)}>{<Images.downArrow />}</div>
+                            (msgIsExpanded ? <div className={css(Styles.col, Styles.arrowCell)}>{<Images.downArrow styles={[Styles.arrow]} />}</div>
                               :
-                              <div className={css(Styles.col, Styles.cellCenter)}>{<Images.rightArrow />}</div>
+                              <div className={css(Styles.col, Styles.arrowCell)}>{<Images.rightArrow styles={[Styles.arrow]} />}</div>
                             )
                             : <div className={css(Styles.col)}></div>
                           }
@@ -207,8 +209,19 @@ export default class CanLog extends Component {
       }
     }
 
+    onExpandAllChanged(e) {
+      console.log(e.target.checked, typeof e.target.checked);
+      this.setState({expandAllChecked: e.target.checked});
+    }
+
     render() {
+
       return  <div>
+                  <p className={css(Styles.expandAll)}>Expand all messages:
+                    <input type="checkbox"
+                           checked={this.state.expandAllChecked}
+                           onChange={this.onExpandAllChanged} />
+                  </p>
                   <ReactList
                   itemRenderer={this.renderMessage}
                   itemsRenderer={this.renderTable}
@@ -249,9 +262,10 @@ const Styles = StyleSheet.create({
     col: {
       display: 'table-cell',
     },
-    cellCenter: {
+    arrowCell: {
       verticalAlign: 'middle',
       textAlign: 'center',
+      marginLeft: '-5px'
     },
     dropdownCol: {
       width: '10px',
@@ -275,5 +289,20 @@ const Styles = StyleSheet.create({
     },
     hex: {
       fontFamily: 'monospace'
+    },
+    signalTable: {
+      width: '100%'
+    },
+    signalValue: {
+      whiteSpace: 'nowrap',
+      padding: 0,
+      margin: 0
+    },
+    arrowCell: {
+      position: 'relative',
+    },
+    arrow: {
+      position: 'absolute',
+      left: '-8px'
     }
 });

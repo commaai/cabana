@@ -59,7 +59,8 @@ const Styles = StyleSheet.create({
   box: {
       position: 'absolute',
       left: '50%',
-      translate: 'translate(-50%, 0)',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
       zIndex: 10,
       backgroundColor: 'white',
       borderRadius: '4px',

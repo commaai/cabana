@@ -8,7 +8,13 @@ function createImageComponent(source, styles) {
         styles = [styles];
     }
 
-    return (props) => <img src={source} className={css(...styles)} {...props}/>;
+    return (props) => {
+        if(Array.isArray(props.styles)) {
+            styles = styles.concat(props.styles);
+        }
+
+        return <img src={source} className={css(...styles)} {...props}/>
+    };
 }
 
 const Styles = StyleSheet.create({

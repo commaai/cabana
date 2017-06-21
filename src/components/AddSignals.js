@@ -337,6 +337,7 @@ export default class AddSignals extends Component {
                     {Object.keys(this.state.signals).length === 0 ?
                         <p>Drag to add a signal</p> : null
                     }
+                    <p>time: {this.props.message.entries[this.props.messageIndex].relTime.toFixed(3)}</p>
                     {this.bitMatrix()}
                     <SignalLegend
                         signals={this.state.signals}
