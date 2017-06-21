@@ -16,20 +16,24 @@ export default class RouteSeeker extends Component {
         onPlay: PropTypes.func,
         playing: PropTypes.bool,
         segmentProgress: PropTypes.func,
+        ratioTime: PropTypes.func,
         nearestFrameTime: PropTypes.number
     };
 
     static hiddenMarkerStyle = StyleSheet.create({marker: {display: 'none', left: 0}});
     static zeroSeekedBarStyle = StyleSheet.create({seekedBar: {width: 0}});
+    static hiddenTooltipStyle = StyleSheet.create({tooltip: {display: 'none', left: 0}});
 
     constructor(props) {
         super(props);
         this.state = {
             seekedBarStyle: RouteSeeker.zeroSeekedBarStyle,
             markerStyle: RouteSeeker.hiddenMarkerStyle,
+            tooltipStyle: RouteSeeker.hiddenTooltipStyle,
             ratio: 0,
+            tooltipTime: '0:00',
             isPlaying: false,
-            isDragging: false
+            isDragging: false,
         };
 
         this.onMouseMove = this.onMouseMove.bind(this);
@@ -92,12 +96,12 @@ export default class RouteSeeker extends Component {
                 left: `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`
             }
         });
+        const ratio = Math.max(0, markerOffsetPct / 100);
         if(this.state.isDragging) {
-            const ratio = Math.max(0, markerOffsetPct / 100);
             this.updateSeekedBar(ratio);
             this.updateDraggingSeek(ratio);
         }
-        this.setState({markerStyle});
+        this.setState({markerStyle, tooltipTime: this.props.ratioTime(ratio)});
     }
 
     onMouseLeave(e) {
@@ -165,8 +169,9 @@ export default class RouteSeeker extends Component {
         }
     }
 
+
     render() {
-        const {seekedBarStyle, markerStyle} = this.state;
+        const {seekedBarStyle, markerStyle, tooltipStyle} = this.state;
         return (<div className={this.props.className}>
                     <div className={css(Styles.root)}>
                             <PlayButton
@@ -183,6 +188,9 @@ export default class RouteSeeker extends Component {
                                  onMouseUp={this.onMouseUp}
                                  onClick={this.onClick}
                                  ref={(ref) => this.progressBar = ref}>
+                                <div className={css(Styles.tooltip, tooltipStyle.tooltip)}>
+                                    {this.state.tooltipTime}
+                                </div>
                                 <div className={css(Styles.marker, markerStyle.marker)}
                                      onMouseMove={(e) => e.stopPropagation()}></div>
                                 <div className={css(Styles.progressBarInner,
@@ -239,4 +247,11 @@ const Styles = StyleSheet.create({
         top: '-15%',
         zIndex: 3,
     },
+    tooltip: {
+        top: -50,
+        height: 50,
+        width: 100,
+        backgroundColor: 'black',
+        color: 'white'
+    }
 });

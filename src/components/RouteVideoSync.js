@@ -39,6 +39,7 @@ export default class RouteVideoSync extends Component {
         this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
         this.onUserSeek = this.onUserSeek.bind(this);
         this.onHlsRestart = this.onHlsRestart.bind(this);
+        this.ratioTime = this.ratioTime.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -95,6 +96,10 @@ export default class RouteVideoSync extends Component {
         return (currentTime - this.props.startOffset) / this.props.secondsLoaded;
     }
 
+    ratioTime(ratio) {
+        return ratio * this.props.secondsLoaded + this.props.startOffset;
+    }
+
     onVideoElementAvailable(videoElement) {
         this.setState({videoElement});
     }
@@ -147,7 +152,8 @@ export default class RouteVideoSync extends Component {
                          videoElement={this.state.videoElement}
                          onPlay={this.props.onPlay}
                          onPause={this.props.onPause}
-                         playing={this.props.playing} />
+                         playing={this.props.playing}
+                         ratioTime={this.ratioTime} />
                 </div>);
     }
 }
