@@ -79,7 +79,7 @@ export default class Signal {
 
     bigEndianBitDescription(bitIndex) {
         const start = DbcUtils.bigEndianBitIndex(this.startBit);
-        const range = [DbcUtils.bigEndianBitIndex(this.startBit), start + this.size - 1];
+        const range = [start, start + this.size - 1];
         const bitNumber = DbcUtils.bigEndianBitIndex(bitIndex);
 
         if(bitNumber < range[0] || bitNumber > range[1]) {

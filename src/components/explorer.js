@@ -29,7 +29,7 @@ export default class Explorer extends Component {
 
         const msg = props.messages[props.selectedMessage];
 
-        const shouldShowAddSignal = (
+        const  ShowAddSignal = (
             msg && Object.keys(msg.signals).length === 0);
 
         this.state = {
@@ -37,7 +37,7 @@ export default class Explorer extends Component {
             graphData: {},
             segment: [],
             segmentIndices: [],
-            shouldShowAddSignal,
+            shouldShowAddSignal: true,
             userSeekIndex: 0,
             seekIndex: 0,
             seekTime: 0,
@@ -342,7 +342,7 @@ export default class Explorer extends Component {
                                     /> : null}
 
                                 {this.state.segment.length > 0 ?
-                                    <div className={css(CommonStyles.button)}
+                                    <div className={css(CommonStyles.button, Styles.resetSegment)}
                                          onClick={() => this.resetSegment()}>
                                         <p>Reset Segment</p>
                                     </div>
@@ -400,5 +400,7 @@ const Styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center'
     },
-
+    resetSegment: {
+        width: 160
+    }
 })

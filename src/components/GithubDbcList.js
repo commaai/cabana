@@ -69,7 +69,9 @@ const Styles = StyleSheet.create({
   row: {
     width: '100%',
     borderBottom: '1px solid black',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    paddingTop: 10,
+    paddingBottom: 10
   },
   selectedPath: {
     fontWeight: 'bold'

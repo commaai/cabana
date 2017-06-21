@@ -196,7 +196,7 @@ export default class CanExplorer extends Component {
     onPartChange = debounce((part) => {
       let {currentParts} = this.state;
       const currentPartSpan = currentParts[1] - currentParts[0];
-      currentParts = [part, part + currentPartSpan];
+      currentParts = [part, part + currentPartSpan - 1];
 
       this.setState({currentParts, selectedMessage: null, messages: {}}, () => {
         this.spawnWorker(currentParts);
@@ -241,7 +241,10 @@ export default class CanExplorer extends Component {
                           dbcFilename={this.state.dbcFilename}
                           dbcLastSaved={this.state.dbcLastSaved}
                           onPartChange={this.onPartChange}
-                          showEditMessageModal={this.showEditMessageModal} />
+                          showEditMessageModal={this.showEditMessageModal}
+                          dongleId={this.props.dongleId}
+                          name={this.props.name}
+                          route={this.state.route}  />
                     <div className={css(Styles.right)}>
                       {Object.keys(this.state.messages).length > 0
                         && this.state.selectedMessage ?

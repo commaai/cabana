@@ -24,7 +24,7 @@ export default class SignalLegendEntry extends Component {
         this.state = {
             isExpanded: false,
             isEditing: false,
-            signalFields: Object.assign(Object.create(props.signal), props.signal)
+            signalEdited: Object.assign(Object.create(props.signal), props.signal)
         };
 
         this.toggleEditing = this.toggleEditing.bind(this);
@@ -32,8 +32,8 @@ export default class SignalLegendEntry extends Component {
 
     componentWillReceiveProps(nextProps) {
         if(!nextProps.signal.equals(this.props.signal)) {
-            this.setState({signalFields: Object.assign(Object.create(nextProps.signal),
-                                                       nextProps.signal)});
+            this.setState({signalEdited: Object.assign(Object.create(nextProps.signal),
+                                                                     nextProps.signal)});
         }
     }
 
@@ -46,24 +46,31 @@ export default class SignalLegendEntry extends Component {
     }
 
     updateField(field, value) {
-        const {signalFields} = this.state;
-        signalFields[field] = value;
-        this.setState({signalFields});
+        const {signalEdited} = this.state;
+        signalEdited[field] = value;
+        this.setState({signalEdited});
     }
 
     numberField(field, title) {
         let valueCol;
+
         if(this.state.isEditing) {
+            let value = this.state.signalEdited[field] || 0;
+            if(value === undefined) {
+                value = 0;
+            }
+
             valueCol = <input type="number"
-                              value={this.state.signalFields[field] || 0}
+                              value={value}
                               onChange={(e) => {
-                                this.updateField(field,
-                                                 Number(e.target.value))
+                                let num = Number(e.target.value);
+
+                                this.updateField(field, num);
                               }}/>;
         } else {
-            valueCol = <span>{this.props.signal[field]}</span>;
+            let value = this.props.signal[field];
+            valueCol = <span>{value}</span>;
         }
-
         return this.field(field, title, valueCol);
     }
 
@@ -71,7 +78,7 @@ export default class SignalLegendEntry extends Component {
         let valueCol;
         if(this.state.isEditing) {
             valueCol = <input type="text"
-                              value={this.state.signalFields[field] || ''}
+                              value={this.state.signalEdited[field] || ''}
                               onChange={(e) => {
                                 this.updateField(field, e.target.value)
                               }}
@@ -96,7 +103,7 @@ export default class SignalLegendEntry extends Component {
                 }
             );
             valueCol = <select
-                        defaultValue={this.state.signalFields[field]}
+                        defaultValue={this.state.signalEdited[field]}
                         onChange={(e) => {
                         this.updateField(field, e.target.value === "true")
                     }}>
@@ -111,18 +118,20 @@ export default class SignalLegendEntry extends Component {
 
     removeSignal(signal) {
         return (<tr>
-                    <td className={css(Styles.pointer)}
+                    <td className={css(Styles.pointer, Styles.removeSignal)}
                         onClick={() => {this.props.onSignalRemove(signal)}}>Remove Signal</td>
                 </tr>);
     }
 
     expandedSignal(signal) {
+        const startBitTitle = signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
+
         return (<tr key={signal.name + '-expanded'}>
                     <td colSpan="3">
                         <table>
                             <tbody>
                                 {this.numberField('size', 'Size')}
-                                {this.numberField('startBit', 'Start bit')}
+                                {this.numberField('startBit', startBitTitle)}
                                 {this.optionField('isLittleEndian',
                                                   'Endianness',
                                                   ['Little', 'Big'],
@@ -142,35 +151,34 @@ export default class SignalLegendEntry extends Component {
     }
 
     toggleEditing(e) {
-        let {isEditing, isExpanded, signalFields} = this.state;
+        let {isEditing, isExpanded, signalEdited} = this.state;
         const {signal} = this.props;
         const signalCopy = Object.assign(Object.create(signal), signal);
 
         if(isEditing) {
             // Finished editing, save changes & reset intermediate
-            // signalFields state.
-            Object.entries(signalFields).forEach(([field, value]) => {
+            // signalEdited state.
+            Object.entries(signalEdited).forEach(([field, value]) => {
                 signalCopy[field] = value;
             });
 
             if(!signalCopy.equals(signal)) {
-                signalFields = {};
                 this.props.onSignalChange(signalCopy, signal);
             }
         } else {
-            signalFields = signalCopy;
+            signalEdited = signalCopy;
         }
 
         isEditing = !isEditing;
         this.setState({isExpanded: isEditing || isExpanded,
                        isEditing,
-                       signalFields})
+                       signalEdited})
         e.stopPropagation();
     }
 
 
     render() {
-        const {isExpanded, isEditing, signalFields} = this.state;
+        const {isExpanded, isEditing, signalEdited} = this.state;
         const {signal, highlightedStyle} = this.props;
         return (<tbody>
                     <tr
@@ -182,7 +190,7 @@ export default class SignalLegendEntry extends Component {
                         <td>{isExpanded ? '\u2193' : '\u2192'}</td>
                         <td>{isEditing ?
                             <input type="text"
-                                   value={signalFields['name']}
+                                   value={signalEdited['name']}
                                    onClick={(e) => e.stopPropagation()}
                                    onChange={(e) => {this.updateField('name',
                                                        e.target.value)}} />
@@ -199,5 +207,10 @@ export default class SignalLegendEntry extends Component {
 }
 
 const Styles = StyleSheet.create({
-    pointer: {cursor: 'pointer'}
+    pointer: {cursor: 'pointer'},
+    removeSignal: {
+        ':hover': {
+            textDecoration: 'underline'
+        },
+    }
 });

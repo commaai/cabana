@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
+import Moment from 'moment';
 
 import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
@@ -19,7 +20,9 @@ export default class Meta extends Component {
         showSaveDbc: PropTypes.func,
         dbcFilename: PropTypes.string,
         dbcLastSaved: PropTypes.object, // moment.js object,
-        showEditMessageModal: PropTypes.func
+        showEditMessageModal: PropTypes.func,
+        route: PropTypes.object,
+        partsLoaded: PropTypes.array
     };
 
     constructor(props) {
@@ -151,7 +154,7 @@ export default class Meta extends Component {
                                         {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
                                     </li>
                             });
-        return (<div>
+        return (<div className={css(Styles.messagesList)}>
                     <p>Selected Messages</p>
                     <ul className={css(Styles.messageList)}>
                         {messages}
@@ -175,7 +178,7 @@ export default class Meta extends Component {
 
         const defaultTextVisible = this.state.filterText.trim() === 'Filter';
 
-        return (<div>
+        return (<div className={css(Styles.messagesList)}>
                     <p>Available Messages</p>
                     <div className={css(Styles.filter)}>
                         <input type="text"
@@ -203,6 +206,21 @@ export default class Meta extends Component {
                 </div>);
     }
 
+    timeWindow() {
+        const {route, partsLoaded} = this.props;
+        if(route) {
+            const partStartOffset = partsLoaded[0] * 60,
+                  partEndOffset = partsLoaded[1] * 60;
+
+            const routeStartTime = Moment(route.start_time);
+
+            const windowStartTime = routeStartTime.add(partStartOffset, 's').format('HH:mm:ss');
+            const windowEndTime = routeStartTime.add(partEndOffset, 's').format('HH:mm:ss');
+
+            return `${windowStartTime} - ${windowEndTime}`;
+        } else return '';
+    }
+
     render() {
         return (
             <div className={css(Styles.root)}>
@@ -212,8 +230,11 @@ export default class Meta extends Component {
                     </span>
                 </div>
                 <div>
+                    <img src="http://www.westingrandcayman.com/wp-content/uploads/2017/01/westin-grand-cayman-cabana-luxury.jpg" height="133" />
+                </div>
+                <div>
                     {GithubAuth.hasValidAccessToken() ?
-                        <p>GitHub Authenticated</p>
+                        <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
                         :
                         <a href={GithubAuth.authorizeUrl()}
                            target="_blank">Log in with Github</a>
@@ -233,11 +254,7 @@ export default class Meta extends Component {
                     <p></p>
                 </div>
                 <div>
-                    <img src="http://www.westingrandcayman.com/wp-content/uploads/2017/01/westin-grand-cayman-cabana-luxury.jpg" height="133" />
-                </div>
-                <div className={css(Styles.routeMeta)}>
-                    <p>{this.props.dongleId}</p>
-                    <p>{this.props.name}</p>
+                    <p className={css(Styles.timeWindow)}>{this.timeWindow()}</p>
                 </div>
                 <PartSelector
                     onPartChange={this.props.onPartChange}
@@ -256,6 +273,10 @@ const Styles = StyleSheet.create({
         flex: 1,
         maxWidth: 420,
         backgroundColor: 'rgb(246,246,246)'
+    },
+    githubAuth: {
+        marginTop: 10,
+        marginBottom: 10
     },
     titleText: {
         fontFamily: 'monospace',
@@ -288,7 +309,12 @@ const Styles = StyleSheet.create({
         ':hover': {
             textDecoration: 'underline'
         },
-        display: 'inline'
+        display: 'inline',
+        fontWeight: 'bold'
+    },
+    timeWindow: {
+        marginTop: 10,
+        marginBottom: 10,
     },
     hoverButton: {
         height: 15,
@@ -314,5 +340,8 @@ const Styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         height: 24
+    },
+    messagesList: {
+        marginTop: 10
     }
 });

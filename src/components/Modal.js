@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
+import GlobalStyles from '../styles/styles';
+
 export default class Modal extends Component {
   static propTypes = {
     title: PropTypes.string,
@@ -12,16 +14,17 @@ export default class Modal extends Component {
   };
 
   selectButton() {
+    const {continueEnabled, continueText, onContinue} = this.props;
     let style;
-    if(this.props.continueEnabled) {
+    if(continueEnabled) {
       style = Styles.selectButtonEnabled;
     } else {
       style = Styles.selectButtonDisabled;
     }
 
-    return (<div className={css(Styles.finishButton, Styles.selectButton, style)}
-                 onClick={this.props.onContinue}>
-              <p>{this.props.continueText || 'Continue'}</p>
+    return (<div className={css(GlobalStyles.button, Styles.selectButton, style)}
+                 onClick={continueEnabled ? this.props.onContinue : () => {}}>
+              <p>{continueText || 'Continue'}</p>
             </div>);
   }
 
@@ -54,7 +57,8 @@ const Styles = StyleSheet.create({
     opacity: 0.75
   },
   title: {
-    fontSize: 20
+    fontSize: 20,
+    marginBottom: 10
   },
   box: {
       position: 'absolute',

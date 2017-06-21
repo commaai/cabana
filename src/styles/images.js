@@ -9,11 +9,12 @@ function createImageComponent(source, styles) {
     }
 
     return (props) => {
+        let localStyles = styles.slice();
         if(Array.isArray(props.styles)) {
-            styles = styles.concat(props.styles);
+            localStyles = localStyles.concat(props.styles);
         }
 
-        return <img src={source} className={css(...styles)} {...props}/>
+        return <img src={source} className={css(...localStyles)} />
     };
 }
 
@@ -27,9 +28,10 @@ const Styles = StyleSheet.create({
     }
 });
 
-
+const leftArrow = createImageComponent("/img/ic_arrow_left_black_24dp.png", Styles.materialIcon);
 const rightArrow = createImageComponent("/img/ic_arrow_right_black_24dp.png", Styles.materialIcon);
 const downArrow = createImageComponent("/img/ic_arrow_drop_down_black_24dp.png", Styles.materialIcon)
 
 const clear = createImageComponent("/img/ic_clear_black_24dp.png", [Styles.materialIcon, Styles.pointer]);
-export default {rightArrow, downArrow, clear};
+
+export default {rightArrow, leftArrow, downArrow, clear};

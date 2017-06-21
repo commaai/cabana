@@ -91,6 +91,12 @@ export default class CanLog extends Component {
       return plottedSignal !== undefined;
     }
 
+    signalValuePretty(signal, value) {
+      if(signal.isFloat) {
+        return value.toFixed(3);
+      } else return value;
+    }
+
     expandedMessage(msg) {
       return (<div className={css(Styles.row, Styles.signalRow)} key={msg.time + '-expanded'}>
           <div className={css(Styles.col)}>
@@ -100,10 +106,11 @@ export default class CanLog extends Component {
                   {Object.entries(msg.signals).map(([name, value]) => {
                     return [name, value, this.isSignalPlotted(this.props.message.id, name)]
                   }).map(([name, value, isPlotted]) => {
-                    const {unit} = this.props.message.signals[name];
+                    const signal = this.props.message.signals[name];
+                    const {unit} = signal;
                     return (<tr key={name}>
                               <td>{name}</td>
-                              <td><p className={css(Styles.signalValue)}>{value} {unit}</p></td>
+                              <td><p className={css(Styles.signalValue)}>{this.signalValuePretty(signal, value)} {unit}</p></td>
                               {isPlotted ?
                                 <td className={css(Styles.pointerUnderlineHover)}
                                     onClick={() => {this.props.onSignalUnplotPressed(this.props.message.id, name)}}>[unplot]</td>
@@ -210,7 +217,6 @@ export default class CanLog extends Component {
     }
 
     onExpandAllChanged(e) {
-      console.log(e.target.checked, typeof e.target.checked);
       this.setState({expandAllChecked: e.target.checked});
     }
 

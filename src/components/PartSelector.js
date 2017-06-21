@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
+import Images from '../styles/images';
+
 export default class PartSelector extends Component {
     static selectorWidth = 150;
     static propTypes = {
@@ -72,9 +74,9 @@ export default class PartSelector extends Component {
                     </div>
                     <div className={css(Styles.nudge)}>
                         <span className={css(Styles.nudgeButton)}
-                              onClick={this.selectNextPart}>Next</span>
+                              onClick={this.selectPrevPart}><Images.leftArrow /></span>
                         <span className={css(Styles.nudgeButton)}
-                              onClick={this.selectPrevPart}>Prev</span>
+                              onClick={this.selectNextPart}><Images.rightArrow /></span>
                     </div>
                 </div>);
     }

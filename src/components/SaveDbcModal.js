@@ -32,6 +32,7 @@ export default class SaveDbcModal extends Component {
 
     async onContinue() {
         const {openDbcFork, dbcFilename} = this.state;
+        console.log(openDbcFork);
         const success = await OpenDbc.commitFile(openDbcFork,
                                                  dbcFilename,
                                                  this.props.dbc.text());
@@ -93,7 +94,7 @@ export default class SaveDbcModal extends Component {
 
     render() {
         return (<Modal title={"Save DBC"}
-                       continueText={"Commit Changes to GitHub"}
+                       continueText={"Commit to GitHub"}
                        continueEnabled={this.state.openDbcFork != null
                                         && this.state.dbcFilename.length > 0}
                        onCancel={this.props.onCancel}
