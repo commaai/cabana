@@ -32,7 +32,7 @@ export default class SaveDbcModal extends Component {
 
     async onContinue() {
         const {openDbcFork, dbcFilename} = this.state;
-        console.log(openDbcFork);
+
         const success = await OpenDbc.commitFile(openDbcFork,
                                                  dbcFilename,
                                                  this.props.dbc.text());
@@ -70,13 +70,13 @@ export default class SaveDbcModal extends Component {
         const {openDbcFork} = this.state;
         let content;
         if(openDbcFork !== null) {
-            content = <p>{openDbcFork}</p>;
+            content = <p>Done! {openDbcFork}</p>;
         } else {
-            content = <p className={css(Styles.pointer)}
+            content = <p className={css(Styles.pointer, Styles.forkOpenDbc)}
                          onClick={this.forkOpenDbcAndWait}>Fork OpenDBC</p>;
         }
-        return (<div className={css(Styles.step)}>
-                    <p>Fork OpenDBC</p>
+        return (<div className={css(Styles.step, (openDbcFork !== null ? Styles.stepDone : null))}>
+                    {openDbcFork !== null ? <p>Fork OpenDBC</p> : null}
                     {content}
                 </div>);
     }
@@ -109,7 +109,17 @@ export default class SaveDbcModal extends Component {
 const Styles = StyleSheet.create({
     step: {
         borderBottom: '1px solid rgba(0,0,0,0.2)',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        paddingTop: 10,
+        paddingBottom: 10
+    },
+    stepDone: {
+        color: 'rgb(200,200,200)'
+    },
+    forkOpenDbc: {
+        ':hover': {
+            textDecoration: 'underline'
+        }
     },
     pointer: {
         cursor: 'pointer'

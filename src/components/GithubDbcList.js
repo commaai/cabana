@@ -54,6 +54,9 @@ export default class GithubDbcList extends Component {
 
   render() {
     return (<div className={css(Styles.root)}>
+              <p className={css(Styles.repoName)}><a href={`https://github.com/${this.props.repo}`}
+                                                     target={"_blank"}
+                                                     className={css(Styles.repoLink)}>{this.props.repo}</a></p>
               <input className={css(Styles.search)} type="text" />
               <div className={css(Styles.list)}>
                 {this.state.paths.map(this.rowForPath)}
@@ -65,6 +68,16 @@ export default class GithubDbcList extends Component {
 const Styles = StyleSheet.create({
   root: {
 
+  },
+  repoName: {
+    paddingBottom: 10
+  },
+  repoLink: {
+    color: 'inherit',
+    ':hover': {textDecoration: 'underline'},
+    ':visited': {
+      color: 'inherit'
+    }
   },
   row: {
     width: '100%',

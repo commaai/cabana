@@ -86,7 +86,7 @@ export default class LoadDbcModal extends Component {
                   {this.tab('GitHub')}
                   {this.tab('Upload')}
                 </div>
-                <div className={css(Styles.tab)}>
+                <div className={css(Styles.tabContent)}>
                   {this.tabContent()}
                 </div>
             </Modal>;
@@ -103,4 +103,7 @@ const Styles = StyleSheet.create({
     borderBottom: '2px solid #000',
     fontWeight: 'bold'
   },
+  tabContent: {
+    paddingTop: 20
+  }
 });
