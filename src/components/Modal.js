@@ -3,6 +3,7 @@ import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
 import GlobalStyles from '../styles/styles';
+import Images from '../styles/images';
 
 export default class Modal extends Component {
   static propTypes = {
@@ -12,6 +13,26 @@ export default class Modal extends Component {
     onCancel: PropTypes.func,
     onContinue: PropTypes.func
   };
+
+  constructor(props) {
+    super(props);
+
+    this._onKeyDown = this._onKeyDown.bind(this);
+  }
+
+  _onKeyDown(e) {
+    if(e.keyCode === 27){ // escape
+      this.props.onCancel()
+    }
+  }
+
+  componentWillMount() {
+    document.addEventListener('keydown', this._onKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this._onKeyDown);
+  }
 
   selectButton() {
     const {continueEnabled, continueText, onContinue} = this.props;
@@ -32,7 +53,11 @@ export default class Modal extends Component {
     return (<div className={css(Styles.root)}>
               <div className={css(Styles.bg)}></div>
               <div className={css(Styles.box)}>
-                <p className={css(Styles.title)}>{this.props.title}</p>
+                <div className={css(Styles.header)}>
+                  <p className={css(Styles.title)}>{this.props.title}</p>
+                  <Images.clear styles={[Styles.closeButton]}
+                                onClick={this.props.onCancel} />
+                </div>
                 {this.props.children}
                 <div className={css(Styles.select)}>
                   {this.selectButton()}
@@ -58,7 +83,11 @@ const Styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    marginBottom: 10
+    marginBottom: 10,
+    marginRight: 'auto'
+  },
+  closeButton: {
+
   },
   box: {
       position: 'absolute',
@@ -72,6 +101,11 @@ const Styles = StyleSheet.create({
       boxShadow: '1px 1px 1px #000',
       padding: 20,
       minWidth: 480
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
   },
   select: {
     paddingTop: 20,

@@ -24,7 +24,7 @@ export default class GithubDbcList extends Component {
   componentWillReceiveProps(nextProps) {
     if(nextProps.repo != this.props.repo) {
         OpenDbc.list(nextProps.repo).then((paths) => {
-          this.setState({paths})
+          this.setState({paths, selectedPath: null})
         })
     }
   }

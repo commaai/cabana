@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {StyleSheet, css} from 'aphrodite/no-important';
 
+import * as ObjectUtils from '../utils/object';
+
 function createImageComponent(source, styles) {
     if(styles === undefined) {
         styles = []
@@ -12,9 +14,11 @@ function createImageComponent(source, styles) {
         let localStyles = styles.slice();
         if(Array.isArray(props.styles)) {
             localStyles = localStyles.concat(props.styles);
+            // filter 'styles' from props, which is passed via spread to <img> tag.
+            props = ObjectUtils.fromArray(Object.entries(props).filter(([k,v]) => k != 'styles'));
         }
 
-        return <img src={source} className={css(...localStyles)} />
+        return <img src={source} className={css(...localStyles)} {...props} />
     };
 }
 

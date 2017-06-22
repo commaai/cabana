@@ -8,6 +8,7 @@ import OpenDbcList from './OpenDbcList';
 import DbcUpload from './DbcUpload';
 import GithubDbcList from './GithubDbcList';
 import OpenDbc from '../api/opendbc';
+import TabStyles from '../styles/modal-tabs';
 
 export default class LoadDbcModal extends Component {
   static propTypes = {
@@ -58,7 +59,7 @@ export default class LoadDbcModal extends Component {
   }
 
   tab(tabName) {
-    return <p className={css(Styles.tab, this.state.tab === tabName ? Styles.selectedTab : null)}
+    return <p className={css(TabStyles.tab, this.state.tab === tabName ? TabStyles.selectedTab : null)}
               onClick={() => {this.setState({tab: tabName, dbc: null})}}>
             {tabName}
            </p>
@@ -81,29 +82,14 @@ export default class LoadDbcModal extends Component {
                    continueEnabled={this.state.dbc !== null}
                    onCancel={this.props.onCancel}
                    onContinue={this.onContinue}>
-                <div className={css(Styles.tabs)}>
+                <div className={css(TabStyles.tabs)}>
                   {this.tab('OpenDBC')}
                   {this.tab('GitHub')}
                   {this.tab('Upload')}
                 </div>
-                <div className={css(Styles.tabContent)}>
+                <div className={css(TabStyles.tabContent)}>
                   {this.tabContent()}
                 </div>
             </Modal>;
   }
 }
-
-const Styles = StyleSheet.create({
-  tab: {
-    display: 'inline',
-    marginRight: 20,
-    cursor: 'pointer'
-  },
-  selectedTab: {
-    borderBottom: '2px solid #000',
-    fontWeight: 'bold'
-  },
-  tabContent: {
-    paddingTop: 20
-  }
-});
