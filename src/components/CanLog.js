@@ -185,7 +185,6 @@ export default class CanLog extends Component {
     renderTable(items, ref) {
       return (<div className={css(Styles.root)}>
                 <div className={css(Styles.row)}>
-
                   <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
                   <div className={css(Styles.col, Styles.timefieldCol)}>Time (s)</div>
                   <div className={css(Styles.col)}>

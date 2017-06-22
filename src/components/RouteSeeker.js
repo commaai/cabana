@@ -90,22 +90,32 @@ export default class RouteSeeker extends Component {
 
         const markerWidth = Styles.marker._definition.width;
 
+        const markerLeft = `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`;
         const markerStyle = StyleSheet.create({
             marker: {
                 display: '',
-                left: `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`
+                left: markerLeft
             }
         });
+        const tooltipWidth = Styles.tooltip._definition.width;
+        const tooltipLeft = `calc(${markerOffsetPct + '%'} - ${tooltipWidth / 2}px)`;
+
+        const tooltipStyle = StyleSheet.create({tooltip: {display: 'flex', left: tooltipLeft}});
         const ratio = Math.max(0, markerOffsetPct / 100);
         if(this.state.isDragging) {
             this.updateSeekedBar(ratio);
             this.updateDraggingSeek(ratio);
         }
-        this.setState({markerStyle, tooltipTime: this.props.ratioTime(ratio)});
+
+        this.setState({markerStyle,
+                       tooltipStyle,
+                       tooltipTime: this.props.ratioTime(ratio).toFixed(3)});
     }
 
     onMouseLeave(e) {
-        this.setState({markerStyle: RouteSeeker.hiddenMarkerStyle, isDragging: false});
+        this.setState({markerStyle: RouteSeeker.hiddenMarkerStyle,
+                       tooltipStyle: RouteSeeker.hiddenTooltipStyle,
+                       isDragging: false});
     }
 
     updateSeekedBar(ratio) {
@@ -191,8 +201,7 @@ export default class RouteSeeker extends Component {
                                 <div className={css(Styles.tooltip, tooltipStyle.tooltip)}>
                                     {this.state.tooltipTime}
                                 </div>
-                                <div className={css(Styles.marker, markerStyle.marker)}
-                                     onMouseMove={(e) => e.stopPropagation()}></div>
+                                <div className={css(Styles.marker, markerStyle.marker)}></div>
                                 <div className={css(Styles.progressBarInner,
                                                     seekedBarStyle.seekedBar)}></div>
                             </div>
@@ -248,10 +257,19 @@ const Styles = StyleSheet.create({
         zIndex: 3,
     },
     tooltip: {
-        top: -50,
-        height: 50,
-        width: 100,
-        backgroundColor: 'black',
-        color: 'white'
+        position: 'absolute',
+        zIndex: 2,
+        top: -25,
+        height: 20,
+        width: 50,
+        borderRadius: 1,
+        fontSize: 12,
+        padding: 5,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        color: 'rgb(225,225,225)'
     }
 });
