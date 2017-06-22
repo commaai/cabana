@@ -57,17 +57,20 @@ export function swapOrder(arr, wordSize, gSize) {
 
 export default class DBC {
     constructor(dbcString) {
-        this.dbcText = dbcString;
-        this.importDbcString(dbcString);
+        this.boardUnits = [];
+        this.messages = new Map();
+
+        if(dbcString !== undefined) {
+            this.dbcText = dbcString;
+            this.importDbcString(dbcString);
+        }
     }
 
     nextNewFrameName() {
         const messageNames = [];
 
         for(let msg of this.messages.values()) {
-            if(msg.frame) {
-                messageNames.push(msg.frame.name);
-            }
+            messageNames.push(msg.name);
         }
 
         let msgNum = 1, msgName;
@@ -80,10 +83,6 @@ export default class DBC {
     }
 
     text() {
-        // Strips non-message/signal lines from dbcText,
-        // then appends parsed messages to bottom.
-        // When fully spec compliant DBC parser is written,
-        // this functionality will be removed.
         let txt = 'VERSION ""\n\n\n';
         txt += 'NS_ :' + this._newSymbols();
         txt += '\n\nBS_:\n';
