@@ -237,12 +237,14 @@ export default createClassFromSpec('CanPlot', {
         "type": "group",
         "from": {"data": "tooltip"},
         "interactive": false,
+        "name": "tooltipGroup",
         "encode": {
           "update": {
-            "x": {"scale": "xrelscale", "field": "argmin.xRel"},
+            "x": [{"test": "inrange(datum.argmin.xRel + 80, domain('xrelscale'))", "scale": "xrelscale", "field": "argmin.xRel"},
+                  {"scale": "xrelscale", "field": "argmin.xRel", "offset": -80}],
             "y": {"scale": "yscale", "field": "argmin.y"},
             "height": {"value": 20},
-            "width": {"value": 150},
+            "width": {"value": 80},
             "fill": {"value": "#fff"},
             "fillOpacity": {"value": 0.85},
             "stroke": {"value": "#aaa"},
