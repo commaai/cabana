@@ -15,6 +15,22 @@ export default class Frame {
                              signals})
     }
 
+    nextNewTransmitterName() {
+        let txNum = 1, txName;
+        do {
+            txName = 'NEW_TRANSMITTER_' + txNum;
+            txNum++;
+        } while(this.transmitters.indexOf(txName) !== -1);
+
+        return txName;
+    }
+
+    addTransmitter() {
+        const txName = this.nextNewTransmitterName();
+        this.transmitters.push(txName);
+        return txName;
+    }
+
     header() {
         return `BO_ ${this.id} ${this.name}: ${this.size} ` +
                `${this.transmitters[0] || 'XXX'}`;
@@ -30,5 +46,11 @@ export default class Frame {
         } else {
             return this.header();
         }
+    }
+
+    copy() {
+        const copy = Object.assign(Object.create(this), this);
+        console.log(Object.keys(copy))
+        return copy;
     }
 }

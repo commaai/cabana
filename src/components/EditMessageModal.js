@@ -17,13 +17,29 @@ export default class EditMessageModal extends Component {
         super(props);
 
         this.state = {
-            messageFrame: Object.assign(Object.create(props.message.frame), props.message.frame)
+            messageFrame: props.message.frame.copy()
         }
         this.onContinue = this.onContinue.bind(this);
+        this.editTransmitter = this.editTransmitter.bind(this);
+        this.addTransmitter = this.addTransmitter.bind(this);
     }
 
     onContinue() {
         this.props.onMessageFrameEdited(this.state.messageFrame);
+    }
+
+    addTransmitter() {
+      const {messageFrame} = this.state;
+      console.log(messageFrame);
+      messageFrame.addTransmitter();
+      this.setState({messageFrame});
+    }
+
+    editTransmitter(transmitter) {
+      return <div className={css(Styles.transmitterRow)}>
+                <p key={transmitter}>{transmitter}</p>
+                <p>Edit</p>
+              </div>
     }
 
     render() {
@@ -54,6 +70,10 @@ export default class EditMessageModal extends Component {
                                     messageFrame.size = parseInt(e.target.value);
                                     this.setState({messageFrame});
                                    }} />
+                            <p className={css(Styles.inputField)}>Transmitters</p>
+                            {this.state.messageFrame.transmitters.map(this.editTransmitter)}
+                            <p className={css(Styles.addTransmitter)}
+                               onClick={this.addTransmitter}>Add</p>
                         </div>
                     </div>
                 </Modal>);
@@ -66,5 +86,8 @@ const Styles = StyleSheet.create({
   },
   inputSmall: {
     width: 30
+  },
+  addTransmitter: {
+    cursor: 'pointer'
   }
 });
