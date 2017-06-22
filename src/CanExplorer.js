@@ -36,8 +36,8 @@ export default class CanExplorer extends Component {
             showSaveDbc: false,
             showEditMessageModal: false,
             editMessageModalMessage: null,
-            dbc: null,
-            dbcFilename: null,
+            dbc: new DBC(),
+            dbcFilename: 'New DBC',
             dbcLastSaved: null
         };
 
@@ -77,9 +77,21 @@ export default class CanExplorer extends Component {
                 });
               };
             });
-          }
+          } else {
+            this.setState({route, currentParts: [0,2]}, () => {
+              const offsetFinder = new CanOffsetFinder();
+              offsetFinder.postMessage({partCount: route.proclog,
+                                        base: route.url});
 
-          this.setState({route})
+              offsetFinder.onmessage = (e) => {
+                const {canFrameOffset, firstCanTime} = e.data;
+
+                this.setState({canFrameOffset, firstCanTime}, () => {
+                  this.spawnWorker(this.state.currentParts);
+                });
+              };
+            });
+          }
         }
       });
     }
@@ -133,6 +145,7 @@ export default class CanExplorer extends Component {
           } else {
             messages[key] = newMessages[key];
             messages[key].signals = this.state.dbc.getSignals(messages[key].address);
+            messages[key].frame = this.state.dbc.messages.get(messages[key].address);
           }
         }
 
