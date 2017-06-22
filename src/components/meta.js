@@ -150,7 +150,7 @@ export default class Meta extends Component {
                                                        Styles.selectedMessage)}
                                         onMouseEnter={() => this.onMessageHover(key)}
                                         onMouseLeave={() => this.onMessageHoverEnd(key)}>
-                                        {msg.frame ? msg.frame.name : ''} ({key})
+                                        {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
                                         {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
                                     </li>
                             });
@@ -200,7 +200,7 @@ export default class Meta extends Component {
                                 const msg = this.props.messages[key];
                                 return <li onClick={() => {this.onMessageSelected(key)}}
                                         key={key}
-                                        className={css(Styles.message)}>{msg.frame ? msg.frame.name : ''} ({key})</li>
+                                        className={css(Styles.message)}>{msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}</li>
                             })}
                     </ul>
                 </div>);
