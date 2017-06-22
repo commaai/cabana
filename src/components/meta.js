@@ -250,7 +250,7 @@ export default class Meta extends Component {
                         <p>Last saved: {this.lastSavedPretty()}</p>
                         : null
                     }
-                    {this.props.dbcFilename ? <p>Loaded: {this.props.dbcFilename}</p>: null}
+                    {this.props.dbcFilename ? <p>Editing: {this.props.dbcFilename}</p>: null}
                     <p></p>
                 </div>
                 <div>

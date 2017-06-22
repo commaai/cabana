@@ -7,8 +7,7 @@ import './index.css';
 
 ReactDOM.render(
   <CanExplorer
-     dbc={AcuraDbc}
-     dongleId={"2d7526b1faf1a2ca"}
-     name={"2017-04-02--08-11-11"} />,
+     dongleId={"3a874b7845c28583"}
+     name={"2017-06-09--18-23-30"} />,
   document.getElementById('root')
 );
