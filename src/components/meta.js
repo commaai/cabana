@@ -22,7 +22,8 @@ export default class Meta extends Component {
         dbcLastSaved: PropTypes.object, // moment.js object,
         showEditMessageModal: PropTypes.func,
         route: PropTypes.object,
-        partsLoaded: PropTypes.array
+        partsLoaded: PropTypes.array,
+
     };
 
     constructor(props) {
@@ -171,6 +172,28 @@ export default class Meta extends Component {
         this.props.onMessageSelected(key);
     }
 
+    messageBytes(message) {
+        const {seekTime} = this.state;
+        let mostRecentMsgIndex = message.entries.findIndex((e) =>
+            e.relTime > seekTime) - 1;
+        mostRecentMsgIndex = Math.max(0, mostRecentMsgIndex);
+        const mostRecentMsg = message.entries[mostRecentMsgIndex];
+
+        const msgSize = message.frame ? message.frame.size : 8;
+
+        const byteStyles = mostRecentMsg.byteStateChangeTimes.map((time) =>
+            1 - ((time - seekTime) / 30)
+        ).map((opacity) => {
+            StyleSheet.create({byteStyle: {opacity}})
+        });
+
+        const bytes = byteStyles.map(({byteStyle}, idx) =>
+            <div key={idx} className={css(Styles.byte, byteStyle)}></div>
+        );
+
+        return <div className={css(Styles.bytes)}>{bytes}</div>
+    }
+
     availableMessagesList() {
         if(Object.keys(this.props.messages).length === 0) {
             return null;
@@ -200,7 +223,10 @@ export default class Meta extends Component {
                                 const msg = this.props.messages[key];
                                 return <li onClick={() => {this.onMessageSelected(key)}}
                                         key={key}
-                                        className={css(Styles.message)}>{msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}</li>
+                                        className={css(Styles.message)}>
+                                        {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
+                                        {this.messageBytes(msg)}
+                                        </li>
                             })}
                     </ul>
                 </div>);
@@ -343,5 +369,14 @@ const Styles = StyleSheet.create({
     },
     messagesList: {
         marginTop: 10
+    },
+    bytes: {
+        display: 'flex',
+        flexDirection: 'row'
+    },
+    byte: {
+        width: 15,
+        height: 15,
+        border: '1px solid rgba(0,0,0,0.9)'
     }
 });

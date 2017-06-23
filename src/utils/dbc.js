@@ -1,8 +1,37 @@
-function parseMessage(dbc, time, address, data, timeStart) {
+function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage) {
+  if(!lastParsedMessage) {
+    return Array(msgSize).fill(time);
+  } else {
+    const byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
+
+    for(let i = 0; i < byteStateChangeTimes.length; i++) {
+      const currentData = hexData.substr(i * 2, 2),
+            prevData = lastParsedMessage.hexData.substr(i * 2, 2);
+
+      if(currentData != prevData) {
+        byteStateChangeTimes[i] = time;
+      }
+    }
+
+    return byteStateChangeTimes;
+  }
+}
+
+function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
+    const hexData = Buffer.from(data).toString('hex');
+    const msgSpec = dbc.messages.get(address);
+    const msgSize = msgSpec ? msgSpec.size : 8;
+    const relTime = time - timeStart;
+
+    const byteStateChangeTimes = determineByteStateChangeTimes(hexData,
+                                                               relTime,
+                                                               msgSize,
+                                                               lastParsedMessage)
     return {time: time,
-            relTime: time - timeStart,
-            hexData: Buffer.from(data).toString('hex'),
-            signals: dbc.getSignalValues(address, data)}
+            signals: dbc.getSignalValues(address, data),
+            relTime,
+            hexData,
+            byteStateChangeTimes}
 }
 
 const BIG_ENDIAN_START_BITS = [];
@@ -16,4 +45,4 @@ function bigEndianBitIndex(matrixBitIndex) {
   return BIG_ENDIAN_START_BITS.indexOf(matrixBitIndex);
 }
 
-export default {bigEndianBitIndex, parseMessage};
+export default {bigEndianBitIndex, parseMessage}

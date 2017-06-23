@@ -32,7 +32,15 @@ async function loadCanPart(dbc, base, num, canStartTime) {
        var data = datas.slice(i*8, (i+1)*8);
        if (messages[id] === undefined) messages[id] = createMessageSpec(dbc, address.toNumber(), id, src);
 
-       const msg = DbcUtils.parseMessage(dbc, t, address.toNumber(), data, canStartTime);
+       const prevMsg = messages[id].entries.length > 0 ?
+                        messages[id].entries[messages[id].entries.length - 1] : null;
+
+       const msg = DbcUtils.parseMessage(dbc,
+                                         t,
+                                         address.toNumber(),
+                                         data,
+                                         canStartTime,
+                                         prevMsg);
        messages[id].entries.push(msg);
   }
 

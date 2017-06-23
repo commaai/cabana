@@ -38,7 +38,8 @@ export default class CanExplorer extends Component {
             editMessageModalMessage: null,
             dbc: new DBC(),
             dbcFilename: 'New DBC',
-            dbcLastSaved: null
+            dbcLastSaved: null,
+            seekTime: 0
         };
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
@@ -242,6 +243,10 @@ export default class CanExplorer extends Component {
       this.hideEditMessageModal();
     }
 
+    onSeek(seekTime) {
+      this.setState({seekTime});
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <Meta url={this.state.route.url}
@@ -257,7 +262,8 @@ export default class CanExplorer extends Component {
                           showEditMessageModal={this.showEditMessageModal}
                           dongleId={this.props.dongleId}
                           name={this.props.name}
-                          route={this.state.route}  />
+                          route={this.state.route}
+                          seekTime={this.state.seekTime}  />
                     <div className={css(Styles.right)}>
                       {Object.keys(this.state.messages).length > 0
                         && this.state.selectedMessage ?
@@ -266,6 +272,7 @@ export default class CanExplorer extends Component {
                             messages={this.state.messages}
                             selectedMessage={this.state.selectedMessage}
                             onConfirmedSignalChange={this.onConfirmedSignalChange}
+                            onSeek={this.onSeek}
                             canFrameOffset={this.state.canFrameOffset}
                             firstCanTime={this.state.firstCanTime} /> : null}
                     </div>
