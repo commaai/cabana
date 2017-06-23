@@ -14,7 +14,7 @@ function createMessageSpec(dbc, address, id, bus) {
             signalAggregates: {}}
 }
 
-async function loadCanPart(dbc, base, num, canStartTime) {
+async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
     var messages = {};
     const {times,
            sources,
@@ -33,15 +33,17 @@ async function loadCanPart(dbc, base, num, canStartTime) {
        var data = datas.slice(i*8, (i+1)*8);
        if (messages[id] === undefined) messages[id] = createMessageSpec(dbc, address.toNumber(), id, src);
 
-       const prevMsg = messages[id].entries.length > 0 ?
-                        messages[id].entries[messages[id].entries.length - 1] : null;
+       const prevMsgEntry = messages[id].entries.length > 0 ?
+                            messages[id].entries[messages[id].entries.length - 1]
+                            :
+                            (prevMsgEntries[id] || null);
 
        const msgEntry = DbcUtils.parseMessage(dbc,
                                               t,
                                               address.toNumber(),
                                               data,
                                               canStartTime,
-                                              prevMsg);
+                                              prevMsgEntry);
        messages[id].entries.push(msgEntry);
   }
 
@@ -50,8 +52,8 @@ async function loadCanPart(dbc, base, num, canStartTime) {
 }
 
 self.onmessage = function(e) {
-    const {dbcText, base, num, canStartTime} = e.data;
+    const {dbcText, base, num, canStartTime, prevMsgEntries} = e.data;
 
     const dbc = new DBC(dbcText);
-    loadCanPart(dbc, base, num, canStartTime);
+    loadCanPart(dbc, base, num, canStartTime, prevMsgEntries);
 }

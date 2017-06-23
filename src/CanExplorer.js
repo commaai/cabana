@@ -120,10 +120,13 @@ export default class CanExplorer extends Component {
       this.hideSaveDbc();
     }
 
-    spawnWorker(parts, part) {
+    spawnWorker(parts, part, prevMsgEntries) {
       const [minPart, maxPart] = parts;
       if(part === undefined) {
         part = minPart;
+      }
+      if(prevMsgEntries === undefined) {
+        prevMsgEntries = {};
       }
 
       const {dbc, dbcFilename, route, firstCanTime} = this.state;
@@ -153,10 +156,16 @@ export default class CanExplorer extends Component {
           }
         }
 
+        const prevMsgEntries = {};
+        for(let key in newMessages) {
+          const msg = newMessages[key];
+          prevMsgEntries[key] = msg.entries[msg.entries.length - 1];
+        }
+
         this.setState({messages,
                        partsLoaded: this.state.partsLoaded + 1}, () => {
           if(part < maxPart) {
-            this.spawnWorker(parts, part + 1);
+            this.spawnWorker(parts, part + 1, prevMsgEntries);
           }
         })
       }
@@ -165,6 +174,7 @@ export default class CanExplorer extends Component {
                           base: route.url,
                           num: part,
                           canStartTime: firstCanTime,
+                          prevMsgEntries
                         });
     }
 
