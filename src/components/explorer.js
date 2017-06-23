@@ -21,7 +21,8 @@ export default class Explorer extends Component {
        messages: PropTypes.objectOf(PropTypes.object),
        onConfirmedSignalChange: PropTypes.func,
        canFrameOffset: PropTypes.number,
-       firstCanTime: PropTypes.number
+       firstCanTime: PropTypes.number,
+       onSeek: PropTypes.func
     };
 
     constructor(props) {
@@ -39,8 +40,6 @@ export default class Explorer extends Component {
             segmentIndices: [],
             shouldShowAddSignal: true,
             userSeekIndex: 0,
-            seekIndex: 0,
-            seekTime: 0,
             playing: false,
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
@@ -70,7 +69,7 @@ export default class Explorer extends Component {
             // by finding new message entry indices
             // corresponding to old message segment/seek times.
 
-            let {segment, segmentIndices, userSeekIndex, seekIndex, seekTime} = this.state;
+            let {segment, segmentIndices, userSeekIndex} = this.state;
             if(segment.length === 2) {
                 const segmentStartIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[0]);
                 let segmentEndIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[1]);
@@ -90,20 +89,8 @@ export default class Explorer extends Component {
                 }
             }
 
-            if(seekTime > 0) {
-                seekIndex = nextMessage.entries.findIndex((e) => e.relTime >= seekTime);
-                if(seekIndex === -1) {
-                    seekIndex = 0;
-                }
-
-                seekTime = nextMessage.entries[seekIndex].relTime;
-            }
-
             this.setState({segment,
-                           segmentIndices,
-                           seekIndex,
-                           seekTime,
-                           userSeekIndex: seekIndex})
+                           segmentIndices})
         }
 
         if(nextMessage && curMessage) {
@@ -221,16 +208,21 @@ export default class Explorer extends Component {
     }
 
     onUserSeek(ratio) {
+        const {entries} = this.props.messages[this.props.selectedMessage];
         const userSeekIndex = this.indexFromSeekRatio(ratio);
-        this.setState({seekIndex: userSeekIndex, userSeekIndex});
+        const seekTime = entries[userSeekIndex].relTime;
+
+        this.props.onSeek(userSeekIndex, seekTime);
+        this.setState({userSeekIndex});
     }
 
     onPlaySeek(ratio) {
         const {entries} = this.props.messages[this.props.selectedMessage];
 
         const seekIndex = this.indexFromSeekRatio(ratio);
+        const seekTime = entries[seekIndex].relTime;
 
-        this.setState({seekIndex, seekTime: entries[seekIndex].time});
+        this.props.onSeek(seekIndex, seekTime);
     }
 
     onGraphTimeClick(time) {
@@ -310,10 +302,10 @@ export default class Explorer extends Component {
                                     onConfirmedSignalChange={this.props.onConfirmedSignalChange}
                                     message={this.props.messages[this.props.selectedMessage]}
                                     onClose={() => {this.setState({shouldShowAddSignal: false})}}
-                                    messageIndex={this.state.seekIndex}
+                                    messageIndex={this.props.seekIndex}
                                 /> : null}
                             <CanLog message={this.props.messages[this.props.selectedMessage]}
-                                    messageIndex={this.state.seekIndex}
+                                    messageIndex={this.props.seekIndex}
                                     segmentIndices={this.state.segmentIndices}
                                     plottedSignals={this.state.plottedSignals}
                                     onSignalPlotPressed={this.onSignalPlotPressed}
@@ -328,7 +320,7 @@ export default class Explorer extends Component {
                                                     secondsLoaded={this.secondsLoaded()}
                                                     startOffset={this.startOffset()}
                                                     segmentProgress={this.segmentProgress}
-                                                    seekIndex={this.state.seekIndex}
+                                                    seekIndex={this.props.seekIndex}
                                                     userSeekIndex={this.state.userSeekIndex}
                                                     playing={this.state.playing}
                                                     url={this.props.url}

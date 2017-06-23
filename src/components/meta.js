@@ -23,7 +23,7 @@ export default class Meta extends Component {
         showEditMessageModal: PropTypes.func,
         route: PropTypes.object,
         partsLoaded: PropTypes.array,
-
+        seekTime: PropTypes.number
     };
 
     constructor(props) {
@@ -173,7 +173,7 @@ export default class Meta extends Component {
     }
 
     messageBytes(message) {
-        const {seekTime} = this.state;
+        const {seekTime} = this.props;
         let mostRecentMsgIndex = message.entries.findIndex((e) =>
             e.relTime > seekTime) - 1;
         mostRecentMsgIndex = Math.max(0, mostRecentMsgIndex);
@@ -181,11 +181,14 @@ export default class Meta extends Component {
 
         const msgSize = message.frame ? message.frame.size : 8;
 
-        const byteStyles = mostRecentMsg.byteStateChangeTimes.map((time) =>
-            1 - ((time - seekTime) / 30)
-        ).map((opacity) => {
+        const byteOpacities = mostRecentMsg.byteStateChangeTimes.map((time) =>
+            Math.max(0.1, Math.min(1, 1.1 - ((seekTime - time) / 30)))
+        );
+
+        const byteStyles = byteOpacities.map((opacity) =>
             StyleSheet.create({byteStyle: {opacity}})
-        });
+        );
+
 
         const bytes = byteStyles.map(({byteStyle}, idx) =>
             <div key={idx} className={css(Styles.byte, byteStyle)}></div>
@@ -377,6 +380,7 @@ const Styles = StyleSheet.create({
     byte: {
         width: 15,
         height: 15,
-        border: '1px solid rgba(0,0,0,0.9)'
+        border: '1px solid rgba(0,0,0,0.9)',
+        backgroundColor: 'red'
     }
 });

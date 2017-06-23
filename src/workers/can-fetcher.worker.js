@@ -10,7 +10,8 @@ function createMessageSpec(dbc, address, id, bus) {
             id: id,
             bus: bus,
             entries: [],
-            frame: dbc.messages.get(address)}
+            frame: dbc.messages.get(address),
+            signalAggregates: {}}
 }
 
 async function loadCanPart(dbc, base, num, canStartTime) {
@@ -35,13 +36,13 @@ async function loadCanPart(dbc, base, num, canStartTime) {
        const prevMsg = messages[id].entries.length > 0 ?
                         messages[id].entries[messages[id].entries.length - 1] : null;
 
-       const msg = DbcUtils.parseMessage(dbc,
-                                         t,
-                                         address.toNumber(),
-                                         data,
-                                         canStartTime,
-                                         prevMsg);
-       messages[id].entries.push(msg);
+       const msgEntry = DbcUtils.parseMessage(dbc,
+                                              t,
+                                              address.toNumber(),
+                                              data,
+                                              canStartTime,
+                                              prevMsg);
+       messages[id].entries.push(msgEntry);
   }
 
   self.postMessage(messages);

@@ -87,7 +87,10 @@ export default class RouteSeeker extends Component {
 
     onMouseMove(e) {
         const markerOffsetPct = this.mouseEventXOffsetPercent(e);
-
+        if(markerOffsetPct < 0) {
+            this.onMouseLeave();
+            return;
+        }
         const markerWidth = Styles.marker._definition.width;
 
         const markerLeft = `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`;

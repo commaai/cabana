@@ -39,7 +39,8 @@ export default class CanExplorer extends Component {
             dbc: new DBC(),
             dbcFilename: 'New DBC',
             dbcLastSaved: null,
-            seekTime: 0
+            seekTime: 0,
+            seekIndex: 0,
         };
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
@@ -53,6 +54,7 @@ export default class CanExplorer extends Component {
         this.onConfirmedSignalChange = this.onConfirmedSignalChange.bind(this);
         this.onPartChange = this.onPartChange.bind(this);
         this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
+        this.onSeek = this.onSeek.bind(this);
     }
 
     componentWillMount() {
@@ -161,7 +163,8 @@ export default class CanExplorer extends Component {
       worker.postMessage({dbcText: dbc.text(),
                           base: route.url,
                           num: part,
-                          canStartTime: firstCanTime});
+                          canStartTime: firstCanTime,
+                        });
     }
 
     showLoadDbc() {
@@ -243,8 +246,23 @@ export default class CanExplorer extends Component {
       this.hideEditMessageModal();
     }
 
-    onSeek(seekTime) {
-      this.setState({seekTime});
+    onSeek(seekIndex, seekTime) {
+      this.setState({seekIndex, seekTime});
+    }
+
+    onMessageSelected(msgKey) {
+      let {seekTime, seekIndex, messages} = this.state;
+      const msg = messages[msgKey];
+      if(seekTime > 0) {
+          seekIndex = msg.entries.findIndex((e) => e.relTime >= seekTime);
+          if(seekIndex === -1) {
+              seekIndex = 0;
+          }
+
+          seekTime = msg.entries[seekIndex].relTime;
+      }
+
+      this.setState({seekTime, seekIndex, selectedMessage: msgKey});
     }
 
     render() {
@@ -274,7 +292,9 @@ export default class CanExplorer extends Component {
                             onConfirmedSignalChange={this.onConfirmedSignalChange}
                             onSeek={this.onSeek}
                             canFrameOffset={this.state.canFrameOffset}
-                            firstCanTime={this.state.firstCanTime} /> : null}
+                            firstCanTime={this.state.firstCanTime}
+                            seekTime={this.state.seekTime}
+                            seekIndex={this.state.seekIndex} /> : null}
                     </div>
 
                     {this.state.showLoadDbc ? <LoadDbcModal
