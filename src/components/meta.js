@@ -7,6 +7,7 @@ import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
 import * as GithubAuth from '../api/github-auth';
 import Images from '../styles/images';
+import MessageBytes from './MessageBytes';
 
 export default class Meta extends Component {
     static propTypes = {
@@ -172,31 +173,6 @@ export default class Meta extends Component {
         this.props.onMessageSelected(key);
     }
 
-    messageBytes(message) {
-        const {seekTime} = this.props;
-        let mostRecentMsgIndex = message.entries.findIndex((e) =>
-            e.relTime > seekTime) - 1;
-        mostRecentMsgIndex = Math.max(0, mostRecentMsgIndex);
-        const mostRecentMsg = message.entries[mostRecentMsgIndex];
-
-        const msgSize = message.frame ? message.frame.size : 8;
-
-        const byteOpacities = mostRecentMsg.byteStateChangeTimes.map((time) =>
-            Math.max(0.1, Math.min(1, 1.1 - ((seekTime - time) / 30)))
-        );
-
-        const byteStyles = byteOpacities.map((opacity) =>
-            StyleSheet.create({byteStyle: {opacity}})
-        );
-
-
-        const bytes = byteStyles.map(({byteStyle}, idx) =>
-            <div key={idx} className={css(Styles.byte, byteStyle)}></div>
-        );
-
-        return <div className={css(Styles.bytes)}>{bytes}</div>
-    }
-
     availableMessagesList() {
         if(Object.keys(this.props.messages).length === 0) {
             return null;
@@ -228,7 +204,9 @@ export default class Meta extends Component {
                                         key={key}
                                         className={css(Styles.message)}>
                                         {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
-                                        {this.messageBytes(msg)}
+                                        <MessageBytes
+                                            message={msg}
+                                            seekTime={this.props.seekTime} />
                                         </li>
                             })}
                     </ul>
@@ -372,15 +350,5 @@ const Styles = StyleSheet.create({
     },
     messagesList: {
         marginTop: 10
-    },
-    bytes: {
-        display: 'flex',
-        flexDirection: 'row'
-    },
-    byte: {
-        width: 15,
-        height: 15,
-        border: '1px solid rgba(0,0,0,0.9)',
-        backgroundColor: 'red'
     }
 });

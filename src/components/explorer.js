@@ -69,7 +69,7 @@ export default class Explorer extends Component {
             // by finding new message entry indices
             // corresponding to old message segment/seek times.
 
-            let {segment, segmentIndices, userSeekIndex} = this.state;
+            let {segment, segmentIndices} = this.state;
             if(segment.length === 2) {
                 const segmentStartIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[0]);
                 let segmentEndIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[1]);
@@ -90,7 +90,8 @@ export default class Explorer extends Component {
             }
 
             this.setState({segment,
-                           segmentIndices})
+                           segmentIndices,
+                           userSeekIndex: nextProps.seekIndex})
         }
 
         if(nextMessage && curMessage) {
@@ -212,8 +213,8 @@ export default class Explorer extends Component {
         const userSeekIndex = this.indexFromSeekRatio(ratio);
         const seekTime = entries[userSeekIndex].relTime;
 
-        this.props.onSeek(userSeekIndex, seekTime);
         this.setState({userSeekIndex});
+        this.props.onSeek(userSeekIndex, seekTime);
     }
 
     onPlaySeek(ratio) {

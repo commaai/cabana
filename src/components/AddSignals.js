@@ -353,7 +353,8 @@ export default class AddSignals extends Component {
 
 const Styles = StyleSheet.create({
     root: {
-        borderBottom: '1px solid #000'
+        borderBottom: '1px solid #000',
+        userSelect: 'none'
     },
     pointer: {
         cursor: 'pointer'

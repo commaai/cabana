@@ -55,6 +55,7 @@ export default class CanExplorer extends Component {
         this.onPartChange = this.onPartChange.bind(this);
         this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
         this.onSeek = this.onSeek.bind(this);
+        this.onMessageSelected = this.onMessageSelected.bind(this);
     }
 
     componentWillMount() {
@@ -253,6 +254,7 @@ export default class CanExplorer extends Component {
     onMessageSelected(msgKey) {
       let {seekTime, seekIndex, messages} = this.state;
       const msg = messages[msgKey];
+
       if(seekTime > 0) {
           seekIndex = msg.entries.findIndex((e) => e.relTime >= seekTime);
           if(seekIndex === -1) {
@@ -271,7 +273,7 @@ export default class CanExplorer extends Component {
                           messages={this.state.messages}
                           partsLoaded={this.state.currentParts}
                           partsCount={this.state.route ? this.state.route.proclog : 0}
-                          onMessageSelected={(msg) => {this.setState({selectedMessage: msg})}}
+                          onMessageSelected={this.onMessageSelected}
                           showLoadDbc={this.showLoadDbc}
                           showSaveDbc={this.showSaveDbc}
                           dbcFilename={this.state.dbcFilename}

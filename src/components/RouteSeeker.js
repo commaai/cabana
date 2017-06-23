@@ -145,6 +145,9 @@ export default class RouteSeeker extends Component {
 
             const {currentTime} = videoElement;
             let newRatio = this.props.segmentProgress(currentTime);
+            if(newRatio === this.state.ratio) {
+                return;
+            }
 
             if(newRatio >= 1) {
                 newRatio = 0;
@@ -222,13 +225,15 @@ const Styles = StyleSheet.create({
         flexDirection: 'row',
         display: 'flex',
         background: 'linear-gradient(top, rgba(0,0,0,0.0), rgba(0,0,0,0.5))',
+        userSelect: 'none'
     },
     playButton: {
         height: 25,
         width: 25,
         display: 'flex',
         alignSelf: 'center',
-        opacity: 0.8
+        opacity: 0.8,
+        userSelect: 'none'
     },
     progress: {
         display: 'flex',
@@ -274,5 +279,6 @@ const Styles = StyleSheet.create({
         textAlign: 'center',
         backgroundColor: 'rgba(0,0,0,0.9)',
         color: 'rgb(225,225,225)'
-    }
+    },
+
 });
