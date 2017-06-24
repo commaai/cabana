@@ -125,7 +125,7 @@ export default createClassFromSpec('CanPlot', {
           "on": [
             {
               "events": "window:mouseup",
-              "update": "span(brush) ? invert('xrelscale', brush) : segment"
+              "update": "span(brush) && span(invert('xrelscale', brush)) > 1 ? invert('xrelscale', brush) : segment"
             }
           ]
         }
