@@ -172,18 +172,18 @@ export default class Signal {
     }
 
     equals(otherSignal) {
-        return (otherSignal.name == this.name
-                && otherSignal.startBit == this.startBit
-                && otherSignal.size == this.size
-                && otherSignal.isLittleEndian == this.isLittleEndian
-                && otherSignal.isSigned == this.isSigned
-                && otherSignal.isFloat == this.isFloat
-                && otherSignal.factor == this.factor
-                && otherSignal.offset == this.offset
-                && otherSignal.unit == this.unit
-                && otherSignal.receiver.length==this.receiver.length
+        return (otherSignal.name === this.name
+                && otherSignal.startBit === this.startBit
+                && otherSignal.size === this.size
+                && otherSignal.isLittleEndian === this.isLittleEndian
+                && otherSignal.isSigned === this.isSigned
+                && otherSignal.isFloat === this.isFloat
+                && otherSignal.factor === this.factor
+                && otherSignal.offset === this.offset
+                && otherSignal.unit === this.unit
+                && otherSignal.receiver.length===this.receiver.length
                 && otherSignal.receiver.every((v,i)=> v === this.receiver[i])
-                && otherSignal.comment == this.comment
-                && otherSignal.multiplex == this.multiplex);
+                && otherSignal.comment === this.comment
+                && otherSignal.multiplex === this.multiplex);
     }
 }

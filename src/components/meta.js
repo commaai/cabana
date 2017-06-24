@@ -199,6 +199,7 @@ export default class Meta extends Component {
                             <tr className={css(Styles.messageHeader)}>
                                 <td></td>
                                 <td></td>
+                                <td>Signals</td>
                                 <td>Count</td>
                                 <td>Bytes</td>
                             </tr>
@@ -223,6 +224,7 @@ export default class Meta extends Component {
                                             className={css(Styles.message)}>
                                                 <td>{msg.frame ? msg.frame.name : ''}</td>
                                                 <td>{key}</td>
+                                                <td>{Object.keys(msg.signals).length}</td>
                                                 <td>{msg.entries.length}</td>
                                                 <td>
                                                     <MessageBytes

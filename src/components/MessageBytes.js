@@ -33,7 +33,7 @@ export default class MessageBytes extends Component {
         ).map((red) =>
             'rgb(' + Math.round(red) + ',0,0)'
         );
-        console.log(byteColors)
+
         this.setState({byteColors});
     }
 

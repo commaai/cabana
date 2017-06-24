@@ -204,6 +204,7 @@ export default class AddSignals extends Component {
                 dragStartBit = dragEndBit;
                 dragEndBit = start;
             }
+            this.propagateUpSignalChange()
 
             // check for overlapping bits
             for(let i = dragStartBit; i <= dragEndBit; i++) {

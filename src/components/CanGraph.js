@@ -58,7 +58,8 @@ export default class CanGraph extends Component {
       }
     }
 
-    return nextProps.data.length != this.props.data.length;
+    return nextProps.data.length != this.props.data.length
+            || !(nextProps.signalSpec.equals(this.props.signalSpec));
   }
 
   onNewView(view) {
