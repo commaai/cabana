@@ -197,7 +197,16 @@ export default class Meta extends Component {
                     <ul className={css(Styles.messageList)}>
                         {Object.keys(this.props.messages)
                             .filter(this.msgKeyFilter)
-                            .sort()
+                            .sort((key1, key2) => {
+                                const msg1 = this.props.messages[key1], msg2 = this.props.messages[key2];
+                                if(msg1.entries.length < msg2.entries.length) {
+                                    return 1;
+                                } else if(msg1.entries.length === msg2.entries.length) {
+                                    return 0;
+                                } else {
+                                    return -1;
+                                }
+                            })
                             .map((key) => {
                                 const msg = this.props.messages[key];
                                 return <li onClick={() => {this.onMessageSelected(key)}}

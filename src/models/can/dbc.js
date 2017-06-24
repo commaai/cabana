@@ -82,7 +82,24 @@ export default class DBC {
         return msgName;
     }
 
+    updateBoardUnits() {
+        const boardUnitNames = this.boardUnits.map((bu) => bu.name);
+        const missingBoardUnits =
+            Array.from(this.messages.entries())
+                .map(([msgId, frame]) => Object.values(frame.signals))
+                .reduce((arr, signals) => arr.concat(signals), [])
+                .map((signal) => signal.receiver)
+                .reduce((arr, receivers) => arr.concat(receivers), [])
+                .filter((recv, idx, array) => array.indexOf(recv) === idx)
+                .filter((recv) => boardUnitNames.indexOf(recv) === -1)
+                .map((recv) => new BoardUnit(recv));
+
+        this.boardUnits = this.boardUnits.concat(missingBoardUnits);
+    }
+
     text() {
+        this.updateBoardUnits();
+
         let txt = 'VERSION ""\n\n\n';
         txt += 'NS_ :' + this._newSymbols();
         txt += '\n\nBS_:\n';
@@ -144,6 +161,7 @@ export default class DBC {
         const msg = new Frame({name: this.nextNewFrameName(),
                                id: msgId,
                                size: 8});
+
         this.messages.set(msgId, msg);
         return msg;
     }
@@ -156,14 +174,18 @@ export default class DBC {
         } else {
             const msg = this.createFrame(msgId);
             msg.signals = signals;
+
             this.messages.set(msgId, msg);
+            this.updateBoardUnits();
         }
     }
 
     addSignal(msgId, signal) {
         const msg = this.messages.get(msgId);
+
         if(msg) {
-            msg.signals.push(signal);
+            msg.signals[signal.name] = signal;
+            this.updateBoardUnits();
         }
     }
 
@@ -229,7 +251,7 @@ export default class DBC {
                 offset = floatOrInt(offset);
                 min = floatOrInt(min);
                 max = floatOrInt(max);
-                const receiver = receiverStr.split(",");
+                const receiver = receiverStr.split(",").map((s) => s.trim());
 
                 const signalProperties= {name, startBit, size, isLittleEndian,
                                          isSigned, factor, offset, unit, min, max,
