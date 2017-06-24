@@ -195,6 +195,14 @@ export default class Meta extends Component {
                         : null}
                     </div>
                     <table className={css(Styles.messageTable)}>
+                        <thead>
+                            <tr className={css(Styles.messageHeader)}>
+                                <td></td>
+                                <td></td>
+                                <td>Count</td>
+                                <td>Bytes</td>
+                            </tr>
+                        </thead>
                         <tbody>
                             {Object.keys(this.props.messages)
                                 .filter(this.msgKeyFilter)
@@ -373,5 +381,8 @@ const Styles = StyleSheet.create({
     },
     messagesList: {
         marginTop: 10
+    },
+    messageHeader: {
+        fontSize: 12
     }
 });

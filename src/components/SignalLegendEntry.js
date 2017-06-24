@@ -137,6 +137,11 @@ export default class SignalLegendEntry extends Component {
                                                   ['Little', 'Big'],
                                                   {Little: true,
                                                    Big: false})}
+                                {this.optionField('isSigned',
+                                                  'Sign',
+                                                  ['Signed', 'Unsigned'],
+                                                  {Signed: true,
+                                                   Unsigned: false})}
                                 {this.numberField('factor', 'Factor')}
                                 {this.numberField('offset', 'Offset')}
                                 {this.stringField('unit', 'Unit')}
