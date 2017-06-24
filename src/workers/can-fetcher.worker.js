@@ -6,12 +6,21 @@ import * as CanApi from '../api/can';
 const Int64LE = require('int64-buffer').Int64LE
 
 function createMessageSpec(dbc, address, id, bus) {
+    const frame = dbc.messages.get(address);
+    const size = frame ? frame.size : 8;
+
     return {address: address,
             id: id,
             bus: bus,
             entries: [],
             frame: dbc.messages.get(address),
-            signalAggregates: {}}
+            byteStateChangeCounts: Array(size).fill(0)}
+}
+
+function findMaxByteStateChangeCount(messages) {
+  return Object.values(messages).map((m) => m.byteStateChangeCounts)
+                                .reduce((counts, countArr) => counts.concat(countArr), []) // flatten arrays
+                                .reduce((count1, count2) => count1 > count2 ? count1 : count2, 0); // find max
 }
 
 async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
@@ -38,16 +47,23 @@ async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
                             :
                             (prevMsgEntries[id] || null);
 
-       const msgEntry = DbcUtils.parseMessage(dbc,
-                                              t,
-                                              address.toNumber(),
-                                              data,
-                                              canStartTime,
-                                              prevMsgEntry);
+       const {msgEntry,
+              byteStateChangeCounts} = DbcUtils.parseMessage(dbc,
+                                                             t,
+                                                             address.toNumber(),
+                                                             data,
+                                                             canStartTime,
+                                                             prevMsgEntry);
+       messages[id].byteStateChangeCounts = byteStateChangeCounts.map((count, idx) =>
+        messages[id].byteStateChangeCounts[idx] + count
+       );
+
        messages[id].entries.push(msgEntry);
   }
 
-  self.postMessage(messages);
+  const maxByteStateChangeCount = findMaxByteStateChangeCount(messages);
+  self.postMessage({newMessages: messages,
+                    maxByteStateChangeCount});
   self.close();
 }
 

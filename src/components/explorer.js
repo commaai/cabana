@@ -351,7 +351,7 @@ export default class Explorer extends Component {
                                                      segment={this.state.segment}
                                                      data={this.state.graphData[messageId][signalName]}
                                                      onRelativeTimeClick={this.onGraphTimeClick}
-                                                     currentTime={this.state.seekTime - this.props.firstCanTime} />;
+                                                     currentTime={this.props.seekTime} />;
                                 })}
                             </div>
                         </div>

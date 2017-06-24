@@ -41,6 +41,7 @@ export default class CanExplorer extends Component {
             dbcLastSaved: null,
             seekTime: 0,
             seekIndex: 0,
+            maxByteStateChangeCount: 0
         };
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
@@ -145,7 +146,11 @@ export default class CanExplorer extends Component {
           return;
         }
 
-        const newMessages = e.data;
+        const {newMessages, maxByteStateChangeCount} = e.data;
+        if(maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
+          this.setState({maxByteStateChangeCount});
+        }
+
         for(var key in newMessages) {
           if (key in messages) {
             messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
@@ -293,7 +298,8 @@ export default class CanExplorer extends Component {
                           dongleId={this.props.dongleId}
                           name={this.props.name}
                           route={this.state.route}
-                          seekTime={this.state.seekTime}  />
+                          seekTime={this.state.seekTime}
+                          maxByteStateChangeCount={this.state.maxByteStateChangeCount}  />
                     <div className={css(Styles.right)}>
                       {Object.keys(this.state.messages).length > 0
                         && this.state.selectedMessage ?
@@ -334,7 +340,8 @@ const Styles = StyleSheet.create({
         fontFamily: `apple-system, BlinkMacSystemFont,
                      "Segoe UI", "Roboto", "Oxygen",
                      "Ubuntu", "Cantarell", "Fira Sans",
-                     "Droid Sans", "Helvetica Neue", sans-serif`
+                     "Droid Sans", "Helvetica Neue", sans-serif`,
+        height: '100%'
     },
     right: {
       flex: 8,

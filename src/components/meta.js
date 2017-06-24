@@ -206,7 +206,8 @@ export default class Meta extends Component {
                                         {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
                                         <MessageBytes
                                             message={msg}
-                                            seekTime={this.props.seekTime} />
+                                            seekTime={this.props.seekTime}
+                                            maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
                                         </li>
                             })}
                     </ul>
@@ -231,44 +232,46 @@ export default class Meta extends Component {
     render() {
         return (
             <div className={css(Styles.root)}>
-                <div>
-                    <span className={css(Styles.titleText)}>
-                        comma cabana
-                    </span>
+                <div className={css(Styles.scrollContainer)}>
+                    <div>
+                        <span className={css(Styles.titleText)}>
+                            comma cabana
+                        </span>
+                    </div>
+                    <div>
+                        <img src="http://www.westingrandcayman.com/wp-content/uploads/2017/01/westin-grand-cayman-cabana-luxury.jpg" height="133" />
+                    </div>
+                    <div>
+                        {GithubAuth.hasValidAccessToken() ?
+                            <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
+                            :
+                            <a href={GithubAuth.authorizeUrl()}
+                               target="_blank">Log in with Github</a>
+                        }
+                    </div>
+                    <div>
+                        <p className={css(Styles.loadDbc)}
+                           onClick={this.props.showLoadDbc}>Load DBC</p>
+                            &nbsp;/&nbsp;
+                        <p className={css(Styles.loadDbc)}
+                           onClick={this.props.showSaveDbc}>Save DBC</p>
+                        {this.props.dbcLastSaved !== null ?
+                            <p>Last saved: {this.lastSavedPretty()}</p>
+                            : null
+                        }
+                        {this.props.dbcFilename ? <p>Editing: {this.props.dbcFilename}</p>: null}
+                        <p></p>
+                    </div>
+                    <div>
+                        <p className={css(Styles.timeWindow)}>{this.timeWindow()}</p>
+                    </div>
+                    <PartSelector
+                        onPartChange={this.props.onPartChange}
+                        partsCount={this.props.partsCount}
+                    />
+                    {this.selectedMessagesList()}
+                    {this.availableMessagesList()}
                 </div>
-                <div>
-                    <img src="http://www.westingrandcayman.com/wp-content/uploads/2017/01/westin-grand-cayman-cabana-luxury.jpg" height="133" />
-                </div>
-                <div>
-                    {GithubAuth.hasValidAccessToken() ?
-                        <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
-                        :
-                        <a href={GithubAuth.authorizeUrl()}
-                           target="_blank">Log in with Github</a>
-                    }
-                </div>
-                <div>
-                    <p className={css(Styles.loadDbc)}
-                       onClick={this.props.showLoadDbc}>Load DBC</p>
-                        &nbsp;/&nbsp;
-                    <p className={css(Styles.loadDbc)}
-                       onClick={this.props.showSaveDbc}>Save DBC</p>
-                    {this.props.dbcLastSaved !== null ?
-                        <p>Last saved: {this.lastSavedPretty()}</p>
-                        : null
-                    }
-                    {this.props.dbcFilename ? <p>Editing: {this.props.dbcFilename}</p>: null}
-                    <p></p>
-                </div>
-                <div>
-                    <p className={css(Styles.timeWindow)}>{this.timeWindow()}</p>
-                </div>
-                <PartSelector
-                    onPartChange={this.props.onPartChange}
-                    partsCount={this.props.partsCount}
-                />
-                {this.selectedMessagesList()}
-                {this.availableMessagesList()}
             </div>
         );
     }
@@ -279,7 +282,14 @@ const Styles = StyleSheet.create({
         padding: 10,
         flex: 1,
         maxWidth: 420,
-        backgroundColor: 'rgb(246,246,246)'
+        backgroundColor: 'rgb(246,246,246)',
+        height: '100%',
+    },
+    scrollContainer: {
+        display: 'block',
+        height: '100%',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
     },
     githubAuth: {
         marginTop: 10,

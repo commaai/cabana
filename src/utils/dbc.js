@@ -1,8 +1,14 @@
 function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage) {
+  const byteStateChangeCounts = Array(msgSize).fill(0);
+  let byteStateChangeTimes;
+
   if(!lastParsedMessage) {
-    return Array(msgSize).fill(time);
+    byteStateChangeTimes = Array(msgSize).fill(time);
   } else {
-    const byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
+    if(!lastParsedMessage.byteStateChangeTimes) {
+        console.log(lastParsedMessage)
+    }
+    byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
 
     for(let i = 0; i < byteStateChangeTimes.length; i++) {
       const currentData = hexData.substr(i * 2, 2),
@@ -10,11 +16,12 @@ function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage
 
       if(currentData != prevData) {
         byteStateChangeTimes[i] = time;
+        byteStateChangeCounts[i] = 1;
       }
     }
-
-    return byteStateChangeTimes;
   }
+
+  return {byteStateChangeTimes, byteStateChangeCounts};
 }
 
 function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
@@ -23,15 +30,17 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
     const msgSize = msgSpec ? msgSpec.size : 8;
     const relTime = time - timeStart;
 
-    const byteStateChangeTimes = determineByteStateChangeTimes(hexData,
+    const {byteStateChangeTimes, byteStateChangeCounts} = determineByteStateChangeTimes(hexData,
                                                                relTime,
                                                                msgSize,
                                                                lastParsedMessage)
-    return {time: time,
-            signals: dbc.getSignalValues(address, data),
-            relTime,
-            hexData,
-            byteStateChangeTimes}
+    const msgEntry = {time: time,
+                      signals: dbc.getSignalValues(address, data),
+                      relTime,
+                      hexData,
+                      byteStateChangeTimes}
+
+    return {msgEntry, byteStateChangeCounts};
 }
 
 const BIG_ENDIAN_START_BITS = [];
