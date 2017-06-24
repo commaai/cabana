@@ -194,32 +194,38 @@ export default class Meta extends Component {
                         <Images.clear onClick={() => this.setState({filterText: 'Filter'})} />
                         : null}
                     </div>
-                    <ul className={css(Styles.messageList)}>
-                        {Object.keys(this.props.messages)
-                            .filter(this.msgKeyFilter)
-                            .sort((key1, key2) => {
-                                const msg1 = this.props.messages[key1], msg2 = this.props.messages[key2];
-                                if(msg1.entries.length < msg2.entries.length) {
-                                    return 1;
-                                } else if(msg1.entries.length === msg2.entries.length) {
-                                    return 0;
-                                } else {
-                                    return -1;
-                                }
-                            })
-                            .map((key) => {
-                                const msg = this.props.messages[key];
-                                return <li onClick={() => {this.onMessageSelected(key)}}
-                                        key={key}
-                                        className={css(Styles.message)}>
-                                        {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
-                                        <MessageBytes
-                                            message={msg}
-                                            seekTime={this.props.seekTime}
-                                            maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
-                                        </li>
-                            })}
-                    </ul>
+                    <table className={css(Styles.messageTable)}>
+                        <tbody>
+                            {Object.keys(this.props.messages)
+                                .filter(this.msgKeyFilter)
+                                .sort((key1, key2) => {
+                                    const msg1 = this.props.messages[key1], msg2 = this.props.messages[key2];
+                                    if(msg1.entries.length < msg2.entries.length) {
+                                        return 1;
+                                    } else if(msg1.entries.length === msg2.entries.length) {
+                                        return 0;
+                                    } else {
+                                        return -1;
+                                    }
+                                })
+                                .map((key) => {
+                                    const msg = this.props.messages[key];
+                                    return <tr onClick={() => {this.onMessageSelected(key)}}
+                                            key={key}
+                                            className={css(Styles.message)}>
+                                                <td>{msg.frame ? msg.frame.name : ''}</td>
+                                                <td>{key}</td>
+                                                <td>{msg.entries.length}</td>
+                                                <td>
+                                                    <MessageBytes
+                                                        message={msg}
+                                                        seekTime={this.props.seekTime}
+                                                        maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
+                                                </td>
+                                            </tr>
+                                })}
+                            </tbody>
+                    </table>
                 </div>);
     }
 
@@ -323,8 +329,6 @@ const Styles = StyleSheet.create({
         },
         marginTop: 5,
         fontSize: 12,
-        display: 'flex',
-        flexDirection: 'row'
     },
     messageList: {
         margin: 0,
