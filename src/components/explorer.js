@@ -52,6 +52,7 @@ export default class Explorer extends Component {
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
         this.onVideoClick = this.onVideoClick.bind(this);
+        this.onSignalPlotChanged = this.onSignalPlotChanged.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -309,6 +310,15 @@ export default class Explorer extends Component {
                 </div>);
     }
 
+    onSignalPlotChanged(shouldPlot, messageId, signalName) {
+        const {plottedSignals} = this.state;
+        if(shouldPlot) {
+            this.onSignalPlotPressed(messageId, signalName);
+        } else {
+            this.onSignalUnplotPressed(messageId, signalName);
+        }
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <div className={css(Styles.dataContainer)}>
@@ -320,6 +330,11 @@ export default class Explorer extends Component {
                                     message={this.props.messages[this.props.selectedMessage]}
                                     onClose={() => {this.setState({shouldShowAddSignal: false})}}
                                     messageIndex={this.props.seekIndex}
+                                    onSignalPlotChange={this.onSignalPlotChanged}
+                                    plottedSignals={this.state.plottedSignals.filter(
+                                            ({messageId, signalName}) => messageId === this.props.selectedMessage
+                                        ).map(({messageId, signalName}) => signalName)
+                                    }
                                 /> : null}
                             <CanLog message={this.props.messages[this.props.selectedMessage]}
                                     messageIndex={this.props.seekIndex}

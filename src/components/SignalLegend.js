@@ -16,7 +16,9 @@ export default class SignalLegend extends Component {
         onSignalHover: PropTypes.func,
         onSignalHoverEnd: PropTypes.func,
         onSignalChange: PropTypes.func,
-        onSignalRemove: PropTypes.func
+        onSignalRemove: PropTypes.func,
+        onSignalPlotChange: PropTypes.func,
+        plottedSignals: PropTypes.array
     };
 
     constructor(props) {
@@ -38,7 +40,9 @@ export default class SignalLegend extends Component {
                     onSignalHover={this.props.onSignalHover}
                     onSignalHoverEnd={this.props.onSignalHoverEnd}
                     onSignalChange={this.props.onSignalChange}
-                    onSignalRemove={this.props.onSignalRemove} />;
+                    onSignalRemove={this.props.onSignalRemove}
+                    onSignalPlotChange={this.props.onSignalPlotChange}
+                    isPlotted={this.props.plottedSignals.indexOf(signalName) !== -1} />;
         });
 
         const signalRows = signalRowsNested

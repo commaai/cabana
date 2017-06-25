@@ -16,7 +16,9 @@ export default class SignalLegendEntry extends Component {
         onSignalHover: PropTypes.func,
         onSignalHoverEnd: PropTypes.func,
         onSignalChange: PropTypes.func,
-        onSignalRemove: PropTypes.func
+        onSignalRemove: PropTypes.func,
+        onSignalPlotChange: PropTypes.func,
+        isPlotted: PropTypes.bool
     };
 
     constructor(props) {
@@ -181,10 +183,9 @@ export default class SignalLegendEntry extends Component {
         e.stopPropagation();
     }
 
-
     render() {
         const {isExpanded, isEditing, signalEdited} = this.state;
-        const {signal, highlightedStyle} = this.props;
+        const {signal, highlightedStyle, plottedSignals, isPlotted} = this.props;
         return (<tbody>
                     <tr
                         onClick={() => {this.setState({isExpanded: !isExpanded})}}
@@ -204,6 +205,15 @@ export default class SignalLegendEntry extends Component {
                         <td onClick={this.toggleEditing}
                             className={css(Styles.pointer)}>
                             {isEditing ? 'Save' : 'Edit'}
+                        </td>
+                        <td>
+                            <span>Plot: </span>
+                            <input type="checkbox"
+                                   checked={isPlotted}
+                                   onChange={(e) => {
+                                     this.props.onSignalPlotChange(e.target.checked, signal.name)
+                                   }}
+                            />
                         </td>
                     </tr>
                     {isExpanded ? this.expandedSignal(signal) : null}

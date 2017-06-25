@@ -23,7 +23,9 @@ export default class AddSignals extends Component {
         message: PropTypes.object,
         onConfirmedSignalChange: PropTypes.func,
         onClose: PropTypes.func,
-        messageIndex: PropTypes.number
+        messageIndex: PropTypes.number,
+        onSignalPlotChange: PropTypes.func,
+        plottedSignals: PropTypes.array
     };
 
     constructor(props) {
@@ -50,6 +52,7 @@ export default class AddSignals extends Component {
         this.onSignalHoverEnd = this.onSignalHoverEnd.bind(this);
         this.onSignalChange = this.onSignalChange.bind(this);
         this.onSignalRemove = this.onSignalRemove.bind(this);
+        this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
     }
 
     signalColorStyle(signal) {
@@ -333,6 +336,12 @@ export default class AddSignals extends Component {
         this.props.onConfirmedSignalChange(newMessage);
     }
 
+    onSignalPlotChange(shouldPlot, signalName) {
+        const {message} = this.props;
+
+        this.props.onSignalPlotChange(shouldPlot, message.id, signalName)
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     {Object.keys(this.state.signals).length === 0 ?
@@ -347,7 +356,11 @@ export default class AddSignals extends Component {
                         onSignalHover={this.onSignalHover}
                         onSignalHoverEnd={this.onSignalHoverEnd}
                         onSignalChange={this.onSignalChange}
-                        onSignalRemove={this.onSignalRemove} />
+                        onSignalRemove={this.onSignalRemove}
+                        onSignalPlotChange={this.onSignalPlotChange}
+                        plottedSignals={this.props.plottedSignals}
+                         />
+                        }
                 </div>);
     }
 }
