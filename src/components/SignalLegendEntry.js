@@ -57,10 +57,7 @@ export default class SignalLegendEntry extends Component {
         let valueCol;
 
         if(this.state.isEditing) {
-            let value = this.state.signalEdited[field] || 0;
-            if(value === undefined) {
-                value = 0;
-            }
+            let value = this.state.signalEdited[field] || '';
 
             valueCol = <input type="number"
                               value={value}
