@@ -53,6 +53,7 @@ export default class AddSignals extends Component {
         this.onSignalChange = this.onSignalChange.bind(this);
         this.onSignalRemove = this.onSignalRemove.bind(this);
         this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
+        this.resetDragState = this.resetDragState.bind(this);
     }
 
     signalColorStyle(signal) {
@@ -135,18 +136,32 @@ export default class AddSignals extends Component {
     }
 
     onBitHover(bitIdx, signal) {
-        const {dragStartBit, signals, dragSignal} = this.state;
+        let {dragStartBit, signals, dragSignal} = this.state;
 
         if(dragStartBit !== null) {
             if(dragSignal !== null) {
-                const newSize = (bitIdx - dragStartBit + 1)
-                    + this.signalBitIndex(dragStartBit, dragSignal);
-
-                if(newSize > 0) {
-                    dragSignal.size = newSize;
+                // if the dragStartBit is the signal startBit
+                if(dragStartBit === dragSignal.startBit) {
+                    // todo support big endian
+                    const diff = bitIdx - dragStartBit;
+                    dragSignal.startBit += diff;
+                    dragSignal.size -= diff;
                     signals[dragSignal.name] = dragSignal;
-                    this.setState({signals, dragCurrentBit: bitIdx});
+                    dragStartBit = dragSignal.startBit;
+                } else {
+                    const newSize = (bitIdx - dragStartBit)
+                        + this.signalBitIndex(dragStartBit, dragSignal);
+
+                    if(newSize >= 0) {
+                        dragSignal.size = newSize + 1;
+                        signals[dragSignal.name] = dragSignal;
+                    } else if(newSize < 0) {
+                        dragSignal.startBit -= (Math.abs(newSize));
+                        dragSignal.size += (Math.abs(newSize));
+                        signals[dragSignal.name] = dragSignal;
+                    }
                 }
+                this.setState({signals, dragCurrentBit: bitIdx, dragStartBit});
             } else {
                 this.setState({dragCurrentBit: bitIdx});
             }
@@ -193,9 +208,7 @@ export default class AddSignals extends Component {
     onBitMouseUp(dragEndBit, signal) {
         if(this.state.dragStartBit !== null) {
             let {dragStartBit} = this.state;
-            this.setState({dragStartBit: null,
-                           dragSignal: null,
-                           dragCurrentBit: null})
+            this.resetDragState()
 
             if(dragEndBit === dragStartBit) {
                 // one-bit signal requires double click
@@ -302,11 +315,18 @@ export default class AddSignals extends Component {
         }
 
         return (<table className={css(TableStyles.noSpacing, Styles.bitMatrix)}
-                       cellSpacing={0}>
+                       cellSpacing={0}
+                       onMouseLeave={this.resetDragState}>
                     <tbody>
                     {rows}
                     </tbody>
                 </table>);
+    }
+
+    resetDragState() {
+        this.setState({dragStartBit: null,
+                       dragSignal: null,
+                       dragCurrentBit: null})
     }
 
     onSignalChange(signal, oldSignal) {
@@ -360,7 +380,6 @@ export default class AddSignals extends Component {
                         onSignalPlotChange={this.onSignalPlotChange}
                         plottedSignals={this.props.plottedSignals}
                          />
-                        }
                 </div>);
     }
 }

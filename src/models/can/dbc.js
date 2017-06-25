@@ -398,7 +398,7 @@ export default class DBC {
         if (signalSpec.isLittleEndian) {
             value = UINT64(swapOrder(hexData, 16, 2), 16);
             startBit = signalSpec.startBit;
-            dataBitPos = UINT64.fromNumber(startBit);
+            dataBitPos = UINT64(startBit);
         } else {
             // big endian
             value = UINT64(hexData, 16);
