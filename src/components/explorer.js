@@ -57,11 +57,27 @@ export default class Explorer extends Component {
     componentWillReceiveProps(nextProps) {
         const nextMessage = nextProps.messages[nextProps.selectedMessage];
         const curMessage = this.props.messages[this.props.selectedMessage];
+        const {graphData} = this.state;
 
         if(nextMessage && nextMessage !== curMessage) {
-            if(Object.keys(nextMessage.signals).length === 0) {
+            const nextSignalNames = Object.keys(nextMessage.signals);
+            if(nextSignalNames.length === 0) {
                 this.setState({shouldShowAddSignal: true});
             }
+
+            let {plottedSignals} = this.state;
+            // unplot signals that have been removed
+
+            plottedSignals = plottedSignals.filter(({messageId, signalName}) => {
+                const signalExists = nextSignalNames.indexOf(signalName) !== -1;
+
+                if(!signalExists) {
+                    delete graphData[nextProps.selectedMessage][signalName];
+                }
+                return signalExists;
+            });
+
+            this.setState({plottedSignals});
         }
 
         if(nextProps.selectedMessage != this.props.selectedMessage) {
@@ -96,7 +112,7 @@ export default class Explorer extends Component {
 
         if(nextMessage && curMessage) {
             // Refresh graph data
-            const {graphData} = this.state;
+
             const msgGraphData = graphData[nextProps.selectedMessage];
 
             if(msgGraphData) {
