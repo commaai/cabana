@@ -140,26 +140,49 @@ export default class AddSignals extends Component {
 
         if(dragStartBit !== null) {
             if(dragSignal !== null) {
-                // if the dragStartBit is the signal startBit
                 if(dragStartBit === dragSignal.startBit) {
-                    // todo support big endian
+                    if(!dragSignal.isLittleEndian) {
+                        // should not be able to drag the msb past the lsb
+                        const startBigEndian = DbcUtils.bigEndianBitIndex(dragStartBit);
+                        const hoveredBigEndian = DbcUtils.bigEndianBitIndex(bitIdx);
+                        const lsbPos = (startBigEndian + dragSignal.size - 1);
+
+                        if(hoveredBigEndian > lsbPos) {
+                            return;
+                        }
+                    }
+
                     const diff = bitIdx - dragStartBit;
+
+                    if(dragSignal.isLittleEndian) {
+                        dragSignal.size -= diff;
+                    } else if(dragSignal.bitDescription(bitIdx) === null) {
+                        dragSignal.size += Math.abs(diff);
+                    } else {
+                        dragSignal.size -= Math.abs(diff);
+                    }
                     dragSignal.startBit += diff;
-                    dragSignal.size -= diff;
+
                     signals[dragSignal.name] = dragSignal;
                     dragStartBit = dragSignal.startBit;
-                } else {
-                    const newSize = (bitIdx - dragStartBit)
-                        + this.signalBitIndex(dragStartBit, dragSignal);
-
-                    if(newSize >= 0) {
-                        dragSignal.size = newSize + 1;
-                        signals[dragSignal.name] = dragSignal;
-                    } else if(newSize < 0) {
-                        dragSignal.startBit -= (Math.abs(newSize));
-                        dragSignal.size += (Math.abs(newSize));
-                        signals[dragSignal.name] = dragSignal;
+                } else if(dragSignal.isLittleEndian && dragStartBit === dragSignal.msbBitIndex()) {
+                    const diff = bitIdx - dragStartBit;
+                    if(dragSignal.bitDescription(bitIdx) === null) {
+                        dragSignal.size += Math.abs(diff);
+                    } else {
+                        dragSignal.size -= Math.abs(diff);
                     }
+                    signals[dragSignal.name] = dragSignal;
+                    dragStartBit = dragSignal.msbBitIndex();
+                } else if(!dragSignal.isLittleEndian && dragStartBit === dragSignal.lsbBitIndex()) {
+                    const diff = bitIdx - dragStartBit;
+                    if(dragSignal.bitDescription(bitIdx) === null) {
+                        dragSignal.size += Math.abs(diff);
+                    } else {
+                        dragSignal.size -= Math.abs(diff);
+                    }
+                    signals[dragSignal.name] = dragSignal;
+                    dragStartBit = dragSignal.lsbBitIndex();
                 }
                 this.setState({signals, dragCurrentBit: bitIdx, dragStartBit});
             } else {
@@ -197,31 +220,15 @@ export default class AddSignals extends Component {
         const signal = new Signal({name: this.nextNewSignalName(),
                                    startBit: bitIdx,
                                    size: size,
-                                   isLittleEndian: true});
+                                   isLittleEndian: false});
         const {signals} = this.state;
         signals[signal.name] = signal;
 
         this.setState({signals}, this.propagateUpSignalChange);
     }
 
-
-    onBitMouseUp(dragEndBit, signal) {
-        if(this.state.dragStartBit !== null) {
-            let {dragStartBit} = this.state;
-            this.resetDragState()
-
-            if(dragEndBit === dragStartBit) {
-                // one-bit signal requires double click
-                // see onBitDoubleClick
-                return;
-            }
-            if(dragEndBit < dragStartBit) {
-                const start = dragStartBit;
-                dragStartBit = dragEndBit;
-                dragEndBit = start;
-            }
-            this.propagateUpSignalChange()
-
+    createSignalIfNotExtendingOne(dragStartBit, dragEndBit) {
+        if(this.state.dragSignal === null) {
             // check for overlapping bits
             for(let i = dragStartBit; i <= dragEndBit; i++) {
                 if(this.signalForBit(i) !== undefined) {
@@ -229,9 +236,30 @@ export default class AddSignals extends Component {
                     return;
                 }
             }
+            let size, startBit = dragStartBit;
 
-            this.createSignalAtBit(dragStartBit,
-                                   dragEndBit - dragStartBit + 1);
+            if(Math.floor(dragEndBit / 8) === Math.floor(dragStartBit / 8)){
+                size = Math.abs(dragEndBit - dragStartBit) + 1;
+            } else {
+                if(dragEndBit < dragStartBit) {
+                    startBit = dragEndBit;
+                }
+                size = Math.abs(DbcUtils.bigEndianBitIndex(dragEndBit) - DbcUtils.bigEndianBitIndex(dragStartBit)) + 1;
+            }
+
+            this.createSignalAtBit(startBit, size);
+        }
+    }
+    onBitMouseUp(dragEndBit, signal) {
+        if(this.state.dragStartBit !== null) {
+            let {dragStartBit} = this.state;
+
+            if(dragEndBit !== dragStartBit) {
+                // one-bit signal requires double click
+                // see onBitDoubleClick
+                this.createSignalIfNotExtendingOne(dragStartBit, dragEndBit);
+            }
+            this.resetDragState();
         }
     }
 
@@ -253,11 +281,19 @@ export default class AddSignals extends Component {
         return (byte >> byteBitIdx) & 1
     }
 
-    bitIsContainedInSelection(bitIdx) {
+    bitIsContainedInSelection(bitIdx, isLittleEndian = false) {
         const {dragStartBit, dragCurrentBit} = this.state;
 
-        return dragStartBit !== null && dragCurrentBit !== null
-                 && bitIdx >= dragStartBit && bitIdx <= dragCurrentBit;
+        if(isLittleEndian) {
+            return dragStartBit !== null && dragCurrentBit !== null
+                     && bitIdx >= dragStartBit && bitIdx <= dragCurrentBit;
+        } else {
+            const bigEndianStartBit = DbcUtils.bigEndianBitIndex(dragStartBit);
+            const bigEndianCurrentBit = DbcUtils.bigEndianBitIndex(dragCurrentBit);
+            const bigEndianBitIdx = DbcUtils.bigEndianBitIndex(bitIdx);
+            return dragStartBit !== null && dragCurrentBit !== null
+                    && bigEndianBitIdx >= bigEndianStartBit && bigEndianBitIdx <= bigEndianCurrentBit;
+        }
     }
 
     onBitDoubleClick(bitIdx, signal) {

@@ -247,7 +247,6 @@ export default class Meta extends Component {
                         <tbody>
                             {this.orderedMessages()
                                 .map((msg) => {
-                                    console.log(msg)
                                     return <tr onClick={() => {this.onMessageSelected(msg.id)}}
                                             key={msg.id}
                                             className={css(Styles.message)}>

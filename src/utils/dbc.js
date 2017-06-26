@@ -54,4 +54,8 @@ function bigEndianBitIndex(matrixBitIndex) {
   return BIG_ENDIAN_START_BITS.indexOf(matrixBitIndex);
 }
 
-export default {bigEndianBitIndex, parseMessage}
+function matrixBitNumber(bigEndianIndex) {
+    return BIG_ENDIAN_START_BITS[bigEndianIndex];
+}
+
+export default {bigEndianBitIndex, matrixBitNumber, parseMessage}

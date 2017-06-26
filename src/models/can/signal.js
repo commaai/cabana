@@ -65,6 +65,23 @@ export default class Signal {
         return `VAL_ ${msgId} ${this.name} ${values};`;
     }
 
+    lsbBitIndex() {
+        if(this.isLittleEndian) {
+            return this.startBit;
+        } else {
+            const lsbBitNumber = DbcUtils.bigEndianBitIndex(this.startBit) + this.size - 1;
+            return DbcUtils.matrixBitNumber(lsbBitNumber);
+        }
+    }
+
+    msbBitIndex() {
+        if(this.isLittleEndian) {
+            return this.startBit + this.size - 1;
+        } else {
+            return this.startBit;
+        }
+    }
+
     littleEndianBitDescription(bitIndex) {
         const bitRange = [this.startBit, this.startBit + this.size - 1];
         if (bitIndex < bitRange[0] || bitIndex > bitRange[1]) {
