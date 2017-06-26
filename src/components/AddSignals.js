@@ -259,6 +259,7 @@ export default class AddSignals extends Component {
                 // see onBitDoubleClick
                 this.createSignalIfNotExtendingOne(dragStartBit, dragEndBit);
             }
+            this.propagateUpSignalChange();
             this.resetDragState();
         }
     }
