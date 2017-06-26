@@ -173,6 +173,46 @@ export default class Meta extends Component {
         this.props.onMessageSelected(key);
     }
 
+    orderedMessages() {
+        const {messages} = this.props;
+        const keys = Object.keys(messages)
+                           .filter(this.msgKeyFilter)
+                           .sort((key1, key2) => {
+                               const msg1 = messages[key1], msg2 = messages[key2];
+                               if(msg1.entries.length < msg2.entries.length) {
+                                   return 1;
+                               } else if(msg1.entries.length === msg2.entries.length) {
+                                   return 0;
+                               } else {
+                                   return -1;
+                               }
+                           });
+
+        let bins = [];
+        keys.forEach((key, idx) => {
+            const msg = messages[key];
+            let bin = bins.find((bin) =>
+                bin.some((binMsg) =>
+                    Math.abs(binMsg.entries.length - msg.entries.length) < 100
+                )
+            );
+            if(bin) {
+                bin.push(msg);
+            } else {
+                bins.push([msg]);
+            }
+        });
+        bins = bins.map((bin) => bin.sort((msg1, msg2) => {
+                if(msg1.address < msg2.address) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            })
+        );
+
+        return bins.reduce((arr, bin) => arr.concat(bin), []);
+    }
     availableMessagesList() {
         if(Object.keys(this.props.messages).length === 0) {
             return null;
@@ -205,25 +245,14 @@ export default class Meta extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.keys(this.props.messages)
-                                .filter(this.msgKeyFilter)
-                                .sort((key1, key2) => {
-                                    const msg1 = this.props.messages[key1], msg2 = this.props.messages[key2];
-                                    if(msg1.entries.length < msg2.entries.length) {
-                                        return 1;
-                                    } else if(msg1.entries.length === msg2.entries.length) {
-                                        return 0;
-                                    } else {
-                                        return -1;
-                                    }
-                                })
-                                .map((key) => {
-                                    const msg = this.props.messages[key];
-                                    return <tr onClick={() => {this.onMessageSelected(key)}}
-                                            key={key}
+                            {this.orderedMessages()
+                                .map((msg) => {
+                                    console.log(msg)
+                                    return <tr onClick={() => {this.onMessageSelected(msg.id)}}
+                                            key={msg.id}
                                             className={css(Styles.message)}>
                                                 <td>{msg.frame ? msg.frame.name : ''}</td>
-                                                <td>{key}</td>
+                                                <td>{msg.id}</td>
                                                 <td>{Object.keys(msg.signals).length}</td>
                                                 <td>{msg.entries.length}</td>
                                                 <td>

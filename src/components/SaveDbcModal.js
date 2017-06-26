@@ -151,7 +151,9 @@ export default class SaveDbcModal extends Component {
                      {this.tab('GitHub')}
                      {this.tab('Download')}
                    </div>
-                    {this.tabContent()}
+                   <div className={css(TabStyles.tabContent)}>
+                     {this.tabContent()}
+                   </div>
                 </Modal>);
     }
 }

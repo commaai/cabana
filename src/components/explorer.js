@@ -73,7 +73,7 @@ export default class Explorer extends Component {
                 const signalExists = nextSignalNames.indexOf(signalName) !== -1;
 
                 if(!signalExists) {
-                    delete graphData[nextProps.selectedMessage][signalName];
+                    delete graphData[messageId][signalName];
                 }
                 return signalExists;
             });

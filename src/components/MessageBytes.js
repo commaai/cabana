@@ -63,7 +63,7 @@ export default class MessageBytes extends Component {
 
         const bytes = byteOpacities.map((opacity, idx) =>
             <div key={idx} className={css(Styles.byte)}
-                           style={{opacity, backgroundColor: byteColors[idx]}}>{idx + 1}</div>
+                           style={{opacity, backgroundColor: byteColors[idx]}}>{mostRecentMsg.hexData.substr(idx * 2, 2)}</div>
         );
 
         return <div className={css(Styles.bytes)}>{bytes}</div>
@@ -76,12 +76,11 @@ const Styles = StyleSheet.create({
         flexDirection: 'row'
     },
     byte: {
-        width: 15,
+        width: 20,
         height: 15,
         border: '1px solid rgba(0,0,0,0.9)',
         color: 'white',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: 'inline-block',
+        textAlign: 'center'
     }
 });
