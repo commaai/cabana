@@ -33,6 +33,12 @@ export default class CanGraph extends Component {
       || !(newSegment.every((val, idx) => this.props.segment[idx] == val));
   }
 
+  dataChanged(prevProps, nextProps) {
+    return nextProps.data.length != prevProps.data.length
+                || prevProps.data[0].y != nextProps.data[0].y
+                || !(prevProps.signalSpec.equals(nextProps.signalSpec));
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     if(this.view) {
       // only update if segment is new
@@ -58,10 +64,14 @@ export default class CanGraph extends Component {
       }
     }
 
-    const dataChanged = nextProps.data.length != this.props.data.length
-                        || nextProps.data[0].y != nextProps.data[0].y
-                        || !(nextProps.signalSpec.equals(this.props.signalSpec));
-    return dataChanged;
+    return this.dataChanged(this.props, nextProps);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.dataChanged(prevProps, this.props)) {
+      this.view.run();
+    }
+
   }
 
   onNewView(view) {
