@@ -21,6 +21,55 @@ export default class SignalLegendEntry extends Component {
         isPlotted: PropTypes.bool
     };
 
+    static fields = [
+        {field: 'size', title: 'Size', type: 'number', options: {unsigned: true}},
+        {field: 'startBit', title: 'Start bit', type: 'number', options: {unsigned: true}},
+        {field: 'isLittleEndian',
+         title: 'Endianness',
+         type: 'option',
+         options: {
+            options: ['Little', 'Big'],
+            optionValues: {Little: true, Big: false}
+         }},
+        {
+            field: 'isSigned',
+            title: 'Sign',
+            type: 'option',
+            options: {options: ['Signed', 'Unsigned'],
+                      optionValues: {Signed: true, Unsigned: false}}
+        },
+        {
+            field: 'factor',
+            title: 'Factor',
+            type: 'number'
+        },
+        {
+            field: 'offset',
+            title: 'Offset',
+            type: 'number'
+        },
+        {
+            field: 'unit',
+            title: 'Unit',
+            type: 'string'
+        },
+        {
+            field: 'comment',
+            title: 'Comment',
+            type: 'string'
+        },
+        {
+            field: 'min',
+            title: 'Minimum value',
+            type: 'number'
+        },
+        {
+            field: 'max',
+            title: 'Maximum value',
+            type: 'number'
+        }
+    ];
+
     constructor(props) {
         super(props);
         this.state = {
@@ -53,18 +102,30 @@ export default class SignalLegendEntry extends Component {
         this.setState({signalEdited});
     }
 
-    numberField(field, title) {
+    numberField({field, title, options}) {
         let valueCol;
 
         if(this.state.isEditing) {
-            let value = this.state.signalEdited[field] || '';
+            let value = this.state.signalEdited[field];
+            if(value !== '') {
+                let num = Number(value);
+                value = (isNaN(num) ? '' : num);
+            }
 
             valueCol = <input type="number"
                               value={value}
                               onChange={(e) => {
-                                let num = Number(e.target.value);
+                                let {value} = e.target;
 
-                                this.updateField(field, num);
+                                if(value !== '') {
+                                    value = Number(e.target.value) || 0;
+
+                                    if(options && options.unsigned && value < 0) {
+                                        value = 0;
+                                    }
+                                }
+
+                                this.updateField(field, value);
                               }}/>;
         } else {
             let value = this.props.signal[field];
@@ -73,7 +134,7 @@ export default class SignalLegendEntry extends Component {
         return this.field(field, title, valueCol);
     }
 
-    stringField(field, title) {
+    stringField({field, title}) {
         let valueCol;
         if(this.state.isEditing) {
             valueCol = <input type="text"
@@ -89,8 +150,10 @@ export default class SignalLegendEntry extends Component {
         return this.field(field, title, valueCol);
     }
 
-    optionField(field, title, options, optionValues) {
+    optionField(fieldSpec) {
         let valueCol;
+        const {field, title} = fieldSpec;
+        const {options, optionValues} = fieldSpec.options;
         let valueOptions = swapKeysAndValues(optionValues);
 
         if(this.state.isEditing) {
@@ -122,6 +185,25 @@ export default class SignalLegendEntry extends Component {
                 </tr>);
     }
 
+    titleForField(field, signal) {
+        if(field.field === 'startBit') {
+            return signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
+        } else {
+            return field.title;
+        }
+    }
+
+    fieldNode(field, signal) {
+        field.title = this.titleForField(field, signal);
+        if(field.type === 'number') {
+            return this.numberField(field);
+        } else if(field.type === 'option') {
+            return this.optionField(field);
+        } else if(field.type === 'string') {
+            return this.stringField(field);
+        }
+    }
+
     expandedSignal(signal) {
         const startBitTitle = signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
 
@@ -129,24 +211,7 @@ export default class SignalLegendEntry extends Component {
                     <td colSpan="3">
                         <table>
                             <tbody>
-                                {this.numberField('size', 'Size')}
-                                {this.numberField('startBit', startBitTitle)}
-                                {this.optionField('isLittleEndian',
-                                                  'Endianness',
-                                                  ['Little', 'Big'],
-                                                  {Little: true,
-                                                   Big: false})}
-                                {this.optionField('isSigned',
-                                                  'Sign',
-                                                  ['Signed', 'Unsigned'],
-                                                  {Signed: true,
-                                                   Unsigned: false})}
-                                {this.numberField('factor', 'Factor')}
-                                {this.numberField('offset', 'Offset')}
-                                {this.stringField('unit', 'Unit')}
-                                {this.stringField('comment', 'Comment')}
-                                {this.numberField('min', 'Minimum value')}
-                                {this.numberField('max', 'Maximum value')}
+                                {SignalLegendEntry.fields.map((field) => this.fieldNode(field, signal))}
                                 {this.removeSignal(signal)}
                             </tbody>
                         </table>
@@ -163,6 +228,13 @@ export default class SignalLegendEntry extends Component {
             // Finished editing, save changes & reset intermediate
             // signalEdited state.
             Object.entries(signalEdited).forEach(([field, value]) => {
+                const fieldSpec = SignalLegendEntry.fields.find((fieldSpec) =>
+                    fieldSpec.field === field);
+
+                if(fieldSpec && fieldSpec.type === 'number' && isNaN(parseInt(value))) {
+                    value = 0;
+                }
+
                 signalCopy[field] = value;
             });
 
