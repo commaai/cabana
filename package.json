@@ -2,6 +2,7 @@
   "name": "can-explorer",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
     "aphrodite": "^1.2.1",
     "classnames": "^2.2.5",
