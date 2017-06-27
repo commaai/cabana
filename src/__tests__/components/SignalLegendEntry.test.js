@@ -85,4 +85,3 @@ test("a big endian signal spanning one and a half bytes should adjust its startB
     expect(signalEdited.startBit).toBe(0);
     expect(signalEdited.size).toBe(12);
 });
-

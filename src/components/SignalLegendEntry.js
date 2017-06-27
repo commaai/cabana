@@ -21,18 +21,32 @@ export default class SignalLegendEntry extends Component {
         isPlotted: PropTypes.bool
     };
 
+    static unsignedTransformation = (field) => {
+        return (value, signal) => {
+            if(value !== '') {
+                value = Number(value) || 0;
+
+                if(value < 0) {
+                    value = 0;
+                }
+            }
+            signal[field] = value;
+            return signal;
+        };
+    };
+
     static fields = [
         {
             field: 'size',
             title: 'Size',
             type: 'number',
-            options: {unsigned: true}
+            transform: SignalLegendEntry.unsignedTransformation('size')
         },
         {
             field: 'startBit',
             title: 'Start bit',
             type: 'number',
-            options: {unsigned: true}
+            transform: SignalLegendEntry.unsignedTransformation('startBit')
         },
         {
             field: 'isLittleEndian',
@@ -152,14 +166,6 @@ export default class SignalLegendEntry extends Component {
                               value={value}
                               onChange={(e) => {
                                 let {value} = e.target;
-
-                                if(value !== '') {
-                                    value = Number(e.target.value) || 0;
-
-                                    if(options && options.unsigned && value < 0) {
-                                        value = 0;
-                                    }
-                                }
 
                                 this.updateField(fieldSpec, value);
                               }}/>;
