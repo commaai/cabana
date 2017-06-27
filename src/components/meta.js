@@ -273,10 +273,8 @@ export default class Meta extends Component {
             const partStartOffset = partsLoaded[0] * 60,
                   partEndOffset = partsLoaded[1] * 60;
 
-            const routeStartTime = Moment(route.start_time);
-
-            const windowStartTime = routeStartTime.add(partStartOffset, 's').format('HH:mm:ss');
-            const windowEndTime = routeStartTime.add(partEndOffset, 's').format('HH:mm:ss');
+            const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
+            const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
 
             return `${windowStartTime} - ${windowEndTime}`;
         } else return '';

@@ -228,7 +228,8 @@ export default class CanExplorer extends Component {
 
     onPartChange = debounce((part) => {
       let {currentParts} = this.state;
-      const currentPartSpan = currentParts[1] - currentParts[0];
+
+      const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
 
       this.setState({currentParts, selectedMessage: null, messages: {}}, () => {
