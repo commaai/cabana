@@ -21,15 +21,15 @@ export default class PlayButton extends Component {
     const {isPlaying} = this.props;
     if(isPlaying) {
       if(hover) {
-        return ("/img/ic_pause_circle_filled_white_24px.svg");
+        return (process.env.PUBLIC_URL + "/img/ic_pause_circle_filled_white_24px.svg");
       } else {
-        return ("/img/ic_pause_circle_outline_white_24px.svg");
+        return (process.env.PUBLIC_URL + "/img/ic_pause_circle_outline_white_24px.svg");
       }
     } else {
       if(hover) {
-        return ("/img/ic_play_circle_filled_white_24px.svg");
+        return (process.env.PUBLIC_URL + "/img/ic_play_circle_filled_white_24px.svg");
       } else {
-        return ("/img/ic_play_circle_outline_white_24px.svg");
+        return (process.env.PUBLIC_URL + "/img/ic_play_circle_outline_white_24px.svg");
       }
     }
   }

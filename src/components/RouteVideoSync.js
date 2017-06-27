@@ -71,7 +71,7 @@ export default class RouteVideoSync extends Component {
     loadingOverlay() {
         return (<div className={css(Styles.loadingOverlay)}>
                     <img className={css(Styles.loadingSpinner)}
-                         src="/img/loading.svg"
+                         src={process.env.PUBLIC_URL + "/img/loading.svg"}
                         />
                 </div>);
     }

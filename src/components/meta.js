@@ -292,7 +292,7 @@ export default class Meta extends Component {
                         </span>
                     </div>
                     <div>
-                        <img src="http://www.westingrandcayman.com/wp-content/uploads/2017/01/westin-grand-cayman-cabana-luxury.jpg" height="133" />
+                        <img src={process.env.PUBLIC_URL + "/img/westin-grand-cayman-cabana-luxury.jpg"} height="133" />
                     </div>
                     <div>
                         {GithubAuth.hasValidAccessToken() ?
