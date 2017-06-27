@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const ROUTES_ENDPOINT = 'https://api.commadotai.com/v1/{dongleId}/routes/';
 
 const DEMO_ROUTES = {
@@ -9607,13 +9609,24 @@ const DEMO_ROUTES = {
   }
 };
 
+function getCommaAccessToken() {
+    return Cookies.get('comma_access_token');
+}
+
 export async function fetchRoutes(dongleId) {
-    if(dongleId !== undefined) {
+    if(dongleId === undefined) {
         dongleId = 'me';
     }
-    const endpoint= ROUTES_ENDPOINT.replace('{dongleId}', dongleId);
+    const endpoint = ROUTES_ENDPOINT.replace('{dongleId}', dongleId);
+    const headers = new Headers();
+    const accessToken = getCommaAccessToken();
+    if(accessToken) {
+        headers.append('Authorization', `JWT ${getCommaAccessToken()}`);
+    }
+
     try {
-        const resp = await fetch(endpoint);
+        const request = new Request(endpoint, {headers});
+        const resp = await fetch(request);
         const routes = await resp.json();
         if('routes' in routes) {
             return routes;
