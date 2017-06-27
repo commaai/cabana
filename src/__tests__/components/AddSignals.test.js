@@ -272,7 +272,7 @@ test('dragging the lsb of a big-endian signal towards the msb in the same byte s
 });
 
 test('a big endian signal spanning one byte should switch to little endian preserving its bit coverage', () => {
-    const component = shallowAddSignals();
+    const component = createAddSignals();
     component.instance().createSignal({startBit: 0, size: 8, isLittleEndian: true});
 
     const lsb = component.find('.bit').at(7);
