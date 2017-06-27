@@ -49,6 +49,7 @@ export default class AddSignals extends Component {
         this.onSignalHover = this.onSignalHover.bind(this);
         this.onBitHover = this.onBitHover.bind(this);
         this.onSignalHoverEnd = this.onSignalHoverEnd.bind(this);
+        this.onTentativeSignalChange = this.onTentativeSignalChange.bind(this);
         this.onSignalChange = this.onSignalChange.bind(this);
         this.onSignalRemove = this.onSignalRemove.bind(this);
         this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
@@ -410,6 +411,14 @@ export default class AddSignals extends Component {
                        dragCurrentBit: null})
     }
 
+    onTentativeSignalChange(signal) {
+        // Tentative signal changes are not propagated up
+        // but their effects are displayed in the bitmatrix
+        const {signals} = this.state;
+        signals[signal.name] = signal;
+        this.setState({signals});
+    }
+
     onSignalChange(signal, oldSignal) {
         const {signals} = this.state;
         if(oldSignal.name !== signal.name) {
@@ -456,6 +465,7 @@ export default class AddSignals extends Component {
                         highlightedSignal={this.state.highlightedSignal}
                         onSignalHover={this.onSignalHover}
                         onSignalHoverEnd={this.onSignalHoverEnd}
+                        onTentativeSignalChange={this.onTentativeSignalChange}
                         onSignalChange={this.onSignalChange}
                         onSignalRemove={this.onSignalRemove}
                         onSignalPlotChange={this.onSignalPlotChange}

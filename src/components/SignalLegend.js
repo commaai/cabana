@@ -15,6 +15,7 @@ export default class SignalLegend extends Component {
         highlightedSignal: PropTypes.string,
         onSignalHover: PropTypes.func,
         onSignalHoverEnd: PropTypes.func,
+        onTentativeSignalChange: PropTypes.func,
         onSignalChange: PropTypes.func,
         onSignalRemove: PropTypes.func,
         onSignalPlotChange: PropTypes.func,
@@ -39,6 +40,7 @@ export default class SignalLegend extends Component {
                     highlightedStyle={highlightedStyle}
                     onSignalHover={this.props.onSignalHover}
                     onSignalHoverEnd={this.props.onSignalHoverEnd}
+                    onTentativeSignalChange={this.props.onTentativeSignalChange}
                     onSignalChange={this.props.onSignalChange}
                     onSignalRemove={this.props.onSignalRemove}
                     onSignalPlotChange={this.props.onSignalPlotChange}

@@ -15,6 +15,7 @@ export default class SignalLegendEntry extends Component {
         signal: PropTypes.instanceOf(Signal).isRequired,
         onSignalHover: PropTypes.func,
         onSignalHoverEnd: PropTypes.func,
+        onTentativeSignalChange: PropTypes.func,
         onSignalChange: PropTypes.func,
         onSignalRemove: PropTypes.func,
         onSignalPlotChange: PropTypes.func,
@@ -148,6 +149,10 @@ export default class SignalLegendEntry extends Component {
         } else {
             signalEdited[fieldSpec.field] = value;
         }
+
+
+        this.props.onTentativeSignalChange(signalEdited);
+
         this.setState({signalEdited});
     }
 
@@ -280,9 +285,7 @@ export default class SignalLegendEntry extends Component {
                 signalCopy[field] = value;
             });
 
-            if(!signalCopy.equals(signal)) {
-                this.props.onSignalChange(signalCopy, signal);
-            }
+            this.props.onSignalChange(signalCopy, signal);
         }  else {
             signalEdited = signalCopy;
         }
