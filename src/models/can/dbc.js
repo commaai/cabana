@@ -224,6 +224,7 @@ export default class DBC {
                 }
                 let [idString, name, size, transmitter] = matches.slice(1);
                 id = parseInt(idString, 0); // 0 radix parses hex or dec
+                size = parseInt(size);
                 const frame = new Frame({name, id, size, transmitters: [transmitter]})
                 messages.set(id, frame);
 
