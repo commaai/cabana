@@ -157,7 +157,7 @@ export default class Meta extends Component {
                                     </li>
                             });
         return (<div className={css(Styles.messagesList)}>
-                    <p>Selected Messages</p>
+                    <p>Selected Message</p>
                     <ul className={css(Styles.messageList)}>
                         {messages}
                     </ul>

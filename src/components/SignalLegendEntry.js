@@ -10,7 +10,6 @@ import {swapKeysAndValues} from '../utils/object';
 
 export default class SignalLegendEntry extends Component {
     static propTypes = {
-        isHighlighted: PropTypes.bool,
         highlightedStyle: PropTypes.object,
         signal: PropTypes.instanceOf(Signal).isRequired,
         onSignalHover: PropTypes.func,
