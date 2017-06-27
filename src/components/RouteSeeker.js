@@ -185,7 +185,6 @@ export default class RouteSeeker extends Component {
         }
     }
 
-
     render() {
         const {seekedBarStyle, markerStyle, tooltipStyle} = this.state;
         return (<div className={this.props.className}>

@@ -66,12 +66,21 @@ export default class Signal {
     }
 
     lsbBitIndex() {
+        // Returns LSB bit index in matrix order (see AddSignals.js)
+
         if(this.isLittleEndian) {
             return this.startBit;
         } else {
-            const lsbBitNumber = DbcUtils.bigEndianBitIndex(this.startBit) + this.size - 1;
+            const lsbBitNumber = this.lsbBitNumber();
+
             return DbcUtils.matrixBitNumber(lsbBitNumber);
         }
+    }
+
+    lsbBitNumber() {
+        // Returns LSB bit number in big endian ordering
+
+        return DbcUtils.bigEndianBitIndex(this.startBit) + this.size - 1;
     }
 
     msbBitIndex() {

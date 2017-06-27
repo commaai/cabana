@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
+import {css} from 'aphrodite/no-important';
 
 import Modal from './Modal';
 import DBC from '../models/can/dbc';

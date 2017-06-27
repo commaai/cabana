@@ -93,7 +93,7 @@ export default class SignalLegendEntry extends Component {
 
         let titleCol = <td>{title}</td>;
 
-        return <tr>{titleCol}<td>{valueCol}</td></tr>;
+        return <tr key={field}>{titleCol}<td>{valueCol}</td></tr>;
     }
 
     updateField(field, value) {
