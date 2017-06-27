@@ -15,7 +15,7 @@ const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
 import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
-
+import LoadingBar from './components/LoadingBar';
 export default class CanExplorer extends Component {
     static propTypes = {
         dongleId: PropTypes.string,
@@ -41,7 +41,8 @@ export default class CanExplorer extends Component {
             dbcLastSaved: null,
             seekTime: 0,
             seekIndex: 0,
-            maxByteStateChangeCount: 0
+            maxByteStateChangeCount: 0,
+            isLoading: false
         };
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
@@ -122,6 +123,9 @@ export default class CanExplorer extends Component {
     }
 
     spawnWorker(parts, part, prevMsgEntries) {
+      if(!this.state.isLoading) {
+        this.setState({isLoading: true});
+      }
       const [minPart, maxPart] = parts;
       if(part === undefined) {
         part = minPart;
@@ -171,6 +175,8 @@ export default class CanExplorer extends Component {
                        partsLoaded: this.state.partsLoaded + 1}, () => {
           if(part < maxPart) {
             this.spawnWorker(parts, part + 1, prevMsgEntries);
+          } else {
+            this.setState({isLoading: false});
           }
         })
       }
@@ -208,7 +214,7 @@ export default class CanExplorer extends Component {
       const {dbc} = this.state;
 
       dbc.setSignals(message.address, message.signals);
-      this.setState({dbc});
+      this.setState({dbc, isLoading: true});
 
       var worker = new MessageParser();
       worker.onmessage = (e) => {
@@ -218,7 +224,7 @@ export default class CanExplorer extends Component {
         const messages = {};
         Object.assign(messages, this.state.messages);
         messages[message.id] = newMessage;
-        this.setState({messages})
+        this.setState({messages, isLoading: false})
       }
 
       worker.postMessage({message,
@@ -285,35 +291,41 @@ export default class CanExplorer extends Component {
 
     render() {
         return (<div className={css(Styles.root)}>
-                    <Meta url={this.state.route.url}
-                          messages={this.state.messages}
-                          partsLoaded={this.state.currentParts}
-                          partsCount={this.state.route ? this.state.route.proclog : 0}
-                          onMessageSelected={this.onMessageSelected}
-                          showLoadDbc={this.showLoadDbc}
-                          showSaveDbc={this.showSaveDbc}
-                          dbcFilename={this.state.dbcFilename}
-                          dbcLastSaved={this.state.dbcLastSaved}
-                          onPartChange={this.onPartChange}
-                          showEditMessageModal={this.showEditMessageModal}
-                          dongleId={this.props.dongleId}
-                          name={this.props.name}
-                          route={this.state.route}
-                          seekTime={this.state.seekTime}
-                          maxByteStateChangeCount={this.state.maxByteStateChangeCount}  />
-                    <div className={css(Styles.right)}>
-                      {Object.keys(this.state.messages).length > 0
-                        && this.state.selectedMessage ?
-                        <Explorer
-                            url={this.state.route.url}
+                    {this.state.isLoading ?
+                      <LoadingBar
+                        isLoading={this.state.isLoading}
+                      /> : null}
+                    <div className={css(Styles.content)}>
+                      <Meta url={this.state.route.url}
                             messages={this.state.messages}
-                            selectedMessage={this.state.selectedMessage}
-                            onConfirmedSignalChange={this.onConfirmedSignalChange}
-                            onSeek={this.onSeek}
-                            canFrameOffset={this.state.canFrameOffset}
-                            firstCanTime={this.state.firstCanTime}
+                            partsLoaded={this.state.currentParts}
+                            partsCount={this.state.route ? this.state.route.proclog : 0}
+                            onMessageSelected={this.onMessageSelected}
+                            showLoadDbc={this.showLoadDbc}
+                            showSaveDbc={this.showSaveDbc}
+                            dbcFilename={this.state.dbcFilename}
+                            dbcLastSaved={this.state.dbcLastSaved}
+                            onPartChange={this.onPartChange}
+                            showEditMessageModal={this.showEditMessageModal}
+                            dongleId={this.props.dongleId}
+                            name={this.props.name}
+                            route={this.state.route}
                             seekTime={this.state.seekTime}
-                            seekIndex={this.state.seekIndex} /> : null}
+                            maxByteStateChangeCount={this.state.maxByteStateChangeCount}  />
+                      <div className={css(Styles.right)}>
+                        {Object.keys(this.state.messages).length > 0
+                          && this.state.selectedMessage ?
+                          <Explorer
+                              url={this.state.route.url}
+                              messages={this.state.messages}
+                              selectedMessage={this.state.selectedMessage}
+                              onConfirmedSignalChange={this.onConfirmedSignalChange}
+                              onSeek={this.onSeek}
+                              canFrameOffset={this.state.canFrameOffset}
+                              firstCanTime={this.state.firstCanTime}
+                              seekTime={this.state.seekTime}
+                              seekIndex={this.state.seekIndex} /> : null}
+                      </div>
                     </div>
 
                     {this.state.showLoadDbc ? <LoadDbcModal
@@ -336,13 +348,16 @@ export default class CanExplorer extends Component {
 
 const Styles = StyleSheet.create({
     root: {
-        flexDirection: 'row',
-        display: 'flex',
-        fontFamily: `apple-system, BlinkMacSystemFont,
-                     "Segoe UI", "Roboto", "Oxygen",
-                     "Ubuntu", "Cantarell", "Fira Sans",
-                     "Droid Sans", "Helvetica Neue", sans-serif`,
-        height: '100%'
+      height: '100%',
+    },
+    content: {
+      flexDirection: 'row',
+      display: 'flex',
+      fontFamily: `apple-system, BlinkMacSystemFont,
+                   "Segoe UI", "Roboto", "Oxygen",
+                   "Ubuntu", "Cantarell", "Fira Sans",
+                   "Droid Sans", "Helvetica Neue", sans-serif`,
+      height: '100%'
     },
     right: {
       flex: 8,
