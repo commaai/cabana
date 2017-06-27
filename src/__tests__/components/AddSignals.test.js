@@ -288,3 +288,20 @@ test('a big endian signal spanning one byte should switch to little endian prese
     expect(signal.isLittleEndian).toBe(true);
     expect(signal.startBit).toBe(0);
 });
+
+test('dragging the msb of a 2-bit little endian signal to a lower byte should not change the signal', () => {
+    const component = createAddSignals();
+    component.instance().createSignal({startBit: 14, size: 2, isLittleEndian: true});
+
+    const msb = component.find('.bit').at(8);
+    msb.simulate('mousedown');
+    const bitOutOfBounds = component.find('.bit').at(0);
+    bitOutOfBounds.simulate('mouseenter');
+    bitOutOfBounds.simulate('mouseup');
+
+    const signal = Object.values(component.state('signals'))[0];
+    expect(signal).toBeDefined();
+    expect(signal.size).toBe(2);
+    expect(signal.isLittleEndian).toBe(true);
+    expect(signal.startBit).toBe(14);
+});

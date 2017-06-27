@@ -194,6 +194,10 @@ export default class AddSignals extends Component {
                         }
                     }
                 } else if(dragSignal.isLittleEndian && dragStartBit === dragSignal.msbBitIndex()) {
+                    if(bitIdx < dragSignal.startBit) {
+                        // should not be able to drag the MSB past the LSB
+                        return;
+                    }
                     const diff = bitIdx - dragStartBit;
                     if(dragSignal.bitDescription(bitIdx) === null) {
                         dragSignal.size += Math.abs(diff);

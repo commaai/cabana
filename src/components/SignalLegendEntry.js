@@ -60,12 +60,27 @@ export default class SignalLegendEntry extends Component {
             transform: (isLittleEndian, signal) => {
                 if(signal.isLittleEndian !== isLittleEndian) {
                     const {startBit} = signal;
+
                     if(isLittleEndian) {
                         // big endian -> little endian
-                        signal.startBit = DbcUtils.matrixBitNumber(startBit);
+                        const startByte = Math.floor(signal.startBit / 8),
+                              endByte = Math.floor((signal.startBit - signal.size + 1) / 8);
+
+                        if(startByte === endByte) {
+                            signal.startBit = signal.startBit - signal.size + 1;
+                        } else {
+                            signal.startBit = DbcUtils.matrixBitNumber(startBit);
+                        }
                     } else {
                         // little endian -> big endian
-                        signal.startBit = DbcUtils.bigEndianBitIndex(startBit);
+                        const startByte = Math.floor(signal.startBit / 8),
+                              endByte = Math.floor((signal.startBit + signal.size - 1) / 8);
+
+                        if(startByte === endByte) {
+                            signal.startBit = signal.startBit + signal.size - 1;
+                        } else {
+                            signal.startBit = DbcUtils.bigEndianBitIndex(startBit);
+                        }
                     }
                     signal.isLittleEndian = isLittleEndian;
                 }
@@ -125,6 +140,7 @@ export default class SignalLegendEntry extends Component {
         };
 
         this.toggleEditing = this.toggleEditing.bind(this);
+        this.updateField = this.updateField.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
