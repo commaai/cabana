@@ -132,18 +132,6 @@ export default createClassFromSpec('CanPlot', {
      ],
      "marks": [
       {
-        "type": "rect",
-        "name": "boundingRect",
-        "interactive": true,
-        "encode": {
-          "enter": {
-            "width": {"value": 500},
-            "height": {"value": 200},
-            "fill": {"value": "transparent"}
-          }
-        }
-      },
-      {
         "type": "line",
         "name": "lineMark",
         "from": {"data": "table"},
@@ -265,7 +253,19 @@ export default createClassFromSpec('CanPlot', {
             }
           }
         ]
-      }
+      },
+      {
+        "type": "rect",
+        "name": "boundingRect",
+        "interactive": true,
+        "encode": {
+          "enter": {
+            "width": {"value": 500},
+            "height": {"value": 200},
+            "fill": {"value": "transparent"}
+          }
+        }
+      },
      ]
     }
   ]
