@@ -65,7 +65,7 @@ export default class CanExplorer extends Component {
       Routes.fetchRoutes(dongleId).then((routes) => {
         if(routes) {
           const route = routes[name];
-
+          console.log(route.fullname)
           if(this.props.dbc !== undefined) {
             this.setState({dbc: this.props.dbc,
                            dbcFilename: 'acura_ilx_2016.dbc',
