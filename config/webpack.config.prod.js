@@ -8,7 +8,7 @@ var ManifestPlugin = require('webpack-manifest-plugin');
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 var paths = require('./paths');
 var getClientEnvironment = require('./env');
-
+var SentryPlugin = require('webpack-sentry-plugin');
 
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -62,7 +62,7 @@ module.exports = {
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: 'static/js/[name].[chunkhash:8].js',
+    filename: 'static/js/[name].[hash:8].js',
     chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath
@@ -242,7 +242,16 @@ module.exports = {
     // having to parse `index.html`.
     new ManifestPlugin({
       fileName: 'asset-manifest.json'
-    })
+    }),
+    new SentryPlugin({
+      organisation: 'commaai',
+      project: 'cabana',
+      apiKey: '7a932ab144984dd3979993cf61dbdd2a1489ac77af4d4f46b85d64598b9a4ca6',
+      release: function(hash) {
+        return hash; // webpack build hash
+      }
+    }),
+    new webpack.ExtendedAPIPlugin()
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
