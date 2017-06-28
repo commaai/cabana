@@ -425,6 +425,8 @@ const Styles = StyleSheet.create({
         alignItems: 'center'
     },
     resetSegment: {
+        marginTop: 10,
+        padding: '10px 0',
         width: 160
     }
 })
