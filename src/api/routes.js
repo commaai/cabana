@@ -9629,7 +9629,7 @@ export async function fetchRoutes(dongleId) {
         const resp = await fetch(request);
         const routes = await resp.json();
         if('routes' in routes) {
-            return routes;
+            return routes.routes;
         }
     } catch(err) {
         console.log(err);
