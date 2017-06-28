@@ -290,9 +290,6 @@ export default class Meta extends Component {
                         </span>
                     </div>
                     <div>
-                        <img src={process.env.PUBLIC_URL + "/img/westin-grand-cayman-cabana-luxury.jpg"} height="133" />
-                    </div>
-                    <div>
                         {GithubAuth.hasValidAccessToken() ?
                             <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
                             :
