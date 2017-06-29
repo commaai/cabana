@@ -21,7 +21,8 @@ export default class RouteVideoSync extends Component {
         onPlaySeek: PropTypes.func.isRequired,
         onUserSeek: PropTypes.func.isRequired,
         onPlay: PropTypes.func.isRequired,
-        onPause: PropTypes.func.isRequired
+        onPause: PropTypes.func.isRequired,
+        userSeekRatio: PropTypes.number.isRequired
     };
 
     constructor(props) {
@@ -30,7 +31,7 @@ export default class RouteVideoSync extends Component {
             shouldShowJpeg: true,
             isLoading: true,
             videoElement: null,
-            shouldRestartHls: false
+            shouldRestartHls: false,
         };
 
         this.onLoadStart = this.onLoadStart.bind(this);
@@ -45,13 +46,19 @@ export default class RouteVideoSync extends Component {
     componentWillReceiveProps(nextProps) {
         if(this.props.userSeekIndex != nextProps.userSeekIndex
             || this.props.canFrameOffset != nextProps.canFrameOffset
-            || this.props.message.entries.length != nextProps.message.entries.length){
+            || (this.props.message
+                && nextProps.message
+                && this.props.message.entries.length != nextProps.message.entries.length)) {
             this.setState({shouldRestartHls: true});
         }
     }
 
     nearestFrameTime() {
         const {userSeekIndex, message, canFrameOffset, firstCanTime} = this.props;
+        if(!message) {
+            return this.ratioTime(this.props.userSeekRatio);
+        }
+
         const firstEntry = message.entries[0], curEntry = message.entries[userSeekIndex];
         if(firstEntry !== undefined && curEntry !== undefined) {
             const curMsgTime = message.entries[userSeekIndex].time;
@@ -106,6 +113,7 @@ export default class RouteVideoSync extends Component {
 
     onUserSeek(ratio) {
         /* ratio in [0,1] */
+
         const funcSeekToRatio = () => this.props.onUserSeek(ratio);
         if(ratio == 0) {
             this.setState({shouldRestartHls: true},

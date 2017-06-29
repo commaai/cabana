@@ -22,7 +22,7 @@ export default class Explorer extends Component {
        onConfirmedSignalChange: PropTypes.func,
        canFrameOffset: PropTypes.number,
        firstCanTime: PropTypes.number,
-       onSeek: PropTypes.func
+       onSeek: PropTypes.func,
     };
 
     constructor(props) {
@@ -40,6 +40,7 @@ export default class Explorer extends Component {
             segmentIndices: [],
             shouldShowAddSignal: true,
             userSeekIndex: 0,
+            userSeekRatio: 0,
             playing: false,
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
@@ -226,7 +227,14 @@ export default class Explorer extends Component {
     }
 
     onUserSeek(ratio) {
-        const {entries} = this.props.messages[this.props.selectedMessage];
+        this.setState({userSeekRatio: ratio});
+        const message = this.props.messages[this.props.selectedMessage];
+        if(!message) {
+            this.props.onSeek(0, ratio * this.secondsLoaded() + this.startOffset());
+            return;
+        }
+
+        const {entries} = message;
         const userSeekIndex = this.indexFromSeekRatio(ratio);
         const seekTime = entries[userSeekIndex].relTime;
 
@@ -235,7 +243,13 @@ export default class Explorer extends Component {
     }
 
     onPlaySeek(ratio) {
-        const {entries} = this.props.messages[this.props.selectedMessage];
+        const message = this.props.messages[this.props.selectedMessage];
+        if(!message) {
+            this.props.onSeek(0, ratio * this.secondsLoaded() + this.startOffset());
+            return;
+        }
+
+        const {entries} = message;
 
         const seekIndex = this.indexFromSeekRatio(ratio);
         const seekTime = entries[seekIndex].relTime;
@@ -262,7 +276,13 @@ export default class Explorer extends Component {
     }
 
     secondsLoaded() {
-        const {entries} = this.props.messages[this.props.selectedMessage];
+        const message = this.props.messages[this.props.selectedMessage];
+        if(!message) {
+            return this.props.partsLoaded[1] * 60 - this.props.partsLoaded[0] * 60;
+        }
+
+        const {entries} = message;
+
         const {segmentIndices} = this.state;
         if(segmentIndices.length === 2) {
             const [low, hi] = segmentIndices;
@@ -273,9 +293,14 @@ export default class Explorer extends Component {
     }
 
     startOffset() {
-        const {entries} = this.props.messages[this.props.selectedMessage];
-        const {segmentIndices} = this.state;
+        const message = this.props.messages[this.props.selectedMessage];
+        if(!message) {
+            return this.props.partsLoaded[0] * 60;
+        }
+
         const {canFrameOffset, firstCanTime} = this.props;
+        const {entries} = message;
+        const {segmentIndices} = this.state;
         let startEntry;
         if(segmentIndices.length === 2) {
             const [low, _] = segmentIndices;
@@ -319,51 +344,63 @@ export default class Explorer extends Component {
         }
     }
 
+    selectMessagePrompt() {
+        return (<div className={css(Styles.selectMessagePrompt)}>
+                Select a message
+                </div>)
+    }
+
+    leftColumnWithMessage() {
+        return <div>
+                {this.addSignalsHeader()}
+                {this.state.shouldShowAddSignal ?
+                <AddSignals
+                    onConfirmedSignalChange={this.props.onConfirmedSignalChange}
+                    message={this.props.messages[this.props.selectedMessage]}
+                    onClose={() => {this.setState({shouldShowAddSignal: false})}}
+                    messageIndex={this.props.seekIndex}
+                    onSignalPlotChange={this.onSignalPlotChanged}
+                    plottedSignals={this.state.plottedSignals.filter(
+                            ({messageId, signalName}) => messageId === this.props.selectedMessage
+                        ).map(({messageId, signalName}) => signalName)
+                    }
+                /> : null}
+                <CanLog message={this.props.messages[this.props.selectedMessage]}
+                    messageIndex={this.props.seekIndex}
+                    segmentIndices={this.state.segmentIndices}
+                    plottedSignals={this.state.plottedSignals}
+                    onSignalPlotPressed={this.onSignalPlotPressed}
+                    onSignalUnplotPressed={this.onSignalUnplotPressed}
+                    showAddSignal={this.showAddSignal}
+                    onMessageExpanded={this.onPause} />
+            </div>
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     <div className={css(Styles.dataContainer)}>
                         <div className={css(Styles.left)}>
-                            {this.addSignalsHeader()}
-                            {this.state.shouldShowAddSignal ?
-                                <AddSignals
-                                    onConfirmedSignalChange={this.props.onConfirmedSignalChange}
-                                    message={this.props.messages[this.props.selectedMessage]}
-                                    onClose={() => {this.setState({shouldShowAddSignal: false})}}
-                                    messageIndex={this.props.seekIndex}
-                                    onSignalPlotChange={this.onSignalPlotChanged}
-                                    plottedSignals={this.state.plottedSignals.filter(
-                                            ({messageId, signalName}) => messageId === this.props.selectedMessage
-                                        ).map(({messageId, signalName}) => signalName)
-                                    }
-                                /> : null}
-                            <CanLog message={this.props.messages[this.props.selectedMessage]}
-                                    messageIndex={this.props.seekIndex}
-                                    segmentIndices={this.state.segmentIndices}
-                                    plottedSignals={this.state.plottedSignals}
-                                    onSignalPlotPressed={this.onSignalPlotPressed}
-                                    onSignalUnplotPressed={this.onSignalUnplotPressed}
-                                    showAddSignal={this.showAddSignal}
-                                    onMessageExpanded={this.onPause} />
+                            {this.props.messages[this.props.selectedMessage] ?
+                              this.leftColumnWithMessage()
+                            : this.selectMessagePrompt()}
                         </div>
                         <div className={css(Styles.right)}>
                             <div className={css(Styles.fixed)}>
-                                {this.props.messages[this.props.selectedMessage] !== undefined ?
-                                    <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
-                                                    secondsLoaded={this.secondsLoaded()}
-                                                    startOffset={this.startOffset()}
-                                                    segmentProgress={this.segmentProgress}
-                                                    seekIndex={this.props.seekIndex}
-                                                    userSeekIndex={this.state.userSeekIndex}
-                                                    playing={this.state.playing}
-                                                    url={this.props.url}
-                                                    canFrameOffset={this.props.canFrameOffset}
-                                                    firstCanTime={this.props.firstCanTime}
-                                                    onVideoClick={this.onVideoClick}
-                                                    onPlaySeek={this.onPlaySeek}
-                                                    onUserSeek={this.onUserSeek}
-                                                    onPlay={this.onPlay}
-                                                    onPause={this.onPause}
-                                    /> : null}
+                                <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
+                                                secondsLoaded={this.secondsLoaded()}
+                                                startOffset={this.startOffset()}
+                                                seekIndex={this.props.seekIndex}
+                                                userSeekIndex={this.state.userSeekIndex}
+                                                playing={this.state.playing}
+                                                url={this.props.url}
+                                                canFrameOffset={this.props.canFrameOffset}
+                                                firstCanTime={this.props.firstCanTime}
+                                                onVideoClick={this.onVideoClick}
+                                                onPlaySeek={this.onPlaySeek}
+                                                onUserSeek={this.onUserSeek}
+                                                onPlay={this.onPlay}
+                                                onPause={this.onPause}
+                                                userSeekRatio={this.state.userSeekRatio} />
 
                                 {this.state.segment.length > 0 ?
                                     <div className={css(CommonStyles.button, Styles.resetSegment)}
@@ -428,5 +465,9 @@ const Styles = StyleSheet.create({
         marginTop: 10,
         padding: '10px 0',
         width: 160
+    },
+    selectMessagePrompt: {
+        alignSelf: 'center',
+        fontSize: 24
     }
 })

@@ -30,7 +30,6 @@ export default class EditMessageModal extends Component {
 
     addTransmitter() {
       const {messageFrame} = this.state;
-      console.log(messageFrame);
       messageFrame.addTransmitter();
       this.setState({messageFrame});
     }

@@ -50,7 +50,7 @@ export default class Frame {
 
     copy() {
         const copy = Object.assign(Object.create(this), this);
-        console.log(Object.keys(copy))
+
         return copy;
     }
 }

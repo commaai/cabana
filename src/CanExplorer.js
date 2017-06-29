@@ -22,7 +22,7 @@ import OpenDbc from './api/opendbc';
 export default class CanExplorer extends Component {
     static propTypes = {
         dongleId: PropTypes.string.isRequired,
-        routeName: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
         dbc: PropTypes.instanceOf(DBC),
         dbcFilename: PropTypes.string,
         githubAuthToken: PropTypes.string
@@ -305,7 +305,7 @@ export default class CanExplorer extends Component {
                       <Meta url={this.state.route.url}
                             messages={this.state.messages}
                             partsLoaded={this.state.currentParts}
-                            partsCount={this.state.route ? this.state.route.proclog : 0}
+                            partsCount={this.state.route.proclog || 0}
                             onMessageSelected={this.onMessageSelected}
                             showLoadDbc={this.showLoadDbc}
                             showSaveDbc={this.showSaveDbc}
@@ -320,18 +320,20 @@ export default class CanExplorer extends Component {
                             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
                             githubAuthToken={this.props.githubAuthToken} />
                       <div className={css(Styles.right)}>
-                        {Object.keys(this.state.messages).length > 0
-                          && this.state.selectedMessage ?
-                          <Explorer
-                              url={this.state.route.url}
-                              messages={this.state.messages}
-                              selectedMessage={this.state.selectedMessage}
-                              onConfirmedSignalChange={this.onConfirmedSignalChange}
-                              onSeek={this.onSeek}
-                              canFrameOffset={this.state.canFrameOffset}
-                              firstCanTime={this.state.firstCanTime}
-                              seekTime={this.state.seekTime}
-                              seekIndex={this.state.seekIndex} /> : null}
+                          {this.state.route.url ?
+                            <Explorer
+                                url={this.state.route.url}
+                                messages={this.state.messages}
+                                selectedMessage={this.state.selectedMessage}
+                                onConfirmedSignalChange={this.onConfirmedSignalChange}
+                                onSeek={this.onSeek}
+                                canFrameOffset={this.state.canFrameOffset}
+                                firstCanTime={this.state.firstCanTime}
+                                seekTime={this.state.seekTime}
+                                seekIndex={this.state.seekIndex}
+                                partsLoaded={this.state.currentParts}
+                                 />
+                                : null}
                       </div>
                     </div>
 

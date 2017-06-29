@@ -5,9 +5,6 @@ function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage
   if(!lastParsedMessage) {
     byteStateChangeTimes = Array(msgSize).fill(time);
   } else {
-    if(!lastParsedMessage.byteStateChangeTimes) {
-        console.log(lastParsedMessage)
-    }
     byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
 
     for(let i = 0; i < byteStateChangeTimes.length; i++) {
