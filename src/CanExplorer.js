@@ -23,7 +23,8 @@ export default class CanExplorer extends Component {
         dongleId: PropTypes.string.isRequired,
         routeName: PropTypes.string.isRequired,
         dbc: PropTypes.instanceOf(DBC),
-        dbcFilename: PropTypes.instanceOf
+        dbcFilename: PropTypes.string,
+        githubAuthToken: PropTypes.string
     };
 
     constructor(props) {
@@ -314,7 +315,8 @@ export default class CanExplorer extends Component {
                             name={this.props.name}
                             route={this.state.route}
                             seekTime={this.state.seekTime}
-                            maxByteStateChangeCount={this.state.maxByteStateChangeCount}  />
+                            maxByteStateChangeCount={this.state.maxByteStateChangeCount}
+                            githubAuthToken={this.props.githubAuthToken} />
                       <div className={css(Styles.right)}>
                         {Object.keys(this.state.messages).length > 0
                           && this.state.selectedMessage ?

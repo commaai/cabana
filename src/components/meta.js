@@ -290,7 +290,7 @@ export default class Meta extends Component {
                         </span>
                     </div>
                     <div>
-                        {GithubAuth.hasValidAccessToken()  ?
+                        {this.props.githubAuthToken  ?
                             <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
                             :
                             <a href={GithubAuth.authorizeUrl(this.props.route.fullname || '')}>Log in with Github</a>

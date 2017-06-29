@@ -15,7 +15,9 @@ import CanExplorer from './CanExplorer';
 import AcuraDbc from './acura-dbc';
 import {getUrlParameter} from './utils/url';
 import {GITHUB_AUTH_TOKEN_KEY} from './config';
-import {fetchPersistedDbc} from './api/localstorage';
+import {fetchPersistedDbc,
+        fetchPersistedGithubAuthToken,
+        persistGithubAuthToken} from './api/localstorage';
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
@@ -34,6 +36,14 @@ if(routeFullName) {
 } else {
     props.dongleId = '3a874b7845c28583';
     props.name = '2017-06-09--18-23-30';
+}
+
+const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);
+if(authTokenQueryParam !== null) {
+  props.githubAuthToken = authTokenQueryParam;
+  persistGithubAuthToken(authTokenQueryParam);
+} else {
+  props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
 
 ReactDOM.render(
