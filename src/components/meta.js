@@ -12,6 +12,7 @@ import MessageBytes from './MessageBytes';
 export default class Meta extends Component {
     static propTypes = {
         onMessageSelected: PropTypes.func,
+        onMessageUnselected: PropTypes.func,
         dongleId: PropTypes.string,
         name: PropTypes.string,
         messages: PropTypes.objectOf(PropTypes.object),
@@ -23,7 +24,8 @@ export default class Meta extends Component {
         dbcLastSaved: PropTypes.object, // moment.js object,
         showEditMessageModal: PropTypes.func,
         route: PropTypes.object,
-        partsLoaded: PropTypes.array,
+        partsLoaded: PropTypes.number,
+        currentParts: PropTypes.array,
         seekTime: PropTypes.number
     };
 
@@ -123,6 +125,7 @@ export default class Meta extends Component {
     onMsgRemoveClick(key) {
         let {selectedMessages} = this.state;
         selectedMessages = selectedMessages.filter((m) => m != key);
+        this.props.onMessageUnselected(key);
         this.setState({selectedMessages});
     }
 
@@ -152,7 +155,7 @@ export default class Meta extends Component {
                                                        Styles.selectedMessage)}
                                         onMouseEnter={() => this.onMessageHover(key)}
                                         onMouseLeave={() => this.onMessageHoverEnd(key)}>
-                                        {msg.frame ? msg.frame.name : ''} ({key}) {msg.entries.length}
+                                        {msg.frame ? msg.frame.name : ''} {key}
                                         {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
                                     </li>
                             });
@@ -268,10 +271,10 @@ export default class Meta extends Component {
     }
 
     timeWindow() {
-        const {route, partsLoaded} = this.props;
+        const {route, currentParts} = this.props;
         if(route) {
-            const partStartOffset = partsLoaded[0] * 60,
-                  partEndOffset = (partsLoaded[1] + 1) * 60;
+            const partStartOffset = currentParts[0] * 60,
+                  partEndOffset = (currentParts[1] + 1) * 60;
 
             const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
             const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
@@ -360,6 +363,10 @@ const Styles = StyleSheet.create({
         },
         marginTop: 5,
         fontSize: 12,
+    },
+    selectedMessage: {
+        display: 'flex',
+        flexDirection: 'row'
     },
     messageList: {
         margin: 0,

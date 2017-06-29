@@ -47,7 +47,8 @@ export default class CanExplorer extends Component {
             seekTime: 0,
             seekIndex: 0,
             maxByteStateChangeCount: 0,
-            isLoading: true
+            isLoading: true,
+            partsLoaded: 0,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
 
@@ -64,6 +65,7 @@ export default class CanExplorer extends Component {
         this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
         this.onSeek = this.onSeek.bind(this);
         this.onMessageSelected = this.onMessageSelected.bind(this);
+        this.onMessageUnselected = this.onMessageUnselected.bind(this);
         this.initCanData = this.initCanData.bind(this);
     }
 
@@ -125,6 +127,9 @@ export default class CanExplorer extends Component {
       const [minPart, maxPart] = parts;
       if(part === undefined) {
         part = minPart;
+      }
+      if(part === minPart) {
+        this.setState({partsLoaded: 0});
       }
       if(prevMsgEntries === undefined) {
         prevMsgEntries = {};
@@ -295,6 +300,10 @@ export default class CanExplorer extends Component {
       this.setState({seekTime, seekIndex, selectedMessage: msgKey});
     }
 
+    onMessageUnselected(msgKey) {
+      this.setState({selectedMessage: null});
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ?
@@ -304,9 +313,10 @@ export default class CanExplorer extends Component {
                     <div className={css(Styles.content)}>
                       <Meta url={this.state.route.url}
                             messages={this.state.messages}
-                            partsLoaded={this.state.currentParts}
+                            currentParts={this.state.currentParts}
                             partsCount={this.state.route.proclog || 0}
                             onMessageSelected={this.onMessageSelected}
+                            onMessageUnselected={this.onMessageUnselected}
                             showLoadDbc={this.showLoadDbc}
                             showSaveDbc={this.showSaveDbc}
                             dbcFilename={this.state.dbcFilename}
@@ -318,7 +328,8 @@ export default class CanExplorer extends Component {
                             route={this.state.route}
                             seekTime={this.state.seekTime}
                             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
-                            githubAuthToken={this.props.githubAuthToken} />
+                            githubAuthToken={this.props.githubAuthToken}
+                      />
                       <div className={css(Styles.right)}>
                           {this.state.route.url ?
                             <Explorer
@@ -331,7 +342,8 @@ export default class CanExplorer extends Component {
                                 firstCanTime={this.state.firstCanTime}
                                 seekTime={this.state.seekTime}
                                 seekIndex={this.state.seekIndex}
-                                partsLoaded={this.state.currentParts}
+                                currentParts={this.state.currentParts}
+                                partsLoaded={this.state.partsLoaded}
                                  />
                                 : null}
                       </div>

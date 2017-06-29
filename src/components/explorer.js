@@ -82,7 +82,7 @@ export default class Explorer extends Component {
             this.setState({plottedSignals});
         }
 
-        if(nextProps.selectedMessage != this.props.selectedMessage) {
+        if(nextProps.selectedMessage && nextProps.selectedMessage != this.props.selectedMessage) {
             // Update segment and seek state
             // by finding new message entry indices
             // corresponding to old message segment/seek times.
@@ -123,6 +123,15 @@ export default class Explorer extends Component {
                 }
                 this.setState({graphData});
             }
+        }
+
+        if(nextProps.partsLoaded !== this.props.partsLoaded && !nextMessage) {
+            let userSeekRatio = this.state.userSeekRatio;
+            const nextSecondsLoaded = this.secondsLoadedRouteRelative(nextProps.currentParts);
+            userSeekRatio = (userSeekRatio * this.secondsLoaded()) / nextSecondsLoaded;
+
+
+            this.setState({userSeekRatio});
         }
     }
 
@@ -275,10 +284,14 @@ export default class Explorer extends Component {
         this.setState({playing: false});
     }
 
+    secondsLoadedRouteRelative(currentParts) {
+        return (currentParts[1] - currentParts[0] + 1) * 60;
+    }
+
     secondsLoaded() {
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            return this.props.partsLoaded[1] * 60 - this.props.partsLoaded[0] * 60;
+            return this.secondsLoadedRouteRelative(this.props.currentParts);
         }
 
         const {entries} = message;
@@ -295,7 +308,7 @@ export default class Explorer extends Component {
     startOffset() {
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            return this.props.partsLoaded[0] * 60;
+            return this.props.currentParts[0] * 60;
         }
 
         const {canFrameOffset, firstCanTime} = this.props;
@@ -346,7 +359,7 @@ export default class Explorer extends Component {
 
     selectMessagePrompt() {
         return (<div className={css(Styles.selectMessagePrompt)}>
-                Select a message
+                <Images.leftArrow styles={[Styles.leftArrowStyle]} /> Select a message
                 </div>)
     }
 
@@ -467,6 +480,14 @@ const Styles = StyleSheet.create({
     },
     selectMessagePrompt: {
         alignSelf: 'center',
-        fontSize: 24
+        fontSize: 24,
+        paddingTop: 230,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    leftArrowStyle: {
+        height: 29,
+        width: 29,
     }
 })

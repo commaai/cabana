@@ -36,8 +36,10 @@ if(routeFullName) {
       props.dbcFilename = dbcFilename;
     }
 } else {
-    props.dongleId = '3a874b7845c28583';
-    props.name = '2017-06-09--18-23-30';
+    props.dongleId = 'cb38263377b873ee';
+    props.name = '2017-06-12--18-51-47';
+    props.dbc = AcuraDbc;
+    props.dbcFilename = 'acura_ilx_2016_can.dbc';
 }
 
 const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);
