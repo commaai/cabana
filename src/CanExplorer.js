@@ -74,7 +74,8 @@ export default class CanExplorer extends Component {
       Routes.fetchRoutes(dongleId).then((routes) => {
         if(routes) {
           const route = routes[name];
-          const newState = {route, currentParts: [0,2]};
+
+          const newState = {route, currentParts: [0, Math.min(route.proclog - 1, 2)]};
           if(this.props.dbc !== undefined) {
             newState.dbc = this.props.dbc;
             newState.dbcFilename = this.props.dbcFilename;
@@ -101,10 +102,11 @@ export default class CanExplorer extends Component {
     }
 
     onDbcSelected(filename, dbcInstance) {
+      const {route} = this.state;
       this.hideLoadDbc();
       this.setState({dbc: dbcInstance,
                      dbcFilename: filename,
-                     currentParts: [0,2],
+                     currentParts: [0, Math.min(route.proclog - 1, 2)],
                      selectedMessage: null,
                      messages: {}}, () => {
         const {route} = this.state;
@@ -281,6 +283,7 @@ export default class CanExplorer extends Component {
     }
 
     onSeek(seekIndex, seekTime) {
+
       this.setState({seekIndex, seekTime});
     }
 
