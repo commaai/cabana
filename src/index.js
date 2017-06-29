@@ -1,6 +1,6 @@
 import Raven from 'raven-js';
 const opts = {};
-console.log(window.__webpack_hash__)
+
 if(window.__webpack_hash__ !== undefined) {
     opts['release'] = window.__webpack_hash__;
 }
@@ -14,7 +14,8 @@ import ReactDOM from 'react-dom';
 import CanExplorer from './CanExplorer';
 import AcuraDbc from './acura-dbc';
 import {getUrlParameter} from './utils/url';
-
+import {GITHUB_AUTH_TOKEN_KEY} from './config';
+import {fetchPersistedDbc} from './api/localstorage';
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
@@ -23,10 +24,18 @@ if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
     props.dongleId = dongleId;
     props.name = route;
+
+    const persistedDbc = fetchPersistedDbc(routeFullName);
+    if(persistedDbc) {
+      const {dbcFilename, dbc} = persistedDbc;
+      props.dbc = dbc;
+      props.dbcFilename = dbcFilename;
+    }
 } else {
     props.dongleId = '3a874b7845c28583';
     props.name = '2017-06-09--18-23-30';
 }
+
 ReactDOM.render(
   <CanExplorer
      {...props} />,

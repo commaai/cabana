@@ -1,4 +1,4 @@
-import {GITHUB_CLIENT_ID, GITHUB_REDIRECT_URL} from '../config';
+import {GITHUB_CLIENT_ID, GITHUB_REDIRECT_URL, GITHUB_AUTH_TOKEN_KEY} from '../config';
 import {objToQuery, getUrlParameter} from '../utils/url';
 
 function toHex(dec) {
@@ -6,7 +6,7 @@ function toHex(dec) {
 }
 
 export function hasValidAccessToken() {
-  return getUrlParameter('gh_access_token').length > 0;
+  return getUrlParameter(GITHUB_AUTH_TOKEN_KEY) !== null;
 }
 
 export function authorizeUrl(route) {

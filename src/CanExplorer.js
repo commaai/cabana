@@ -16,11 +16,14 @@ const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
 import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
 import LoadingBar from './components/LoadingBar';
+import {persistDbc} from './api/localstorage';
+
 export default class CanExplorer extends Component {
     static propTypes = {
-        dongleId: PropTypes.string,
-        routeName: PropTypes.string,
-        dbc: PropTypes.instanceOf(DBC)
+        dongleId: PropTypes.string.isRequired,
+        routeName: PropTypes.string.isRequired,
+        dbc: PropTypes.instanceOf(DBC),
+        dbcFilename: PropTypes.instanceOf
     };
 
     constructor(props) {
@@ -58,6 +61,7 @@ export default class CanExplorer extends Component {
         this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
         this.onSeek = this.onSeek.bind(this);
         this.onMessageSelected = this.onMessageSelected.bind(this);
+        this.initCanData = this.initCanData.bind(this);
     }
 
     componentWillMount() {
@@ -65,41 +69,30 @@ export default class CanExplorer extends Component {
       Routes.fetchRoutes(dongleId).then((routes) => {
         if(routes) {
           const route = routes[name];
-          console.log(route.fullname)
+          const newState = {route, currentParts: [0,2]};
           if(this.props.dbc !== undefined) {
-            this.setState({dbc: this.props.dbc,
-                           dbcFilename: 'acura_ilx_2016.dbc',
-                           route,
-                           currentParts: [0,2]}, () => {
-              const offsetFinder = new CanOffsetFinder();
-              offsetFinder.postMessage({partCount: route.proclog,
-                                        base: route.url});
-
-              offsetFinder.onmessage = (e) => {
-                const {canFrameOffset, firstCanTime} = e.data;
-
-                this.setState({canFrameOffset, firstCanTime}, () => {
-                  this.spawnWorker(this.state.currentParts);
-                });
-              };
-            });
-          } else {
-            this.setState({route, currentParts: [0,2]}, () => {
-              const offsetFinder = new CanOffsetFinder();
-              offsetFinder.postMessage({partCount: route.proclog,
-                                        base: route.url});
-
-              offsetFinder.onmessage = (e) => {
-                const {canFrameOffset, firstCanTime} = e.data;
-
-                this.setState({canFrameOffset, firstCanTime}, () => {
-                  this.spawnWorker(this.state.currentParts);
-                });
-              };
-            });
+            newState.dbc = this.props.dbc;
+            newState.dbcFilename = this.props.dbcFilename;
           }
+          this.setState(newState, this.initCanData);
         }
       });
+    }
+
+    initCanData() {
+      const {route} = this.state;
+
+      const offsetFinder = new CanOffsetFinder();
+      offsetFinder.postMessage({partCount: route.proclog,
+                                base: route.url});
+
+      offsetFinder.onmessage = (e) => {
+        const {canFrameOffset, firstCanTime} = e.data;
+
+        this.setState({canFrameOffset, firstCanTime}, () => {
+          this.spawnWorker(this.state.currentParts);
+        });
+      };
     }
 
     onDbcSelected(filename, dbcInstance) {
@@ -211,9 +204,12 @@ export default class CanExplorer extends Component {
 
     onConfirmedSignalChange(message) {
       const signals = message.signals;
-      const {dbc} = this.state;
+      const {dbc, dbcFilename, route} = this.state;
 
       dbc.setSignals(message.address, message.signals);
+      persistDbc(route.fullname,
+                 {dbcFilename, dbc});
+
       this.setState({dbc, isLoading: true});
 
       var worker = new MessageParser();
@@ -259,12 +255,19 @@ export default class CanExplorer extends Component {
     }
 
     onMessageFrameEdited(messageFrame) {
-      const msgKey = this.state.editMessageModalMessage
-      const message = Object.assign({}, this.state.messages[msgKey]);
-      message.frame = messageFrame;
+      const {messages,
+             route,
+             dbcFilename,
+             dbc,
+             editMessageModalMessage} = this.state;
 
-      const {messages} = this.state;
-      messages[msgKey] = message;
+      const message = Object.assign({}, messages[editMessageModalMessage]);
+      message.frame = messageFrame;
+      dbc.messages.set(messageFrame.address, messageFrame);
+      persistDbc(route.fullname,
+                 {dbcFilename, dbc});
+
+      messages[editMessageModalMessage] = message;
       this.setState({messages});
       this.hideEditMessageModal();
     }

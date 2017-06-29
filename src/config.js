@@ -6,5 +6,5 @@ export const GITHUB_CLIENT_ID = ENV_GITHUB_CLIENT_ID[ENV];
 const ENV_GITHUB_REDIRECT_URL = {debug: 'http://127.0.0.1:1235/callback',
                                  prod: 'https://api.comma.ai/cabana/ghcallback'}
 export const GITHUB_REDIRECT_URL = ENV_GITHUB_REDIRECT_URL[ENV];
-
+export const GITHUB_AUTH_TOKEN_KEY = 'gh_access_token';
 export const OPENDBC_SOURCE_REPO = 'commaai/opendbc';
