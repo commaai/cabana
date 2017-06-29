@@ -14,7 +14,7 @@ export default class LoadDbcModal extends Component {
   static propTypes = {
     onCancel: PropTypes.func.isRequired,
     onDbcSelected: PropTypes.func.isRequired,
-    hasGithubAuth: PropTypes.bool.isRequired
+    openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired
   };
 
   constructor(props) {
@@ -31,7 +31,7 @@ export default class LoadDbcModal extends Component {
   }
 
   componentWillMount() {
-    OpenDbc.getUserOpenDbcFork().then((userOpenDbcRepo) => {
+    this.props.openDbcClient.getUserOpenDbcFork().then((userOpenDbcRepo) => {
       this.setState({userOpenDbcRepo});
     });
   }
@@ -41,16 +41,18 @@ export default class LoadDbcModal extends Component {
     if(tab === 'OpenDBC') {
       return (<GithubDbcList
                 onDbcLoaded={this.onDbcLoaded}
-                repo={"commaai/opendbc"} />);
+                repo={"commaai/opendbc"}
+                openDbcClient={this.props.openDbcClient} />);
     } else if(tab === 'GitHub') {
-      if(!this.props.hasGithubAuth) {
+      if(!this.props.openDbcClient.hasAuth()) {
         return (<div>Need to auth</div>);
       } else if(this.state.userOpenDbcRepo === null) {
         return (<div>Fork it</div>);
       } else {
         return (<GithubDbcList
                   onDbcLoaded={this.onDbcLoaded}
-                  repo={this.state.userOpenDbcRepo } />);
+                  repo={this.state.userOpenDbcRepo}
+                  openDbcClient={this.props.openDbcClient} />);
       }
     } else if(tab === 'Upload') {
       return (<DbcUpload

@@ -3,100 +3,113 @@ import GitHub from 'github-api';
 import {OPENDBC_SOURCE_REPO} from '../config';
 import {getUrlParameter} from '../utils/url';
 
-const token = getUrlParameter('gh_access_token');
-const github = new GitHub({token});
-const openDbcSourceRepo = github.getRepo('commaai', 'opendbc');
-
-let githubUsername = null;
-async function setUser() {
-    github.getUser().getProfile().then((resp) => {
-        const profile = resp.data;
-        githubUsername = profile.login;
-    });
-}
-setUser();
-
-async function list(repoFullName) {
-  /*
-  Lists files in a github repository.
-  If no argument provided, assumes OpenDBC source repo
-  (commaai/opendbc)
-  */
-
-  let repo;
-  if(repoFullName === undefined) {
-    repo = openDbcSourceRepo;
-  } else {
-    const [username, repoName] = repoFullName.split('/');
-    repo = github.getRepo(username, repoName);
+export default class OpenDBC {
+  constructor(token) {
+    this.token = token;
+    this.github = new GitHub({token});
+    this.sourceRepo = this.github.getRepo('commaai', 'opendbc');
+    this.githubUsername = null;
   }
 
-  const response = await repo.getContents('master', '');
-
-  return response.data.map((content) => content.path);
-}
-
-async function getDbcContents(dbcPath, repoFullName) {
-  let repo;
-  if(repoFullName === undefined) {
-    repo = openDbcSourceRepo;
-  } else {
-    const [username, repoName] = repoFullName.split('/');
-    repo = github.getRepo(username, repoName);
+  hasAuth() {
+    return this.token !== null;
   }
 
-  const fileContents = await repo.getContents('master', dbcPath);
-
-  const rawContentsUrl = fileContents.data.download_url;
-  const resp = await fetch(rawContentsUrl);
-
-  return resp.text();
-}
-
-function repoSourceIsOpenDbc(repoDetails) {
-    return repoDetails.source
-            && repoDetails.source.full_name === OPENDBC_SOURCE_REPO;
-}
-
-async function getUserOpenDbcFork() {
-    const openDbcFork = github.getRepo(githubUsername, 'opendbc');
-    const repoDetailResp = await openDbcFork.getDetails();
-    const repoDetails = repoDetailResp.data;
-
-    if(repoSourceIsOpenDbc(repoDetails)) {
-        return repoDetails.full_name;
+  async getGithubUsername() {
+    if(this.githubUsername) {
+      return this.githubUsername;
     } else {
-        return null;
+      const githubUsername = await this.fetchGithubUsername();
+      if(githubUsername) {
+        return githubUsername;
+      }
     }
-}
+  }
 
-async function fork() {
-    const forkResponse = await openDbcSourceRepo.fork();
-    if(forkResponse.status === 202) {
-        return true;
-    } else {
-        return false;
-    }
-}
+  async fetchGithubUsername() {
+      const resp = await this.github.getUser().getProfile();
+      if(resp) {
+        return resp.data.login;
+      }
+  }
 
-async function commitFile(repoFullName, path, contents) {
+  async list(repoFullName) {
     /*
-    repo is of format username/reponame
-    authenciated user must have write access to repo
+    Lists files in a github repository.
+    If no argument provided, assumes OpenDBC source repo
+    (commaai/opendbc)
     */
-    const [user, repoName] = repoFullName.split('/');
-    const repo = github.getRepo(user, repoName);
-    const resp = await repo.writeFile('master', path, contents, 'OpenDBC updates', {});
 
-    if(resp.status >= 200 && resp.status < 300) {
-        return true;
+    let repo;
+    if(repoFullName === undefined) {
+      repo = this.sourceRepo;
     } else {
-        return false;
+      const [username, repoName] = repoFullName.split('/');
+      repo = this.github.getRepo(username, repoName);
     }
-}
 
-export default {list,
-                getDbcContents,
-                getUserOpenDbcFork,
-                commitFile,
-                fork};
+    const response = await repo.getContents('master', '');
+
+    return response.data.map((content) => content.path);
+  }
+
+  async getDbcContents(dbcPath, repoFullName) {
+    let repo;
+    if(repoFullName === undefined) {
+      repo = this.sourceRepo;
+    } else {
+      const [username, repoName] = repoFullName.split('/');
+      repo = this.github.getRepo(username, repoName);
+    }
+
+    const fileContents = await repo.getContents('master', dbcPath);
+
+    const rawContentsUrl = fileContents.data.download_url;
+    const resp = await fetch(rawContentsUrl);
+
+    return resp.text();
+  }
+
+  repoSourceIsOpenDbc(repoDetails) {
+      return repoDetails.source
+              && repoDetails.source.full_name === OPENDBC_SOURCE_REPO;
+  }
+
+  async getUserOpenDbcFork() {
+      const githubUsername = await this.getGithubUsername();
+      const openDbcFork = this.github.getRepo(githubUsername, 'opendbc');
+      const repoDetailResp = await openDbcFork.getDetails();
+      const repoDetails = repoDetailResp.data;
+
+      if(this.repoSourceIsOpenDbc(repoDetails)) {
+          return repoDetails.full_name;
+      } else {
+          return null;
+      }
+  }
+
+  async fork() {
+      const forkResponse = await this.sourceRepo.fork();
+      if(forkResponse.status === 202) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+
+  async commitFile(repoFullName, path, contents) {
+      /*
+      repo is of format username/reponame
+      authenciated user must have write access to repo
+      */
+      const [user, repoName] = repoFullName.split('/');
+      const repo = this.github.getRepo(user, repoName);
+      const resp = await repo.writeFile('master', path, contents, 'OpenDBC updates', {});
+
+      if(resp.status >= 200 && resp.status < 300) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+}

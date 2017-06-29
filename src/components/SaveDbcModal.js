@@ -13,7 +13,8 @@ export default class SaveDbcModal extends Component {
         dbc: PropTypes.instanceOf(DBC).isRequired,
         sourceDbcFilename: PropTypes.string.isRequired,
         onCancel: PropTypes.func.isRequired,
-        onDbcSaved: PropTypes.func.isRequired
+        onDbcSaved: PropTypes.func.isRequired,
+        openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired
     };
 
     constructor(props) {
@@ -29,7 +30,7 @@ export default class SaveDbcModal extends Component {
     }
 
     async componentWillMount() {
-        const openDbcFork = await OpenDbc.getUserOpenDbcFork();
+        const openDbcFork = await this.props.openDbcClient.getUserOpenDbcFork();
         this.setState({openDbcFork})
     }
 
@@ -37,26 +38,29 @@ export default class SaveDbcModal extends Component {
         const {tab} = this.state;
         if(tab === 'GitHub') {
             const {openDbcFork, dbcFilename} = this.state;
-
-            const success = await OpenDbc.commitFile(openDbcFork,
-                                                     dbcFilename,
+            const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+            const success = await this.props.openDbcClient.commitFile(openDbcFork,
+                                                     filename,
                                                      this.props.dbc.text());
             if(success) {
-                this.props.onDbcSaved(dbcFilename);
+                this.props.onDbcSaved(filename);
             }
         } else if(tab === 'Download') {
             const blob = new Blob([this.props.dbc.text()], {type: "text/plain;charset=utf-8"});
-            FileSaver.saveAs(blob, this.state.dbcFilename);
+
+
+            const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+            FileSaver.saveAs(blob, filename, true);
         }
     }
 
     async forkOpenDbcAndWait() {
-        const forkResponseSuccess = await OpenDbc.fork();
+        const forkResponseSuccess = await this.props.openDbcClient.fork();
         if(forkResponseSuccess) {
             let isTimedOut = false;
             const interval = window.setInterval(() => {
                 if(!isTimedOut) {
-                    OpenDbc.getUserOpenDbcFork().then((openDbcFork) => {
+                    this.props.openDbcClient.getUserOpenDbcFork().then((openDbcFork) => {
                         if(openDbcFork !== null) {
                             this.setState({openDbcFork});
                             window.clearInterval(interval);
@@ -94,10 +98,11 @@ export default class SaveDbcModal extends Component {
         return (<div className={css(Styles.step)}>
                     <p>Choose a filename</p>
                     <input type="text"
-                           value={this.state.dbcFilename}
+                           value={this.state.dbcFilename.replace(/\.dbc/g, '')}
                            size={this.state.dbcFilename.length}
                            onChange={(e) =>
                             this.setState({dbcFilename: e.target.value})} />
+                    <span className={css(Styles.fileExtension)}>.dbc</span>
                 </div>);
     }
 

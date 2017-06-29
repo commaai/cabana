@@ -17,6 +17,7 @@ import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
 import LoadingBar from './components/LoadingBar';
 import {persistDbc} from './api/localstorage';
+import OpenDbc from './api/opendbc';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -48,6 +49,7 @@ export default class CanExplorer extends Component {
             maxByteStateChangeCount: 0,
             isLoading: false
         };
+        this.openDbcClient = new OpenDbc(props.githubAuthToken);
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
         this.hideLoadDbc = this.hideLoadDbc.bind(this);
@@ -336,12 +338,14 @@ export default class CanExplorer extends Component {
                     {this.state.showLoadDbc ? <LoadDbcModal
                                                 onDbcSelected={this.onDbcSelected}
                                                 onCancel={this.hideLoadDbc}
-                                                hasGithubAuth={GithubAuth.hasValidAccessToken()} /> : null}
+                                                openDbcClient={this.openDbcClient}
+                                                 /> : null}
                     {this.state.showSaveDbc ? <SaveDbcModal
                                                 dbc={this.state.dbc}
                                                 sourceDbcFilename={this.state.dbcFilename}
                                                 onDbcSaved={this.onDbcSaved}
-                                                onCancel={this.hideSaveDbc} /> : null}
+                                                onCancel={this.hideSaveDbc}
+                                                openDbcClient={this.openDbcClient} /> : null}
                     {this.state.showEditMessageModal ?
                       <EditMessageModal
                         onCancel={this.hideEditMessageModal}

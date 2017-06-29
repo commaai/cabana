@@ -7,7 +7,8 @@ import OpenDbc from '../api/opendbc';
 export default class GithubDbcList extends Component {
   static propTypes = {
     onDbcLoaded: PropTypes.func.isRequired,
-    repo: PropTypes.string
+    repo: PropTypes.string.isRequired,
+    openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired
   };
 
   constructor(props){
@@ -23,21 +24,21 @@ export default class GithubDbcList extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(nextProps.repo != this.props.repo) {
-        OpenDbc.list(nextProps.repo).then((paths) => {
+        this.props.openDbcClient.list(nextProps.repo).then((paths) => {
           this.setState({paths, selectedPath: null})
         })
     }
   }
 
   componentWillMount() {
-    OpenDbc.list(this.props.repo).then((paths) => {
+    this.props.openDbcClient.list(this.props.repo).then((paths) => {
       this.setState({paths})
     })
   }
 
   selectPath(path) {
     this.setState({selectedPath: path})
-    OpenDbc.getDbcContents(path, this.props.repo).then((dbcContents) => {
+    this.props.openDbcClient.getDbcContents(path, this.props.repo).then((dbcContents) => {
       this.props.onDbcLoaded(path, dbcContents);
     })
   }
@@ -66,9 +67,6 @@ export default class GithubDbcList extends Component {
 }
 
 const Styles = StyleSheet.create({
-  root: {
-
-  },
   repoName: {
     paddingBottom: 10
   },
