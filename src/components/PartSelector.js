@@ -100,6 +100,7 @@ const Styles = StyleSheet.create({
         position: 'absolute',
     },
     nudge: {
+        width: 48,
     },
     nudgeButton: {
         cursor: 'pointer'

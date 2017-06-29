@@ -328,7 +328,6 @@ const Styles = StyleSheet.create({
     root: {
         padding: 10,
         flex: 1,
-        maxWidth: 420,
         backgroundColor: 'rgb(246,246,246)',
         height: '100%',
     },
