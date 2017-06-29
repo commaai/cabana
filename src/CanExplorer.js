@@ -47,7 +47,7 @@ export default class CanExplorer extends Component {
             seekTime: 0,
             seekIndex: 0,
             maxByteStateChangeCount: 0,
-            isLoading: false
+            isLoading: true
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
 
