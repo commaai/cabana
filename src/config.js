@@ -1,4 +1,5 @@
-const ENV = 'debug'; // todo dynamic
+const ENV = process.env.NODE_ENV === 'production' ? 'prod' : 'debug';
+
 const ENV_GITHUB_CLIENT_ID = {debug: '4b43250e7499a97d62a5',
                               prod: ''}
 export const GITHUB_CLIENT_ID = ENV_GITHUB_CLIENT_ID[ENV];
