@@ -104,12 +104,38 @@ export default class OpenDBC {
       */
       const [user, repoName] = repoFullName.split('/');
       const repo = this.github.getRepo(user, repoName);
-      const resp = await repo.writeFile('master', path, contents, 'OpenDBC updates', {});
 
-      if(resp.status >= 200 && resp.status < 300) {
-          return true;
-      } else {
-          return false;
-      }
+      // get HEAD reference
+      const refResp = await repo.getRef('heads/master');
+      const ref = refResp.data;
+
+      // get HEAD commit sha
+      const headCommitResp = await repo.getCommit(ref.object.sha);
+      const headCommit = headCommitResp.data;
+
+      // get HEAD tree
+      const headTreeResp = await repo.getTree(headCommit.tree.sha);
+      const headTree = headTreeResp.data;
+
+      // create new tree
+      const tree = [{
+            mode: '100644',
+            path: path,
+            type: 'blob',
+            content: contents,
+      }];
+
+      const createTreeResp = await repo.createTree(tree, headTree.sha);
+      const createdTree = createTreeResp.data;
+
+      // commit
+      const commitResp = await repo.commit(headCommit.  sha, createdTree.sha, 'OpenDBC updates');
+      const commit = commitResp.data;
+
+      // update HEAD
+      const updateHeadResp = await repo.updateHead('heads/master', commit.sha, false);
+      const updatedHead = updateHeadResp.data;
+
+      return updateHeadResp.status === 200;
   }
 }

@@ -53,7 +53,9 @@ export default class CanExplorer extends Component {
             partsLoaded: 0,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
-        this.unloggerClient = new UnloggerClient();
+        if(USE_UNLOGGER) {
+          this.unloggerClient = new UnloggerClient();
+        }
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
         this.hideLoadDbc = this.hideLoadDbc.bind(this);
