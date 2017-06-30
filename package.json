@@ -24,6 +24,7 @@
     "react-measure": "^1.4.7",
     "react-test-renderer": "^15.6.1",
     "react-vega": "^3.0.0",
+    "socket.io-client": "^2.0.3",
     "vega": "git+ssh://git@github.com/commaai/vega.git#HEAD",
     "vega-tooltip": "^0.4.0"
   },

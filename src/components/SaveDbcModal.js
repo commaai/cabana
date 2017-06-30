@@ -99,7 +99,7 @@ export default class SaveDbcModal extends Component {
                     <p>Choose a filename</p>
                     <input type="text"
                            value={this.state.dbcFilename.replace(/\.dbc/g, '')}
-                           size={this.state.dbcFilename.length}
+                           size={this.state.dbcFilename.length + 2}
                            onChange={(e) =>
                             this.setState({dbcFilename: e.target.value})} />
                     <span className={css(Styles.fileExtension)}>.dbc</span>

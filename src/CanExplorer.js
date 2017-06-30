@@ -3,6 +3,7 @@ import { css, StyleSheet } from 'aphrodite/no-important';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
 
+import {USE_UNLOGGER} from './config';
 import * as GithubAuth from './api/github-auth';
 import DBC from './models/can/dbc';
 import Meta from './components/meta';
@@ -18,6 +19,7 @@ import EditMessageModal from './components/EditMessageModal';
 import LoadingBar from './components/LoadingBar';
 import {persistDbc} from './api/localstorage';
 import OpenDbc from './api/opendbc';
+import UnloggerClient from './api/unlogger';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -51,6 +53,7 @@ export default class CanExplorer extends Component {
             partsLoaded: 0,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
+        this.unloggerClient = new UnloggerClient();
 
         this.showLoadDbc = this.showLoadDbc.bind(this);
         this.hideLoadDbc = this.hideLoadDbc.bind(this);
@@ -64,6 +67,7 @@ export default class CanExplorer extends Component {
         this.onPartChange = this.onPartChange.bind(this);
         this.onMessageFrameEdited = this.onMessageFrameEdited.bind(this);
         this.onSeek = this.onSeek.bind(this);
+        this.onUserSeek = this.onUserSeek.bind(this);
         this.onMessageSelected = this.onMessageSelected.bind(this);
         this.onMessageUnselected = this.onMessageUnselected.bind(this);
         this.initCanData = this.initCanData.bind(this);
@@ -283,8 +287,13 @@ export default class CanExplorer extends Component {
     }
 
     onSeek(seekIndex, seekTime) {
-
       this.setState({seekIndex, seekTime});
+    }
+
+    onUserSeek(seekTime) {
+      if(USE_UNLOGGER) {
+        this.unloggerClient.seek(this.props.dongleId, this.props.name, seekTime);
+      }
     }
 
     onMessageSelected(msgKey) {
@@ -341,6 +350,7 @@ export default class CanExplorer extends Component {
                                 selectedMessage={this.state.selectedMessage}
                                 onConfirmedSignalChange={this.onConfirmedSignalChange}
                                 onSeek={this.onSeek}
+                                onUserSeek={this.onUserSeek}
                                 canFrameOffset={this.state.canFrameOffset}
                                 firstCanTime={this.state.firstCanTime}
                                 seekTime={this.state.seekTime}

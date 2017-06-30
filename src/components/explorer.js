@@ -66,21 +66,28 @@ export default class Explorer extends Component {
             if(nextSignalNames.length === 0) {
                 this.setState({shouldShowAddSignal: true});
             }
+        }
 
-            let {plottedSignals} = this.state;
-            // unplot signals that have been removed
+        let {plottedSignals} = this.state;
+        // unplot signals that have been removed
 
-            plottedSignals = plottedSignals.filter(({messageId, signalName}) => {
-                const signalExists = nextSignalNames.indexOf(signalName) !== -1;
+        plottedSignals = plottedSignals.filter(({messageId, signalName}) => {
+            const messageExists = Object.keys(nextProps.messages).indexOf(messageId) !== -1;
+            let signalExists = true;
+            if(!messageExists) {
+
+            } else {
+                signalExists = nextProps.messages.indexOf(signalName) !== -1;
 
                 if(!signalExists) {
                     delete graphData[messageId][signalName];
                 }
-                return signalExists;
-            });
+            }
 
-            this.setState({plottedSignals});
-        }
+            return messageExists && signalExists;
+        });
+
+        this.setState({plottedSignals});
 
         if(nextProps.selectedMessage && nextProps.selectedMessage != this.props.selectedMessage) {
             // Update segment and seek state
@@ -239,6 +246,8 @@ export default class Explorer extends Component {
         this.setState({userSeekRatio: ratio});
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
+            const seekTime = ratio * this.secondsLoaded() + this.startOffset();
+            this.props.onUserSeek(seekTime);
             this.props.onSeek(0, ratio * this.secondsLoaded() + this.startOffset());
             return;
         }
@@ -248,6 +257,7 @@ export default class Explorer extends Component {
         const seekTime = entries[userSeekIndex].relTime;
 
         this.setState({userSeekIndex});
+        this.props.onUserSeek(seekTime);
         this.props.onSeek(userSeekIndex, seekTime);
     }
 
