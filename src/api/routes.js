@@ -35,23 +35,25 @@ export async function fetchRoutes(dongleId) {
     if(dongleId === undefined) {
         dongleId = 'me';
     }
-    const endpoint = ROUTES_ENDPOINT.replace('{dongleId}', dongleId);
-    const headers = new Headers();
+
     const accessToken = getCommaAccessToken();
     if(accessToken) {
-        headers.append('Authorization', `JWT ${getCommaAccessToken()}`);
+      const endpoint = ROUTES_ENDPOINT.replace('{dongleId}', dongleId);
+      const headers = new Headers();
+      headers.append('Authorization', `JWT ${getCommaAccessToken()}`);
+
+      try {
+          const request = new Request(endpoint, {headers});
+          const resp = await fetch(request);
+          const routes = await resp.json();
+          if('routes' in routes) {
+              return routes.routes;
+          }
+      } catch(err) {
+          console.log(err);
+      }
     }
 
-    try {
-        const request = new Request(endpoint, {headers});
-        const resp = await fetch(request);
-        const routes = await resp.json();
-        if('routes' in routes) {
-            return routes.routes;
-        }
-    } catch(err) {
-        console.log(err);
-    }
     return DEMO_ROUTES;
 }
 
