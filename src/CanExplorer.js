@@ -44,7 +44,7 @@ export default class CanExplorer extends Component {
             showEditMessageModal: false,
             editMessageModalMessage: null,
             dbc: new DBC(),
-            dbcFilename: 'New DBC',
+            dbcFilename: 'New_DBC',
             dbcLastSaved: null,
             seekTime: 0,
             seekIndex: 0,
