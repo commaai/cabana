@@ -344,6 +344,7 @@ export default class SignalLegendEntry extends Component {
                             <span>Plot: </span>
                             <input type="checkbox"
                                    checked={isPlotted}
+                                   onClick={(e) => e.stopPropagation()}
                                    onChange={(e) => {
                                      this.props.onSignalPlotChange(e.target.checked, signal.name)
                                    }}
