@@ -1,3 +1,4 @@
+require('core-js/fn/object/values');
 import * as CanApi from '../api/can';
 
 function calcCanFrameOffset(firstCanPart, partCanTimes) {

@@ -1,3 +1,4 @@
+require('core-js/fn/object/values');
 import NumpyLoader from '../utils/loadnpy';
 import DBC from '../models/can/dbc';
 import DbcUtils from '../utils/dbc';

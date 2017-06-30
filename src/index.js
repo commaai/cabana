@@ -20,6 +20,8 @@ import {GITHUB_AUTH_TOKEN_KEY} from './config';
 import {fetchPersistedDbc,
         fetchPersistedGithubAuthToken,
         persistGithubAuthToken} from './api/localstorage';
+require('core-js/fn/object/entries');
+require('core-js/fn/object/values');
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
