@@ -75,9 +75,10 @@ export default class Explorer extends Component {
             const messageExists = Object.keys(nextProps.messages).indexOf(messageId) !== -1;
             let signalExists = true;
             if(!messageExists) {
-
+                delete graphData[messageId];
             } else {
-                signalExists = nextProps.messages.indexOf(signalName) !== -1;
+                const signalNames = Object.keys(nextProps.messages[messageId].signals);
+                signalExists = signalNames.indexOf(signalName) !== -1;
 
                 if(!signalExists) {
                     delete graphData[messageId][signalName];
