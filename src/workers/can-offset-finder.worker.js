@@ -1,3 +1,5 @@
+window = self;
+
 require('core-js/fn/object/values');
 import * as CanApi from '../api/can';
 

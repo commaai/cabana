@@ -14,3 +14,5 @@ export const OPENDBC_SOURCE_REPO = 'commaai/opendbc';
 
 export const USE_UNLOGGER = (getUrlParameter('unlogger') !== null);
 export const UNLOGGER_HOST = 'http://localhost:8080/unlogger';
+
+export const LOGENTRIES_TOKEN = '4bc98019-8277-4fe0-867c-ed21ea843cc5';

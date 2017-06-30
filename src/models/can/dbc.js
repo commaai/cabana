@@ -1,7 +1,7 @@
 const UINT64 = require('cuint').UINT64
-
 import Bitarray from '../bitarray';
 
+import LogEntries from '../../logging/LogEntries';
 import Signal from './signal';
 import Frame from './frame';
 import BoardUnit from './BoardUnit';
@@ -57,6 +57,7 @@ export function swapOrder(arr, wordSize, gSize) {
 
 export default class DBC {
     constructor(dbcString) {
+        LogEntries.log('parsing DBC');
         this.boardUnits = [];
         this.messages = new Map();
 
@@ -190,16 +191,19 @@ export default class DBC {
     }
 
     importDbcString(dbcString) {
+        const warnings = [];
         const messages = new Map();
         let boardUnits = [];
         let valueTables = new Map();
         let id = 0;
         let followUp = null;
 
-        dbcString.split('\n').forEach((line, idx) => {
-            line = line.trim();
 
-            if(line.length === 0) return;
+        const lines = dbcString.split('\n')
+        for(let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            if(line.length === 0) continue;
 
             if(followUp != null) {
                 const {type, data} = followUp;
@@ -219,8 +223,8 @@ export default class DBC {
             if(line.indexOf("BO_ ") === 0) {
                 let matches = line.match(MSG_RE)
                 if (matches === null) {
-                    console.log('Bad BO', line)
-                    return
+                    warnings.push(`failed to parse message definition on line ${i + 1} -- ${line}`);
+                    continue
                 }
                 let [idString, name, size, transmitter] = matches.slice(1);
                 id = parseInt(idString, 0); // 0 radix parses hex or dec
@@ -234,7 +238,8 @@ export default class DBC {
                 if(matches === null) {
                     matches = line.match(MP_SIGNAL_RE);
                     if(matches === null) {
-                        return;
+                        warnings.push(`failed to parse signal definition on line ${i + 1} -- ${line}`);
+                        continue;
                     }
                     // for now, ignore multiplex which is matches[1]
                     matches = matches[1] + matches.slice(3);
@@ -272,11 +277,16 @@ export default class DBC {
                     messageId = parseInt(messageId);
                     const msg = messages.get(messageId);
                     const signal = msg.signals[signalName];
-
+                    if(signal === undefined) {
+                        warnings.push(`could not find signal for value description on line ${i + 1} -- ${line}`);
+                        continue;
+                    }
                     for(let i = 0; i < vals.length; i+= 2) {
                         const value = vals[i].trim(), description = vals[i + 1].trim();
                         signal.valueDescriptions.set(value, description);
                     }
+                } else {
+                    warnings.push(`failed to parse value description on line ${i + 1} -- ${line}`);
                 }
             } else if(line.indexOf("VAL_TABLE_ ") === 0) {
                 let matches = line.match(VAL_TABLE_RE);
@@ -293,6 +303,8 @@ export default class DBC {
                         table.set(key, value);
                     }
                     valueTables.set(tableName, table);
+                } else {
+                    warnings.push(`failed to parse value table on line ${i + 1} -- ${line}`);
                 }
             } else if(line.indexOf("BO_TX_BU_ ") === 0) {
                 let matches = line.match(MSG_TRANSMITTER_RE);
@@ -304,6 +316,8 @@ export default class DBC {
                     const msg = messages.get(messageId);
                     msg.transmitters.push(transmitter);
                     messages.set(messageId, msg);
+                } else {
+                    warnings.push(`failed to parse message transmitter definition on line ${i + 1} -- ${line}`);
                 }
             } else if(line.indexOf("CM_ SG_ ") === 0) {
                 let matches = line.match(SIGNAL_COMMENT_RE);
@@ -313,8 +327,8 @@ export default class DBC {
                     hasFollowUp = true;
                 }
                 if(matches === null) {
-                    console.warn('invalid signal comment', line);
-                    return;
+                    warnings.push(`failed to signal comment on line ${i + 1} -- ${line}`);
+                    continue;
                 }
 
                 let [messageId, signalName, comment] = matches.slice(1);
@@ -323,7 +337,8 @@ export default class DBC {
                 const msg = messages.get(messageId);
                 const signal = msg.signals[signalName];
                 if(signal === undefined) {
-                    console.warn('signal ', signalName, ' undefined');
+                    warnings.push(`failed to signal comment on line ${i + 1} -- ${line}`);
+                    continue;
                 } else {
                     signal.comment = comment;
                     messages.set(messageId, msg);
@@ -339,8 +354,8 @@ export default class DBC {
                     matches = line.match(MESSAGE_COMMENT_MULTI_LINE_RE);
                     hasFollowUp = true;
                     if(matches === null) {
-                        console.warn('invalid message comment', line);
-                        return;
+                        warnings.push(`failed to message comment on line ${i + 1} -- ${line}`);
+                        continue;
                     }
                 }
 
@@ -363,6 +378,9 @@ export default class DBC {
                                                        .map((name) => new BoardUnit(name));
 
                     boardUnits = boardUnits.concat(newBoardUnits);
+                } else {
+                    warnings.push(`failed to parse board unit definition on line ${i + 1} -- ${line}`);
+                    continue;
                 }
             } else if(line.indexOf("CM_ BU_ ") === 0) {
                 let matches = line.match(BOARD_UNIT_COMMENT_RE);
@@ -371,7 +389,8 @@ export default class DBC {
                     matches = line.match(BOARD_UNIT_COMMENT_MULTI_LINE_RE)
                     hasFollowUp = true;
                     if(matches === null) {
-                        console.warn('invalid board unit comment', line);
+                        warnings.push(`failed to parse board unit comment on line ${i + 1} -- ${line}`);
+                        continue;
                     }
                 }
 
@@ -385,7 +404,11 @@ export default class DBC {
                     followUp = {type: FOLLOW_UP_BOARD_UNIT_COMMENT, data: boardUnit};
                 }
             }
-        });
+        }
+
+        if(warnings.length > 0) {
+            warnings.forEach((warning) => LogEntries.warn('importDbcString: ' + warning));
+        }
 
         this.messages = messages;
         this.boardUnits = boardUnits;
