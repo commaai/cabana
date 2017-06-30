@@ -107,12 +107,14 @@ export default class CanExplorer extends Component {
       };
     }
 
-    onDbcSelected(filename, dbcInstance) {
+    onDbcSelected(dbcFilename, dbc) {
       const {route} = this.state;
       this.hideLoadDbc();
-      this.setState({dbc: dbcInstance,
-                     dbcFilename: filename,
-                     currentParts: [0, Math.min(route.proclog - 1, 2)],
+      persistDbc(route.fullname,
+                 {dbcFilename, dbc});
+      this.setState({dbc,
+                     dbcFilename,
+                     partsLoaded: 0,
                      selectedMessage: null,
                      messages: {}}, () => {
         const {route} = this.state;

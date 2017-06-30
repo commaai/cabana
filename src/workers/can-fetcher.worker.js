@@ -1,5 +1,4 @@
-window = self;
-
+var window = self;
 require('core-js/fn/object/values');
 import NumpyLoader from '../utils/loadnpy';
 import DBC from '../models/can/dbc';
