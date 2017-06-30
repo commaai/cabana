@@ -284,6 +284,8 @@ export default class Explorer extends Component {
         const {entries} = this.props.messages[this.props.selectedMessage];
         const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
+        const seekTime = entries[userSeekIndex].relTime;
+        this.props.onUserSeek(seekTime);
         this.setState({userSeekIndex});
     }
 
