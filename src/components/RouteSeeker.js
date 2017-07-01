@@ -132,7 +132,7 @@ export default class RouteSeeker extends Component {
 
     onClick(e) {
         let ratio = this.mouseEventXOffsetPercent(e) / 100;
-        ratio = Math.max(0, ratio);
+        ratio = Math.min(1, Math.max(0, ratio));
         this.updateSeekedBar(ratio);
         this.props.onUserSeek(ratio);
     }

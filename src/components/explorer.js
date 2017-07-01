@@ -127,7 +127,11 @@ export default class Explorer extends Component {
 
             if(msgGraphData) {
                 for(let signalName in msgGraphData) {
-                    graphData[nextProps.selectedMessage][signalName] = this.calcGraphData(nextMessage, signalName);
+                    if(nextMessage.signals[signalName] === undefined) {
+                        delete msgGraphData[signalName];
+                    } else {
+                        graphData[nextProps.selectedMessage][signalName] = this.calcGraphData(nextMessage, signalName);
+                    }
                 }
                 this.setState({graphData});
             }
@@ -141,28 +145,6 @@ export default class Explorer extends Component {
 
             this.setState({userSeekRatio});
         }
-    }
-
-    graphData(msg, signalName) {
-        if(!msg) return null;
-
-        let samples = [];
-        let skip = Math.floor(msg.entries.length / CanGraph.MAX_POINTS);
-
-        if(skip == 0){
-            samples = msg.entries;
-        } else {
-            for(let i = 0; i < msg.entries.length; i += skip) {
-                samples.push(msg.entries[i]);
-            }
-        }
-
-        return samples.map((entry) => {
-            return {x: entry.time,
-                    xRel: entry.time - this.props.firstCanTime,
-                    y: entry.signals[signalName],
-                    unit: msg.signals[signalName].unit}
-        });
     }
 
     calcGraphData(msg, signalName) {
@@ -240,7 +222,7 @@ export default class Explorer extends Component {
             segmentLength = entries.length;
         }
 
-        return offset + Math.round(ratio * segmentLength);
+        return offset + Math.round(ratio * (segmentLength - 1));
     }
 
     onUserSeek(ratio) {

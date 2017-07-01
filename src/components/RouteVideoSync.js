@@ -100,7 +100,8 @@ export default class RouteVideoSync extends Component {
             currentTime = this.props.startOffset;
         }
 
-        return (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+        const ratio = (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+        return Math.max(0, Math.min(1, ratio));
     }
 
     ratioTime(ratio) {
