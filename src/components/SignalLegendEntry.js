@@ -136,7 +136,8 @@ export default class SignalLegendEntry extends Component {
         this.state = {
             isExpanded: false,
             isEditing: false,
-            signalEdited: Object.assign(Object.create(props.signal), props.signal)
+            signalEdited: Object.assign(Object.create(props.signal), props.signal),
+            nameEdited: props.signal.name
         };
 
         this.toggleEditing = this.toggleEditing.bind(this);
@@ -289,7 +290,7 @@ export default class SignalLegendEntry extends Component {
     }
 
     toggleEditing(e) {
-        let {isEditing, isExpanded, signalEdited} = this.state;
+        let {isEditing, isExpanded, signalEdited, nameEdited} = this.state;
         const {signal} = this.props;
         const signalCopy = Object.assign(Object.create(signal), signal);
 
@@ -305,7 +306,7 @@ export default class SignalLegendEntry extends Component {
 
                 signalCopy[field] = value;
             });
-
+            signalCopy['name'] = nameEdited;
             this.props.onSignalChange(signalCopy, signal);
         }  else {
             signalEdited = signalCopy;
@@ -319,11 +320,12 @@ export default class SignalLegendEntry extends Component {
     }
 
     onNameChange(e) {
-        this.updateField('name', e.target.value);
+        // this.updateField('name', e.target.value);
+        this.setState({nameEdited: e.target.value})
     }
 
     render() {
-        const {isExpanded, isEditing, signalEdited} = this.state;
+        const {isExpanded, isEditing, signalEdited, nameEdited} = this.state;
         const {signal, highlightedStyle, plottedSignals, isPlotted} = this.props;
         return (<tbody>
                     <tr
@@ -335,7 +337,7 @@ export default class SignalLegendEntry extends Component {
                         <td>{isExpanded ? '\u2193' : '\u2192'}</td>
                         <td>{isEditing ?
                             <input type="text"
-                                   value={signalEdited['name']}
+                                   value={nameEdited}
                                    onClick={(e) => e.stopPropagation()}
                                    onChange={this.onNameChange} />
                             : <span>{signal.name}</span>
