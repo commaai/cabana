@@ -45,7 +45,7 @@ export default class PartSelector extends Component {
 
     selectPart(part) {
         this.props.onPartChange(part);
-        this.setState({part,
+        this.setState({selectedPart: part,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
                                                              part)});
     }
@@ -56,6 +56,7 @@ export default class PartSelector extends Component {
         if(selectedPart >= this.props.partsCount) {
             return;
         }
+
         this.selectPart(selectedPart);
     }
 
