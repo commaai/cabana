@@ -20,7 +20,8 @@ export default createClassFromSpec('CanPlot', {
      }]
     },
     {"name": "videoTime"},
-    {"name": "segment", "value": {"data": "table", "field": "xRel"}}
+    {"name": "segment",
+      "value": {"data": "table", "field": "xRel"}}
   ],
   "data": [
     {
@@ -40,6 +41,17 @@ export default createClassFromSpec('CanPlot', {
           "ops": ["min", "argmin", "argmin"],
           "as": ["min", "argmin", "argmin"]
         }
+      ]
+    },
+    {
+      "name": "ySegmentScale",
+      "source": "table",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "length(segment) != 2 || (datum.xRel >= segment[0] && datum.xRel <= segment[1])"
+        },
+        {"type": "extent", "field": "y", "signal": "ySegment"}
       ]
     }
   ],
@@ -64,8 +76,9 @@ export default createClassFromSpec('CanPlot', {
       "name": "yscale",
       "type": "linear",
       "range": "height",
-      "zero": true,
-      "domain": {"data": "table", "field": "y"}
+      "clamp": true,
+      "zero": false,
+      "domain": {"signal": "ySegment"}
     }
   ],
   "axes": [
