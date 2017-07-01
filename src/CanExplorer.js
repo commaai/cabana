@@ -322,6 +322,10 @@ export default class CanExplorer extends Component {
       this.setState({selectedMessage: null});
     }
 
+    loginWithGithub() {
+      return <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}>Log in with Github</a>
+    }
+
     render() {
         return (<div className={css(Styles.root)}>
                     {this.state.isLoading ?
@@ -347,6 +351,7 @@ export default class CanExplorer extends Component {
                             seekTime={this.state.seekTime}
                             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
                             githubAuthToken={this.props.githubAuthToken}
+                            loginWithGithub={this.loginWithGithub()}
                       />
                       <div className={css(Styles.right)}>
                           {this.state.route.url ?
@@ -372,13 +377,16 @@ export default class CanExplorer extends Component {
                                                 onDbcSelected={this.onDbcSelected}
                                                 onCancel={this.hideLoadDbc}
                                                 openDbcClient={this.openDbcClient}
+                                                loginWithGithub={this.loginWithGithub()}
                                                  /> : null}
                     {this.state.showSaveDbc ? <SaveDbcModal
                                                 dbc={this.state.dbc}
                                                 sourceDbcFilename={this.state.dbcFilename}
                                                 onDbcSaved={this.onDbcSaved}
                                                 onCancel={this.hideSaveDbc}
-                                                openDbcClient={this.openDbcClient} /> : null}
+                                                openDbcClient={this.openDbcClient}
+                                                hasGithubAuth={this.props.githubAuthToken !== null}
+                                                loginWithGithub={this.loginWithGithub()} /> : null}
                     {this.state.showEditMessageModal ?
                       <EditMessageModal
                         onCancel={this.hideEditMessageModal}

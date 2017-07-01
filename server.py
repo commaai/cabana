@@ -2,8 +2,8 @@ from flask import Flask, request, redirect
 import requests
 import json
 
-CLIENT_ID = '4b43250e7499a97d62a5'
-CLIENT_SECRET = '65dbd43f3e298e024a7aff85b2a9ed261ffc9fcf'
+CLIENT_ID = 'f1e42d14f45491f9ca34'
+CLIENT_SECRET = 'f50f7a6dd6b0364b0761f35367f0be7027e7caa1'
 
 OAUTH_STATES = []
 app = Flask(__name__)
@@ -16,9 +16,6 @@ def auth_state():
 
 @app.route('/callback')
 def callback():
-  CLIENT_ID = '4b43250e7499a97d62a5'
-  CLIENT_SECRET = '65dbd43f3e298e024a7aff85b2a9ed261ffc9fcf'
-
   code = request.args.get('code')
   state = request.args.get('state')
 
@@ -34,7 +31,7 @@ def callback():
 
   route = json.loads(state)['route']
 
-  return redirect('https://community.comma.ai/cabana/?route={}&gh_access_token={}'.format(route, oauth_resp['access_token']))
+  return redirect('http://127.0.0.1:3000/?route={}&gh_access_token={}'.format(route, oauth_resp['access_token']))
 
 if __name__ == '__main__':
   app.run(port=1235)

@@ -14,7 +14,8 @@ export default class LoadDbcModal extends Component {
   static propTypes = {
     onCancel: PropTypes.func.isRequired,
     onDbcSelected: PropTypes.func.isRequired,
-    openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired
+    openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired,
+    loginWithGithub: PropTypes.element.isRequired,
   };
 
   constructor(props) {
@@ -45,7 +46,7 @@ export default class LoadDbcModal extends Component {
                 openDbcClient={this.props.openDbcClient} />);
     } else if(tab === 'GitHub') {
       if(!this.props.openDbcClient.hasAuth()) {
-        return (<div>Need to auth</div>);
+        return (<div>{this.props.loginWithGithub}</div>);
       } else if(this.state.userOpenDbcRepo === null) {
         return (<div>Fork it</div>);
       } else {

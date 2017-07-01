@@ -14,7 +14,9 @@ export default class SaveDbcModal extends Component {
         sourceDbcFilename: PropTypes.string.isRequired,
         onCancel: PropTypes.func.isRequired,
         onDbcSaved: PropTypes.func.isRequired,
-        openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired
+        openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired,
+        hasGithubAuth: PropTypes.bool.isRequired,
+        loginWithGithub: PropTypes.element.isRequired
     };
 
     constructor(props) {
@@ -84,9 +86,11 @@ export default class SaveDbcModal extends Component {
         let content;
         if(openDbcFork !== null) {
             content = <p>Done! {openDbcFork}</p>;
-        } else {
+        } else if(this.props.hasGithubAuth) {
             content = <p className={css(Styles.pointer, Styles.forkOpenDbc)}
                          onClick={this.forkOpenDbcAndWait}>Fork OpenDBC</p>;
+        } else {
+            content = this.props.loginWithGithub;
         }
         return (<div className={css(Styles.step, (openDbcFork !== null ? Styles.stepDone : null))}>
                     {openDbcFork !== null ? <p>Fork OpenDBC</p> : null}

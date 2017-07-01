@@ -26,7 +26,8 @@ export default class Meta extends Component {
         route: PropTypes.object,
         partsLoaded: PropTypes.number,
         currentParts: PropTypes.array,
-        seekTime: PropTypes.number
+        seekTime: PropTypes.number,
+        loginWithGithub: PropTypes.element,
     };
 
     constructor(props) {
@@ -296,7 +297,7 @@ export default class Meta extends Component {
                         {this.props.githubAuthToken  ?
                             <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
                             :
-                            <a href={GithubAuth.authorizeUrl(this.props.route.fullname || '')}>Log in with Github</a>
+                            this.props.loginWithGithub
                         }
                     </div>
                     <div>
