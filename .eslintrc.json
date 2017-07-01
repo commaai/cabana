@@ -1,0 +1,6 @@
+{
+"extends": "react-app",
+"rules":{
+"no-undef": 1 
+}
+}

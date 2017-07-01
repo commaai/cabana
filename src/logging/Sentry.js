@@ -2,8 +2,8 @@ import Raven from 'raven-js';
 if(process.env.NODE_ENV === 'production') {
   const opts = {};
 
-  if(window.__webpack_hash__ !== undefined) {
-      opts['release'] = window.__webpack_hash__;
+  if(typeof __webpack_hash__ !== 'undefined') {
+      opts['release'] = __webpack_hash__;
   }
 
   Raven

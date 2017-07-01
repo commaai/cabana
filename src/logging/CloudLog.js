@@ -18,10 +18,13 @@ class CloudLog {
                        created: new Date().getTime() / 1000,
                        msg: message,
                        src: 'JSCloudLog'};
+
         if(level === 'log') {
             LogEntries.log(entry);
         } else if(level === 'warn') {
             LogEntries.warn(entry);
+        } else if(level === 'error') {
+            LogEntries.error(entry);
         }
     }
 
