@@ -123,6 +123,7 @@ const Styles = StyleSheet.create({
         backgroundColor: 'black',
         height: '100%',
         position: 'absolute',
+        cursor: 'pointer',
     },
     nudge: {
         width: 48,

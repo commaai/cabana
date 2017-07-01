@@ -161,10 +161,14 @@ export default class SignalLegendEntry extends Component {
 
     updateField(fieldSpec, value) {
         let {signalEdited} = this.state;
-        if(fieldSpec.transform) {
-            signalEdited = fieldSpec.transform(value, signalEdited);
-        } else {
-            signalEdited[fieldSpec.field] = value;
+        if(typeof fieldSpec === 'object') {
+            if(fieldSpec.transform) {
+                signalEdited = fieldSpec.transform(value, signalEdited);
+            } else {
+                signalEdited[fieldSpec.field] = value;
+            }
+        } else if(typeof fieldSpec === 'string') {
+            signalEdited[fieldSpec] = value;
         }
 
 
@@ -315,8 +319,7 @@ export default class SignalLegendEntry extends Component {
     }
 
     onNameChange(e) {
-        const fieldSpec = SignalLegendEntry.fieldSpecForName('name');
-        this.updateField(fieldSpec, e.target.value);
+        this.updateField('name', e.target.value);
     }
 
     render() {

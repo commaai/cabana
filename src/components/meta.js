@@ -155,7 +155,7 @@ export default class Meta extends Component {
                                                        Styles.selectedMessage)}
                                         onMouseEnter={() => this.onMessageHover(key)}
                                         onMouseLeave={() => this.onMessageHoverEnd(key)}>
-                                        {msg.frame ? msg.frame.name : ''} {key}
+                                        {msg.frame ? msg.frame.name : ''}&nbsp;{key}
                                         {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
                                     </li>
                             });

@@ -234,6 +234,7 @@ export default class CanExplorer extends Component {
       worker.onmessage = (e) => {
         const newMessage = e.data;
         newMessage.signals = dbc.getSignals(newMessage.address);
+        newMessage.frame = dbc.messages.get(newMessage.address);
 
         const messages = {};
         Object.assign(messages, this.state.messages);
@@ -262,6 +263,7 @@ export default class CanExplorer extends Component {
       if(!msg.frame) {
         msg.frame = this.state.dbc.createFrame(msg.address);
       }
+
 
       this.setState({showEditMessageModal: true,
                      editMessageModalMessage: msgKey,
