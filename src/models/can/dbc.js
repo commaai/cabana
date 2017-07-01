@@ -1,7 +1,7 @@
 const UINT64 = require('cuint').UINT64
 import Bitarray from '../bitarray';
 
-import LogEntries from '../../logging/LogEntries';
+import CloudLog from '../../logging/CloudLog';
 import Signal from './signal';
 import Frame from './frame';
 import BoardUnit from './BoardUnit';
@@ -57,7 +57,7 @@ export function swapOrder(arr, wordSize, gSize) {
 
 export default class DBC {
     constructor(dbcString) {
-        LogEntries.log('parsing DBC');
+        CloudLog.log('parsing DBC');
         this.boardUnits = [];
         this.messages = new Map();
 
@@ -407,7 +407,7 @@ export default class DBC {
         }
 
         if(warnings.length > 0) {
-            warnings.forEach((warning) => LogEntries.warn('importDbcString: ' + warning));
+            warnings.forEach((warning) => CloudLog.warn('importDbcString: ' + warning));
         }
 
         this.messages = messages;

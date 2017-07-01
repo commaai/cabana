@@ -141,6 +141,7 @@ export default class SignalLegendEntry extends Component {
 
         this.toggleEditing = this.toggleEditing.bind(this);
         this.updateField = this.updateField.bind(this);
+        this.onNameChange = this.onNameChange.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
