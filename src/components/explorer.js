@@ -189,16 +189,16 @@ export default class Explorer extends Component {
      this.setState({plottedSignals: newPlottedSignals})
     }
 
-    updateSegment = debounce((segment) => {
-        const {entries} = this.props.messages[this.props.selectedMessage];
+    updateSegment = debounce((messageId, segment) => {
+        const {entries} = this.props.messages[messageId];
         const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
         this.setState({segment, segmentIndices, userSeekIndex: segmentIndices[0]})
     }, 250);
 
-    onSegmentChanged(segment) {
+    onSegmentChanged(messageId, segment) {
         if(Array.isArray(segment)) {
-            this.updateSegment(segment);
+            this.updateSegment(messageId, segment);
         }
     }
 
@@ -259,16 +259,17 @@ export default class Explorer extends Component {
         this.props.onSeek(seekIndex, seekTime);
     }
 
-    onGraphTimeClick(time) {
+    onGraphTimeClick(messageId, time) {
         const canTime = time + this.props.firstCanTime;
 
         const {segmentIndices} = this.state;
-        const {entries} = this.props.messages[this.props.selectedMessage];
+        const {entries} = this.props.messages[messageId];
         const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
         const seekTime = entries[userSeekIndex].relTime;
         this.props.onUserSeek(seekTime);
-        this.setState({userSeekIndex});
+        this.setState({userSeekIndex,
+                       userSeekRatio: (userSeekIndex + 1) / entries.length});
     }
 
     onPlay() {
@@ -421,6 +422,7 @@ export default class Explorer extends Component {
 
                                     return <CanGraph key={messageId + '_' + signalName}
                                                      unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
+                                                     messageId={messageId}
                                                      messageName={msg.frame ? msg.frame.name : null}
                                                      signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}
                                                      onSegmentChanged={this.onSegmentChanged}

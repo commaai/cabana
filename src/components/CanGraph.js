@@ -11,6 +11,7 @@ export default class CanGraph extends Component {
 
   static propTypes = {
     data: PropTypes.array,
+    messageId: PropTypes.string,
     messageName: PropTypes.string,
     signalSpec: PropTypes.instanceOf(Signal),
     segment: PropTypes.array,
@@ -83,7 +84,7 @@ export default class CanGraph extends Component {
 
   onSignalClickTime(signal, clickTime) {
     if(clickTime !== undefined) {
-      this.props.onRelativeTimeClick(clickTime);
+      this.props.onRelativeTimeClick(this.props.messageId, clickTime);
     }
   }
 
@@ -92,7 +93,7 @@ export default class CanGraph extends Component {
         return;
       }
 
-      this.props.onSegmentChanged(segment);
+      this.props.onSegmentChanged(this.props.messageId, segment);
       if(this.view) {
         const state = this.view.getState();
         state.subcontext[0].signals.brush = 0;
