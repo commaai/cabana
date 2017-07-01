@@ -35,8 +35,8 @@ export default class CanGraph extends Component {
 
   dataChanged(prevProps, nextProps) {
     return nextProps.data.length != prevProps.data.length
-                || prevProps.data[0].y != nextProps.data[0].y
-                || !(prevProps.signalSpec.equals(nextProps.signalSpec));
+                || !(prevProps.signalSpec.equals(nextProps.signalSpec))
+                || prevProps.data.some((prevEntry, idx) => prevEntry.y != nextProps.data[idx].y);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
