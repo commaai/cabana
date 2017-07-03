@@ -14,6 +14,7 @@ require('core-js/fn/object/values');
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
+const demo = getUrlParameter('demo');
 let props = {};
 if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
@@ -41,8 +42,18 @@ if(authTokenQueryParam !== null) {
   props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
 
-ReactDOM.render(
-  <CanExplorer
-     {...props} />,
-  document.getElementById('root')
-);
+if(routeFullName || demo) {
+  ReactDOM.render(
+    <CanExplorer
+       {...props} />,
+    document.getElementById('root')
+  );
+} else {
+  const img = document.createElement('img');
+  img.src = process.env.PUBLIC_URL + '/img/cabana.jpg';
+  img.style.width = '100%';
+  const comment = document.createComment('7/6/17');
+
+  document.getElementById('root').appendChild(img);
+  document.getElementById('root').appendChild(comment);
+}
