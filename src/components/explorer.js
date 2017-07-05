@@ -23,6 +23,7 @@ export default class Explorer extends Component {
        canFrameOffset: PropTypes.number,
        firstCanTime: PropTypes.number,
        onSeek: PropTypes.func,
+       autoplay: PropTypes.bool,
     };
 
     constructor(props) {
@@ -42,7 +43,7 @@ export default class Explorer extends Component {
             userSeekIndex: 0,
             userSeekRatio: 0,
             userSeekTime: 0,
-            playing: false,
+            playing: this.props.autoplay,
             signals: {}
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);

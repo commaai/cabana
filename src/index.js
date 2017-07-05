@@ -15,7 +15,7 @@ import './index.css';
 
 const routeFullName = getUrlParameter('route');
 const demo = getUrlParameter('demo');
-let props = {};
+let props = {autoplay: false};
 if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
     props.dongleId = dongleId;
@@ -28,6 +28,7 @@ if(routeFullName) {
       props.dbcFilename = dbcFilename;
     }
 } else {
+    props.autoplay = true;
     props.dongleId = 'cb38263377b873ee';
     props.name = '2017-06-12--18-51-47';
     props.dbc = AcuraDbc;

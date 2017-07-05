@@ -27,7 +27,8 @@ export default class CanExplorer extends Component {
         name: PropTypes.string.isRequired,
         dbc: PropTypes.instanceOf(DBC),
         dbcFilename: PropTypes.string,
-        githubAuthToken: PropTypes.string
+        githubAuthToken: PropTypes.string,
+        autoplay: PropTypes.bool
     };
 
     constructor(props) {
@@ -383,6 +384,7 @@ export default class CanExplorer extends Component {
                                 seekIndex={this.state.seekIndex}
                                 currentParts={this.state.currentParts}
                                 partsLoaded={this.state.partsLoaded}
+                                autoplay={this.props.autoplay}
                                  />
                                 : null}
                       </div>

@@ -60,6 +60,9 @@ export default class HLS extends Component {
     });
 
     this.props.onVideoElementAvailable(this.videoElement);
+    if(this.props.playing) {
+      this.videoElement.play();
+    }
   }
 
   render() {
