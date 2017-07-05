@@ -81,7 +81,6 @@ export default class Explorer extends Component {
             const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].signals);
 
             const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
-            console.log(newSignalNames);
             for(let i = 0; i < newSignalNames.length; i++) {
                 this.onSignalPlotPressed(this.props.selectedMessage, newSignalNames[i]);
             }
@@ -93,6 +92,9 @@ export default class Explorer extends Component {
         const curMessage = this.props.messages[this.props.selectedMessage];
         const {graphData} = this.state;
 
+        if(Object.keys(nextProps.messages).length === 0) {
+            this.resetSegment();
+        }
         if(nextMessage && nextMessage !== curMessage) {
             const nextSignalNames = Object.keys(nextMessage.signals);
 
@@ -101,16 +103,6 @@ export default class Explorer extends Component {
                 this.setState({shouldShowAddSignal: true});
             }
         }
-        // if(nextMessage && nextProps.selectedMessage === this.props.selectedMessage) {
-        //     const nextSignalNames = Object.keys(nextMessage.signals);
-        //     const currentSignalNames = Object.keys(curMessage.signals);
-
-        //     const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
-        //     console.log(newSignalNames);
-        //     for(let i = 0; i < newSignalNames.length; i++) {
-        //         this.onSignalPlotPressed(nextProps.selectedMessage, newSignalNames[i]);
-        //     }
-        // }
 
         let {plottedSignals} = this.state;
         // unplot signals that have been removed
