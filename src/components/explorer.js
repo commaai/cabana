@@ -74,7 +74,9 @@ export default class Explorer extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.props.messages[this.props.selectedMessage] && prevProps.messages[prevProps.selectedMessage]) {
+        if(this.props.selectedMessage === prevProps.selectedMessage
+            && this.props.messages[this.props.selectedMessage]
+            && prevProps.messages[prevProps.selectedMessage]) {
             const nextSignalNames = Object.keys(this.props.messages[this.props.selectedMessage].signals);
             const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].signals);
 
