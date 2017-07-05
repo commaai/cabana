@@ -179,21 +179,21 @@ export default createClassFromSpec('CanPlot', {
           }
         }
       },
-      {
-        "type": "rect",
-        "interactive": false,
-        "encode": {
-          "enter": {
-            "y": {"value": 0},
-            "height": {"value": 200},
-            "width": {"value": 2},
-            "fill": {"value": "firebrick"}
-          },
-          "update": {
-            "x": {"signal": "brush[0]"}
-          }
-        }
-      },
+      // {
+      //   "type": "rect",
+      //   "interactive": false,
+      //   "encode": {
+      //     "enter": {
+      //       "y": {"value": 0},
+      //       "height": {"value": 200},
+      //       "width": {"value": 2},
+      //       "fill": {"value": "firebrick"}
+      //     },
+      //     "update": {
+      //       "x": {"signal": "brush[0]"}
+      //     }
+      //   }
+      // },
       {
         "type": "rect",
         "interactive": false,

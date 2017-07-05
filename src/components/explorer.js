@@ -43,6 +43,7 @@ export default class Explorer extends Component {
             userSeekRatio: 0,
             userSeekTime: 0,
             playing: false,
+            signals: {}
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
         this.onSignalUnplotPressed = this.onSignalUnplotPressed.bind(this);
@@ -72,6 +73,19 @@ export default class Explorer extends Component {
         document.removeEventListener('keydown', this._onKeyDown);
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if(this.props.messages[this.props.selectedMessage] && prevProps.messages[prevProps.selectedMessage]) {
+            const nextSignalNames = Object.keys(this.props.messages[this.props.selectedMessage].signals);
+            const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].signals);
+
+            const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
+            console.log(newSignalNames);
+            for(let i = 0; i < newSignalNames.length; i++) {
+                this.onSignalPlotPressed(this.props.selectedMessage, newSignalNames[i]);
+            }
+        }
+    }
+
     componentWillReceiveProps(nextProps) {
         const nextMessage = nextProps.messages[nextProps.selectedMessage];
         const curMessage = this.props.messages[this.props.selectedMessage];
@@ -79,17 +93,22 @@ export default class Explorer extends Component {
 
         if(nextMessage && nextMessage !== curMessage) {
             const nextSignalNames = Object.keys(nextMessage.signals);
+
+            // this.setState({signals: Object.assign({}, nextMessage.signals)});
             if(nextSignalNames.length === 0) {
                 this.setState({shouldShowAddSignal: true});
             }
-        } else if(nextMessage && nextProps.selectedMessage === this.props.selectedMessage) {
-            const nextSignalNames = Object.keys(nextMessage.signals);
-            const currentSignalNames = Object.keys(curMessage.signals);
-            const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
-            for(let i = 0; i < newSignalNames; i++) {
-                this.onSignalPlotPressed(nextProps.selectedMessage, newSignalNames[i]);
-            }
         }
+        // if(nextMessage && nextProps.selectedMessage === this.props.selectedMessage) {
+        //     const nextSignalNames = Object.keys(nextMessage.signals);
+        //     const currentSignalNames = Object.keys(curMessage.signals);
+
+        //     const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
+        //     console.log(newSignalNames);
+        //     for(let i = 0; i < newSignalNames.length; i++) {
+        //         this.onSignalPlotPressed(nextProps.selectedMessage, newSignalNames[i]);
+        //     }
+        // }
 
         let {plottedSignals} = this.state;
         // unplot signals that have been removed
