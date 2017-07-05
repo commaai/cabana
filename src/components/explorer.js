@@ -190,7 +190,7 @@ export default class Explorer extends Component {
     }
 
     updateSegment = debounce((messageId, segment) => {
-        const {entries} = this.props.messages[messageId];
+        const {entries} = this.props.messages[this.props.selectedMessage];
         const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
         this.setState({segment, segmentIndices, userSeekIndex: segmentIndices[0]})
@@ -211,6 +211,8 @@ export default class Explorer extends Component {
     }
 
     indexFromSeekRatio(ratio) {
+        // returns index guaranteed to be in [0, entries.length - 1]
+
         const {entries} = this.props.messages[this.props.selectedMessage];
         const {segmentIndices} = this.state;
         let segmentLength, offset;
@@ -222,7 +224,7 @@ export default class Explorer extends Component {
             segmentLength = entries.length;
         }
 
-        return offset + Math.round(ratio * (segmentLength - 1));
+        return Math.min(entries.length - 1, offset + Math.round(ratio * (segmentLength - 1)));
     }
 
     onUserSeek(ratio) {
@@ -269,7 +271,7 @@ export default class Explorer extends Component {
         const seekTime = entries[userSeekIndex].relTime;
         this.props.onUserSeek(seekTime);
         this.setState({userSeekIndex,
-                       userSeekRatio: (userSeekIndex + 1) / entries.length});
+                       userSeekRatio: (userSeekIndex) / entries.length});
     }
 
     onPlay() {
@@ -292,10 +294,9 @@ export default class Explorer extends Component {
 
         const {entries} = message;
 
-        const {segmentIndices} = this.state;
-        if(segmentIndices.length === 2) {
-            const [low, hi] = segmentIndices;
-            return entries[hi].time - entries[low].time;
+        const {segment} = this.state;
+        if(segment.length === 2) {
+            return segment[1] - segment[0];
         } else {
             return entries[entries.length - 1].time - entries[0].time;
         }
@@ -309,16 +310,15 @@ export default class Explorer extends Component {
 
         const {canFrameOffset, firstCanTime} = this.props;
         const {entries} = message;
-        const {segmentIndices} = this.state;
-        let startEntry;
-        if(segmentIndices.length === 2) {
-            const [low, _] = segmentIndices;
-            startEntry = entries[low];
+        const {segment} = this.state;
+        let startTime;
+        if(segment.length === 2) {
+            startTime = segment[0];
         } else {
-            startEntry = entries[0];
+            startTime = entries[0].relTime;
         }
 
-        return canFrameOffset + (startEntry.time - firstCanTime);
+        return canFrameOffset + startTime;
     }
 
     onVideoClick() {
