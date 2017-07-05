@@ -300,6 +300,19 @@ export default class CanExplorer extends Component {
       if(USE_UNLOGGER) {
         this.unloggerClient.seek(this.props.dongleId, this.props.name, seekTime);
       }
+
+      const msg = this.state.messages[this.state.selectedMessage];
+      let seekIndex;
+      if(msg) {
+        seekIndex = msg.entries.findIndex((e) => e.relTime >= seekTime);
+        if(seekIndex === -1) {
+          seekIndex = 0
+        }
+      } else {
+        seekIndex = 0
+      }
+
+      this.setState({seekIndex, seekTime});
     }
 
     onMessageSelected(msgKey) {

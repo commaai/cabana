@@ -41,6 +41,7 @@ export default class Explorer extends Component {
             shouldShowAddSignal: true,
             userSeekIndex: 0,
             userSeekRatio: 0,
+            userSeekTime: 0,
             playing: false,
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
@@ -115,9 +116,20 @@ export default class Explorer extends Component {
                 }
             }
 
+            const nextSeekMsgEntry = nextMessage.entries[nextProps.seekIndex];
+            let nextSeekTime;
+            if(nextSeekMsgEntry) {
+                nextSeekTime = nextSeekMsgEntry.relTime;
+            } else if(segment.length === 2) {
+                nextSeekTime = segment[0];
+            } else {
+                nextSeekTime = nextMessage.entries[0];
+            }
+
             this.setState({segment,
                            segmentIndices,
-                           userSeekIndex: nextProps.seekIndex})
+                           userSeekIndex: nextProps.seekIndex,
+                           userSeekTime: nextSeekTime})
         }
 
         if(nextMessage && curMessage) {
@@ -193,7 +205,7 @@ export default class Explorer extends Component {
         const {entries} = this.props.messages[this.props.selectedMessage];
         const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
-        this.setState({segment, segmentIndices, userSeekIndex: segmentIndices[0]})
+        this.setState({segment, segmentIndices, userSeekIndex: segmentIndices[0], userSeekTime: segment[0]})
     }, 250);
 
     onSegmentChanged(messageId, segment) {
@@ -203,7 +215,7 @@ export default class Explorer extends Component {
     }
 
     resetSegment() {
-        this.setState({segment: [], segmentIndices: [], userSeekIndex: 0})
+        this.setState({segment: [], segmentIndices: [], userSeekIndex: 0, userSeekTime: 0})
     }
 
     showAddSignal() {
@@ -241,7 +253,7 @@ export default class Explorer extends Component {
         const userSeekIndex = this.indexFromSeekRatio(ratio);
         const seekTime = entries[userSeekIndex].relTime;
 
-        this.setState({userSeekIndex});
+        this.setState({userSeekIndex, userSeekTime: seekTime});
         this.props.onUserSeek(seekTime);
         this.props.onSeek(userSeekIndex, seekTime);
     }
@@ -253,7 +265,7 @@ export default class Explorer extends Component {
             return;
         }
 
-        const {entries} = message;
+        const {entries} = message
 
         const seekIndex = this.indexFromSeekRatio(ratio);
         const seekTime = entries[seekIndex].relTime;
@@ -269,9 +281,11 @@ export default class Explorer extends Component {
         const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
         const seekTime = entries[userSeekIndex].relTime;
-        this.props.onUserSeek(seekTime);
+        this.props.onUserSeek(time);
+
         this.setState({userSeekIndex,
-                       userSeekRatio: (userSeekIndex) / entries.length});
+                       userSeekRatio: (userSeekIndex) / entries.length,
+                       userSeekTime: time});
     }
 
     onPlay() {
@@ -409,7 +423,8 @@ export default class Explorer extends Component {
                                                 onUserSeek={this.onUserSeek}
                                                 onPlay={this.onPlay}
                                                 onPause={this.onPause}
-                                                userSeekRatio={this.state.userSeekRatio} />
+                                                userSeekRatio={this.state.userSeekRatio}
+                                                userSeekTime={this.state.userSeekTime} />
 
                                 {this.state.segment.length > 0 ?
                                     <div className={css(CommonStyles.button, Styles.resetSegment)}

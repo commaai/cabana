@@ -54,19 +54,11 @@ export default class RouteVideoSync extends Component {
     }
 
     nearestFrameTime() {
-        const {userSeekIndex, message, canFrameOffset, firstCanTime} = this.props;
+        const {userSeekTime, message, canFrameOffset, firstCanTime} = this.props;
         if(!message) {
             return this.ratioTime(this.props.userSeekRatio);
         }
-
-        const firstEntry = message.entries[0], curEntry = message.entries[userSeekIndex];
-        if(firstEntry !== undefined && curEntry !== undefined) {
-            const curMsgTime = message.entries[userSeekIndex].time;
-
-            return canFrameOffset + (curMsgTime - firstCanTime);
-        } else {
-            return 0;
-        }
+        return canFrameOffset + this.props.userSeekTime;
     }
 
     nearestFrameUrl() {
