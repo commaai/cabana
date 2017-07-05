@@ -247,16 +247,16 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
-    onPartChange = debounce((part) => {
+    onPartChange(part) {
       let {currentParts} = this.state;
 
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
+      this.setState({currentParts}, debounce((part) => {
+          this.spawnWorker(currentParts);
+      }, 250));
 
-      this.setState({currentParts, selectedMessage: null, messages: {}}, () => {
-        this.spawnWorker(currentParts);
-      });
-    }, 500);
+    }
 
     showEditMessageModal(msgKey) {
       const msg = this.state.messages[msgKey];

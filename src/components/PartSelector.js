@@ -25,6 +25,7 @@ export default class PartSelector extends Component {
         this.onSelectedPartDragStart = this.onSelectedPartDragStart.bind(this);
         this.onSelectedPartMouseMove = this.onSelectedPartMouseMove.bind(this);
         this.onSelectedPartDragEnd = this.onSelectedPartDragEnd.bind(this);
+        this.onClick = this.onClick.bind(this);
     }
 
     makePartStyle(partsCount, selectedPart) {
@@ -70,6 +71,12 @@ export default class PartSelector extends Component {
         this.selectPart(selectedPart);
     }
 
+    partAtClientX(clientX) {
+        const rect = this.selectorRect.getBoundingClientRect();
+        const x = clientX - rect.left;
+        return Math.floor(x * this.props.partsCount / PartSelector.selectorWidth);
+    }
+
     onSelectedPartDragStart(e) {
         this.setState({isDragging: true});
     }
@@ -77,14 +84,17 @@ export default class PartSelector extends Component {
     onSelectedPartMouseMove(e) {
         if(!this.state.isDragging) return;
 
-        const rect = this.selectorRect.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const part = Math.floor(x * this.props.partsCount / PartSelector.selectorWidth);
+        const part = this.partAtClientX(e.clientX);
         this.selectPart(part);
     }
 
     onSelectedPartDragEnd(e) {
         this.setState({isDragging: false});
+    }
+
+    onClick(e) {
+        const part = this.partAtClientX(e.clientX);
+        this.selectPart(part);
     }
 
     render() {
@@ -93,16 +103,11 @@ export default class PartSelector extends Component {
         return (<div className={css(Styles.root)}>
                     <div className={css(Styles.selector)}
                          ref={(selector) => this.selectorRect = selector}
-                         onMouseMove={this.onSelectedPartMouseMove}>
+                         onMouseMove={this.onSelectedPartMouseMove}
+                         onClick={this.onClick}>
                         <div className={css(Styles.selectedPart, selectedPartStyle.selectedPart)}
                              onMouseDown={this.onSelectedPartDragStart}
                              onMouseUp={this.onSelectedPartDragEnd}></div>
-                    </div>
-                    <div className={css(Styles.nudge)}>
-                        <span className={css(Styles.nudgeButton)}
-                              onClick={this.selectPrevPart}><Images.leftArrow /></span>
-                        <span className={css(Styles.nudgeButton)}
-                              onClick={this.selectNextPart}><Images.rightArrow /></span>
                     </div>
                 </div>);
     }
@@ -112,7 +117,8 @@ const Styles = StyleSheet.create({
     root: {
         flexDirection: 'row',
         display: 'flex',
-        flex: 1
+        flex: 1,
+        cursor: 'pointer',
     },
     selector: {
         width: PartSelector.selectorWidth,
@@ -124,7 +130,6 @@ const Styles = StyleSheet.create({
         backgroundColor: 'black',
         height: '100%',
         position: 'absolute',
-        cursor: 'pointer',
     },
     nudge: {
         width: 48,

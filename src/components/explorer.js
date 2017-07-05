@@ -55,6 +55,21 @@ export default class Explorer extends Component {
         this.onPause = this.onPause.bind(this);
         this.onVideoClick = this.onVideoClick.bind(this);
         this.onSignalPlotChanged = this.onSignalPlotChanged.bind(this);
+        this._onKeyDown = this._onKeyDown.bind(this);
+    }
+
+    _onKeyDown(e) {
+        if(e.keyCode === 27){ // escape
+          this.resetSegment()
+        }
+    }
+
+    componentWillMount() {
+        document.addEventListener('keydown', this._onKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this._onKeyDown);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -66,6 +81,13 @@ export default class Explorer extends Component {
             const nextSignalNames = Object.keys(nextMessage.signals);
             if(nextSignalNames.length === 0) {
                 this.setState({shouldShowAddSignal: true});
+            }
+        } else if(nextMessage && nextProps.selectedMessage === this.props.selectedMessage) {
+            const nextSignalNames = Object.keys(nextMessage.signals);
+            const currentSignalNames = Object.keys(curMessage.signals);
+            const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
+            for(let i = 0; i < newSignalNames; i++) {
+                this.onSignalPlotPressed(nextProps.selectedMessage, newSignalNames[i]);
             }
         }
 
