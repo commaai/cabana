@@ -283,7 +283,7 @@ export default class CanExplorer extends Component {
 
       const message = Object.assign({}, messages[editMessageModalMessage]);
       message.frame = messageFrame;
-      dbc.messages.set(messageFrame.address, messageFrame);
+      dbc.messages.set(messageFrame.id, messageFrame);
       persistDbc(route.fullname,
                  {dbcFilename, dbc});
 
