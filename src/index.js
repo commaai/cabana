@@ -14,7 +14,7 @@ require('core-js/fn/object/values');
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
-const demo = getUrlParameter('demo');
+const demo = true;
 let props = {autoplay: false};
 if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
