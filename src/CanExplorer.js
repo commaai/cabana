@@ -249,13 +249,16 @@ export default class CanExplorer extends Component {
     }
 
     partChangeDebounced = debounce((part) => {
-          this.spawnWorker(this.state.currentParts);
-      }, 250);
+      const {currentParts} = this.state;
+          this.spawnWorker(currentParts);
+      }, 500);
+
     onPartChange(part) {
       let {currentParts, canFrameOffset} = this.state;
       if(canFrameOffset === -1) {
         return
       }
+
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
       this.setState({currentParts, messages: {}, selectedMessage: null}, this.partChangeDebounced);
