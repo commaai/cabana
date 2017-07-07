@@ -248,6 +248,9 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
+    partChangeDebounced = debounce((part) => {
+          this.spawnWorker(this.state.currentParts);
+      }, 250);
     onPartChange(part) {
       let {currentParts, canFrameOffset} = this.state;
       if(canFrameOffset === -1) {
@@ -255,9 +258,7 @@ export default class CanExplorer extends Component {
       }
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
-      this.setState({currentParts, messages: {}, selectedMessage: null}, debounce((part) => {
-          this.spawnWorker(currentParts);
-      }, 250));
+      this.setState({currentParts, messages: {}, selectedMessage: null}, this.partChangeDebounced);
 
     }
 

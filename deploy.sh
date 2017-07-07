@@ -7,7 +7,7 @@ cd "$(dirname $0)"
 npm run build
 
 pushd build/
-find . -type f | while read f; do
+find . -not -name "*.map" -type f | while read f; do
   azure storage blob upload -q "$f" cabana "$f"
 done
 popd

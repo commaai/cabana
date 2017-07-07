@@ -24,7 +24,30 @@ const DEMO_ROUTES = {
       "start_lng": -122.159,
       "start_time": "2017-06-12T18:51:47",
       "url": "https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/cb38263377b873ee/78392b99580c5920227cc5b43dff8a70_2017-06-12--18-51-47"
-    }
+    },
+
+  "2017-06-30--17-37-49": { // prius
+      "can": true,
+      "device_type": 3,
+      "end_geocode": "Daly City",
+      "end_lat": 37.7391,
+      "end_lng": -122.465,
+      "end_time": "2017-06-30T17:54:07",
+      "fullname": "b67ff0c1d78774da|2017-06-30--17-37-49",
+      "len": 2.23534,
+      "maxcamera": 18,
+      "maxlog": 18,
+      "movie": true,
+      "piececount": 18,
+      "proccamera": 18,
+      "proclog": 18,
+      "sig_path": "b67ff0c1d78774da/c130d5eaf04518c4d08ede29efbd519b_2017-06-30--17-37-49",
+      "start_geocode": "Daly City",
+      "start_lat": 37.7394,
+      "start_lng": -122.465,
+      "start_time": "2017-06-30T17:37:49",
+      "url": "https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/b67ff0c1d78774da/c130d5eaf04518c4d08ede29efbd519b_2017-06-30--17-37-49"
+  }
 };
 
 function getCommaAccessToken() {
