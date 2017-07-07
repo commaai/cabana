@@ -38,4 +38,5 @@ const downArrow = createImageComponent(process.env.PUBLIC_URL + "/img/ic_arrow_d
 
 const clear = createImageComponent(process.env.PUBLIC_URL + "/img/ic_clear_black_24dp.png", [Styles.materialIcon, Styles.pointer]);
 
-export default {rightArrow, leftArrow, downArrow, clear};
+const panda = createImageComponent(process.env.PUBLIC_URL + "/img/panda.png", []);
+export default {rightArrow, leftArrow, downArrow, clear, panda};

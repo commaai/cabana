@@ -225,6 +225,7 @@ export default class Meta extends Component {
         const defaultTextVisible = this.state.filterText.trim() === 'Filter';
 
         return (<div className={css(Styles.messagesList)}>
+
                     <p>Available Messages</p>
                     <div className={css(Styles.filter)}>
                         <input type="text"
@@ -287,6 +288,14 @@ export default class Meta extends Component {
     render() {
         return (
             <div className={css(Styles.root)}>
+                <div className={css(Styles.chffrPanda)}>
+                    <Images.panda styles={[Styles.panda]} />
+                    <div className={css(Styles.chffrPandaDesc)}>
+                        <p>Data collected with chffr + panda</p>
+                        <a href="http://panda.comma.ai" className={css(Styles.chffrPandaGet)}>buy panda</a>
+                        <a href="http://chffr.comma.ai" className={css(Styles.chffrPandaGet)}>get chffr</a>
+                    </div>
+                </div>
                 <div className={css(Styles.scrollContainer)}>
                     <div>
                         <span className={css(Styles.titleText)}>
@@ -329,8 +338,37 @@ export default class Meta extends Component {
 }
 
 const Styles = StyleSheet.create({
+    chffrPanda: {
+        minWidth: 450,
+        width: '100%',
+        flexDirection: 'row',
+        display: 'flex',
+        alignItems: 'center',
+        borderBottom: '1px solid rgba(0,0,0,0.8)',
+        borderRight: '1px solid rgba(0,0,0,0.8)',
+        backgroundColor: 'white',
+        padding: 10
+    },
+    chffrPandaDesc: {
+        textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingLeft: 10
+    },
+    chffrPandaGet: {
+        display: 'block',
+        fontWeight: 'bold',
+        textDecoration: 'none',
+        ':hover': {
+            textDecoration: 'underline'
+        },
+        color: 'rgba(0,0,0,0.8)'
+    },
+    panda: {
+        width: 150,
+        height: 138
+    },
     root: {
-        padding: 10,
         flex: 1,
         backgroundColor: 'rgb(246,246,246)',
         height: '100%',
@@ -340,6 +378,7 @@ const Styles = StyleSheet.create({
         height: '100%',
         overflowY: 'scroll',
         overflowX: 'hidden',
+        padding: 10,
     },
     githubAuth: {
         marginTop: 10,
@@ -415,5 +454,5 @@ const Styles = StyleSheet.create({
     },
     messageHeader: {
         fontSize: 12
-    }
+    },
 });
