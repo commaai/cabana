@@ -251,7 +251,7 @@ module.exports = {
         return hash; // webpack build hash
       },
       filenameTransform: function(filename) {
-        return `${publicUrl}/${filename}`;
+        return `~${publicUrl}/${filename}`;
       }
     }),
     new webpack.ExtendedAPIPlugin()

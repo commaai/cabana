@@ -84,8 +84,10 @@
     }
   },
   "jest": {
-    "globals": { 
-      "config": {"__JEST__": 1} 
+    "globals": {
+      "config": {
+        "__JEST__": 1
+      }
     },
     "timers": "fake",
     "collectCoverageFrom": [
