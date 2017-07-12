@@ -1,3 +1,4 @@
+global.__JEST__ = 1
 import DBC from '../../models/can/dbc';
 import Signal from '../../models/can/signal';
 

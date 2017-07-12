@@ -6,6 +6,7 @@
   "dependencies": {
     "aphrodite": "^1.2.1",
     "classnames": "^2.2.5",
+    "clipboard": "^1.7.1",
     "core-js": "^2.4.1",
     "create-react-class": "^15.5.3",
     "cuint": "^0.2.2",
@@ -83,6 +84,9 @@
     }
   },
   "jest": {
+    "globals": { 
+      "config": {"__JEST__": 1} 
+    },
     "timers": "fake",
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"

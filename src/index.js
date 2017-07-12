@@ -14,8 +14,8 @@ require('core-js/fn/object/values');
 import './index.css';
 
 const routeFullName = getUrlParameter('route');
-const demo = true;
-let props = {autoplay: false};
+let isDemo = !routeFullName;
+let props = {autoplay: false, isDemo};
 if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
     props.dongleId = dongleId;
@@ -27,16 +27,22 @@ if(routeFullName) {
       props.dbc = dbc;
       props.dbcFilename = dbcFilename;
     }
+
+    let max = getUrlParameter('max'), url = getUrlParameter('url');
+    if(max && url) {
+      props.max = max;
+      props.url = url;
+    }
 } else if(getUrlParameter('prius')) {
   props.autoplay = true;
   props.dongleId = 'b67ff0c1d78774da';
   props.name = '2017-06-30--17-37-49';
 } else {
-    props.autoplay = true;
-    props.dongleId = 'cb38263377b873ee';
-    props.name = '2017-06-12--18-51-47';
-    props.dbc = AcuraDbc;
-    props.dbcFilename = 'acura_ilx_2016_can.dbc';
+  props.autoplay = true;
+  props.dongleId = 'cb38263377b873ee';
+  props.name = '2017-06-12--18-51-47';
+  props.dbc = AcuraDbc;
+  props.dbcFilename = 'acura_ilx_2016_can.dbc';
 }
 
 const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);
@@ -47,7 +53,7 @@ if(authTokenQueryParam !== null) {
   props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
 
-if(routeFullName || demo) {
+if(routeFullName || isDemo) {
   ReactDOM.render(
     <CanExplorer
        {...props} />,

@@ -2,7 +2,9 @@ import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 import Moment from 'moment';
+import Clipboard from 'clipboard';
 
+import {addQueryParameters} from '../utils/url';
 import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
 import * as GithubAuth from '../api/github-auth';
@@ -28,6 +30,7 @@ export default class Meta extends Component {
         currentParts: PropTypes.array,
         seekTime: PropTypes.number,
         loginWithGithub: PropTypes.element,
+        isDemo: PropTypes.bool,
     };
 
     constructor(props) {
@@ -285,17 +288,22 @@ export default class Meta extends Component {
         } else return '';
     }
 
+    shareUrl() {
+        console.log(addQueryParameters({max: this.props.route.proclog, url: this.props.route.url}))
+        return addQueryParameters({max: this.props.route.proclog, url: this.props.route.url});
+    }
     render() {
         return (
             <div className={css(Styles.root)}>
-                <div className={css(Styles.chffrPanda)}>
-                    <Images.panda styles={[Styles.panda]} />
-                    <div className={css(Styles.chffrPandaDesc)}>
-                        <p>Data collected with chffr + panda</p>
-                        <a href="http://panda.comma.ai" className={css(Styles.chffrPandaGet)}>buy panda</a>
-                        <a href="http://chffr.comma.ai" className={css(Styles.chffrPandaGet)}>get chffr</a>
-                    </div>
-                </div>
+                {this.props.isDemo ?
+                    <div className={css(Styles.chffrPanda)}>
+                        <Images.panda styles={[Styles.panda]} />
+                        <div className={css(Styles.chffrPandaDesc)}>
+                            <p>Data collected with chffr + panda</p>
+                            <a href="http://panda.comma.ai" className={css(Styles.chffrPandaGet)}>buy panda</a>
+                            <a href="http://chffr.comma.ai" className={css(Styles.chffrPandaGet)}>get chffr</a>
+                        </div>
+                    </div> : null}
                 <div className={css(Styles.scrollContainer)}>
                     <div>
                         <span className={css(Styles.titleText)}>
@@ -320,8 +328,14 @@ export default class Meta extends Component {
                             : null
                         }
                         {this.props.dbcFilename ? <p>Editing: {this.props.dbcFilename}</p>: null}
-                        <p></p>
+                        <p data-clipboard-text={this.shareUrl()}
+                           data-clipboard-action="copy"
+                           ref={(ref) => ref ? new Clipboard(ref) : null}>
+                           <a href={this.shareUrl()}
+                              className={css(Styles.copyShareLink)}
+                              onClick={(e) => e.preventDefault()}>Copy share link</a></p>
                     </div>
+
                     <div>
                         <p className={css(Styles.timeWindow)}>{this.timeWindow()}</p>
                     </div>
@@ -455,4 +469,7 @@ const Styles = StyleSheet.create({
     messageHeader: {
         fontSize: 12
     },
+    copyShareLink: {
+        color: 'black'
+    }
 });

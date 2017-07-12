@@ -1,3 +1,4 @@
+global.__JEST__ = 1
 import DBC, {swapOrder} from '../../models/can/dbc';
 import Signal from '../../models/can/signal';
 import Bitarray from '../../models/bitarray';

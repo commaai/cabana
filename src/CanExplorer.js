@@ -28,7 +28,9 @@ export default class CanExplorer extends Component {
         dbc: PropTypes.instanceOf(DBC),
         dbcFilename: PropTypes.string,
         githubAuthToken: PropTypes.string,
-        autoplay: PropTypes.bool
+        autoplay: PropTypes.bool,
+        max: PropTypes.number,
+        url: PropTypes.string,
     };
 
     constructor(props) {
@@ -79,7 +81,7 @@ export default class CanExplorer extends Component {
     componentWillMount() {
       const {dongleId, name} = this.props;
       Routes.fetchRoutes(dongleId).then((routes) => {
-        if(routes) {
+        if(routes && routes[name]) {
           const route = routes[name];
 
           const newState = {route, currentParts: [0, Math.min(route.proclog - 1, 2)]};
@@ -88,6 +90,10 @@ export default class CanExplorer extends Component {
             newState.dbcFilename = this.props.dbcFilename;
           }
           this.setState(newState, this.initCanData);
+        } else if(this.props.max && this.props.url) {
+          const {max, url} = this.props;
+          const route = {fullname: name, proclog: max, url: url};
+          this.setState({route, currentParts: [0, Math.min(max - 1, 2)]}, this.initCanData);
         }
       });
     }
@@ -372,6 +378,7 @@ export default class CanExplorer extends Component {
                             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
                             githubAuthToken={this.props.githubAuthToken}
                             loginWithGithub={this.loginWithGithub()}
+                            isDemo={this.props.isDemo}
                       />
                       <div className={css(Styles.right)}>
                           {this.state.route.url ?

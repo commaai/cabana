@@ -1,3 +1,4 @@
+global.__JEST__ = 1
 import DBC, {swapOrder} from '../../models/can/dbc';
 import {ACURA_DBC} from '../res/acura-dbc';
 import {TESLA_DBC} from '../res/tesla-dbc';

@@ -14,6 +14,11 @@ class CloudLog {
     }
 
     emit(message, level = 'log') {
+        if(typeof global.__JEST__ !== 'undefined') {
+            // Don't log in testing environment
+            return
+        }
+
         const entry = {ctx: this.context,
                        created: new Date().getTime() / 1000,
                        msg: message,
