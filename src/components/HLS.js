@@ -44,8 +44,7 @@ export default class HLS extends Component {
     this.videoElement.addEventListener('seeking', () => {
       if(!this.props.playing) {
         this.props.onLoadStart();
-        const progress = this.props.segmentProgress(this.videoElement.currentTime);
-        this.props.onPlaySeek(progress);
+        this.props.onPlaySeek(this.videoElement.currentTime);
       }
     });
     let shouldInitVideoTime = true;

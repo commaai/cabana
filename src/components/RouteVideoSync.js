@@ -22,7 +22,7 @@ export default class RouteVideoSync extends Component {
         onUserSeek: PropTypes.func.isRequired,
         onPlay: PropTypes.func.isRequired,
         onPause: PropTypes.func.isRequired,
-        userSeekRatio: PropTypes.number.isRequired
+        userSeekTime: PropTypes.number.isRequired
     };
 
     constructor(props) {
@@ -53,17 +53,9 @@ export default class RouteVideoSync extends Component {
         }
     }
 
-    nearestFrameTime() {
-        const {userSeekTime, message, canFrameOffset, firstCanTime} = this.props;
-        if(!message) {
-            return this.ratioTime(this.props.userSeekRatio);
-        }
-        return canFrameOffset + this.props.userSeekTime;
-    }
-
     nearestFrameUrl() {
         const {url} = this.props;
-        const sec = Math.round(this.nearestFrameTime());
+        const sec = Math.round(this.props.userSeekTime);
         return cameraPath(url, sec);
     }
 
@@ -107,7 +99,7 @@ export default class RouteVideoSync extends Component {
     onUserSeek(ratio) {
         /* ratio in [0,1] */
 
-        const funcSeekToRatio = () => this.props.onUserSeek(ratio);
+        const funcSeekToRatio = () => this.props.onUserSeek(this.ratioTime(ratio));
         if(ratio == 0) {
             this.setState({shouldRestartHls: true},
                           funcSeekToRatio);
@@ -130,7 +122,7 @@ export default class RouteVideoSync extends Component {
                     <HLS
                          className={css(Styles.hls)}
                          source={Video.videoUrlForRouteUrl(this.props.url)}
-                         startTime={this.nearestFrameTime()}
+                         startTime={this.props.userSeekTime}
                          playbackSpeed={1}
                          onVideoElementAvailable={this.onVideoElementAvailable}
                          playing={this.props.playing}
@@ -144,7 +136,7 @@ export default class RouteVideoSync extends Component {
                          onRestart={this.onHlsRestart} />
                      <RouteSeeker
                          className={css(Styles.seekBar)}
-                         nearestFrameTime={this.nearestFrameTime()}
+                         nearestFrameTime={this.props.userSeekTime}
                          segmentProgress={this.segmentProgress}
                          secondsLoaded={this.props.secondsLoaded}
                          segmentIndices={this.props.segmentIndices}

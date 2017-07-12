@@ -9,7 +9,7 @@ function calcCanFrameOffset(firstCanPart, partCanTimes) {
   const firstPartLastCanTime = partCanTimes[partCanTimes.length - 1];
 
   return (60 * firstCanPart
-          - (60 - (firstPartLastCanTime - firstCanTime)));
+          + (60 - (firstPartLastCanTime - firstCanTime)));
 }
 
 async function fetchCanTimes(base, part) {

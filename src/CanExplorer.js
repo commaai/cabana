@@ -146,7 +146,7 @@ export default class CanExplorer extends Component {
         prevMsgEntries = {};
       }
 
-      const {dbc, dbcFilename, route, firstCanTime} = this.state;
+      const {dbc, dbcFilename, route, firstCanTime, canFrameOffset} = this.state;
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
@@ -196,7 +196,7 @@ export default class CanExplorer extends Component {
       worker.postMessage({dbcText: dbc.text(),
                           base: route.url,
                           num: part,
-                          canStartTime: firstCanTime,
+                          canStartTime: firstCanTime - canFrameOffset,
                           prevMsgEntries
                         });
     }

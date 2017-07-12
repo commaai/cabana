@@ -41,9 +41,8 @@ export default class Explorer extends Component {
             segmentIndices: [],
             shouldShowAddSignal: true,
             userSeekIndex: 0,
-            userSeekRatio: 0,
-            userSeekTime: 0,
-            playing: this.props.autoplay,
+            userSeekTime: props.currentParts[0] * 60,
+            playing: props.autoplay,
             signals: {}
         };
         this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
@@ -185,13 +184,10 @@ export default class Explorer extends Component {
             }
         }
 
-        if(nextProps.partsLoaded !== this.props.partsLoaded && !nextMessage) {
-            let userSeekRatio = this.state.userSeekRatio;
-            const nextSecondsLoaded = this.secondsLoadedRouteRelative(nextProps.currentParts);
-            userSeekRatio = (userSeekRatio * this.secondsLoaded()) / nextSecondsLoaded;
-
-
-            this.setState({userSeekRatio});
+        if(JSON.stringify(nextProps.currentParts) !== JSON.stringify(this.props.currentParts)) {
+            const {userSeekTime} = this.state;
+            const nextSeekTime = (userSeekTime - this.props.currentParts[0] * 60) + nextProps.currentParts[0] * 60;
+            this.setState({userSeekTime: nextSeekTime});
         }
     }
 
@@ -251,42 +247,50 @@ export default class Explorer extends Component {
     }
 
     resetSegment() {
-        this.setState({segment: [], segmentIndices: [], userSeekIndex: 0, userSeekTime: 0})
+        const {segment, segmentIndices} = this.state;
+        if(segment.length > 0 || segmentIndices.length > 0) {
+            this.setState({segment: [], segmentIndices: [], userSeekIndex: 0, userSeekTime: 0})
+        }
     }
 
     showAddSignal() {
         this.setState({shouldShowAddSignal: true})
     }
 
-    indexFromSeekRatio(ratio) {
+    indexFromSeekTime(time) {
         // returns index guaranteed to be in [0, entries.length - 1]
 
         const {entries} = this.props.messages[this.props.selectedMessage];
         const {segmentIndices} = this.state;
         let segmentLength, offset;
         if(segmentIndices.length === 2) {
-            offset = segmentIndices[0];
-            segmentLength = segmentIndices[1] - segmentIndices[0];
+            for(let i = segmentIndices[0]; i <= segmentIndices[1]; i++) {
+                if(entries[i].relTime >= time) {
+                    return i;
+                }
+            }
+            return segmentIndices[1];
         } else {
-            offset = 0;
-            segmentLength = entries.length;
+            for(let i = 0; i < entries.length; i++) {
+                if(entries[i].relTime >= time) {
+                    return i;
+                }
+            }
+            return entries.length - 1;
         }
-
-        return Math.min(entries.length - 1, offset + Math.round(ratio * (segmentLength - 1)));
     }
 
-    onUserSeek(ratio) {
-        this.setState({userSeekRatio: ratio});
+    onUserSeek(time) {
+        this.setState({userSeekTime: time});
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            const seekTime = ratio * this.secondsLoaded() + this.startOffset();
-            this.props.onUserSeek(seekTime);
-            this.props.onSeek(0, ratio * this.secondsLoaded() + this.startOffset());
+            this.props.onUserSeek(time);
+            this.props.onSeek(0, time);
             return;
         }
 
         const {entries} = message;
-        const userSeekIndex = this.indexFromSeekRatio(ratio);
+        const userSeekIndex = this.indexFromSeekTime(time);
         const seekTime = entries[userSeekIndex].relTime;
 
         this.setState({userSeekIndex, userSeekTime: seekTime});
@@ -294,16 +298,16 @@ export default class Explorer extends Component {
         this.props.onSeek(userSeekIndex, seekTime);
     }
 
-    onPlaySeek(ratio) {
+    onPlaySeek(time) {
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            this.props.onSeek(0, ratio * this.secondsLoaded() + this.startOffset());
+            this.props.onSeek(0, time);
             return;
         }
 
         const {entries} = message
 
-        const seekIndex = this.indexFromSeekRatio(ratio);
+        const seekIndex = this.indexFromSeekTime(time);
         const seekTime = entries[seekIndex].relTime;
 
         this.props.onSeek(seekIndex, seekTime);
@@ -320,7 +324,6 @@ export default class Explorer extends Component {
         this.props.onUserSeek(time);
 
         this.setState({userSeekIndex,
-                       userSeekRatio: (userSeekIndex) / entries.length,
                        userSeekTime: time});
     }
 
@@ -368,7 +371,7 @@ export default class Explorer extends Component {
             startTime = entries[0].relTime;
         }
 
-        return canFrameOffset + startTime;
+        return startTime;
     }
 
     onVideoClick() {
@@ -459,12 +462,11 @@ export default class Explorer extends Component {
                                                 onUserSeek={this.onUserSeek}
                                                 onPlay={this.onPlay}
                                                 onPause={this.onPause}
-                                                userSeekRatio={this.state.userSeekRatio}
                                                 userSeekTime={this.state.userSeekTime} />
 
                                 {this.state.segment.length > 0 ?
                                     <div className={css(CommonStyles.button, Styles.resetSegment)}
-                                         onClick={() => this.resetSegment()}>
+                                         onClick={() => {this.resetSegment()}}>
                                         <p>Reset Segment</p>
                                     </div>
                                     : null}
