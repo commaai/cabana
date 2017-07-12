@@ -1,5 +1,6 @@
 import DbcUtils from '../../utils/dbc';
 const UINT64 = require('cuint').UINT64
+require('core-js/fn/array/from');
 
 import Bitarray from '../bitarray';
 

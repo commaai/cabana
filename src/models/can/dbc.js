@@ -1,5 +1,7 @@
 const UINT64 = require('cuint').UINT64
 import Bitarray from '../bitarray';
+require('core-js/fn/array/from');
+require('core-js/fn/number/is-integer');
 
 import CloudLog from '../../logging/CloudLog';
 import Signal from './signal';

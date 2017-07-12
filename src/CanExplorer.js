@@ -39,7 +39,7 @@ export default class CanExplorer extends Component {
             messages: {},
             route: {},
             canFrameOffset: -1,
-            firstCanTime: null,
+            firstCanTime: 0,
             selectedMessage: null,
             currentParts: [0,0],
             showLoadDbc: false,

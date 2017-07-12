@@ -1,3 +1,5 @@
+require('core-js/fn/array/from');
+
 function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage) {
   const byteStateChangeCounts = Array(msgSize).fill(0);
   let byteStateChangeTimes;
