@@ -106,7 +106,7 @@ export default class CanLog extends Component {
                   {Object.entries(msg.signals).map(([name, value]) => {
                     return [name, value, this.isSignalPlotted(this.props.message.id, name)]
                   }).map(([name, value, isPlotted]) => {
-                    const signal = this.props.message.signals[name];
+                    const signal = msg.signals[name];
                     const {unit} = signal;
                     return (<tr key={name}>
                               <td>{name}</td>
