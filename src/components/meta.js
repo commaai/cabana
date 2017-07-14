@@ -4,12 +4,13 @@ import PropTypes from 'prop-types';
 import Moment from 'moment';
 import Clipboard from 'clipboard';
 
-import {addQueryParameters} from '../utils/url';
+import {modifyQueryParameters} from '../utils/url';
 import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
 import * as GithubAuth from '../api/github-auth';
 import Images from '../styles/images';
 import MessageBytes from './MessageBytes';
+import {GITHUB_AUTH_TOKEN_KEY} from '../config';
 
 export default class Meta extends Component {
     static propTypes = {
@@ -289,8 +290,11 @@ export default class Meta extends Component {
     }
 
     shareUrl() {
-        console.log(addQueryParameters({max: this.props.route.proclog, url: this.props.route.url}))
-        return addQueryParameters({max: this.props.route.proclog, url: this.props.route.url});
+        const add = {max: this.props.route.proclog, url: this.props.route.url};
+        const remove = [GITHUB_AUTH_TOKEN_KEY]; // don't share github access
+        const shareUrl = modifyQueryParameters({add, remove})
+
+        return shareUrl;
     }
     render() {
         return (

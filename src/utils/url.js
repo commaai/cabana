@@ -11,8 +11,7 @@ export function getUrlParameter(name) {
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-export function addQueryParameters(newParams) {
-    var location = window.location;
+export function modifyQueryParameters({add, remove}) {
     var regex = new RegExp('[\\?&]([^&#]+)=([^&#]*)');
     var results = regex.exec(location.search);
 
@@ -22,9 +21,14 @@ export function addQueryParameters(newParams) {
             let key = results[i], value = results[i+1];
             params[key] = value;
         }
-        params = {...params, ...newParams};
+        for(let key in params) {
+            if(remove.indexOf(key) !== -1) {
+                delete params[key];
+            }
+        }
+        params = {...params, ...add};
     } else {
-        params = newParams;
+        params = add;
     }
     return location.origin + location.pathname + '?' + objToQuery(params);
 }
