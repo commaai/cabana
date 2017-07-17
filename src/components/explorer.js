@@ -356,9 +356,10 @@ export default class Explorer extends Component {
     }
 
     startOffset() {
+        const partOffset = this.props.currentParts[0] * 60;
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            return this.props.currentParts[0] * 60;
+            return partOffset
         }
 
         const {canFrameOffset, firstCanTime} = this.props;
@@ -371,7 +372,12 @@ export default class Explorer extends Component {
             startTime = entries[0].relTime;
         }
 
-        return startTime;
+        if(startTime > partOffset && startTime < (this.props.currentParts[1] + 1) * 60) {
+            // startTime is within bounds of currently selected parts
+            return startTime;
+        } else {
+            return partOffset;
+        }
     }
 
     onVideoClick() {

@@ -1,5 +1,6 @@
 import {getUrlParameter} from './utils/url';
 
+
 const ENV = process.env.NODE_ENV === 'production' ? 'prod' : 'debug';
 
 const ENV_GITHUB_CLIENT_ID = {debug: 'f1e42d14f45491f9ca34',
@@ -16,3 +17,5 @@ export const USE_UNLOGGER = (typeof window !== 'undefined' && getUrlParameter('u
 export const UNLOGGER_HOST = 'http://localhost:8080/unlogger';
 
 export const LOGENTRIES_TOKEN = '4bc98019-8277-4fe0-867c-ed21ea843cc5';
+
+export const PART_SEGMENT_LENGTH = 3;

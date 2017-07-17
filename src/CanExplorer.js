@@ -3,7 +3,7 @@ import { css, StyleSheet } from 'aphrodite/no-important';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
 
-import {USE_UNLOGGER} from './config';
+import {USE_UNLOGGER, PART_SEGMENT_LENGTH} from './config';
 import * as GithubAuth from './api/github-auth';
 import DBC from './models/can/dbc';
 import Meta from './components/meta';
@@ -84,7 +84,7 @@ export default class CanExplorer extends Component {
         if(routes && routes[name]) {
           const route = routes[name];
 
-          const newState = {route, currentParts: [0, Math.min(route.proclog - 1, 2)]};
+          const newState = {route, currentParts: [0, Math.min(route.proclog - 1, PART_SEGMENT_LENGTH - 1)]};
           if(this.props.dbc !== undefined) {
             newState.dbc = this.props.dbc;
             newState.dbcFilename = this.props.dbcFilename;
@@ -93,7 +93,7 @@ export default class CanExplorer extends Component {
         } else if(this.props.max && this.props.url) {
           const {max, url} = this.props;
           const route = {fullname: name, proclog: max, url: url};
-          this.setState({route, currentParts: [0, Math.min(max - 1, 2)]}, this.initCanData);
+          this.setState({route, currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]}, this.initCanData);
         }
       });
     }
@@ -260,15 +260,14 @@ export default class CanExplorer extends Component {
       }, 500);
 
     onPartChange(part) {
-      let {currentParts, canFrameOffset} = this.state;
-      if(canFrameOffset === -1) {
+      let {currentParts, canFrameOffset, route} = this.state;
+      if(canFrameOffset === -1 || part + PART_SEGMENT_LENGTH >= route.proclog) {
         return
       }
 
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
-      this.setState({currentParts, messages: {}, selectedMessage: null}, this.partChangeDebounced);
-
+      this.setState({currentParts, seekTime: part * 60}, this.partChangeDebounced);
     }
 
     showEditMessageModal(msgKey) {

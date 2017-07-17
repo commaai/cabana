@@ -3,12 +3,13 @@ import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
 import Images from '../styles/images';
+import {PART_SEGMENT_LENGTH} from '../config';
 
 export default class PartSelector extends Component {
     static selectorWidth = 150;
     static propTypes = {
         onPartChange: PropTypes.func.isRequired,
-        partsCount: PropTypes.number.isRequired
+        partsCount: PropTypes.number.isRequired,
     };
 
     constructor(props) {
@@ -32,7 +33,7 @@ export default class PartSelector extends Component {
         return StyleSheet.create({
             selectedPart: {
                 left: (selectedPart / partsCount) * PartSelector.selectorWidth,
-                width: (1 / partsCount) * PartSelector.selectorWidth
+                width: (PART_SEGMENT_LENGTH / partsCount) * PartSelector.selectorWidth
             }
         });
     }
@@ -45,6 +46,9 @@ export default class PartSelector extends Component {
     }
 
     selectPart(part) {
+        if(part + PART_SEGMENT_LENGTH - 1 >= this.props.partsCount) {
+            return;
+        }
         this.props.onPartChange(part);
         this.setState({selectedPart: part,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
@@ -54,7 +58,7 @@ export default class PartSelector extends Component {
     selectNextPart() {
         let {selectedPart} = this.state;
         selectedPart++;
-        if(selectedPart >= this.props.partsCount) {
+        if(selectedPart + PART_SEGMENT_LENGTH >= this.props.partsCount) {
             return;
         }
 
