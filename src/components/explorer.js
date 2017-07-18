@@ -219,11 +219,14 @@ export default class Explorer extends Component {
             graphData[messageId] = {};
         }
 
-        const msg = this.props.messages[messageId];
-        graphData[messageId][signalName] = this.calcGraphData(msg, signalName);
-
-        this.setState({plottedSignals: plottedSignals.concat([{messageId, signalName}]),
-                       graphData})
+        if (!plottedSignals.find((plottedSignal) =>
+          (plottedSignal.messageId === messageId) && (plottedSignal.signalName === signalName))) {
+            const msg = this.props.messages[messageId];
+            graphData[messageId][signalName] = this.calcGraphData(msg, signalName);
+            const newPlottedSignals = [{messageId, signalName}, ...plottedSignals];
+            this.setState({plottedSignals: newPlottedSignals,
+              graphData})
+        }
     }
 
     onSignalUnplotPressed(messageId, name) {
@@ -393,14 +396,16 @@ export default class Explorer extends Component {
 
     addSignalsHeader() {
         const {shouldShowAddSignal} = this.state;
-        return (<div className={css(Styles.addSignalsHeader)}
-                     onClick={() => this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal})}>
-                    {shouldShowAddSignal ?
-                        <Images.downArrow />
-                        :
-                        <Images.rightArrow />}
-                    <p>Edit Signals</p>
-                </div>);
+        return (
+          <div className={css(Styles.addSignalsHeader)}
+               onClick={() => this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal})}>
+              {shouldShowAddSignal ?
+                  <Images.downArrow />
+                  :
+                  <Images.rightArrow />}
+              <p>Edit Signals</p>
+          </div>
+        );
     }
 
     onSignalPlotChanged(shouldPlot, messageId, signalName) {
@@ -413,26 +418,33 @@ export default class Explorer extends Component {
     }
 
     selectMessagePrompt() {
-        return (<div className={css(Styles.selectMessagePrompt)}>
+        return (
+            <div className={css(Styles.selectMessagePrompt)}>
                 <Images.leftArrow styles={[Styles.leftArrowStyle]} /> Select a message
-                </div>)
+            </div>
+        )
     }
 
-    leftColumnWithMessage() {
-        return <div>
-                {this.addSignalsHeader()}
+    renderExplorerSignals() {
+        return (
+            <div className=''>
+                <div
+                  className="cabana-explorer-signals-header"
+                  onClick={this.toggleEditSignals}>
+                  <span>Edit Signals</span>
+                </div>
                 {this.state.shouldShowAddSignal ?
-                <AddSignals
-                    onConfirmedSignalChange={this.props.onConfirmedSignalChange}
-                    message={this.props.messages[this.props.selectedMessage]}
-                    onClose={() => {this.setState({shouldShowAddSignal: false})}}
-                    messageIndex={this.props.seekIndex}
-                    onSignalPlotChange={this.onSignalPlotChanged}
-                    plottedSignals={this.state.plottedSignals.filter(
-                            ({messageId, signalName}) => messageId === this.props.selectedMessage
-                        ).map(({messageId, signalName}) => signalName)
-                    }
-                /> : null}
+                  <AddSignals
+                      onConfirmedSignalChange={this.props.onConfirmedSignalChange}
+                      message={this.props.messages[this.props.selectedMessage]}
+                      onClose={() => {this.setState({shouldShowAddSignal: false})}}
+                      messageIndex={this.props.seekIndex}
+                      onSignalPlotChange={this.onSignalPlotChanged}
+                      plottedSignals={this.state.plottedSignals.filter(
+                              ({messageId, signalName}) => messageId === this.props.selectedMessage
+                          ).map(({messageId, signalName}) => signalName)
+                      }
+                  /> : null}
                 <CanLog message={this.props.messages[this.props.selectedMessage]}
                     messageIndex={this.props.seekIndex}
                     segmentIndices={this.state.segmentIndices}
@@ -442,93 +454,69 @@ export default class Explorer extends Component {
                     showAddSignal={this.showAddSignal}
                     onMessageExpanded={this.onPause} />
             </div>
+        )
+    }
+
+    renderSignalPlot(plottedSignal) {
+      const {messageId, signalName} = plottedSignal;
+      const msg = this.props.messages[messageId];
+      return (
+        <CanGraph key={messageId + '_' + signalName}
+          unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
+          messageId={messageId}
+          messageName={msg.frame ? msg.frame.name : null}
+          signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}
+          onSegmentChanged={this.onSegmentChanged}
+          segment={this.state.segment}
+          data={this.state.graphData[messageId][signalName]}
+          onRelativeTimeClick={this.onGraphTimeClick}
+          currentTime={this.props.seekTime} />
+      )
     }
 
     render() {
-        return (<div className={css(Styles.root)}>
-                    <div className={css(Styles.dataContainer)}>
-                        <div className={css(Styles.left)}>
-                            {this.props.messages[this.props.selectedMessage] ?
-                              this.leftColumnWithMessage()
-                            : this.selectMessagePrompt()}
+        return (
+            <div className='cabana-explorer'>
+                <div className='cabana-explorer-signals'>
+                    {this.props.messages[this.props.selectedMessage] ?
+                      this.renderExplorerSignals()
+                    : this.selectMessagePrompt()}
+                </div>
+                <div className='cabana-explorer-visuals'>
+                    <RouteVideoSync
+                        message={this.props.messages[this.props.selectedMessage]}
+                        secondsLoaded={this.secondsLoaded()}
+                        startOffset={this.startOffset()}
+                        seekIndex={this.props.seekIndex}
+                        userSeekIndex={this.state.userSeekIndex}
+                        playing={this.state.playing}
+                        url={this.props.url}
+                        canFrameOffset={this.props.canFrameOffset}
+                        firstCanTime={this.props.firstCanTime}
+                        onVideoClick={this.onVideoClick}
+                        onPlaySeek={this.onPlaySeek}
+                        onUserSeek={this.onUserSeek}
+                        onPlay={this.onPlay}
+                        onPause={this.onPause}
+                        userSeekTime={this.state.userSeekTime} />
+                    {this.state.segment.length > 0 ?
+                        <div className={css(CommonStyles.button, Styles.resetSegment)}
+                             onClick={() => {this.resetSegment()}}>
+                            <p>Reset Segment</p>
                         </div>
-                        <div className={css(Styles.right)}>
-                            <div className={css(Styles.fixed)}>
-                                <RouteVideoSync message={this.props.messages[this.props.selectedMessage]}
-                                                secondsLoaded={this.secondsLoaded()}
-                                                startOffset={this.startOffset()}
-                                                seekIndex={this.props.seekIndex}
-                                                userSeekIndex={this.state.userSeekIndex}
-                                                playing={this.state.playing}
-                                                url={this.props.url}
-                                                canFrameOffset={this.props.canFrameOffset}
-                                                firstCanTime={this.props.firstCanTime}
-                                                onVideoClick={this.onVideoClick}
-                                                onPlaySeek={this.onPlaySeek}
-                                                onUserSeek={this.onUserSeek}
-                                                onPlay={this.onPlay}
-                                                onPause={this.onPause}
-                                                userSeekTime={this.state.userSeekTime} />
-
-                                {this.state.segment.length > 0 ?
-                                    <div className={css(CommonStyles.button, Styles.resetSegment)}
-                                         onClick={() => {this.resetSegment()}}>
-                                        <p>Reset Segment</p>
-                                    </div>
-                                    : null}
-                                {this.state.plottedSignals.map(({messageId, signalName}) => {
-                                    const msg = this.props.messages[messageId];
-
-                                    return <CanGraph key={messageId + '_' + signalName}
-                                                     unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
-                                                     messageId={messageId}
-                                                     messageName={msg.frame ? msg.frame.name : null}
-                                                     signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}
-                                                     onSegmentChanged={this.onSegmentChanged}
-                                                     segment={this.state.segment}
-                                                     data={this.state.graphData[messageId][signalName]}
-                                                     onRelativeTimeClick={this.onGraphTimeClick}
-                                                     currentTime={this.props.seekTime} />;
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                </div>);
+                        : null}
+                      <div className='cabana-explorer-visuals-plots'>
+                        {this.state.plottedSignals.map((plottedSignal) => {
+                          return this.renderSignalPlot(plottedSignal);
+                        })}
+                      </div>
+                </div>
+            </div>
+        );
     }
 }
 
 const Styles = StyleSheet.create({
-    root: {
-        flexDirection: 'column',
-        width: '100%',
-    },
-    dataContainer: {
-        paddingTop: '10px',
-        paddingLeft: '10px',
-        flexDirection: 'row',
-        flex: 1,
-        display: 'flex',
-        width: '100%',
-        height: '100vh'
-    },
-    left: {
-        flex: '2',
-    },
-    right: {
-        flex: '4',
-        overflow: 'auto'
-    },
-    fixed: {
-        top: 0,
-        width: '100%',
-    },
-    addSignalsHeader: {
-        cursor: 'pointer',
-        borderBottom: '1px solid #000',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
     resetSegment: {
         marginTop: 10,
         padding: '10px 0',

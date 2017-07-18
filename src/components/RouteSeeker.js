@@ -187,32 +187,33 @@ export default class RouteSeeker extends Component {
 
     render() {
         const {seekedBarStyle, markerStyle, tooltipStyle} = this.state;
-        return (<div className={this.props.className}>
-                    <div className={css(Styles.root)}>
-                            <PlayButton
-                                className={css(Styles.playButton)}
-                                onPlay={this.onPlay}
-                                onPause={this.onPause}
-                                isPlaying={this.state.isPlaying}
-                            />
-                        <div className={css(Styles.progress)}>
-                            <div className={css(Styles.progressBar)}
-                                 onMouseMove={this.onMouseMove}
-                                 onMouseLeave={this.onMouseLeave}
-                                 onMouseDown={this.onMouseDown}
-                                 onMouseUp={this.onMouseUp}
-                                 onClick={this.onClick}
-                                 ref={(ref) => this.progressBar = ref}>
-                                <div className={css(Styles.tooltip, tooltipStyle.tooltip)}>
-                                    {this.state.tooltipTime}
-                                </div>
-                                <div className={css(Styles.marker, markerStyle.marker)}></div>
-                                <div className={css(Styles.progressBarInner,
-                                                    seekedBarStyle.seekedBar)}></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>);
+        return (
+          <div className='cabana-explorer-visuals-camera-seeker'>
+              <div className={css(Styles.root)}>
+                  <PlayButton
+                      className={css(Styles.playButton)}
+                      onPlay={this.onPlay}
+                      onPause={this.onPause}
+                      isPlaying={this.state.isPlaying} />
+                  <div className={css(Styles.progress)}>
+                      <div className={css(Styles.progressBar)}
+                           onMouseMove={this.onMouseMove}
+                           onMouseLeave={this.onMouseLeave}
+                           onMouseDown={this.onMouseDown}
+                           onMouseUp={this.onMouseUp}
+                           onClick={this.onClick}
+                           ref={(ref) => this.progressBar = ref}>
+                          <div className={css(Styles.tooltip, tooltipStyle.tooltip)}>
+                              {this.state.tooltipTime}
+                          </div>
+                          <div className={css(Styles.marker, markerStyle.marker)}></div>
+                          <div className={css(Styles.progressBarInner,
+                                              seekedBarStyle.seekedBar)}></div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        );
     }
 }
 

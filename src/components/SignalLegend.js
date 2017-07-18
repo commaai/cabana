@@ -24,6 +24,25 @@ export default class SignalLegend extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+          expandedSignals: [],
+        }
+        this.toggleExpandSignal = this.toggleExpandSignal.bind(this);
+    }
+
+    toggleExpandSignal(s) {
+      const {expandedSignals} = this.state;
+      if (!expandedSignals.includes(s.uid)) {
+        const updatedExpandedSignals = [...expandedSignals, s.uid];
+        this.setState({expandedSignals: updatedExpandedSignals})
+      } else {
+        const updatedExpandedSignals = expandedSignals.filter((i) => i !== s.uid)
+        this.setState({expandedSignals: updatedExpandedSignals});
+      }
+    }
+
+    checkExpandedSignal(s) {
+      return this.state.expandedSignals.includes(s);
     }
 
     render() {
@@ -34,17 +53,19 @@ export default class SignalLegend extends Component {
             const highlightedStyle = isHighlighted ? this.props.signalStyles[signalName] : null;
 
             return <SignalLegendEntry
-                    key={signalName}
-                    signal={signal}
-                    isHighlighted={isHighlighted}
-                    highlightedStyle={highlightedStyle}
-                    onSignalHover={this.props.onSignalHover}
-                    onSignalHoverEnd={this.props.onSignalHoverEnd}
-                    onTentativeSignalChange={this.props.onTentativeSignalChange}
-                    onSignalChange={this.props.onSignalChange}
-                    onSignalRemove={this.props.onSignalRemove}
-                    onSignalPlotChange={this.props.onSignalPlotChange}
-                    isPlotted={this.props.plottedSignals.indexOf(signalName) !== -1} />;
+                      key={signal.uid}
+                      signal={signal}
+                      isHighlighted={isHighlighted}
+                      highlightedStyle={highlightedStyle}
+                      onSignalHover={this.props.onSignalHover}
+                      onSignalHoverEnd={this.props.onSignalHoverEnd}
+                      onTentativeSignalChange={this.props.onTentativeSignalChange}
+                      onSignalChange={this.props.onSignalChange}
+                      onSignalRemove={this.props.onSignalRemove}
+                      onSignalPlotChange={this.props.onSignalPlotChange}
+                      toggleExpandSignal={this.toggleExpandSignal}
+                      isPlotted={this.props.plottedSignals.indexOf(signalName) !== -1}
+                      isExpanded={this.checkExpandedSignal(signal.uid)}/>;
         });
 
         const signalRows = signalRowsNested
@@ -53,9 +74,10 @@ export default class SignalLegend extends Component {
                 return a.concat(b)
             }, []);
 
-        return (<table className={css(TableStyles.noSpacing)}>
-                        {signalRows}
-                </table>);
+        return (
+          <div className='cabana-explorer-signals-legend'>
+            {signalRows}
+          </div>
+        );
     }
 }
-

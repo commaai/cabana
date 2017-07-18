@@ -1,0 +1,19 @@
+/*
+
+  Meta Component Styles
+  ~~~~~~~~~~~~~~~~~~~~~
+
+*/
+
+@import '../../styles/_global/colors';
+
+.cabana-meta {
+  background: $color-grey-20;
+  flex: .5;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: scroll;
+  table {
+    width: 100%;
+  }
+}

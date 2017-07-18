@@ -37,6 +37,8 @@ export default class Signal {
             multiplex,
             valueDescriptions});
 
+        const uid = Math.random().toString(36);
+
         if(min == null) {
             min = this.calculateMin();
         }
@@ -44,7 +46,7 @@ export default class Signal {
             max = this.calculateMax();
         }
 
-        Object.assign(this, {min, max});
+        Object.assign(this, {min, max, uid});
     }
 
     text() {

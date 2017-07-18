@@ -221,6 +221,11 @@ export default class Meta extends Component {
 
         return bins.reduce((arr, bin) => arr.concat(bin), []);
     }
+
+    selectedMessageClass(messageId) {
+      return (this.state.selectedMessages.includes(messageId) ? Styles.messageIsSelected : null);
+    }
+
     availableMessagesList() {
         if(Object.keys(this.props.messages).length === 0) {
             return null;
@@ -258,7 +263,7 @@ export default class Meta extends Component {
                                 .map((msg) => {
                                     return <tr onClick={() => {this.onMessageSelected(msg.id)}}
                                             key={msg.id}
-                                            className={css(Styles.message)}>
+                                            className={css(Styles.message, this.selectedMessageClass(msg.id))}>
                                                 <td>{msg.frame ? msg.frame.name : ''}</td>
                                                 <td>{msg.id}</td>
                                                 <td>{Object.keys(msg.signals).length}</td>
@@ -298,7 +303,7 @@ export default class Meta extends Component {
     }
     render() {
         return (
-            <div className={css(Styles.root)}>
+            <div className="cabana-meta">
                 {this.props.isDemo ?
                     <div className={css(Styles.chffrPanda)}>
                         <Images.panda styles={[Styles.panda]} />
@@ -386,11 +391,6 @@ const Styles = StyleSheet.create({
         width: 150,
         height: 138
     },
-    root: {
-        flex: 1,
-        backgroundColor: 'rgb(246,246,246)',
-        height: '100%',
-    },
     scrollContainer: {
         display: 'block',
         height: '100%',
@@ -425,6 +425,11 @@ const Styles = StyleSheet.create({
     selectedMessage: {
         display: 'flex',
         flexDirection: 'row'
+    },
+    messageIsSelected: {
+        backgroundColor: 'blue',
+        color: 'rgb(233, 233, 233)',
+        fontWeight: 'bold'
     },
     messageList: {
         margin: 0,

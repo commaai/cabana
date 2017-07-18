@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { css, StyleSheet } from 'aphrodite/no-important';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
 
@@ -352,12 +351,12 @@ export default class CanExplorer extends Component {
     }
 
     render() {
-        return (<div className={css(Styles.root)}>
+        return (<div>
                     {this.state.isLoading ?
                       <LoadingBar
                         isLoading={this.state.isLoading}
                       /> : null}
-                    <div className={css(Styles.content)}>
+                    <div className='cabana'>
                       <Meta url={this.state.route.url}
                             messages={this.state.messages}
                             currentParts={this.state.currentParts}
@@ -379,25 +378,23 @@ export default class CanExplorer extends Component {
                             loginWithGithub={this.loginWithGithub()}
                             isDemo={this.props.isDemo}
                       />
-                      <div className={css(Styles.right)}>
-                          {this.state.route.url ?
-                            <Explorer
-                                url={this.state.route.url}
-                                messages={this.state.messages}
-                                selectedMessage={this.state.selectedMessage}
-                                onConfirmedSignalChange={this.onConfirmedSignalChange}
-                                onSeek={this.onSeek}
-                                onUserSeek={this.onUserSeek}
-                                canFrameOffset={this.state.canFrameOffset}
-                                firstCanTime={this.state.firstCanTime}
-                                seekTime={this.state.seekTime}
-                                seekIndex={this.state.seekIndex}
-                                currentParts={this.state.currentParts}
-                                partsLoaded={this.state.partsLoaded}
-                                autoplay={this.props.autoplay}
-                                 />
-                                : null}
-                      </div>
+                      {this.state.route.url ?
+                        <Explorer
+                            url={this.state.route.url}
+                            messages={this.state.messages}
+                            selectedMessage={this.state.selectedMessage}
+                            onConfirmedSignalChange={this.onConfirmedSignalChange}
+                            onSeek={this.onSeek}
+                            onUserSeek={this.onUserSeek}
+                            canFrameOffset={this.state.canFrameOffset}
+                            firstCanTime={this.state.firstCanTime}
+                            seekTime={this.state.seekTime}
+                            seekIndex={this.state.seekIndex}
+                            currentParts={this.state.currentParts}
+                            partsLoaded={this.state.partsLoaded}
+                            autoplay={this.props.autoplay}
+                             />
+                            : null}
                     </div>
 
                     {this.state.showLoadDbc ? <LoadDbcModal
@@ -422,21 +419,3 @@ export default class CanExplorer extends Component {
                 </div>);
     }
 }
-
-const Styles = StyleSheet.create({
-    root: {
-      height: '100%',
-    },
-    content: {
-      flexDirection: 'row',
-      display: 'flex',
-      fontFamily: `apple-system, BlinkMacSystemFont,
-                   "Segoe UI", "Roboto", "Oxygen",
-                   "Ubuntu", "Cantarell", "Fira Sans",
-                   "Droid Sans", "Helvetica Neue", sans-serif`,
-      height: '100%'
-    },
-    right: {
-      flex: 8,
-    }
-});

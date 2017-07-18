@@ -354,7 +354,7 @@ export default class AddSignals extends Component {
         }
     }
 
-    bitMatrix() {
+    renderBitMatrix() {
         const {bits} = this.state;
         const rows = [];
         let rowCount;
@@ -400,13 +400,18 @@ export default class AddSignals extends Component {
             rows.push((<tr key={i.toString()}>{rowBits}</tr>));
         }
 
-        return (<table className={css(TableStyles.noSpacing, Styles.bitMatrix)}
-                       cellSpacing={0}
-                       onMouseLeave={this.resetDragState}>
-                    <tbody>
-                    {rows}
-                    </tbody>
-                </table>);
+        return (
+          <div className="cabana-explorer-signals-matrix">
+            <table
+              cellSpacing={0}
+              onMouseLeave={this.resetDragState}>
+              <tbody>
+                {rows}
+              </tbody>
+            </table>
+
+          </div>
+        );
     }
 
     resetDragState() {
@@ -457,40 +462,33 @@ export default class AddSignals extends Component {
     }
 
     render() {
-        return (<div className={css(Styles.root)}>
-                    {Object.keys(this.state.signals).length === 0 ?
-                        <p>Double click or drag to add a signal</p> : null
-                    }
-                    <p>time: {this.props.message.entries[this.props.messageIndex].relTime.toFixed(3)}</p>
-                    {this.bitMatrix()}
-                    <SignalLegend
-                        signals={this.state.signals}
-                        signalStyles={this.state.signalStyles}
-                        highlightedSignal={this.state.highlightedSignal}
-                        onSignalHover={this.onSignalHover}
-                        onSignalHoverEnd={this.onSignalHoverEnd}
-                        onTentativeSignalChange={this.onTentativeSignalChange}
-                        onSignalChange={this.onSignalChange}
-                        onSignalRemove={this.onSignalRemove}
-                        onSignalPlotChange={this.onSignalPlotChange}
-                        plottedSignals={this.props.plottedSignals}
-                         />
-                </div>);
+        return (
+          <div className='cabana-explorer-signals-controller'>
+            {Object.keys(this.state.signals).length === 0 ?
+                <p>Double click or drag to add a signal</p> : null
+            }
+            <div className="cabana-explorer-signals-time">
+              <p>time: {this.props.message.entries[this.props.messageIndex].relTime.toFixed(3)}</p>
+            </div>
+            {this.renderBitMatrix()}
+            <SignalLegend
+                signals={this.state.signals}
+                signalStyles={this.state.signalStyles}
+                highlightedSignal={this.state.highlightedSignal}
+                onSignalHover={this.onSignalHover}
+                onSignalHoverEnd={this.onSignalHoverEnd}
+                onTentativeSignalChange={this.onTentativeSignalChange}
+                onSignalChange={this.onSignalChange}
+                onSignalRemove={this.onSignalRemove}
+                onSignalPlotChange={this.onSignalPlotChange}
+                plottedSignals={this.props.plottedSignals}
+                 />
+           </div>
+         );
     }
 }
 
 const Styles = StyleSheet.create({
-    root: {
-        borderBottom: '1px solid #000',
-        userSelect: 'none'
-    },
-    pointer: {
-        cursor: 'pointer'
-    },
-    bitMatrix: {
-        fontFamily: 'monospace',
-        fontSize: 16,
-    },
     bit: {
         margin: 0,
         padding: 12,

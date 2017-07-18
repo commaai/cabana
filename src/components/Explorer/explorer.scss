@@ -1,0 +1,101 @@
+/*
+
+  Explorer Component Styles
+  ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+
+@import '../../styles/_global/colors';
+
+.cabana {
+  display: flex;
+}
+
+.cabana-explorer {
+  display: flex;
+  flex: 1;
+  &-signals {
+    flex: 1;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 3%;
+    &-header {}
+    &-controller {}
+    &-matrix {
+      table {
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: 5px;
+        font-family: monospace;
+        margin: 2% 0;
+        width: 100%;
+      }
+    }
+    &-log {
+      background: $color-grey-10;
+      border: 1px solid rgba(0,0,0,.2);
+      border-radius: 5px;
+      padding: 3%;
+    }
+  }
+  &-visuals {
+    flex: 1;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 1.5%;
+    padding-left: 0;
+    &-camera {
+      border: 5px solid #000;
+      border-radius: 5px;
+      max-height: 480px;
+      max-width: 640px;
+      overflow: hidden;
+      position: relative;
+      &-wrapper {}
+      &-seeker {
+        background: rgba(233, 233, 233, .2);
+        bottom: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 4;
+      }
+      video {
+        cursor: pointer;
+        width: 100%;
+      }
+    }
+    &-plots {
+      border: 1px solid $color-grey-30;
+      border-radius: 5px;
+      margin: 3% 0;
+    }
+    &-plot {
+      padding: 1.5% 3%;
+      &:first-child,
+      &:last-child {
+        padding-top: 3%;
+        padding-bottom: 3%;
+      }
+      &-message {
+        color: $color-grey-50;
+        font-size: 12px;
+      }
+      &-signal {
+        strong {
+          padding-right: 5px;
+        }
+        a {
+          color: $color-grey-50;
+          cursor: pointer;
+        }
+      }
+      &-canvas {
+        svg {
+          height: auto;
+          width: 100%;
+        }
+      }
+    }
+  }
+}

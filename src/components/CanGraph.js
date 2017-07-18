@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import Vega from 'react-vega';
 import PropTypes from 'prop-types';
 
@@ -102,46 +101,23 @@ export default class CanGraph extends Component {
   }
 
   render() {
-      return (<div className={css(Styles.root)}>
-                <p className={css(Styles.messageName)}>{this.props.messageName}</p>
-                <p className={css(Styles.signalName)}>{this.props.signalSpec.name}
-                    &nbsp; <span className={css(Styles.unplot)}
-                          onClick={this.props.unplot}>(unplot)</span></p>
-                <div className={css(Styles.pointer)}>
-                  <CanPlot logLevel={0}
-                           data={{table: this.props.data}}
-                           onNewView={this.onNewView}
-                           onSignalClickTime={this.onSignalClickTime}
-                           onSignalSegment={this.onSignalSegment}
-                  />
-                </div>
-              </div>);
+      return (
+        <div className='cabana-explorer-visuals-plot'>
+          <div className='cabana-explorer-visuals-plot-message'>
+            <span>{this.props.messageName}</span>
+          </div>
+          <div className='cabana-explorer-visuals-plot-signal'>
+            <strong>{this.props.signalSpec.name}</strong>
+            <a onClick={this.props.unplot}>(unplot)</a>
+          </div>
+          <CanPlot
+            className='cabana-explorer-visuals-plot-canvas'
+            logLevel={0}
+            data={{table: this.props.data}}
+            onNewView={this.onNewView}
+            onSignalClickTime={this.onSignalClickTime}
+            onSignalSegment={this.onSignalSegment}/>
+        </div>
+      );
   }
 }
-
-const Styles = StyleSheet.create({
-    root: {
-        borderBottomWidth: '1px',
-        borderColor: 'gray',
-        width: '100%',
-        maxWidth: 640,
-        paddingTop: 10
-    },
-    messageName: {
-      fontSize: 12,
-      color: 'rgba(0,0,0,0.5)',
-      margin: 0
-    },
-    signalName: {
-      fontSize: 16,
-      margin: 0
-    },
-    unplot: {
-      cursor: 'pointer',
-      fontSize: 14,
-      color: 'rgba(0,0,0,0.5)'
-    },
-    pointer: {
-      cursor: 'pointer'
-    }
-});

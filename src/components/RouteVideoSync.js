@@ -113,53 +113,47 @@ export default class RouteVideoSync extends Component {
     }
 
     render() {
-        return (<div className={css(Styles.root)}>
-                    {this.state.isLoading ? this.loadingOverlay() : null}
-                    {this.state.shouldShowJpeg ?
-                        <img src={this.nearestFrameUrl()}
-                             className={css(Styles.img)} />
-                        : null }
-                    <HLS
-                         className={css(Styles.hls)}
-                         source={Video.videoUrlForRouteUrl(this.props.url)}
-                         startTime={this.props.userSeekTime}
-                         playbackSpeed={1}
-                         onVideoElementAvailable={this.onVideoElementAvailable}
-                         playing={this.props.playing}
-                         onClick={this.props.onVideoClick}
-                         onLoadStart={this.onLoadStart}
-                         onLoadEnd={this.onLoadEnd}
-                         onUserSeek={this.onUserSeek}
-                         onPlaySeek={this.props.onPlaySeek}
-                         segmentProgress={this.segmentProgress}
-                         shouldRestart={this.state.shouldRestartHls}
-                         onRestart={this.onHlsRestart} />
-                     <RouteSeeker
-                         className={css(Styles.seekBar)}
-                         nearestFrameTime={this.props.userSeekTime}
-                         segmentProgress={this.segmentProgress}
-                         secondsLoaded={this.props.secondsLoaded}
-                         segmentIndices={this.props.segmentIndices}
-                         onUserSeek={this.onUserSeek}
-                         onPlaySeek={this.props.onPlaySeek}
-                         videoElement={this.state.videoElement}
-                         onPlay={this.props.onPlay}
-                         onPause={this.props.onPause}
-                         playing={this.props.playing}
-                         ratioTime={this.ratioTime} />
-                </div>);
+        return (
+            <div className='cabana-explorer-visuals-camera'>
+                {this.state.isLoading ? this.loadingOverlay() : null}
+                {this.state.shouldShowJpeg ?
+                    <img src={this.nearestFrameUrl()}
+                         className={css(Styles.img)} />
+                    : null }
+                <HLS
+                     className={css(Styles.hls)}
+                     source={Video.videoUrlForRouteUrl(this.props.url)}
+                     startTime={this.props.userSeekTime}
+                     playbackSpeed={1}
+                     onVideoElementAvailable={this.onVideoElementAvailable}
+                     playing={this.props.playing}
+                     onClick={this.props.onVideoClick}
+                     onLoadStart={this.onLoadStart}
+                     onLoadEnd={this.onLoadEnd}
+                     onUserSeek={this.onUserSeek}
+                     onPlaySeek={this.props.onPlaySeek}
+                     segmentProgress={this.segmentProgress}
+                     shouldRestart={this.state.shouldRestartHls}
+                     onRestart={this.onHlsRestart} />
+                 <RouteSeeker
+                     className={css(Styles.seekBar)}
+                     nearestFrameTime={this.props.userSeekTime}
+                     segmentProgress={this.segmentProgress}
+                     secondsLoaded={this.props.secondsLoaded}
+                     segmentIndices={this.props.segmentIndices}
+                     onUserSeek={this.onUserSeek}
+                     onPlaySeek={this.props.onPlaySeek}
+                     videoElement={this.state.videoElement}
+                     onPlay={this.props.onPlay}
+                     onPause={this.props.onPause}
+                     playing={this.props.playing}
+                     ratioTime={this.ratioTime} />
+            </div>
+        );
     }
 }
 
 const Styles = StyleSheet.create({
-    root: {
-        borderBottomWidth: '1px',
-        borderColor: 'gray',
-        flex: 1,
-        position: 'relative',
-        height: 480,
-        width: 640
-    },
     loadingOverlay: {
         position: 'absolute',
         top: 0,

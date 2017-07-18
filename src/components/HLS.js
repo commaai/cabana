@@ -65,9 +65,12 @@ export default class HLS extends Component {
   }
 
   render() {
-    return (<div onClick={this.props.onClick}
-                 style={{cursor: 'pointer'}}>
-              <video ref={ (video) => { this.videoElement = video; } } />
-            </div>);
+    return (
+      <div
+        className='cabana-explorer-visuals-camera-wrapper'
+        onClick={this.props.onClick}>
+        <video ref={ (video) => { this.videoElement = video; } } />
+      </div>
+    );
   }
 }

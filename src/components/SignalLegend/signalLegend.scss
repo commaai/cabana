@@ -1,0 +1,42 @@
+/*
+
+  Signal Legend Component
+  ~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+
+@import '../../styles/_global/index';
+
+.cabana-explorer-signals-legend {
+  background: $color-grey-10;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 5px;
+  margin: 5% 0;
+  padding: 2%;
+}
+
+.signals-legend-entry {
+  overflow: auto;
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,.05);
+  }
+  &-header {
+    cursor: pointer;
+    line-height: 42px;
+    &-name {
+      float: left;
+      width: 70%;
+    }
+    &-plotted {
+      float: left;
+      text-align: right;
+      width: 30%;
+    }
+  }
+  &-body {
+    padding: 2%;
+  }
+  &.is-expanded {
+
+  }
+}

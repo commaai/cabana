@@ -19,7 +19,9 @@ export default class SignalLegendEntry extends Component {
         onSignalChange: PropTypes.func,
         onSignalRemove: PropTypes.func,
         onSignalPlotChange: PropTypes.func,
-        isPlotted: PropTypes.bool
+        toggleExpandSignal: PropTypes.func,
+        isPlotted: PropTypes.bool,
+        isExpanded: PropTypes.bool,
     };
 
     static unsignedTransformation = (field) => {
@@ -37,6 +39,11 @@ export default class SignalLegendEntry extends Component {
     };
 
     static fields = [
+        {
+            field: 'name',
+            title: 'Name',
+            type: 'string',
+        },
         {
             field: 'size',
             title: 'Size',
@@ -162,20 +169,22 @@ export default class SignalLegendEntry extends Component {
 
     updateField(fieldSpec, value) {
         let {signalEdited} = this.state;
-        if(typeof fieldSpec === 'object') {
-            if(fieldSpec.transform) {
-                signalEdited = fieldSpec.transform(value, signalEdited);
-            } else {
-                signalEdited[fieldSpec.field] = value;
-            }
-        } else if(typeof fieldSpec === 'string') {
-            signalEdited[fieldSpec] = value;
+        const {signal} = this.props;
+
+        if(fieldSpec.transform) {
+            signalEdited = fieldSpec.transform(value, signalEdited);
+        } else {
+            signalEdited[fieldSpec.field] = value;
         }
 
 
-        this.props.onTentativeSignalChange(signalEdited);
-
+        // Save entire signal while editing
         this.setState({signalEdited});
+        const signalCopy = Object.assign(Object.create(signal), signal);
+        Object.entries(signalEdited).forEach(([field, value]) => {
+            signalCopy[field] = value;
+        });
+        this.props.onSignalChange(signalCopy, signal);
     }
 
     numberField(fieldSpec) {
@@ -250,8 +259,7 @@ export default class SignalLegendEntry extends Component {
 
     removeSignal(signal) {
         return (<tr>
-                    <td className={css(Styles.pointer, Styles.removeSignal)}
-                        onClick={() => {this.props.onSignalRemove(signal)}}>Remove Signal</td>
+                    <td onClick={() => {this.props.onSignalRemove(signal)}}>Remove Signal</td>
                 </tr>);
     }
 
@@ -274,20 +282,6 @@ export default class SignalLegendEntry extends Component {
         }
     }
 
-    expandedSignal(signal) {
-        const startBitTitle = signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
-
-        return (<tr key={signal.name + '-expanded'}>
-                    <td colSpan="3">
-                        <table>
-                            <tbody>
-                                {SignalLegendEntry.fields.map((field) => this.fieldNode(field, signal))}
-                                {this.removeSignal(signal)}
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>);
-    }
 
     toggleEditing(e) {
         let {isEditing, isExpanded, signalEdited, nameEdited} = this.state;
@@ -310,13 +304,19 @@ export default class SignalLegendEntry extends Component {
             this.props.onSignalChange(signalCopy, signal);
         }  else {
             signalEdited = signalCopy;
+            // Show plot when expanding
+            this.props.onSignalPlotChange(true, signal.name)
         }
 
+        // Expand and enable signal editing
         isEditing = !isEditing;
-        this.setState({isExpanded: isEditing || isExpanded,
-                       isEditing,
-                       signalEdited})
+        this.setState({
+          isEditing,
+          signalEdited
+        })
+        this.props.toggleExpandSignal(signal);
         e.stopPropagation();
+
     }
 
     onNameChange(e) {
@@ -324,49 +324,54 @@ export default class SignalLegendEntry extends Component {
         this.setState({nameEdited: e.target.value})
     }
 
+    expandedSignal(signal) {
+      const startBitTitle = signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
+      return (
+        <table>
+          <tr key={signal.uid + '-expanded'} className=''>
+            <td colSpan="3">
+              <table>
+                <tbody>
+                  {SignalLegendEntry.fields.map((field) => this.fieldNode(field, signal))}
+                  {this.removeSignal(signal)}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>
+      );
+    }
+
     render() {
         const {isExpanded, isEditing, signalEdited, nameEdited} = this.state;
         const {signal, highlightedStyle, plottedSignals, isPlotted} = this.props;
-        return (<tbody>
-                    <tr
-                        onClick={() => {this.setState({isExpanded: !isExpanded})}}
-                        className={css(Styles.pointer, highlightedStyle)}
-                        onMouseEnter={() => this.props.onSignalHover(signal)}
-                        onMouseLeave={() => this.props.onSignalHoverEnd(signal)}
-                        >
-                        <td>{isExpanded ? '\u2193' : '\u2192'}</td>
-                        <td>{isEditing ?
-                            <input type="text"
-                                   value={nameEdited}
-                                   onClick={(e) => e.stopPropagation()}
-                                   onChange={this.onNameChange} />
-                            : <span>{signal.name}</span>
-                            }</td>
-                        <td onClick={this.toggleEditing}
-                            className={css(Styles.pointer)}>
-                            {isEditing ? 'Save' : 'Edit'}
-                        </td>
-                        <td>
-                            <span>Plot: </span>
-                            <input type="checkbox"
-                                   checked={isPlotted}
-                                   onClick={(e) => e.stopPropagation()}
-                                   onChange={(e) => {
-                                     this.props.onSignalPlotChange(e.target.checked, signal.name)
-                                   }}
-                            />
-                        </td>
-                    </tr>
-                    {isExpanded ? this.expandedSignal(signal) : null}
-                </tbody>);
+        return (
+          <div
+            className="signals-legend-entry"
+            onMouseEnter={() => this.props.onSignalHover(signal)}
+            onMouseLeave={() => this.props.onSignalHoverEnd(signal)}>
+            <div
+              className="signals-legend-entry-header"
+              onClick={this.toggleEditing}>
+              <div className="signals-legend-entry-header-name">
+                <span>{this.props.isExpanded ? '\u2193' : '\u2192'}</span>
+                <strong>{signal.name}</strong>
+              </div>
+              <div className="signals-legend-entry-header-plotted">
+                <span>Plot: </span>
+                <input type="checkbox"
+                    checked={isPlotted}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      this.props.onSignalPlotChange(e.target.checked, signal.name)
+                    }}
+                />
+              </div>
+            </div>
+            <div className="signals-legend-entry-body">
+              {this.props.isExpanded ? this.expandedSignal(signal) : null}
+            </div>
+          </div>
+        );
     }
 }
-
-const Styles = StyleSheet.create({
-    pointer: {cursor: 'pointer'},
-    removeSignal: {
-        ':hover': {
-            textDecoration: 'underline'
-        },
-    }
-});

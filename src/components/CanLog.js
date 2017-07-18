@@ -98,7 +98,8 @@ export default class CanLog extends Component {
     }
 
     expandedMessage(msg) {
-      return (<div className={css(Styles.row, Styles.signalRow)} key={msg.time + '-expanded'}>
+      return (
+        <div className='signal-log' key={msg.time + '-expanded'}>
           <div className={css(Styles.col)}>
             <div className={css(Styles.signalCol)}>
               <table className={css(Styles.signalTable)}>
@@ -124,7 +125,8 @@ export default class CanLog extends Component {
               </table>
             </div>
           </div>
-        </div>)
+        </div>
+      )
     }
 
     isMessageExpanded(msg) {
@@ -221,19 +223,19 @@ export default class CanLog extends Component {
 
     render() {
 
-      return  <div>
-                  <p className={css(Styles.expandAll)}>Expand all messages:
+      return  <div className='cabana-explorer-signals-log'>
+                  <p>Expand all messages:
                     <input type="checkbox"
                            checked={this.state.expandAllChecked}
                            onChange={this.onExpandAllChanged} />
                   </p>
                   <ReactList
-                  itemRenderer={this.renderMessage}
-                  itemsRenderer={this.renderTable}
-                  length={this.listLength()}
-                  pageSize={50}
-                  updateWhenThisValueChanges={this.props.messageIndex}
-                  type='variable' />
+                    itemRenderer={this.renderMessage}
+                    itemsRenderer={this.renderTable}
+                    length={this.listLength()}
+                    pageSize={50}
+                    updateWhenThisValueChanges={this.props.messageIndex}
+                    type='variable' />
               </div>;
     }
 }
