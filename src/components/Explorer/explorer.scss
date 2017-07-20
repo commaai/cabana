@@ -5,23 +5,91 @@
 
 */
 
-@import '../../styles/_global/colors';
+@import '../../styles/_global/all';
 
-.cabana {
+#cabana {
   display: flex;
+  height: 100%;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.cabana-header {
+  background: $color-grey-90;
+  color: #fff;
+  height: 68px;
+  padding: 22px;
+  &-logo {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    pointer-events: none; // disable actual click
+  }
+  &-account {
+    float: right;
+    a {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+  }
+}
+
+.cabana-window {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .cabana-explorer {
   display: flex;
   flex: 1;
+  &-header {
+  }
   &-signals {
     flex: 1;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    padding: 3%;
-    &-header {}
-    &-controller {}
+    max-height: 100vh;
+    &-wrapper {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+    }
+    &-header {
+      border-bottom: 1px solid rgba(0,0,0,.2);
+      display: flex;
+      flex-direction: row;
+      min-height: 89px;
+      padding: 5%;
+      h6,
+      h3 {
+        margin: 0;
+      }
+      h6 {
+        font-size: 13px;
+        font-weight: normal;
+        padding-bottom: 5px;
+        text-transform: uppercase;
+      }
+      &-context {
+        flex: 4;
+      }
+      &-action {
+        flex: 1;
+        button {
+          width: 100%;
+        }
+      }
+    }
+    &-window {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      height: 100%;
+    }
+    &-controller {
+      padding: 5%;
+    }
     &-matrix {
       table {
         border: 1px solid rgba(0,0,0,.2);
@@ -32,19 +100,41 @@
       }
     }
     &-log {
-      background: $color-grey-10;
-      border: 1px solid rgba(0,0,0,.2);
-      border-radius: 5px;
-      padding: 3%;
+      border-top: 1px solid $color-grey-30;
+      padding: 0 5%;
+      &-header {
+        padding: 5% 0;
+        strong {
+          color: $color-grey-70;
+          font-size: 14px;
+        }
+        button {
+          float: right;
+          text-transform: uppercase;
+        }
+      }
+      &-body {
+        background: $color-grey-10;
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: 5px;
+      }
+      &-list {
+        padding: 3%;
+      }
     }
   }
   &-visuals {
+    background: $color-grey-10;
     flex: 1;
-    height: 100vh;
+    max-height: 100vh;
     overflow-x: hidden;
     overflow-y: scroll;
-    padding: 1.5%;
-    padding-left: 0;
+    padding: 1.5% 3%;
+    &-header {
+      border-bottom: 1px solid rgba(0,0,0,.1);
+      margin-bottom: 2%;
+      padding: 2% 0;
+    }
     &-camera {
       border: 5px solid #000;
       border-radius: 5px;
@@ -66,11 +156,13 @@
       }
     }
     &-plots {
-      border: 1px solid $color-grey-30;
+      border: 1px solid $color-grey-40;
       border-radius: 5px;
       margin: 3% 0;
     }
     &-plot {
+      background: #fff;
+      border-radius: 5px;
       padding: 1.5% 3%;
       &:first-child,
       &:last-child {

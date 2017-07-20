@@ -3,6 +3,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite/no-important';
+import cx from 'classnames';
 
 import Signal from '../models/can/signal';
 import DbcUtils from '../utils/dbc';
@@ -150,6 +151,7 @@ export default class SignalLegendEntry extends Component {
         this.toggleEditing = this.toggleEditing.bind(this);
         this.updateField = this.updateField.bind(this);
         this.onNameChange = this.onNameChange.bind(this);
+        this.toggleSignalPlot = this.toggleSignalPlot.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -159,12 +161,16 @@ export default class SignalLegendEntry extends Component {
         }
     }
 
-    field(field, title, valueCol) {
+    field(field, title, valueCol, signal) {
         const value = this.props.signal[field];
-
         let titleCol = <td>{title}</td>;
 
-        return <tr key={field}>{titleCol}<td>{valueCol}</td></tr>;
+        return (
+            <div key={field} className='form-field form-field--small'>
+                <label htmlFor={`${signal}_${field}`}>{title}</label>
+                {valueCol}
+            </div>
+        )
     }
 
     updateField(fieldSpec, value) {
@@ -187,7 +193,7 @@ export default class SignalLegendEntry extends Component {
         this.props.onSignalChange(signalCopy, signal);
     }
 
-    numberField(fieldSpec) {
+    renderNumberField(fieldSpec, signal) {
         const {field, title, options} = fieldSpec;
         let valueCol;
 
@@ -197,39 +203,40 @@ export default class SignalLegendEntry extends Component {
                 let num = Number(value);
                 value = (isNaN(num) ? '' : num);
             }
-
-            valueCol = <input type="number"
-                              value={value}
-                              onChange={(e) => {
-                                let {value} = e.target;
-
-                                this.updateField(fieldSpec, value);
-                              }}/>;
+            valueCol = (
+                <input id={`${signal}_${field}`}
+                        type="number"
+                        value={value}
+                        onChange={(e) => {this.updateField(fieldSpec, e.target)}
+                }/>
+            );
         } else {
             let value = this.props.signal[field];
             valueCol = <span>{value}</span>;
         }
-        return this.field(field, title, valueCol);
+        return this.field(field, title, valueCol, signal);
     }
 
-    stringField(fieldSpec) {
+    renderStringField(fieldSpec, signal) {
         const {field, title} = fieldSpec;
         let valueCol;
         if(this.state.isEditing) {
-            valueCol = <input type="text"
-                              value={this.state.signalEdited[field] || ''}
-                              onChange={(e) => {
-                                this.updateField(fieldSpec, e.target.value)
-                              }}
-                        />;
+            valueCol = (
+              <input id={`${signal}_${field}`}
+                      type="text"
+                      value={this.state.signalEdited[field] || ''}
+                      onChange={(e) => {
+                        this.updateField(fieldSpec, e.target.value)
+                      }}
+                />);
         } else {
             valueCol = <span>{this.props.signal[field]}</span>;
         }
 
-        return this.field(field, title, valueCol);
+        return this.field(field, title, valueCol, signal);
     }
 
-    optionField(fieldSpec) {
+    renderOptionField(fieldSpec, signal) {
         let valueCol;
         const {field, title} = fieldSpec;
         const {options, optionValues} = fieldSpec.options;
@@ -243,24 +250,20 @@ export default class SignalLegendEntry extends Component {
                             value={optionValues[opt]}>{opt}</option>
                 }
             );
-            valueCol = <select
+            valueCol = (
+                <select id={`${signal}_${field}`}
                         defaultValue={this.state.signalEdited[field]}
-                        onChange={(e) => {
-                        this.updateField(fieldSpec, e.target.value === "true")
-                        }}>
-                        {optionEles}
-                       </select>;
+                        onChange={
+                          (e) => { this.updateField(fieldSpec, e.target.value === "true") }
+                        }>
+                    {optionEles}
+               </select>
+            );
         } else {
             valueCol = <span>{valueOptions[this.props.signal[field]]}</span>;
         }
 
-        return this.field(field, title, valueCol);
-    }
-
-    removeSignal(signal) {
-        return (<tr>
-                    <td onClick={() => {this.props.onSignalRemove(signal)}}>Remove Signal</td>
-                </tr>);
+        return this.field(field, title, valueCol, signal);
     }
 
     titleForField(field, signal) {
@@ -271,14 +274,14 @@ export default class SignalLegendEntry extends Component {
         }
     }
 
-    fieldNode(field, signal) {
+    renderFieldNode(field, signal) {
         field.title = this.titleForField(field, signal);
         if(field.type === 'number') {
-            return this.numberField(field);
+            return this.renderNumberField(field, signal);
         } else if(field.type === 'option') {
-            return this.optionField(field);
+            return this.renderOptionField(field, signal);
         } else if(field.type === 'string') {
-            return this.stringField(field);
+            return this.renderStringField(field, signal);
         }
     }
 
@@ -304,8 +307,6 @@ export default class SignalLegendEntry extends Component {
             this.props.onSignalChange(signalCopy, signal);
         }  else {
             signalEdited = signalCopy;
-            // Show plot when expanding
-            this.props.onSignalPlotChange(true, signal.name)
         }
 
         // Expand and enable signal editing
@@ -320,57 +321,62 @@ export default class SignalLegendEntry extends Component {
     }
 
     onNameChange(e) {
-        // this.updateField('name', e.target.value);
         this.setState({nameEdited: e.target.value})
     }
 
-    expandedSignal(signal) {
+    renderSignalForm(signal) {
       const startBitTitle = signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit';
       return (
-        <table>
-          <tr key={signal.uid + '-expanded'} className=''>
-            <td colSpan="3">
-              <table>
-                <tbody>
-                  {SignalLegendEntry.fields.map((field) => this.fieldNode(field, signal))}
-                  {this.removeSignal(signal)}
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </table>
+        <div className='signals-legend-entry-form'>
+            {SignalLegendEntry.fields.map((field) => {
+                return (
+                    <div className='signals-legend-entry-form-field'>
+                        {this.renderFieldNode(field, signal.name)}
+                    </div>
+                )
+            })}
+            <div className='signals-legend-entry-form-remove'>
+                <button className='button--tiny button--alpha'
+                        onClick={ () => this.props.onSignalRemove(signal) }>Remove Signal</button>
+            </div>
+        </div>
       );
+    }
+
+    toggleSignalPlot(e) {
+      const {signal, isPlotted} = this.props;
+      e.preventDefault();
+      this.props.onSignalPlotChange(!isPlotted, signal.name);
     }
 
     render() {
         const {isExpanded, isEditing, signalEdited, nameEdited} = this.state;
         const {signal, highlightedStyle, plottedSignals, isPlotted} = this.props;
+        const expandedEntryClass = this.props.isExpanded ? 'is-expanded' : null;
+        const plottedButtonClass = this.props.isPlotted ? 'button' : 'button--alpha';
+        const plottedButtonText = this.props.isPlotted ? 'Hide Plot' : 'Show Plot';
         return (
           <div
-            className="signals-legend-entry"
-            onMouseEnter={() => this.props.onSignalHover(signal)}
-            onMouseLeave={() => this.props.onSignalHoverEnd(signal)}>
-            <div
-              className="signals-legend-entry-header"
-              onClick={this.toggleEditing}>
-              <div className="signals-legend-entry-header-name">
-                <span>{this.props.isExpanded ? '\u2193' : '\u2192'}</span>
-                <strong>{signal.name}</strong>
+              className={cx('signals-legend-entry', expandedEntryClass)}
+              onMouseEnter={() => this.props.onSignalHover(signal)}
+              onMouseLeave={() => this.props.onSignalHoverEnd(signal)}>
+              <div className="signals-legend-entry-header">
+                <div
+                    className="signals-legend-entry-header-name"
+                    onClick={this.toggleEditing}>
+                    <strong>{signal.name}</strong>
+                </div>
+                <div
+                    className="signals-legend-entry-header-action"
+                    onClick={this.toggleSignalPlot}>
+                    <button className={cx('button--tiny', plottedButtonClass)}>
+                        {plottedButtonText}
+                    </button>
+                </div>
               </div>
-              <div className="signals-legend-entry-header-plotted">
-                <span>Plot: </span>
-                <input type="checkbox"
-                    checked={isPlotted}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      this.props.onSignalPlotChange(e.target.checked, signal.name)
-                    }}
-                />
+              <div className="signals-legend-entry-body">
+                  {this.props.isExpanded ? this.renderSignalForm(signal) : null}
               </div>
-            </div>
-            <div className="signals-legend-entry-body">
-              {this.props.isExpanded ? this.expandedSignal(signal) : null}
-            </div>
           </div>
         );
     }

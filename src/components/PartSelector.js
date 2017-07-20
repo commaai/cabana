@@ -131,7 +131,7 @@ const Styles = StyleSheet.create({
         position: 'relative'
     },
     selectedPart: {
-        backgroundColor: 'black',
+        backgroundColor: '#6f6f6f',
         height: '100%',
         position: 'absolute',
     },

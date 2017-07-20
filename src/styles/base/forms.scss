@@ -1,0 +1,88 @@
+/*
+
+  Base Form Elements
+  ~~~~~~~~~~~~~~~~~~
+
+*/
+
+@import '../../styles/_global/all';
+
+$input-height: 42px;
+$input-height--small: 34px;
+$input-height--tiny: 22px;
+$input-radius: 3px;
+$input-background: #fff;
+$button-background: $color-grey-50;
+$button-background--alpha: rgba(0,0,0,.02);
+
+.form-field {
+  &.form-field--small {
+    input,
+    select {
+      font-size: 12px;
+      height: $input-height--small;
+    }
+  }
+}
+
+input[type='text'],
+input[type='number'],
+select {
+  background: $input-background;
+  border: 1px solid $color-grey-50;
+  border-radius: $input-radius;
+  font-size: 14px;
+  height: $input-height;
+  outline: none;
+  padding: 0 14px;
+  width: 100%;
+  &:focus {
+    border-color: $color-grey-60;
+  }
+}
+
+input[type='button'],
+button,
+a.button {
+  background: $color-grey-50;
+  border: 1px solid $color-grey-60;
+  border-bottom-width: 3px;
+  border-radius: $input-radius;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  height: $input-height;
+  line-height: $input-height - 2px;
+  outline: 0;
+  padding: 0 5%;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 1px rgba(0,0,0,.2);
+  &:active {
+    background: $color-grey-60;
+    border-bottom-width: 1px;
+  }
+  &.button--small {
+    height: $input-height--small;
+    line-height: $input-height--small - 2px;
+  }
+  &.button--tiny {
+    height: $input-height--tiny;
+    font-size: 12px;
+    line-height: $input-height--tiny - 2px;
+  }
+  &.button--alpha {
+    background: $button-background--alpha;
+    border-color: $color-grey-30;
+    border-width: 1px;
+    color: $color-grey-70;
+    text-shadow: none;
+  }
+  &.button--inverted {
+    background: transparent;
+    border-width: 1px;
+    color: $button-background;
+  }
+}

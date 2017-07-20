@@ -36,6 +36,7 @@ export default class CanExplorer extends Component {
         super(props);
         this.state = {
             messages: {},
+            selectedMessages: [],
             route: {},
             canFrameOffset: -1,
             firstCanTime: 0,
@@ -75,6 +76,7 @@ export default class CanExplorer extends Component {
         this.onMessageSelected = this.onMessageSelected.bind(this);
         this.onMessageUnselected = this.onMessageUnselected.bind(this);
         this.initCanData = this.initCanData.bind(this);
+        this.updateSelectedMessages = this.updateSelectedMessages.bind(this);
     }
 
     componentWillMount() {
@@ -342,80 +344,102 @@ export default class CanExplorer extends Component {
       this.setState({seekTime, seekIndex, selectedMessage: msgKey});
     }
 
+    updateSelectedMessages(selectedMessages) {
+        this.setState({selectedMessages});
+    }
+
     onMessageUnselected(msgKey) {
       this.setState({selectedMessage: null});
     }
 
     loginWithGithub() {
-      return <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}>Log in with Github</a>
+        return (
+            <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}>
+                <i className='fa fa-github'></i>
+                <span> Log in with Github</span>
+            </a>
+        )
     }
 
     render() {
-        return (<div>
-                    {this.state.isLoading ?
-                      <LoadingBar
-                        isLoading={this.state.isLoading}
-                      /> : null}
-                    <div className='cabana'>
-                      <Meta url={this.state.route.url}
-                            messages={this.state.messages}
-                            currentParts={this.state.currentParts}
-                            partsCount={this.state.route.proclog || 0}
-                            onMessageSelected={this.onMessageSelected}
-                            onMessageUnselected={this.onMessageUnselected}
-                            showLoadDbc={this.showLoadDbc}
-                            showSaveDbc={this.showSaveDbc}
-                            dbcFilename={this.state.dbcFilename}
-                            dbcLastSaved={this.state.dbcLastSaved}
-                            onPartChange={this.onPartChange}
-                            showEditMessageModal={this.showEditMessageModal}
-                            dongleId={this.props.dongleId}
-                            name={this.props.name}
-                            route={this.state.route}
-                            seekTime={this.state.seekTime}
-                            maxByteStateChangeCount={this.state.maxByteStateChangeCount}
-                            githubAuthToken={this.props.githubAuthToken}
-                            loginWithGithub={this.loginWithGithub()}
-                            isDemo={this.props.isDemo}
-                      />
-                      {this.state.route.url ?
-                        <Explorer
-                            url={this.state.route.url}
-                            messages={this.state.messages}
-                            selectedMessage={this.state.selectedMessage}
-                            onConfirmedSignalChange={this.onConfirmedSignalChange}
-                            onSeek={this.onSeek}
-                            onUserSeek={this.onUserSeek}
-                            canFrameOffset={this.state.canFrameOffset}
-                            firstCanTime={this.state.firstCanTime}
-                            seekTime={this.state.seekTime}
-                            seekIndex={this.state.seekIndex}
-                            currentParts={this.state.currentParts}
-                            partsLoaded={this.state.partsLoaded}
-                            autoplay={this.props.autoplay}
-                             />
-                            : null}
+        return (
+            <div id="cabana">
+                {this.state.isLoading ?
+                    <LoadingBar
+                      isLoading={this.state.isLoading}
+                    /> : null}
+                <div className='cabana-header'>
+                    <a className='cabana-header-logo' href=''>Comma Cabana</a>
+                    <div className='cabana-header-account'>
+                        {this.props.githubAuthToken  ?
+                            <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
+                            : this.loginWithGithub()
+                        }
                     </div>
+                </div>
+                <div className='cabana-window'>
+                    <Meta url={this.state.route.url}
+                          messages={this.state.messages}
+                          selectedMessages={this.state.selectedMessages}
+                          updateSelectedMessages={this.updateSelectedMessages}
+                          showEditMessageModal={this.showEditMessageModal}
+                          currentParts={this.state.currentParts}
+                          onMessageSelected={this.onMessageSelected}
+                          onMessageUnselected={this.onMessageUnselected}
+                          showLoadDbc={this.showLoadDbc}
+                          showSaveDbc={this.showSaveDbc}
+                          dbcFilename={this.state.dbcFilename}
+                          dbcLastSaved={this.state.dbcLastSaved}
+                          dongleId={this.props.dongleId}
+                          name={this.props.name}
+                          route={this.state.route}
+                          seekTime={this.state.seekTime}
+                          maxByteStateChangeCount={this.state.maxByteStateChangeCount}
+                          isDemo={this.props.isDemo}
+                  />
+                  {this.state.route.url ?
+                      <Explorer
+                          url={this.state.route.url}
+                          messages={this.state.messages}
+                          selectedMessage={this.state.selectedMessage}
+                          onConfirmedSignalChange={this.onConfirmedSignalChange}
+                          onSeek={this.onSeek}
+                          onUserSeek={this.onUserSeek}
+                          canFrameOffset={this.state.canFrameOffset}
+                          firstCanTime={this.state.firstCanTime}
+                          seekTime={this.state.seekTime}
+                          seekIndex={this.state.seekIndex}
+                          currentParts={this.state.currentParts}
+                          partsLoaded={this.state.partsLoaded}
+                          autoplay={this.props.autoplay}
+                          showEditMessageModal={this.showEditMessageModal}
+                          onPartChange={this.onPartChange}
+                          route={this.state.route}
+                          partsCount={this.state.route.proclog || 0}
+                           />
+                          : null}
+                </div>
 
-                    {this.state.showLoadDbc ? <LoadDbcModal
-                                                onDbcSelected={this.onDbcSelected}
-                                                onCancel={this.hideLoadDbc}
-                                                openDbcClient={this.openDbcClient}
-                                                loginWithGithub={this.loginWithGithub()}
-                                                 /> : null}
-                    {this.state.showSaveDbc ? <SaveDbcModal
-                                                dbc={this.state.dbc}
-                                                sourceDbcFilename={this.state.dbcFilename}
-                                                onDbcSaved={this.onDbcSaved}
-                                                onCancel={this.hideSaveDbc}
-                                                openDbcClient={this.openDbcClient}
-                                                hasGithubAuth={this.props.githubAuthToken !== null}
-                                                loginWithGithub={this.loginWithGithub()} /> : null}
-                    {this.state.showEditMessageModal ?
-                      <EditMessageModal
-                        onCancel={this.hideEditMessageModal}
-                        onMessageFrameEdited={this.onMessageFrameEdited}
-                        message={this.state.messages[this.state.editMessageModalMessage]} /> : null}
-                </div>);
+                {this.state.showLoadDbc ? <LoadDbcModal
+                                            onDbcSelected={this.onDbcSelected}
+                                            onCancel={this.hideLoadDbc}
+                                            openDbcClient={this.openDbcClient}
+                                            loginWithGithub={this.loginWithGithub()}
+                                             /> : null}
+                {this.state.showSaveDbc ? <SaveDbcModal
+                                            dbc={this.state.dbc}
+                                            sourceDbcFilename={this.state.dbcFilename}
+                                            onDbcSaved={this.onDbcSaved}
+                                            onCancel={this.hideSaveDbc}
+                                            openDbcClient={this.openDbcClient}
+                                            hasGithubAuth={this.props.githubAuthToken !== null}
+                                            loginWithGithub={this.loginWithGithub()} /> : null}
+                {this.state.showEditMessageModal ?
+                    <EditMessageModal
+                      onCancel={this.hideEditMessageModal}
+                      onMessageFrameEdited={this.onMessageFrameEdited}
+                      message={this.state.messages[this.state.editMessageModalMessage]} /> : null}
+            </div>
+        );
     }
 }

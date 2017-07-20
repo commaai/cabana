@@ -5,38 +5,112 @@
 
 */
 
-@import '../../styles/_global/index';
+@import '../../styles/_global/all';
 
 .cabana-explorer-signals-legend {
   background: $color-grey-10;
   border: 1px solid rgba(0,0,0,.2);
   border-radius: 5px;
-  margin: 5% 0;
-  padding: 2%;
+  margin-top: 5%;
 }
 
 .signals-legend-entry {
+  $entry-header-height: 42px;
+  $entry-header-icon-size: 28px;
   overflow: auto;
+  transition-duration: .1s;
+  padding: 0 2%;
   &:not(:last-child) {
     border-bottom: 1px solid rgba(0,0,0,.05);
   }
-  &-header {
-    cursor: pointer;
-    line-height: 42px;
-    &-name {
-      float: left;
-      width: 70%;
+  &:hover {
+    background: rgba(0,0,0,.02);
+  }
+  &.is-expanded {
+    .signals-legend-entry-header {
+      border-bottom-color: rgba(0,0,0,.05);
+      height: $entry-header-height + 3px;
+      &:before {
+        left: 0;
+        padding-top: 5px;
+        top: -3px;
+        transform: rotate(90deg);
+      }
     }
-    &-plotted {
+    .signals-legend-entry-body {
+      display: block;
+    }
+  }
+  &-header {
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    height: $entry-header-height;
+    line-height: $entry-header-height;
+    position: relative;
+    transition-duration: .2s;
+    &:before {
+      color: $color-grey-80;
+      content: $fa-var-chevron-right;
+      display: block;
+      font-size: 10px;
+      font-family: 'FontAwesome';
+      height: $entry-header-height;
+      left: -2px;
+      top: 0;
+      pointer-events: none;
+      position: absolute;
+      transition-duration: .1s;
+      text-align: center;
+      width: $entry-header-icon-size;
+    }
+    &-name {
+      color: $color-grey-80;
+      font-size: 14px;
+      float: left;
+      padding-left: $entry-header-icon-size;
+      width: 75%;
+    }
+    &-action {
       float: left;
       text-align: right;
-      width: 30%;
+      padding-right: 2%;
+      width: 25%;
+      button {
+        display: inline-block;
+        width: 100%;
+      }
     }
   }
   &-body {
+    display: none;
     padding: 2%;
   }
-  &.is-expanded {
-
+  &-form {
+    &-field {
+      min-height: $input-height;
+      padding: 1px 0;
+      @extend %clearfix;
+      &:not(:last-child) {
+        border-bottom: 1px solid rgba(0,0,0,.05);
+        margin-bottom: 3px;
+      }
+      label {
+        color: $color-grey-80;
+        cursor: pointer;
+        float: left;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: $input-height--small;
+        width: 40%;
+      }
+      input,
+      select {
+        float: left;
+        width: 60%;
+      }
+    }
+    &-remove {
+      padding: 2% 0;
+    }
   }
 }

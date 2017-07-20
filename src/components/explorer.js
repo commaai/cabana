@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import { StyleSheet, css } from 'aphrodite/no-important';
+import Moment from 'moment';
 
 import AddSignals from './AddSignals';
 import CanHistogram from './CanHistogram';
@@ -13,6 +14,7 @@ import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
 import CommonStyles from '../styles/styles';
 import Images from '../styles/images';
+import PartSelector from './PartSelector';
 
 export default class Explorer extends Component {
     static propTypes = {
@@ -24,6 +26,8 @@ export default class Explorer extends Component {
        firstCanTime: PropTypes.number,
        onSeek: PropTypes.func,
        autoplay: PropTypes.bool,
+       onPartChanged: PropTypes.func,
+       partsCount: PropTypes.number,
     };
 
     constructor(props) {
@@ -189,6 +193,19 @@ export default class Explorer extends Component {
             const nextSeekTime = (userSeekTime - this.props.currentParts[0] * 60) + nextProps.currentParts[0] * 60;
             this.setState({userSeekTime: nextSeekTime});
         }
+    }
+
+    timeWindow() {
+        const {route, currentParts} = this.props;
+        if(route) {
+            const partStartOffset = currentParts[0] * 60,
+                  partEndOffset = (currentParts[1] + 1) * 60;
+
+            const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
+            const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
+
+            return `${windowStartTime} - ${windowEndTime}`;
+        } else return '';
     }
 
     calcGraphData(msg, signalName) {
@@ -426,33 +443,46 @@ export default class Explorer extends Component {
     }
 
     renderExplorerSignals() {
+        const selectedMessageKey = this.props.selectedMessage;
+        const selectedMessage = this.props.messages[selectedMessageKey];
+        const selectedMessageName = selectedMessage.frame !== undefined ? selectedMessage.frame.name : 'undefined';
         return (
-            <div className=''>
+            <div className='cabana-explorer-signals-wrapper'>
                 <div
-                  className="cabana-explorer-signals-header"
-                  onClick={this.toggleEditSignals}>
-                  <span>Edit Signals</span>
+                    className='cabana-explorer-signals-header'
+                    onClick={this.toggleEditSignals}>
+                    <div className='cabana-explorer-signals-header-context'>
+                        <h6>Selected Message:</h6>
+                        <h3>{selectedMessageName}</h3>
+                    </div>
+                    <div className='cabana-explorer-signals-header-action'>
+                        <button
+                            className='button--small'
+                            onClick={() => this.props.showEditMessageModal(selectedMessageKey)}>Edit</button>
+                    </div>
                 </div>
-                {this.state.shouldShowAddSignal ?
-                  <AddSignals
-                      onConfirmedSignalChange={this.props.onConfirmedSignalChange}
-                      message={this.props.messages[this.props.selectedMessage]}
-                      onClose={() => {this.setState({shouldShowAddSignal: false})}}
-                      messageIndex={this.props.seekIndex}
-                      onSignalPlotChange={this.onSignalPlotChanged}
-                      plottedSignals={this.state.plottedSignals.filter(
-                              ({messageId, signalName}) => messageId === this.props.selectedMessage
-                          ).map(({messageId, signalName}) => signalName)
-                      }
-                  /> : null}
-                <CanLog message={this.props.messages[this.props.selectedMessage]}
-                    messageIndex={this.props.seekIndex}
-                    segmentIndices={this.state.segmentIndices}
-                    plottedSignals={this.state.plottedSignals}
-                    onSignalPlotPressed={this.onSignalPlotPressed}
-                    onSignalUnplotPressed={this.onSignalUnplotPressed}
-                    showAddSignal={this.showAddSignal}
-                    onMessageExpanded={this.onPause} />
+                <div className='cabana-explorer-signals-window'>
+                    {this.state.shouldShowAddSignal ?
+                        <AddSignals
+                            onConfirmedSignalChange={this.props.onConfirmedSignalChange}
+                            message={this.props.messages[this.props.selectedMessage]}
+                            onClose={() => {this.setState({shouldShowAddSignal: false})}}
+                            messageIndex={this.props.seekIndex}
+                            onSignalPlotChange={this.onSignalPlotChanged}
+                            plottedSignals={this.state.plottedSignals.filter(
+                                    ({messageId, signalName}) => messageId === this.props.selectedMessage
+                                ).map(({messageId, signalName}) => signalName)
+                            }
+                        /> : null}
+                      <CanLog message={this.props.messages[this.props.selectedMessage]}
+                              messageIndex={this.props.seekIndex}
+                              segmentIndices={this.state.segmentIndices}
+                              plottedSignals={this.state.plottedSignals}
+                              onSignalPlotPressed={this.onSignalPlotPressed}
+                              onSignalUnplotPressed={this.onSignalUnplotPressed}
+                              showAddSignal={this.showAddSignal}
+                              onMessageExpanded={this.onPause} />
+                </div>
             </div>
         )
     }
@@ -464,7 +494,7 @@ export default class Explorer extends Component {
         <CanGraph key={messageId + '_' + signalName}
           unplot={() => {this.onSignalUnplotPressed(messageId, signalName)}}
           messageId={messageId}
-          messageName={msg.frame ? msg.frame.name : null}
+          message={msg.frame ? msg.frame.name : null}
           signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}
           onSegmentChanged={this.onSegmentChanged}
           segment={this.state.segment}
@@ -483,6 +513,13 @@ export default class Explorer extends Component {
                     : this.selectMessagePrompt()}
                 </div>
                 <div className='cabana-explorer-visuals'>
+                    <div className='cabana-explorer-visuals-header'>
+                        {this.timeWindow()}
+                        <PartSelector
+                            onPartChange={this.props.onPartChange}
+                            partsCount={this.props.partsCount}
+                        />
+                    </div>
                     <RouteVideoSync
                         message={this.props.messages[this.props.selectedMessage]}
                         secondsLoaded={this.secondsLoaded()}

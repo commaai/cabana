@@ -4,6 +4,8 @@
 /node_modules
 
 # stylesheets
+/src/*.css
+/src/*.css.map
 /src/**/**/*.css
 /src/**/**/*.css.map
 

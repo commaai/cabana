@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Moment from 'moment';
 import Clipboard from 'clipboard';
 
 import {modifyQueryParameters} from '../utils/url';
-import PartSelector from './PartSelector';
 import LoadDbcModal from './LoadDbcModal';
 import * as GithubAuth from '../api/github-auth';
 import Images from '../styles/images';
@@ -19,8 +18,7 @@ export default class Meta extends Component {
         dongleId: PropTypes.string,
         name: PropTypes.string,
         messages: PropTypes.objectOf(PropTypes.object),
-        onPartChanged: PropTypes.func,
-        partsCount: PropTypes.number,
+        selectedMessages: PropTypes.array,
         showLoadDbc: PropTypes.func,
         showSaveDbc: PropTypes.func,
         dbcFilename: PropTypes.string,
@@ -40,7 +38,6 @@ export default class Meta extends Component {
         this.state = {
             filterText: 'Filter',
             lastSaved: dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
-            selectedMessages: [],
             hoveredMessages: []
         };
         this.onFilterChanged = this.onFilterChanged.bind(this);
@@ -68,9 +65,9 @@ export default class Meta extends Component {
 
         const nextMsgKeys = Object.keys(nextProps.messages);
         if(JSON.stringify(nextMsgKeys) != JSON.stringify(Object.keys(this.props.messages))) {
-            let {selectedMessages} = this.state;
+            let {selectedMessages} = this.props;
             selectedMessages = selectedMessages.filter((m) => nextMsgKeys.indexOf(m) !== -1);
-            this.setState({selectedMessages, hoveredMessages: []});
+            this.setState({hoveredMessages: []});
         }
     }
 
@@ -123,10 +120,6 @@ export default class Meta extends Component {
         this.setState({hoveredMessages});
     }
 
-    onMsgEditClick(key) {
-        this.props.showEditMessageModal(key);
-    }
-
     onMsgRemoveClick(key) {
         let {selectedMessages} = this.state;
         selectedMessages = selectedMessages.filter((m) => m != key);
@@ -134,50 +127,12 @@ export default class Meta extends Component {
         this.setState({selectedMessages});
     }
 
-    hoverButtons(key) {
-        return ([<div key={"edit"}
-                      className={css(Styles.hoverButton, Styles.editButton)}
-                      onClick={() => this.onMsgEditClick(key)}>
-                    <p>Edit</p>
-                </div>,
-                <div key={"remove"}
-                     className={css(Styles.hoverButton, Styles.removeButton)}
-                     onClick={() => this.onMsgRemoveClick(key)}>
-                    <p>Remove</p>
-                </div>]);
-    }
-
-    selectedMessagesList() {
-        const {selectedMessages, hoveredMessages} = this.state;
-        if(selectedMessages.length === 0) return null;
-
-        const messages = selectedMessages
-                            .sort()
-                            .map((key) => {
-                                const msg = this.props.messages[key];
-                                return <li key={key}
-                                        className={css(Styles.message,
-                                                       Styles.selectedMessage)}
-                                        onMouseEnter={() => this.onMessageHover(key)}
-                                        onMouseLeave={() => this.onMessageHoverEnd(key)}>
-                                        {msg.frame ? msg.frame.name : ''}&nbsp;{key}
-                                        {hoveredMessages.indexOf(key) !== -1 ? this.hoverButtons(key): null}
-                                    </li>
-                            });
-        return (<div className={css(Styles.messagesList)}>
-                    <p>Selected Message</p>
-                    <ul className={css(Styles.messageList)}>
-                        {messages}
-                    </ul>
-                </div>);
-    }
-
     onMessageSelected(key) {
         // uncomment when we support multiple messages
         // const selectedMessages = this.state.selectedMessages.filter((m) => m != key);
         const selectedMessages = [];
         selectedMessages.push(key);
-        this.setState({selectedMessages});
+        this.props.updateSelectedMessages(selectedMessages);
         this.props.onMessageSelected(key);
     }
 
@@ -223,75 +178,45 @@ export default class Meta extends Component {
     }
 
     selectedMessageClass(messageId) {
-      return (this.state.selectedMessages.includes(messageId) ? Styles.messageIsSelected : null);
+      return (this.props.selectedMessages.includes(messageId) ? 'is-selected' : null);
     }
 
-    availableMessagesList() {
+    renderAvailableMessagesList() {
         if(Object.keys(this.props.messages).length === 0) {
-            return null;
+            return <p>Loading messages...</p>;
         }
-
-        const defaultTextVisible = this.state.filterText.trim() === 'Filter';
-
-        return (<div className={css(Styles.messagesList)}>
-
-                    <p>Available Messages</p>
-                    <div className={css(Styles.filter)}>
-                        <input type="text"
-                               value={this.state.filterText}
-                               onFocus={this.onFilterFocus}
-                               onBlur={this.onFilterUnfocus}
-                               onChange={this.onFilterChanged}
-                               className={css(defaultTextVisible ? Styles.defaultFilterText: null)}
-                               />
-                        {this.state.filterText.trim().length > 0 && this.state.filterText !== 'Filter' ?
-                        <Images.clear onClick={() => this.setState({filterText: 'Filter'})} />
-                        : null}
-                    </div>
-                    <table className={css(Styles.messageTable)}>
-                        <thead>
-                            <tr className={css(Styles.messageHeader)}>
-                                <td></td>
-                                <td></td>
-                                <td>Signals</td>
-                                <td>Count</td>
-                                <td>Bytes</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.orderedMessages()
-                                .map((msg) => {
-                                    return <tr onClick={() => {this.onMessageSelected(msg.id)}}
-                                            key={msg.id}
-                                            className={css(Styles.message, this.selectedMessageClass(msg.id))}>
-                                                <td>{msg.frame ? msg.frame.name : ''}</td>
-                                                <td>{msg.id}</td>
-                                                <td>{Object.keys(msg.signals).length}</td>
-                                                <td>{msg.entries.length}</td>
-                                                <td>
-                                                    <MessageBytes
-                                                        message={msg}
-                                                        seekTime={this.props.seekTime}
-                                                        maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
-                                                </td>
-                                            </tr>
-                                })}
-                            </tbody>
-                    </table>
-                </div>);
-    }
-
-    timeWindow() {
-        const {route, currentParts} = this.props;
-        if(route) {
-            const partStartOffset = currentParts[0] * 60,
-                  partEndOffset = (currentParts[1] + 1) * 60;
-
-            const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
-            const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
-
-            return `${windowStartTime} - ${windowEndTime}`;
-        } else return '';
+        return (
+            <table cellPadding='5'>
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>ID</td>
+                        <td>Count</td>
+                        <td>Bytes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.orderedMessages()
+                        .map((msg) => {
+                            return (
+                                <tr onClick={() => {this.onMessageSelected(msg.id)}}
+                                    key={msg.id}
+                                    className={cx('cabana-meta-messages-list-item', this.selectedMessageClass(msg.id))}>
+                                        <td>{msg.frame ? msg.frame.name : 'undefined'}</td>
+                                        <td>{msg.id}</td>
+                                        <td>{msg.entries.length}</td>
+                                        <td>
+                                            <MessageBytes
+                                                message={msg}
+                                                seekTime={this.props.seekTime}
+                                                maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
+                                        </td>
+                                    </tr>
+                            )
+                        })}
+                    </tbody>
+            </table>
+        );
     }
 
     shareUrl() {
@@ -303,182 +228,53 @@ export default class Meta extends Component {
     }
     render() {
         return (
-            <div className="cabana-meta">
-                {this.props.isDemo ?
-                    <div className={css(Styles.chffrPanda)}>
-                        <Images.panda styles={[Styles.panda]} />
-                        <div className={css(Styles.chffrPandaDesc)}>
-                            <p>Data collected with chffr + panda</p>
-                            <a href="http://panda.comma.ai" className={css(Styles.chffrPandaGet)}>buy panda</a>
-                            <a href="http://chffr.comma.ai" className={css(Styles.chffrPandaGet)}>get chffr</a>
-                        </div>
-                    </div> : null}
-                <div className={css(Styles.scrollContainer)}>
-                    <div>
-                        <span className={css(Styles.titleText)}>
-                            comma cabana
-                        </span>
-                    </div>
-                    <div>
-                        {this.props.githubAuthToken  ?
-                            <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
-                            :
-                            this.props.loginWithGithub
-                        }
-                    </div>
-                    <div>
-                        <p className={css(Styles.loadDbc)}
-                           onClick={this.props.showLoadDbc}>Load DBC</p>
-                            &nbsp;/&nbsp;
-                        <p className={css(Styles.loadDbc)}
-                           onClick={this.props.showSaveDbc}>Save DBC</p>
-                        {this.props.dbcLastSaved !== null ?
+            <div className='cabana-meta'>
+                <div className='cabana-meta-header'>
+                    <span className='cabana-meta-header-label'>Currently editing:</span>
+                    <strong className='cabana-meta-header-filename'>{this.props.dbcFilename}</strong>
+                    {this.props.dbcLastSaved !== null ?
+                        <div className='cabana-meta-header-last-saved'>
                             <p>Last saved: {this.lastSavedPretty()}</p>
-                            : null
-                        }
-                        {this.props.dbcFilename ? <p>Editing: {this.props.dbcFilename}</p>: null}
-                        <p data-clipboard-text={this.shareUrl()}
-                           data-clipboard-action="copy"
-                           ref={(ref) => ref ? new Clipboard(ref) : null}>
-                           <a href={this.shareUrl()}
-                              className={css(Styles.copyShareLink)}
-                              onClick={(e) => e.preventDefault()}>Copy share link</a></p>
+                        </div>
+                        : null
+                    }
+                    <div className='cabana-meta-header-actions'>
+                        <div className='cabana-meta-header-action'>
+                            <button onClick={this.props.showLoadDbc}>Load DBC</button>
+                        </div>
+                        <div className='cabana-meta-header-action'
+                             data-clipboard-text={this.shareUrl()}
+                             data-clipboard-action='copy'
+                             ref={(ref) => ref ? new Clipboard(ref) : null}>
+                            <a className='button'
+                               href={this.shareUrl()}
+                               onClick={(e) => e.preventDefault()}>Copy Share Link</a>
+                        </div>
+                        <div className='cabana-meta-header-action'>
+                            <button onClick={this.props.showSaveDbc}>Save DBC</button>
+                        </div>
                     </div>
-
-                    <div>
-                        <p className={css(Styles.timeWindow)}>{this.timeWindow()}</p>
+                </div>
+                <div className='cabana-meta-messages'>
+                    <div className='cabana-meta-messages-header'>
+                      <p>Available messages</p>
                     </div>
-                    <PartSelector
-                        onPartChange={this.props.onPartChange}
-                        partsCount={this.props.partsCount}
-                    />
-                    {this.selectedMessagesList()}
-                    {this.availableMessagesList()}
+                    <div className='cabana-meta-messages-window'>
+                      <div className='cabana-meta-messages-filter'>
+                          <div className='form-field form-field--small'>
+                            <input type="text"
+                                   value={this.state.filterText}
+                                   onFocus={this.onFilterFocus}
+                                   onBlur={this.onFilterUnfocus}
+                                   onChange={this.onFilterChanged} />
+                          </div>
+                       </div>
+                       <div className='cabana-meta-messages-list'>
+                           {this.renderAvailableMessagesList()}
+                       </div>
+                    </div>
                 </div>
             </div>
         );
     }
 }
-
-const Styles = StyleSheet.create({
-    chffrPanda: {
-        minWidth: 450,
-        width: '100%',
-        flexDirection: 'row',
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(0,0,0,0.8)',
-        borderRight: '1px solid rgba(0,0,0,0.8)',
-        backgroundColor: 'white',
-        padding: 10
-    },
-    chffrPandaDesc: {
-        textAlign: 'center',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingLeft: 10
-    },
-    chffrPandaGet: {
-        display: 'block',
-        fontWeight: 'bold',
-        textDecoration: 'none',
-        ':hover': {
-            textDecoration: 'underline'
-        },
-        color: 'rgba(0,0,0,0.8)'
-    },
-    panda: {
-        width: 150,
-        height: 138
-    },
-    scrollContainer: {
-        display: 'block',
-        height: '100%',
-        overflowY: 'scroll',
-        overflowX: 'hidden',
-        padding: 10,
-    },
-    githubAuth: {
-        marginTop: 10,
-        marginBottom: 10
-    },
-    titleText: {
-        fontFamily: 'monospace',
-        paddingRight: 10,
-        fontSize: 24
-    },
-    routeMeta: {
-        borderBottomWidth: '1px',
-        borderColor: 'grey',
-        '*': {
-            display: 'inline-block'
-        }
-    },
-    message: {
-        cursor: 'pointer',
-        ':hover' : {
-            backgroundColor: 'rgba(0,0,0,0.1)'
-        },
-        marginTop: 5,
-        fontSize: 12,
-    },
-    selectedMessage: {
-        display: 'flex',
-        flexDirection: 'row'
-    },
-    messageIsSelected: {
-        backgroundColor: 'blue',
-        color: 'rgb(233, 233, 233)',
-        fontWeight: 'bold'
-    },
-    messageList: {
-        margin: 0,
-        padding: 0
-    },
-    loadDbc: {
-        cursor: 'pointer',
-        ':hover': {
-            textDecoration: 'underline'
-        },
-        display: 'inline',
-        fontWeight: 'bold'
-    },
-    timeWindow: {
-        marginTop: 10,
-        marginBottom: 10,
-    },
-    hoverButton: {
-        height: 15,
-        padding: 8,
-        borderRadius: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'flex',
-        marginLeft: 15
-    },
-    editButton: {
-        backgroundColor: 'RGBA(105, 69, 33, 1.00)',
-        color: 'RGBA(251, 253, 242, 1.00)'
-    },
-    removeButton: {
-        backgroundColor: 'RGBA(255, 34, 59, 0.83)',
-        color: 'RGBA(251, 253, 242, 1.00)'
-    },
-    defaultFilterText: {
-        color: 'rgb(205,205,205)'
-    },
-    filter: {
-        display: 'flex',
-        flexDirection: 'row',
-        height: 24
-    },
-    messagesList: {
-        marginTop: 10
-    },
-    messageHeader: {
-        fontSize: 12
-    },
-    copyShareLink: {
-        color: 'black'
-    }
-});

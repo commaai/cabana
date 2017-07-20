@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactList from 'react-list';
 
 import { StyleSheet, css } from 'aphrodite/no-important';
+import cx from 'classnames';
 import { formatMsgDec, formatMsgHex } from '../models/can-msg-fmt';
 import { elementWiseEquals } from '../utils/array';
 import Images from '../styles/images';
@@ -29,14 +30,16 @@ export default class CanLog extends Component {
         length: 0,
         expandedMessages: [],
         messageHeights: [],
-        expandAllChecked: false
+        allPacketsExpanded: false
       }
 
-      this.messageRow = this.messageRow.bind(this);
+      this.renderLogListItemMessage = this.renderLogListItemMessage.bind(this);
       this.addDisplayedMessages = this.addDisplayedMessages.bind(this);
-      this.renderMessage = this.renderMessage.bind(this);
-      this.renderTable = this.renderTable.bind(this);
+      this.renderLogListItem = this.renderLogListItem.bind(this);
+      this.renderLogList = this.renderLogList.bind(this);
       this.onExpandAllChanged = this.onExpandAllChanged.bind(this);
+      this.toggleExpandAllPackets = this.toggleExpandAllPackets.bind(this);
+      this.toggleSignalPlot = this.toggleSignalPlot.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -97,110 +100,113 @@ export default class CanLog extends Component {
       } else return value;
     }
 
-    expandedMessage(msg) {
+    isMessageExpanded(msg) {
+        return this.state.expandedMessages.indexOf(msg.time) !== -1;
+    }
+
+    toggleSignalPlot(msg, name, plotted) {
+        if (!plotted) {
+            this.props.onSignalPlotPressed(msg, name);
+        } else {
+            this.props.onSignalUnplotPressed(msg, name);
+        }
+    }
+
+    toggleExpandPacketSignals(msg) {
+        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
+        const msgHasSignals = Object.keys(msg.signals).length > 0;
+        if (msgIsExpanded && msgHasSignals) {
+            this.setState({expandedMessages: this.state.expandedMessages
+              .filter((expMsgTime) => expMsgTime !== msg.time)})
+        } else if (msgHasSignals) {
+            this.setState({expandedMessages: this.state.expandedMessages.concat([msg.time])})
+            this.props.onMessageExpanded();
+        } else { return; }
+    }
+
+    renderLogListItemSignals(msg) {
+      const { message } = this.props;
       return (
-        <div className='signal-log' key={msg.time + '-expanded'}>
-          <div className={css(Styles.col)}>
-            <div className={css(Styles.signalCol)}>
-              <table className={css(Styles.signalTable)}>
-                <tbody>
-                  {Object.entries(msg.signals).map(([name, value]) => {
-                    return [name, value, this.isSignalPlotted(this.props.message.id, name)]
-                  }).map(([name, value, isPlotted]) => {
-                    const signal = msg.signals[name];
-                    const {unit} = signal;
-                    return (<tr key={name}>
-                              <td>{name}</td>
-                              <td><p className={css(Styles.signalValue)}>{this.signalValuePretty(signal, value)} {unit}</p></td>
-                              {isPlotted ?
-                                <td className={css(Styles.pointerUnderlineHover)}
-                                    onClick={() => {this.props.onSignalUnplotPressed(this.props.message.id, name)}}>[unplot]</td>
-                                :
-                                <td className={css(Styles.pointerUnderlineHover)}
-                                    onClick={() => {this.props.onSignalPlotPressed(this.props.message.id, name)}}>[plot]</td>
-                              }
-                            </tr>);
-                  })}
-                </tbody>
-              </table>
-            </div>
+          <div className='signals-log-list-signals'>
+              { Object.entries(msg.signals).map(([name, value]) => {
+                  return [name, value, this.isSignalPlotted(message.id, name)]
+                }).map(([name, value, isPlotted]) => {
+                  const signal = msg.signals[name];
+                  const plottedButtonClass = isPlotted ? null : 'button--alpha';
+                  const plottedButtonText = isPlotted ? 'Hide Plot' : 'Show Plot';
+                  const { unit } = signal;
+                  return (
+                    <div key={ name } className='signals-log-list-signal'>
+                        <div className='signals-log-list-signal-message'>
+                            <span>{ name }</span>
+                        </div>
+                        <div className='signals-log-list-signal-value'>
+                            <span>{ this.signalValuePretty(signal, value) } { unit }</span>
+                        </div>
+                        <div className='signals-log-list-signal-action'
+                              onClick={ () => { this.toggleSignalPlot(this.props.message.id, name, isPlotted) } }>
+                          <button className={ cx('button--tiny', plottedButtonClass) }>
+                              <span>{ plottedButtonText }</span>
+                          </button>
+                        </div>
+                    </div>
+                  );
+              })}
           </div>
-        </div>
       )
     }
 
-    isMessageExpanded(msg) {
-      return this.state.expandedMessages.indexOf(msg.time) !== -1;
+    renderLogListItemMessage(msg, key) {
+        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
+        const msgHasSignals = Object.keys(msg.signals).length > 0;
+        const hasSignalsClass = msgHasSignals ? 'has-signals' : null;
+        const expandedClass = msgIsExpanded ? 'is-expanded' : null;
+        const row = (
+            <div key={key} className={cx('signals-log-list-item', hasSignalsClass, expandedClass)}>
+                <div className='signals-log-list-item-header'
+                      onClick={ () => { this.toggleExpandPacketSignals(msg) } }>
+                    <div className='signals-log-list-time'>
+                        <span>{msg.relTime.toFixed(3)}</span>
+                    </div>
+                    <div className='signals-log-list-message'>
+                        <span>{(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}</span>
+                    </div>
+                    <div className='signals-log-list-bytes'>
+                        <span>{msg.hexData}</span>
+                    </div>
+              </div>
+              <div className='signals-log-list-item-body'>
+                  { msgIsExpanded ? this.renderLogListItemSignals(msg) : null}
+              </div>
+            </div>
+        );
+
+        return row;
     }
 
-    messageRow(msg, key) {
-      const msgIsExpanded = this.state.expandAllChecked || this.isMessageExpanded(msg);
-      const hasSignals = Object.keys(msg.signals).length > 0;
-      const rowStyle = (hasSignals ? Styles.pointer : null);
-      const row = [<div key={key}
-                        className={css(Styles.row, Styles.messageRow, rowStyle)}
-                        onClick={() => {
-                         if(!hasSignals) return;
-                         if(msgIsExpanded) {
-                           this.collapseMessage(msg);
-                         } else {
-                           this.expandMessage(msg);
-                         }
-                         }}>
-                          {hasSignals ?
-                            (msgIsExpanded ? <div className={css(Styles.col, Styles.arrowCell)}>{<Images.downArrow styles={[Styles.arrow]} />}</div>
-                              :
-                              <div className={css(Styles.col, Styles.arrowCell)}>{<Images.rightArrow styles={[Styles.arrow]} />}</div>
-                            )
-                            : <div className={css(Styles.col)}></div>
-                          }
-                    <div className={css(Styles.col, Styles.timefieldCol)}>
-                      {msg.relTime.toFixed(3)}
-                    </div>
-                    <div className={css(Styles.col,
-                                        Styles.messageCol)}>
-                      {(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}
-                    </div>
-                    <div className={css(Styles.col,
-                                        Styles.messageCol,
-                                        Styles.hex)}>
-                       {msg.hexData}
-                    </div>
-                  </div>];
+    renderLogListItem(index, key) {
+        let offset = this.props.messageIndex;
+        if(offset === 0 && this.props.segmentIndices.length === 2) {
+            offset = this.props.segmentIndices[0];
+        }
 
-      if(msgIsExpanded) {
-        row.push(this.expandedMessage(msg));
-      }
-
-      return row;
+        return this.renderLogListItemMessage(this.props.message.entries[offset + index], key);
     }
 
-    renderMessage(index, key) {
-      let offset = this.props.messageIndex;
-      if(offset === 0 && this.props.segmentIndices.length === 2) {
-        offset = this.props.segmentIndices[0];
-      }
-
-      return this.messageRow(this.props.message.entries[offset + index], key);
-    }
-
-    renderTable(items, ref) {
-      return (<div className={css(Styles.root)}>
-                <div className={css(Styles.row)}>
-                  <div className={css(Styles.col, Styles.dropdownCol)}>&nbsp;</div>
-                  <div className={css(Styles.col, Styles.timefieldCol)}>Time (s)</div>
-                  <div className={css(Styles.col)}>
-                    Message
-                  </div>
-                  <div className={css(Styles.col)}>
-                    Bytes
-                  </div>
+    renderLogList(items, ref) {
+        return (
+            <div className='signals-log-list'>
+                <div className='signals-log-list-header'>
+                    <div className='signals-log-list-time'>Time</div>
+                    <div className='signals-log-list-message'>Message</div>
+                    <div className='signals-log-list-bytes'>Bytes</div>
                 </div>
-                <div className={css(Styles.tableRowGroup)}
+                <div className='signals-log-list-items'
                      ref={ref}>
-                  {items}
+                    {items}
                 </div>
-              </div>)
+            </div>
+        )
     }
 
     listLength() {
@@ -218,25 +224,36 @@ export default class CanLog extends Component {
     }
 
     onExpandAllChanged(e) {
-      this.setState({expandAllChecked: e.target.checked});
+      this.setState({allPacketsExpanded: e.target.checked});
+    }
+
+    toggleExpandAllPackets() {
+      this.setState({allPacketsExpanded: !this.state.allPacketsExpanded});
     }
 
     render() {
-
-      return  <div className='cabana-explorer-signals-log'>
-                  <p>Expand all messages:
-                    <input type="checkbox"
-                           checked={this.state.expandAllChecked}
-                           onChange={this.onExpandAllChanged} />
-                  </p>
-                  <ReactList
-                    itemRenderer={this.renderMessage}
-                    itemsRenderer={this.renderTable}
-                    length={this.listLength()}
-                    pageSize={50}
-                    updateWhenThisValueChanges={this.props.messageIndex}
-                    type='variable' />
-              </div>;
+        let expandAllText = this.state.allPacketsExpanded ? 'Collapse All' : 'Expand All';
+        let expandAllClass = this.state.allPacketsExpanded ? null : 'button--alpha';
+        return (
+          <div className='cabana-explorer-signals-log'>
+            <div className='cabana-explorer-signals-log-header'>
+              <strong>Message Packets</strong>
+              <button className={cx('button--tiny', expandAllClass)}
+                      onClick={this.toggleExpandAllPackets}>
+                  {expandAllText}
+              </button>
+            </div>
+            <div className='cabana-explorer-signals-log-body'>
+                <ReactList
+                  itemRenderer={this.renderLogListItem}
+                  itemsRenderer={this.renderLogList}
+                  length={this.listLength()}
+                  pageSize={50}
+                  updateWhenThisValueChanges={this.props.messageIndex}
+                  type='variable' />
+            </div>
+          </div>
+        );
     }
 }
 
