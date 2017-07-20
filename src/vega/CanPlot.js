@@ -4,7 +4,8 @@ export default createClassFromSpec('CanPlot', {
   "$schema": "https://vega.github.io/schema/vega/v3.0.json",
   "width": 500,
   "height": 200,
-  "padding": 5,
+  "padding": "auto",
+  "autosize": {"type": "pad", "resize": true},
   "signals": [
     {
       "name": "tipTime",
@@ -98,8 +99,6 @@ export default createClassFromSpec('CanPlot', {
      "interactive": true,
      "encode": {
       "enter": {
-        "width": {"value": 500},
-        "height": {"value": 200},
         "fill": {"value": "transparent"}
       }
      },

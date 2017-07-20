@@ -88,9 +88,13 @@ export default class CanGraph extends Component {
             }
         }
 
-        return JSON.stringify(this.state) !== JSON.stringify(nextState)
-                || this.visualChanged(this.props, nextProps)
-                || this.dataChanged(this.props, nextProps);
+        const dataChanged = this.dataChanged(this.props, nextProps);
+        if(dataChanged) {
+            this.view.run();
+        }
+        return dataChanged
+                || JSON.stringify(this.state) !== JSON.stringify(nextState)
+                || this.visualChanged(this.props, nextProps);
     }
 
     componentDidUpdate(prevProps, prevState) {
