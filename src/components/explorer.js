@@ -178,7 +178,7 @@ export default class Explorer extends Component {
         if(nextMessage && curMessage) {
             // refresh graph data if the message entry lengths
             // do not match
-            this.refreshGraphData(nextProps.messages);
+            this.refreshGraphData(nextProps.messages, plottedSignals);
         }
 
         if(JSON.stringify(nextProps.currentParts) !== JSON.stringify(this.props.currentParts)) {
@@ -255,11 +255,13 @@ export default class Explorer extends Component {
         // }
     }
 
-    refreshGraphData(messages) {
+    refreshGraphData(messages, plottedSignals) {
         if(typeof messages === 'undefined') {
             messages = this.props.messages;
         }
-        const {plottedSignals} = this.state;
+        if(typeof plottedSignals === 'undefined') {
+            plottedSignals = this.state.plottedSignals;
+        }
         let graphData = Array(plottedSignals.length);
         plottedSignals.forEach((plotSignals, index) => {
             const plotGraphData = this.calcGraphData(plotSignals, messages);
