@@ -4,6 +4,7 @@ set -e
 eval "$(~/one/tools/azure/export_key.py chffrdist)"
 cd "$(dirname $0)"
 
+sass src/index.scss:src/index.css
 npm run build
 
 pushd build/

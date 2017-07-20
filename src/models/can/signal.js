@@ -1,9 +1,10 @@
-import DbcUtils from '../../utils/dbc';
 const UINT64 = require('cuint').UINT64
 require('core-js/fn/array/from');
 require('core-js/es6/map');
-
+import {hash} from '../../utils/string';
 import Bitarray from '../bitarray';
+
+import DbcUtils from '../../utils/dbc';
 
 export default class Signal {
     constructor({name,
@@ -197,8 +198,16 @@ export default class Signal {
         return ival;
     }
 
-    value(dataBuf) {
+    colors() {
+        const signalNameHashHex = hash(this.name);
 
+        let colors = [255,255,255];
+        const step = Math.ceil(signalNameHashHex.length/3);
+        for(let i = 0; i < signalNameHashHex.length; i+= step) {
+            colors[i / step] = ((step + signalNameHashHex.charCodeAt(i) << 5 * (i + 8))) % 255;
+        }
+
+        return colors;
     }
 
     equals(otherSignal) {

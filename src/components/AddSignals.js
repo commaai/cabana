@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet } from 'aphrodite/no-important';
 import css from '../utils/css';
-import {hash} from '../utils/string';
+
 import SignalLegend from './SignalLegend';
 import Signal from '../models/can/signal';
 import {shade} from '../utils/color';
@@ -57,13 +57,7 @@ export default class AddSignals extends Component {
     }
 
     signalColorStyle(signal) {
-        const signalNameHashHex = hash(signal.name);
-
-        let colors = [255,255,255];
-        const step = Math.ceil(signalNameHashHex.length/3);
-        for(let i = 0; i < signalNameHashHex.length; i+= step) {
-            colors[i / step] = ((step + signalNameHashHex.charCodeAt(i) << 5 * (i + 8))) % 255;
-        }
+        const colors = signal.colors();
 
         let colorRgbStr, backgroundColor;
         if(this.state && this.state.highlightedSignal === signal.name) {
@@ -79,7 +73,6 @@ export default class AddSignals extends Component {
             colorRgbStr = `rgb(${colorsCommaSep})`;
             backgroundColor = `rgba(${colorsCommaSep},0.2)`;
         }
-
 
         const style = StyleSheet.create({signal: {color: colorRgbStr, backgroundColor}}).signal;
         return style;

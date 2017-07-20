@@ -19,6 +19,8 @@ export default class Meta extends Component {
         name: PropTypes.string,
         messages: PropTypes.objectOf(PropTypes.object),
         selectedMessages: PropTypes.array,
+        onPartChanged: PropTypes.func,
+        partsCount: PropTypes.number,
         showLoadDbc: PropTypes.func,
         showSaveDbc: PropTypes.func,
         dbcFilename: PropTypes.string,
@@ -219,6 +221,19 @@ export default class Meta extends Component {
         );
     }
 
+    timeWindow() {
+        const {route, currentParts} = this.props;
+        if(route) {
+            const partStartOffset = currentParts[0] * 60,
+                  partEndOffset = (currentParts[1] + 1) * 60;
+
+            const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
+            const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
+
+            return `${windowStartTime} - ${windowEndTime}`;
+        } else return '';
+    }
+
     shareUrl() {
         const add = {max: this.props.route.proclog, url: this.props.route.url};
         const remove = [GITHUB_AUTH_TOKEN_KEY]; // don't share github access
@@ -278,3 +293,4 @@ export default class Meta extends Component {
         );
     }
 }
+

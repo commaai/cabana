@@ -372,7 +372,7 @@ export default class CanExplorer extends Component {
                     <a className='cabana-header-logo' href=''>Comma Cabana</a>
                     <div className='cabana-header-account'>
                         {this.props.githubAuthToken  ?
-                            <p className={css(Styles.githubAuth)}>GitHub Authenticated</p>
+                            <p>GitHub Authenticated</p>
                             : this.loginWithGithub()
                         }
                     </div>

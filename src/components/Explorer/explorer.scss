@@ -159,33 +159,44 @@
       border: 1px solid $color-grey-40;
       border-radius: 5px;
       margin: 3% 0;
+      position: relative;
+      height: 100%;
     }
     &-plot {
-      background: #fff;
-      border-radius: 5px;
-      padding: 1.5% 3%;
-      &:first-child,
-      &:last-child {
-        padding-top: 3%;
-        padding-bottom: 3%;
-      }
-      &-message {
-        color: $color-grey-50;
-        font-size: 12px;
-      }
-      &-signal {
-        strong {
-          padding-right: 5px;
+      &-inner {
+        &-droppable {
+          background: $color-grey-50;
         }
-        a {
+        &-draganchor {
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        background: #fff;
+        border-radius: 5px;
+        padding: 1.5% 3%;
+        &:first-child,
+        &:last-child {
+          padding-top: 3%;
+          padding-bottom: 3%;
+        }
+        &-message {
           color: $color-grey-50;
-          cursor: pointer;
+          font-size: 12px;
         }
-      }
-      &-canvas {
-        svg {
-          height: auto;
-          width: 100%;
+        &-signal {
+          strong {
+            padding-right: 5px;
+          }
+          a {
+            color: $color-grey-50;
+            cursor: pointer;
+          }
+        }
+        &-canvas {
+          svg {
+            height: auto;
+            width: 100%;
+          }
         }
       }
     }

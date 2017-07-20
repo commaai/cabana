@@ -79,6 +79,13 @@ export default createClassFromSpec('CanPlot', {
       "clamp": true,
       "zero": false,
       "domain": {"signal": "ySegment"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "range": "category",
+      "domain": {"data": "table", "field": "color"},
+      "range": {"data": "table", "field": "color"}
     }
   ],
   "axes": [
@@ -145,22 +152,34 @@ export default createClassFromSpec('CanPlot', {
      ],
      "marks": [
       {
-        "type": "line",
-        "name": "lineMark",
-        "from": {"data": "table"},
-        "interactive": true,
-        "encode": {
-          "update": {
-            "x": {"scale": "xrelscale", "field": "xRel"},
-            "y": {"scale": "yscale", "field": "y"}
-          },
-          "hover": {
-            "fillOpacity": {"value": 0.5}
-          },
-          "enter": {
-            "clip": {"value": true}
-          }
-        }
+            "type": "group",
+            "from": {
+              "facet": {
+                "name": "series",
+                "data": "table",
+                "groupby": "color"
+              }
+            },
+            "marks": {
+              "type": "line",
+              "name": "lineMark",
+              "from": {"data": "series"},
+              "interactive": true,
+              "encode": {
+                "update": {
+                  "x": {"scale": "xrelscale", "field": "xRel"},
+                  "y": {"scale": "yscale", "field": "y"}
+                },
+                "hover": {
+                  "fillOpacity": {"value": 0.5}
+                },
+                "enter": {
+                  "clip": {"value": true},
+                  "stroke": {"scale": "color", "field": "color"},
+                  "strokeWidth": {"value": 2}
+                }
+              }
+            },
       },
       {
         "type": "rect",
