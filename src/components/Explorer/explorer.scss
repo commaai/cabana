@@ -51,6 +51,12 @@
   &-signals {
     flex: 1;
     max-height: 100vh;
+    &.is-expanded {
+      .cabana-explorer-signals-subheader:before {
+        transform: rotate(90deg);
+        margin-top: -1px;
+      }
+    }
     &-wrapper {
       display: flex;
       height: 100%;
@@ -80,6 +86,27 @@
         button {
           width: 100%;
         }
+      }
+    }
+    &-subheader {
+      border-bottom: 1px solid $color-grey-30;
+      color: $color-grey-70;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 3% 5% 3% 9%;
+      position: relative;
+      &:before {
+        content: $fa-var-chevron-right;
+        display: block;
+        font-size: 12px;
+        font-family: 'FontAwesome';
+        left: 4%;
+        line-height: 45px;
+        position: absolute;
+        text-align: center;
+        transition-duration: .1s;
+        top: 0;
+        width: 25px;
       }
     }
     &-window {
