@@ -348,7 +348,7 @@ export default class Explorer extends Component {
 
     onPlaySeek(time) {
         const message = this.props.messages[this.props.selectedMessage];
-        if(!message) {
+        if(!message || message.entries.length === 0) {
             this.props.onSeek(0, time);
             return;
         }
@@ -406,7 +406,7 @@ export default class Explorer extends Component {
     startOffset() {
         const partOffset = this.props.currentParts[0] * 60;
         const message = this.props.messages[this.props.selectedMessage];
-        if(!message) {
+        if(!message || message.entries.length === 0) {
             return partOffset;
         }
 

@@ -3,6 +3,7 @@ import { StyleSheet, css } from 'aphrodite/no-important';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Clipboard from 'clipboard';
+require('core-js/fn/array/includes');
 
 import {modifyQueryParameters} from '../utils/url';
 import LoadDbcModal from './LoadDbcModal';

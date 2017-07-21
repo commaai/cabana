@@ -20,6 +20,7 @@ import {persistDbc} from './api/localstorage';
 import OpenDbc from './api/opendbc';
 import UnloggerClient from './api/unlogger';
 import * as ObjectUtils from './utils/object';
+import {hash} from './utils/string';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -55,6 +56,7 @@ export default class CanExplorer extends Component {
             maxByteStateChangeCount: 0,
             isLoading: true,
             partsLoaded: 0,
+            spawnWorkerHash: null
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
         if(USE_UNLOGGER) {
@@ -139,26 +141,36 @@ export default class CanExplorer extends Component {
       this.hideSaveDbc();
     }
 
-    spawnWorker(parts, part, prevMsgEntries) {
+    spawnWorker(parts, options) {
+      // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
+
       if(!this.state.isLoading) {
         this.setState({isLoading: true});
       }
       const [minPart, maxPart] = parts;
-      if(part === undefined) {
-        part = minPart;
+      let part = minPart, prevMsgEntries = {}, prepend = false, spawnWorkerHash;
+      if(options) {
+        if(options.part) part = options.part;
+        if(options.prevMsgEntries) prevMsgEntries = options.prevMsgEntries;
+        if(options.prepend !== undefined) prepend = options.prepend;
+        if(options.spawnWorkerHash) {
+          spawnWorkerHash = options.spawnWorkerHash;
+        }
       }
+      if(!spawnWorkerHash) {
+        spawnWorkerHash = hash(Math.random().toString(16));
+        this.setState({spawnWorkerHash});
+      }
+
       if(part === minPart) {
         this.setState({partsLoaded: 0});
-      }
-      if(prevMsgEntries === undefined) {
-        prevMsgEntries = {};
       }
 
       const {dbc, dbcFilename, route, firstCanTime, canFrameOffset} = this.state;
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
-        if(JSON.stringify(parts) != JSON.stringify(this.state.currentParts)) {
+        if(spawnWorkerHash !== this.state.spawnWorkerHash) {
           // Parts changed, stop spawning workers.
           return;
         }
@@ -177,7 +189,11 @@ export default class CanExplorer extends Component {
 
         for(var key in newMessages) {
           if (key in messages) {
-            messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
+            if(prepend) {
+              messages[key].entries = [...newMessages[key].entries, ...messages[key].entries];
+            } else {
+              messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
+            }
           } else {
             messages[key] = newMessages[key];
             messages[key].signals = this.state.dbc.getSignals(messages[key].address);
@@ -194,7 +210,7 @@ export default class CanExplorer extends Component {
         this.setState({messages,
                        partsLoaded: this.state.partsLoaded + 1}, () => {
           if(part < maxPart) {
-            this.spawnWorker(parts, part + 1, prevMsgEntries);
+            this.spawnWorker(parts, {part: part + 1, prevMsgEntries, spawnWorkerHash, prepend});
           } else {
             this.setState({isLoading: false});
           }
@@ -256,9 +272,8 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
-    partChangeDebounced = debounce((part) => {
-      const {currentParts} = this.state;
-          this.spawnWorker(currentParts);
+    partChangeDebounced = debounce((newParts, prepend) => {
+          this.spawnWorker(newParts, {prepend});
       }, 500);
 
     onPartChange(part) {
@@ -267,11 +282,18 @@ export default class CanExplorer extends Component {
         return
       }
 
+      // determine new parts to load, whether to prepend or append
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
+      const oldPartRange = Array.from(new Array(currentPartSpan), (x,i) => i + currentParts[0]);
+      const newPartRange = Array.from(new Array(currentPartSpan), (x,i) => i + part);
+      const newParts = newPartRange.filter((i) => oldPartRange.indexOf(i) === -1);
+      const prepend = newParts[0] < currentParts[0];
+
+      // update current parts
       currentParts = [part, part + currentPartSpan - 1];
-      // only entries in part range should be preserved
+
+      // update messages to only preserve entries in new part range
       const partTimes = [currentParts[0] * 60, (currentParts[1] + 1) * 60];
-      console.log({currentParts, partTimes});
       const messagesKvPairs = Object.entries(messages)
         .map(([messageId, message]) =>
             [messageId, {...message,
@@ -281,8 +303,9 @@ export default class CanExplorer extends Component {
             ]);
       messages = ObjectUtils.fromArray(messagesKvPairs);
 
-      console.log(messages)
-      this.setState({currentParts, messages, seekTime: part * 60}, this.partChangeDebounced);
+      // update state then load new parts
+      this.setState({currentParts, messages, seekTime: part * 60},
+        () => {this.partChangeDebounced([newParts[0], newParts[1]], prepend)});
     }
 
     showEditMessageModal(msgKey) {

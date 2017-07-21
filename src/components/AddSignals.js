@@ -310,20 +310,26 @@ export default class AddSignals extends Component {
 
     byteValueHex(byteIdx) {
         const {entries} = this.props.message;
+        if(this.props.messageIndex < entries.length) {
+            const entry = entries[this.props.messageIndex];
 
-        const entry = entries[this.props.messageIndex];
-
-        return entry.hexData.substr(byteIdx * 2, 2);
+            return entry.hexData.substr(byteIdx * 2, 2);
+        } else {
+            return '--';
+        }
     }
 
     bitValue(byteIdx, byteBitIdx) {
         const {entries} = this.props.message;
+        if(this.props.messageIndex < entries.length) {
+            const entry = entries[this.props.messageIndex];
+            const data = Buffer.from(entry.hexData, 'hex');
+            const byte = data.readInt8(byteIdx);
 
-        const entry = entries[this.props.messageIndex];
-        const data = Buffer.from(entry.hexData, 'hex');
-        const byte = data.readInt8(byteIdx);
-
-        return (byte >> byteBitIdx) & 1
+            return (byte >> byteBitIdx) & 1;
+        } else {
+            return '-';
+        }
     }
 
     bitIsContainedInSelection(bitIdx, isLittleEndian = false) {
@@ -460,9 +466,10 @@ export default class AddSignals extends Component {
             {Object.keys(this.state.signals).length === 0 ?
                 <p>Double click or drag to add a signal</p> : null
             }
-            <div className="cabana-explorer-signals-time">
-              <p>time: {this.props.message.entries[this.props.messageIndex].relTime.toFixed(3)}</p>
-            </div>
+            {this.props.message.entries[this.props.messageIndex] ?
+                <div className="cabana-explorer-signals-time">
+                  <p>time: {this.props.message.entries[this.props.messageIndex].relTime.toFixed(3)}</p>
+                </div> : null}
             {this.renderBitMatrix()}
             <SignalLegend
                 signals={this.state.signals}
