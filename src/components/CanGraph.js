@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
+import Measure from 'react-measure';
 import Vega from 'react-vega';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import css from '../utils/css';
+
 import Signal from '../models/can/signal';
 import CanPlot from '../vega/CanPlot';
 
@@ -47,6 +48,7 @@ export default class CanGraph extends Component {
         this.onDragAnchorMouseDown = this.onDragAnchorMouseDown.bind(this);
         this.onDragAnchorMouseUp = this.onDragAnchorMouseUp.bind(this);
         this.onDragStart = this.onDragStart.bind(this);
+        this.onPlotResize = this.onPlotResize.bind(this);
     }
 
     segmentIsNew(newSegment) {
@@ -63,6 +65,12 @@ export default class CanGraph extends Component {
     visualChanged(prevProps, nextProps) {
         return prevProps.canReceiveGraphDrop !== nextProps.canReceiveGraphDrop
                 || JSON.stringify(prevProps.dragPos) !== JSON.stringify(nextProps.dragPos);
+    }
+
+
+    onPlotResize({bounds}) {
+        this.view.signal('width', bounds.width);
+        this.view.signal('height', 0.4 * bounds.width); // 5:2 aspect ratio
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -194,7 +202,7 @@ export default class CanGraph extends Component {
                          onMouseDown={this.onDragAnchorMouseDown}>
                         <span className='fa fa-bars'></span>
                     </div>
-                    {this.props.plottedSignals.map(({messageId, signalName, messageName}) => {
+                    {this.props.plottedSignals.map(({ messageId, signalName, messageName }) => {
                         const color = this.props.messages[messageId].signals[signalName].colors();
 
                         return (
@@ -219,16 +227,26 @@ export default class CanGraph extends Component {
                           </div>
                       )}
                     )}
-                    <CanPlot
-                        className='cabana-explorer-visuals-plot-canvas'
-                        logLevel={0}
-                        data={{table: this.props.data}}
-                        onNewView={this.onNewView}
-                        onSignalClickTime={this.onSignalClickTime}
-                        onSignalSegment={this.onSignalSegment}
-                    />
+                    <Measure
+                        bounds
+                        onResize={this.onPlotResize}>
+                        {({measureRef}) => {
+                            return (<div ref={measureRef}
+                                         className='cabana-explorer-visuals-plot-container'>
+                                        <CanPlot
+                                            logLevel={0}
+                                            data={{table: this.props.data}}
+                                            onNewView={this.onNewView}
+                                            onSignalClickTime={this.onSignalClickTime}
+                                            onSignalSegment={this.onSignalSegment}
+                                        />
+                                    </div>);
+                            }
+                        }
+                    </Measure>
                 </div>
             </div>
         );
     }
 }
+

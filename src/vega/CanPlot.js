@@ -5,7 +5,7 @@ export default createClassFromSpec('CanPlot', {
   "width": 500,
   "height": 200,
   "padding": "auto",
-  "autosize": {"type": "pad", "resize": true},
+  "autosize": {"type": "fit", "resize": true},
   "signals": [
     {
       "name": "tipTime",
@@ -98,8 +98,8 @@ export default createClassFromSpec('CanPlot', {
      "interactive": true,
      "encode": {
       "enter": {
-        "width": {"value": 500},
-        "height": {"value": 200},
+        "width": {"signal": "width"},
+        "height": {"signal": "height"},
         "fill": {"value": "transparent"}
       }
      },
@@ -188,7 +188,7 @@ export default createClassFromSpec('CanPlot', {
         "encode": {
           "enter": {
             "y": {"value": 0},
-            "height": {"value": 200},
+            "height": {"signal": "height"},
             "fill": {"value": "#333"},
             "fillOpacity": {"value": 0.2}
           },
@@ -292,8 +292,8 @@ export default createClassFromSpec('CanPlot', {
         "interactive": true,
         "encode": {
           "enter": {
-            "width": {"value": 500},
-            "height": {"value": 200},
+            "width": {"signal": "width"},
+            "height": {"signal": "height"},
             "fill": {"value": "transparent"}
           }
         }
