@@ -366,13 +366,17 @@ export default class Explorer extends Component {
 
         const {segmentIndices} = this.state;
         const {entries} = this.props.messages[messageId];
-        const userSeekIndex = Entries.findTimeIndex(entries, canTime);
+        if(entries.length) {
+            const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
-        const seekTime = entries[userSeekIndex].relTime;
-        this.props.onUserSeek(time);
+            const seekTime = entries[userSeekIndex].relTime;
+            this.props.onUserSeek(time);
 
-        this.setState({userSeekIndex,
-                       userSeekTime: time});
+            this.setState({userSeekIndex,
+                           userSeekTime: time});
+        } else {
+            this.setState({userSeekTime: time});
+        }
     }
 
     onPlay() {

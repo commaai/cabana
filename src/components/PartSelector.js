@@ -49,6 +49,9 @@ export default class PartSelector extends Component {
         if(part + PART_SEGMENT_LENGTH - 1 >= this.props.partsCount) {
             return;
         }
+        if(part === this.state.selectedPart){
+            return;
+        }
         this.props.onPartChange(part);
         this.setState({selectedPart: part,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
@@ -83,6 +86,7 @@ export default class PartSelector extends Component {
 
     onSelectedPartDragStart(e) {
         this.setState({isDragging: true});
+        document.addEventListener('mouseup', this.onSelectedPartDragEnd);
     }
 
     onSelectedPartMouseMove(e) {
@@ -94,6 +98,7 @@ export default class PartSelector extends Component {
 
     onSelectedPartDragEnd(e) {
         this.setState({isDragging: false});
+        document.removeEventListener('mouseup', this.onSelectedPartDragEnd);
     }
 
     onClick(e) {
