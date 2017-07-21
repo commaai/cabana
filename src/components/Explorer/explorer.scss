@@ -187,39 +187,62 @@
       border-radius: 5px;
       margin: 3% 0;
       position: relative;
-      height: 100%;
     }
     &-plot {
+      $drag-anchor-width: 25px;
+      $toggle-width: 80px;
       &-inner {
-        &-droppable {
-          background: $color-grey-50;
-        }
         background: #fff;
-        border-radius: 5px;
+        border-bottom: 1px solid $color-grey-30;
+        border-radius: 5px 5px 0 0;
         padding: 1.5% 3%;
         &:first-child,
         &:last-child {
           padding-top: 3%;
           padding-bottom: 3%;
         }
-        &-message {
-          color: $color-grey-50;
-          font-size: 12px;
+        &.is-droppable {
+          background: $color-grey-50;
         }
-        &-signal {
-          strong {
-            padding-right: 5px;
-          }
-          a {
-            color: $color-grey-50;
-            cursor: pointer;
-          }
+      }
+      &-draganchor {
+        color: $color-grey-70;
+        cursor: move;
+        float: left;
+        position: relative;
+        -webkit-user-select: none;
+        user-select: none;
+        width: $drag-anchor-width;
+        z-index: 1;
+      }
+      &-header {
+        border-bottom: 1px solid $color-grey-20;
+        margin-bottom: 2%;
+        padding: 0 0 2% $drag-anchor-width;
+        position: relative;
+        &-copy {
+          margin-right: $toggle-width;
         }
-        &-canvas {
-          svg {
-            height: auto;
+        &-toggle {
+          float: right;
+          width: $toggle-width;
+          button {
             width: 100%;
           }
+        }
+      }
+      &-message {
+        color: $color-grey-50;
+        font-size: 12px;
+        padding-bottom: 3px;
+      }
+      &-signal {
+        color: $color-grey-90;
+      }
+      &-canvas {
+        svg {
+          height: auto;
+          width: 100%;
         }
       }
     }

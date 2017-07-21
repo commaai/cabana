@@ -273,12 +273,12 @@ export default class Explorer extends Component {
     }
 
     onSignalUnplotPressed(messageId, name) {
-     const {plottedSignals} = this.state;
-     const newPlottedSignals = plottedSignals.map((plot) =>
-                                (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
-                                .filter((plot) => plot.length > 0);
+        const {plottedSignals} = this.state;
+        const newPlottedSignals = plottedSignals.map((plot) =>
+                                  (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
+                                  .filter((plot) => plot.length > 0);
 
-     this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData);
+        this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData);
     }
 
     updateSegment = debounce((messageId, segment) => {
