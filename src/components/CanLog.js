@@ -18,7 +18,7 @@ export default class CanLog extends Component {
       onSignalPlotPressed: PropTypes.func,
       message: PropTypes.object,
       messageIndex: PropTypes.number,
-      onMessageExpanded: PropTypes.func
+      onMessageExpanded: PropTypes.func,
     };
 
     constructor(props) {
@@ -132,17 +132,22 @@ export default class CanLog extends Component {
               { Object.entries(msg.signals).map(([name, value]) => {
                   return [name, value, this.isSignalPlotted(message.id, name)]
                 }).map(([name, value, isPlotted]) => {
-                  const signal = msg.signals[name];
+                  const signalValue = msg.signals[name];
                   const plottedButtonClass = isPlotted ? null : 'button--alpha';
                   const plottedButtonText = isPlotted ? 'Hide Plot' : 'Show Plot';
-                  const { unit } = signal;
+
+                  const signal = message.frame.signals[name];
+                  const unit = signal.unit.length > 0 ? signal.unit : 'units';
+
                   return (
                     <div key={ name } className='signals-log-list-signal'>
                         <div className='signals-log-list-signal-message'>
                             <span>{ name }</span>
                         </div>
                         <div className='signals-log-list-signal-value'>
-                            <span>{ this.signalValuePretty(signal, value) } { unit }</span>
+                            <span>
+                                (<strong>{ this.signalValuePretty(signalValue, value) }</strong> { unit })
+                            </span>
                         </div>
                         <div className='signals-log-list-signal-action'
                               onClick={ () => { this.toggleSignalPlot(this.props.message.id, name, isPlotted) } }>
@@ -166,14 +171,14 @@ export default class CanLog extends Component {
             <div key={key} className={cx('signals-log-list-item', hasSignalsClass, expandedClass)}>
                 <div className='signals-log-list-item-header'
                       onClick={ () => { this.toggleExpandPacketSignals(msg) } }>
-                    <div className='signals-log-list-time'>
-                        <span>{msg.relTime.toFixed(3)}</span>
-                    </div>
                     <div className='signals-log-list-message'>
-                        <span>{(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}</span>
+                        <strong>{(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}</strong>
+                    </div>
+                    <div className='signals-log-list-time'>
+                        <span>[{msg.relTime.toFixed(3)}]</span>
                     </div>
                     <div className='signals-log-list-bytes'>
-                        <span>{msg.hexData}</span>
+                        <span className='t-mono'>{msg.hexData}</span>
                     </div>
               </div>
               <div className='signals-log-list-item-body'>
@@ -198,8 +203,8 @@ export default class CanLog extends Component {
         return (
             <div className='signals-log-list'>
                 <div className='signals-log-list-header'>
-                    <div className='signals-log-list-time'>Time</div>
                     <div className='signals-log-list-message'>Message</div>
+                    <div className='signals-log-list-time'>Time</div>
                     <div className='signals-log-list-bytes'>Bytes</div>
                 </div>
                 <div className='signals-log-list-items'
@@ -257,77 +262,3 @@ export default class CanLog extends Component {
         );
     }
 }
-
-const Styles = StyleSheet.create({
-    root: {
-        borderBottomWidth: '1px',
-        borderColor: 'gray',
-        width: '100%',
-        display: 'table',
-
-    },
-    row: {
-      display: 'table-row',
-      width: 'auto',
-      clear: 'both',
-    },
-    pointer: {
-      cursor: 'pointer',
-    },
-    tableRowGroup: {
-      display: 'table-row-group'
-    },
-    messageRow: {
-      lineHeight: '24px'
-    },
-    signalCol: {
-      width: '1px',
-      paddingBottom: '15px'
-    },
-    col: {
-      display: 'table-cell',
-    },
-    arrowCell: {
-      verticalAlign: 'middle',
-      textAlign: 'center',
-      marginLeft: '-5px'
-    },
-    dropdownCol: {
-      width: '10px',
-      padding: 0,
-      margin: 0
-    },
-    timefieldCol: {
-
-    },
-    messageCol: {
-
-    },
-    messageFormatHeader: {
-
-    },
-    pointerUnderlineHover: {
-      cursor: 'pointer',
-      ':hover': {
-        textDecoration: 'underline'
-      }
-    },
-    hex: {
-      fontFamily: 'monospace'
-    },
-    signalTable: {
-      width: '100%'
-    },
-    signalValue: {
-      whiteSpace: 'nowrap',
-      padding: 0,
-      margin: 0
-    },
-    arrowCell: {
-      position: 'relative',
-    },
-    arrow: {
-      position: 'absolute',
-      left: '-8px'
-    }
-});

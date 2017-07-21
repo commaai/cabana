@@ -1,0 +1,29 @@
+/*
+
+  Base Typography Styles
+  ~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+
+@import '../_global/all';
+
+body {
+  color: $color-grey-90;
+}
+
+// Helper Classes
+// ~~~~~~~~~~~~~~
+
+.t-capline {
+  color: $color-grey-80;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: .0125em;
+  margin: 0;
+  padding-bottom: 1%;
+  text-transform: uppercase;
+}
+
+.t-mono {
+  font-family: monospace;
+}

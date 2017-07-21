@@ -246,7 +246,7 @@ export default class Meta extends Component {
         return (
             <div className='cabana-meta'>
                 <div className='cabana-meta-header'>
-                    <span className='cabana-meta-header-label'>Currently editing:</span>
+                    <h5 className='cabana-meta-header-label t-capline'>Currently editing:</h5>
                     <strong className='cabana-meta-header-filename'>{this.props.dbcFilename}</strong>
                     {this.props.dbcLastSaved !== null ?
                         <div className='cabana-meta-header-last-saved'>
@@ -273,7 +273,7 @@ export default class Meta extends Component {
                 </div>
                 <div className='cabana-meta-messages'>
                     <div className='cabana-meta-messages-header'>
-                      <p>Available messages</p>
+                      <h5 className='t-capline'>Available messages</h5>
                     </div>
                     <div className='cabana-meta-messages-window'>
                       <div className='cabana-meta-messages-filter'>
@@ -294,4 +294,3 @@ export default class Meta extends Component {
         );
     }
 }
-

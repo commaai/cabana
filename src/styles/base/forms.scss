@@ -51,7 +51,7 @@ a.button {
   color: #fff;
   cursor: pointer;
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   height: $input-height;
   line-height: $input-height - 2px;
@@ -60,6 +60,7 @@ a.button {
   text-align: center;
   text-decoration: none;
   text-shadow: 0 1px rgba(0,0,0,.2);
+  white-space: nowrap;
   &:active {
     background: $color-grey-60;
     border-bottom-width: 1px;

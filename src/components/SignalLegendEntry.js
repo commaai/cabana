@@ -360,6 +360,8 @@ export default class SignalLegendEntry extends Component {
               className={cx('signals-legend-entry', expandedEntryClass)}
               onMouseEnter={() => this.props.onSignalHover(signal)}
               onMouseLeave={() => this.props.onSignalHoverEnd(signal)}>
+              <div className='signals-legend-entry-color'
+                    style={{backgroundColor: `rgb(${this.props.color}`}}></div>
               <div className="signals-legend-entry-header">
                 <div
                     className="signals-legend-entry-header-name"

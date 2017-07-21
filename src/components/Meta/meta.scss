@@ -19,12 +19,7 @@
     flex-direction: row;
     padding: 22px;
     @extend %clearfix;
-    &-label {
-      display: block;
-      font-size: 13px;
-      padding-bottom: 1%;
-      text-transform: uppercase;
-    }
+    &-label {}
     &-filename {
       display: block;
     }

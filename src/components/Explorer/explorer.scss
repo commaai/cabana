@@ -17,13 +17,15 @@
 .cabana-header {
   background: $color-grey-90;
   color: #fff;
-  height: 68px;
-  padding: 22px;
+  height: 55px;
+  padding: 16px 22px;
   &-logo {
     color: #fff;
-    font-size: 20px;
+    font-family: monospace;
+    font-size: 18px;
     font-weight: 600;
     text-decoration: none;
+    text-transform: lowercase;
     pointer-events: none; // disable actual click
   }
   &-account {
@@ -238,6 +240,15 @@
       }
       &-signal {
         color: $color-grey-90;
+        &-color {
+          $signal-color-size: 14px;
+          background: transparent;
+          border-radius: $signal-color-size/2;
+          height: $signal-color-size;
+          float: left;
+          margin: 1px -3px 0 -25px;
+          width: $signal-color-size;
+        }
       }
       &-canvas {
         svg {

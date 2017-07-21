@@ -121,6 +121,7 @@ export default class CanGraphList extends Component {
                 onGraphRefAvailable={(ref) => {this.addCanGraphRef(ref, messageId, signalName)}}
                 key={key}
                 unplot={this.props.onSignalUnplotPressed}
+                messages={this.props.messages}
                 messageId={messageId}
                 messageName={msg.frame ? msg.frame.name : null}
                 signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}

@@ -483,7 +483,7 @@ export default class Explorer extends Component {
             <div className='cabana-explorer-signals-wrapper'>
                 <div className='cabana-explorer-signals-header'>
                     <div className='cabana-explorer-signals-header-context'>
-                        <h6>Selected Message:</h6>
+                        <h5 className='t-capline'>Selected Message:</h5>
                         <h3>{selectedMessageName}</h3>
                     </div>
                     <div className='cabana-explorer-signals-header-action'>

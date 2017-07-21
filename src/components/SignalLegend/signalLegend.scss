@@ -20,6 +20,7 @@
   overflow: auto;
   transition-duration: .1s;
   padding: 0 2%;
+  position: relative;
   &:not(:last-child) {
     border-bottom: 1px solid rgba(0,0,0,.05);
   }
@@ -40,6 +41,14 @@
     .signals-legend-entry-body {
       display: block;
     }
+  }
+  &-color {
+    display: block;
+    height: 100%;
+    left: 0;
+    opacity: .5;
+    position: absolute;
+    width: 1.5%;
   }
   &-header {
     border-bottom: 1px solid transparent;

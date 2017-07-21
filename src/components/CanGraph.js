@@ -15,6 +15,7 @@ const DefaultPlotInnerStyle = {
 export default class CanGraph extends Component {
     static propTypes = {
         data: PropTypes.array,
+        messages: PropTypes.object,
         messageId: PropTypes.string,
         messageName: PropTypes.string,
         signalSpec: PropTypes.instanceOf(Signal),
@@ -193,8 +194,10 @@ export default class CanGraph extends Component {
                          onMouseDown={this.onDragAnchorMouseDown}>
                         <span className='fa fa-bars'></span>
                     </div>
-                    {this.props.plottedSignals.map(({messageId, signalName}) =>
-                        (
+                    {this.props.plottedSignals.map(({messageId, signalName, messageName}) => {
+                        const color = this.props.messages[messageId].signals[signalName].colors();
+
+                        return (
                           <div className='cabana-explorer-visuals-plot-header'
                                 key={messageId + '_' + signalName}>
                               <div className='cabana-explorer-visuals-plot-header-toggle'>
@@ -205,14 +208,16 @@ export default class CanGraph extends Component {
                               </div>
                               <div className='cabana-explorer-visuals-plot-header-copy'>
                                   <div className='cabana-explorer-visuals-plot-message'>
-                                      <span>{messageId}</span>
+                                      <span>{messageName}</span>
                                   </div>
                                   <div className='cabana-explorer-visuals-plot-signal'>
+                                      <div className='cabana-explorer-visuals-plot-signal-color'
+                                            style={{background: `rgb(${color}`}}></div>
                                       <strong>{signalName}</strong>
                                   </div>
                               </div>
                           </div>
-                      )
+                      )}
                     )}
                     <CanPlot
                         className='cabana-explorer-visuals-plot-canvas'
