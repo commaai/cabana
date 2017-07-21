@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import { StyleSheet, css } from 'aphrodite/no-important';
+import cx from 'classnames';
 import Moment from 'moment';
 
 import AddSignals from './AddSignals';
@@ -64,6 +65,7 @@ export default class Explorer extends Component {
         this._onKeyDown = this._onKeyDown.bind(this);
         this.mergePlots = this.mergePlots.bind(this);
         this.refreshGraphData = this.refreshGraphData.bind(this);
+        this.toggleShouldShowAddSignal = this.toggleShouldShowAddSignal.bind(this);
     }
 
     _onKeyDown(e) {
@@ -271,12 +273,12 @@ export default class Explorer extends Component {
     }
 
     onSignalUnplotPressed(messageId, name) {
-     const {plottedSignals} = this.state;
-     const newPlottedSignals = plottedSignals.map((plot) =>
-                                (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
-                                .filter((plot) => plot.length > 0);
+        const {plottedSignals} = this.state;
+        const newPlottedSignals = plottedSignals.map((plot) =>
+                                  (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
+                                  .filter((plot) => plot.length > 0);
 
-     this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData);
+        this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData);
     }
 
     updateSegment = debounce((messageId, segment) => {
@@ -303,6 +305,10 @@ export default class Explorer extends Component {
 
     showAddSignal() {
         this.setState({shouldShowAddSignal: true})
+    }
+
+    toggleShouldShowAddSignal() {
+      this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal});
     }
 
     indexFromSeekTime(time) {
@@ -443,20 +449,6 @@ export default class Explorer extends Component {
         return msg.entries[userSeekIndex].time;
     }
 
-    addSignalsHeader() {
-        const {shouldShowAddSignal} = this.state;
-        return (
-          <div className={css(Styles.addSignalsHeader)}
-               onClick={() => this.setState({shouldShowAddSignal: !this.state.shouldShowAddSignal})}>
-              {shouldShowAddSignal ?
-                  <Images.downArrow />
-                  :
-                  <Images.rightArrow />}
-              <p>Edit Signals</p>
-          </div>
-        );
-    }
-
     onSignalPlotChanged(shouldPlot, messageId, signalName) {
         if(shouldPlot) {
             this.onSignalPlotPressed(messageId, signalName);
@@ -489,9 +481,7 @@ export default class Explorer extends Component {
         const selectedMessageName = selectedMessage.frame !== undefined ? selectedMessage.frame.name : 'undefined';
         return (
             <div className='cabana-explorer-signals-wrapper'>
-                <div
-                    className='cabana-explorer-signals-header'
-                    onClick={this.toggleEditSignals}>
+                <div className='cabana-explorer-signals-header'>
                     <div className='cabana-explorer-signals-header-context'>
                         <h6>Selected Message:</h6>
                         <h3>{selectedMessageName}</h3>
@@ -501,6 +491,10 @@ export default class Explorer extends Component {
                             className='button--small'
                             onClick={() => this.props.showEditMessageModal(selectedMessageKey)}>Edit</button>
                     </div>
+                </div>
+                <div className='cabana-explorer-signals-subheader'
+                      onClick={ this.toggleShouldShowAddSignal }>
+                    <strong>Edit Signals</strong>
                 </div>
                 <div className='cabana-explorer-signals-window'>
                     {this.state.shouldShowAddSignal ?
@@ -553,9 +547,10 @@ export default class Explorer extends Component {
     }
 
     render() {
+        const signalsExpandedClass = this.state.shouldShowAddSignal ? 'is-expanded' : null;
         return (
             <div className='cabana-explorer'>
-                <div className='cabana-explorer-signals'>
+                <div className={ cx('cabana-explorer-signals', signalsExpandedClass) }>
                     {this.props.messages[this.props.selectedMessage] ?
                       this.renderExplorerSignals()
                     : this.selectMessagePrompt()}

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Vega from 'react-vega';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import css from '../utils/css';
 import Signal from '../models/can/signal';
 import CanPlot from '../vega/CanPlot';
@@ -181,32 +182,38 @@ export default class CanGraph extends Component {
 
     render() {
       const {plotInnerStyle} = this.state;
-
-      const innerClasses = ['cabana-explorer-visuals-plot-inner'];
-      if(this.props.canReceiveGraphDrop) {
-        innerClasses.push('cabana-explorer-visuals-plot-inner-droppable');
-      }
+      const canReceiveDropClass = this.props.canReceiveGraphDrop ? 'is-droppable' : null;
 
       return (
             <div className='cabana-explorer-visuals-plot'
                  ref={this.props.onGraphRefAvailable}>
-                <div className={innerClasses.join(' ')}
+                <div className={ cx('cabana-explorer-visuals-plot-inner', canReceiveDropClass) }
                      style={{...plotInnerStyle}}>
-                    <div className='cabana-explorer-visuals-plot-inner-draganchor'
+                    <div className='cabana-explorer-visuals-plot-draganchor'
                          onMouseDown={this.onDragAnchorMouseDown}>
                         <span className='fa fa-bars'></span>
                     </div>
-                    {this.props.plottedSignals.map(({messageName, signalName}) =>
-                        (<div key={messageName + '_' + signalName}>
-                            <div className='cabana-explorer-visuals-plot-message'>
-                                <span>{messageName}</span>
-                            </div>
-                            <div className='cabana-explorer-visuals-plot-signal'>
-                                <strong>{signalName}</strong>
-                            </div>
-                        </div>)
+                    {this.props.plottedSignals.map(({messageId, signalName}) =>
+                        (
+                          <div className='cabana-explorer-visuals-plot-header'
+                                key={messageId + '_' + signalName}>
+                              <div className='cabana-explorer-visuals-plot-header-toggle'>
+                                  <button className='button--tiny'
+                                            onClick={ () => this.props.unplot(messageId, signalName)}>
+                                      <span>Hide Plot</span>
+                                  </button>
+                              </div>
+                              <div className='cabana-explorer-visuals-plot-header-copy'>
+                                  <div className='cabana-explorer-visuals-plot-message'>
+                                      <span>{messageId}</span>
+                                  </div>
+                                  <div className='cabana-explorer-visuals-plot-signal'>
+                                      <strong>{signalName}</strong>
+                                  </div>
+                              </div>
+                          </div>
+                      )
                     )}
-                    <a onClick={this.props.unplot}>(unplot)</a>
                     <CanPlot
                         className='cabana-explorer-visuals-plot-canvas'
                         logLevel={0}
