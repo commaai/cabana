@@ -294,8 +294,10 @@ export default class Explorer extends Component {
 
     resetSegment() {
         const {segment, segmentIndices} = this.state;
+        const {messages, selectedMessage} = this.props;
         if(segment.length > 0 || segmentIndices.length > 0) {
-            this.setState({segment: [], segmentIndices: [], userSeekIndex: 0, userSeekTime: 0})
+            const userSeekTime = messages[selectedMessage].entries[0].relTime;
+            this.setState({segment: [], segmentIndices: [], userSeekIndex: 0, userSeekTime})
         }
     }
 
@@ -387,7 +389,7 @@ export default class Explorer extends Component {
 
     secondsLoaded() {
         const message = this.props.messages[this.props.selectedMessage];
-        if(!message) {
+        if(!message || message.entries.length === 0) {
             return this.secondsLoadedRouteRelative(this.props.currentParts);
         }
 
@@ -405,7 +407,7 @@ export default class Explorer extends Component {
         const partOffset = this.props.currentParts[0] * 60;
         const message = this.props.messages[this.props.selectedMessage];
         if(!message) {
-            return partOffset
+            return partOffset;
         }
 
         const {canFrameOffset, firstCanTime} = this.props;

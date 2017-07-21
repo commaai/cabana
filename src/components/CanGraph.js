@@ -197,7 +197,7 @@ export default class CanGraph extends Component {
                         <span className='fa fa-bars'></span>
                     </div>
                     {this.props.plottedSignals.map(({messageName, signalName}) =>
-                        (<div>
+                        (<div key={messageName + '_' + signalName}>
                             <div className='cabana-explorer-visuals-plot-message'>
                                 <span>{messageName}</span>
                             </div>

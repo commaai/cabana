@@ -19,6 +19,7 @@ import LoadingBar from './components/LoadingBar';
 import {persistDbc} from './api/localstorage';
 import OpenDbc from './api/opendbc';
 import UnloggerClient from './api/unlogger';
+import * as ObjectUtils from './utils/object';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -261,14 +262,27 @@ export default class CanExplorer extends Component {
       }, 500);
 
     onPartChange(part) {
-      let {currentParts, canFrameOffset, route} = this.state;
+      let {currentParts, canFrameOffset, route, messages} = this.state;
       if(canFrameOffset === -1 || part + PART_SEGMENT_LENGTH >= route.proclog) {
         return
       }
 
       const currentPartSpan = currentParts[1] - currentParts[0] + 1;
       currentParts = [part, part + currentPartSpan - 1];
-      this.setState({currentParts, seekTime: part * 60}, this.partChangeDebounced);
+      // only entries in part range should be preserved
+      const partTimes = [currentParts[0] * 60, (currentParts[1] + 1) * 60];
+      console.log({currentParts, partTimes});
+      const messagesKvPairs = Object.entries(messages)
+        .map(([messageId, message]) =>
+            [messageId, {...message,
+                         entries: message.entries.filter(
+                          (e) => e.relTime >= partTimes[0] && e.relTime <= partTimes[1])
+                        }
+            ]);
+      messages = ObjectUtils.fromArray(messagesKvPairs);
+
+      console.log(messages)
+      this.setState({currentParts, messages, seekTime: part * 60}, this.partChangeDebounced);
     }
 
     showEditMessageModal(msgKey) {

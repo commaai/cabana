@@ -27,7 +27,7 @@ export default class CanGraphList extends Component {
             graphToReceiveDrop: null,
         };
 
-        this.plotListRef = null;
+        this.plotListRef = undefined;
         this.plotRefs = [];
         this.renderSignalPlot = this.renderSignalPlot.bind(this);
         this.onPlotListRefReady = this.onPlotListRefReady.bind(this);
@@ -115,6 +115,7 @@ export default class CanGraphList extends Component {
         const key = plottedSignals.reduce(
             (key, {messageId, signalName}) => key + messageId + '_' + signalName,
             '');
+
         return (
             <CanGraph
                 onGraphRefAvailable={(ref) => {this.addCanGraphRef(ref, messageId, signalName)}}

@@ -84,7 +84,6 @@ export default createClassFromSpec('CanPlot', {
     {
       "name": "color",
       "type": "ordinal",
-      "range": "category",
       "domain": {"data": "table", "field": "color"},
       "range": {"data": "table", "field": "color"}
     }
@@ -99,6 +98,8 @@ export default createClassFromSpec('CanPlot', {
      "interactive": true,
      "encode": {
       "enter": {
+        "width": {"value": 500},
+        "height": {"value": 200},
         "fill": {"value": "transparent"}
       }
      },

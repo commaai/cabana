@@ -41,7 +41,7 @@ export default class MessageBytes extends Component {
         this.updateByteColors(this.props.message);
     }
 
-    render() {
+    renderBytes() {
         const {seekTime, message} = this.props;
         const {byteColors} = this.state;
 
@@ -65,6 +65,16 @@ export default class MessageBytes extends Component {
             <div key={idx} className={css(Styles.byte)}
                            style={{opacity, backgroundColor: byteColors[idx]}}>{mostRecentMsg.hexData.substr(idx * 2, 2)}</div>
         );
+
+        return bytes;
+    }
+
+    render() {
+        const {message} = this.props;
+        let bytes = null;
+        if(message.entries.length > 0) {
+            bytes = this.renderBytes();
+        }
 
         return <div className={css(Styles.bytes)}>{bytes}</div>
     }
