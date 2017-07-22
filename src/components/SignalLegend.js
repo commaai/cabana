@@ -50,13 +50,11 @@ export default class SignalLegend extends Component {
         const signalRowsNested = Object.entries(signals).map(([signalName, signal]) => {
             const color = signals[signalName].colors();
             const isHighlighted = highlightedSignal === signalName;
-            const highlightedStyle = isHighlighted ? this.props.signalStyles[signalName] : null;
 
             return <SignalLegendEntry
                       key={signal.uid}
                       signal={signal}
                       isHighlighted={isHighlighted}
-                      highlightedStyle={highlightedStyle}
                       color={color}
                       onSignalHover={this.props.onSignalHover}
                       onSignalHoverEnd={this.props.onSignalHoverEnd}

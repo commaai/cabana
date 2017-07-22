@@ -42,11 +42,16 @@
       display: block;
     }
   }
+  &.is-highlighted {
+    .signals-legend-entry-color {
+      opacity: .5;
+    }
+  }
   &-color {
     display: block;
     height: 100%;
     left: 0;
-    opacity: .5;
+    opacity: .3;
     position: absolute;
     width: 1.5%;
   }

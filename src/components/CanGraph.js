@@ -249,4 +249,3 @@ export default class CanGraph extends Component {
         );
     }
 }
-

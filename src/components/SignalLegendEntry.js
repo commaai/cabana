@@ -12,8 +12,8 @@ import {swapKeysAndValues} from '../utils/object';
 
 export default class SignalLegendEntry extends Component {
     static propTypes = {
-        highlightedStyle: PropTypes.object,
         signal: PropTypes.instanceOf(Signal).isRequired,
+        isHighlighted: PropTypes.bool,
         onSignalHover: PropTypes.func,
         onSignalHoverEnd: PropTypes.func,
         onTentativeSignalChange: PropTypes.func,
@@ -351,13 +351,14 @@ export default class SignalLegendEntry extends Component {
 
     render() {
         const {isExpanded, isEditing, signalEdited, nameEdited} = this.state;
-        const {signal, highlightedStyle, plottedSignals, isPlotted} = this.props;
+        const {signal, plottedSignals, isPlotted} = this.props;
         const expandedEntryClass = this.props.isExpanded ? 'is-expanded' : null;
+        const highlightedEntryClass = this.props.isHighlighted ? 'is-highlighted' : null;
         const plottedButtonClass = this.props.isPlotted ? 'button' : 'button--alpha';
         const plottedButtonText = this.props.isPlotted ? 'Hide Plot' : 'Show Plot';
         return (
           <div
-              className={cx('signals-legend-entry', expandedEntryClass)}
+              className={cx('signals-legend-entry', expandedEntryClass, highlightedEntryClass)}
               onMouseEnter={() => this.props.onSignalHover(signal)}
               onMouseLeave={() => this.props.onSignalHoverEnd(signal)}>
               <div className='signals-legend-entry-color'

@@ -278,7 +278,7 @@ export default class Explorer extends Component {
                                   (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
                                   .filter((plot) => plot.length > 0);
 
-        this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData);
+        this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData(this.props.messages, newPlottedSignals));
     }
 
     updateSegment = debounce((messageId, segment) => {
