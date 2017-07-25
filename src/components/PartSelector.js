@@ -109,41 +109,20 @@ export default class PartSelector extends Component {
     render() {
         const {selectedPartStyle} = this.state;
 
-        return (<div className={css(Styles.root)}>
-                    <div className={css(Styles.selector)}
-                         ref={(selector) => this.selectorRect = selector}
-                         onMouseMove={this.onSelectedPartMouseMove}
-                         onClick={this.onClick}>
-                        <div className={css(Styles.selectedPart, selectedPartStyle.selectedPart)}
-                             onMouseDown={this.onSelectedPartDragStart}
-                             onMouseUp={this.onSelectedPartDragEnd}></div>
+        return (
+            <div className='cabana-explorer-part-selector'>
+                <div className='cabana-explorer-part-selector-track'
+                      ref={ (selector) => this.selectorRect = selector }
+                      style={{ width: PartSelector.selectorWidth }}
+                      onMouseMove={ this.onSelectedPartMouseMove }
+                      onClick={ this.onClick }>
+                    <div className='cabana-explorer-part-selector-track-active'
+                          style={ selectedPartStyle.selectedPart._definition }
+                          onMouseDown={ this.onSelectedPartDragStart }
+                          onMouseUp={ this.onSelectedPartDragEnd }>
                     </div>
-                </div>);
+                </div>
+            </div>
+        )
     }
 }
-
-const Styles = StyleSheet.create({
-    root: {
-        flexDirection: 'row',
-        display: 'flex',
-        flex: 1,
-        cursor: 'pointer',
-    },
-    selector: {
-        width: PartSelector.selectorWidth,
-        height: 30,
-        border: '1px solid #000',
-        position: 'relative'
-    },
-    selectedPart: {
-        backgroundColor: '#6f6f6f',
-        height: '100%',
-        position: 'absolute',
-    },
-    nudge: {
-        width: 48,
-    },
-    nudgeButton: {
-        cursor: 'pointer'
-    }
-});

@@ -1,0 +1,25 @@
+/*
+
+  Part Selector Bar
+  ~~~~~~~~~~~~~~~~~
+
+*/
+
+.cabana-explorer-part-selector {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  &-track {
+    background: $color-grey-30;
+    border: 1px solid $color-grey-70;
+    height: 30px;
+    position: relative;
+    width: 100%;
+    &-active {
+      background: $color-grey-70;
+      height: 100%;
+      position: absolute;
+    }
+  }
+}

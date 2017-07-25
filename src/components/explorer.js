@@ -457,11 +457,11 @@ export default class Explorer extends Component {
         }
     }
 
-    selectMessagePrompt() {
+    renderSelectMessagePrompt() {
         return (
-            <div className={css(Styles.selectMessagePrompt)}>
-                <Images.leftArrow styles={[Styles.leftArrowStyle]} /> Select a message
-            </div>
+          <div className='cabana-explorer-select-prompt'>
+              <h1>Select a message</h1>
+          </div>
         )
     }
 
@@ -553,7 +553,7 @@ export default class Explorer extends Component {
                 <div className={ cx('cabana-explorer-signals', signalsExpandedClass) }>
                     {this.props.messages[this.props.selectedMessage] ?
                       this.renderExplorerSignals()
-                    : this.selectMessagePrompt()}
+                    : this.renderSelectMessagePrompt()}
                 </div>
                 <div className='cabana-explorer-visuals'>
                     <div className='cabana-explorer-visuals-header'>
@@ -607,16 +607,4 @@ const Styles = StyleSheet.create({
         padding: '10px 0',
         width: 160
     },
-    selectMessagePrompt: {
-        alignSelf: 'center',
-        fontSize: 24,
-        paddingTop: 230,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    leftArrowStyle: {
-        height: 29,
-        width: 29,
-    }
 })
