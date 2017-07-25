@@ -207,6 +207,7 @@
       border-radius: 5px;
       margin: 3% 0;
       position: relative;
+      max-width: 640px;
       &:not(:empty) {
         border: 1px solid $color-grey-40;
       }

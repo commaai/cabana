@@ -41,6 +41,7 @@ export default class CanGraph extends Component {
           plotInnerStyle: {},
           shiftX: 0,
           shiftY: 0,
+          bounds: null,
         };
         this.onNewView = this.onNewView.bind(this);
         this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -69,8 +70,12 @@ export default class CanGraph extends Component {
 
 
     onPlotResize({bounds}) {
+        this.setState({bounds});
+
+        this.view.run();
         this.view.signal('width', bounds.width);
         this.view.signal('height', 0.4 * bounds.width); // 5:2 aspect ratio
+        this.view.run();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -88,7 +93,7 @@ export default class CanGraph extends Component {
                 segmentChanged = true;
             }
 
-            if(nextProps.currentTime != this.props.currentTime) {
+            if(nextProps.currentTime !== this.props.currentTime) {
                 this.view.signal('videoTime', nextProps.currentTime);
                 segmentChanged = true;
             }
@@ -130,6 +135,9 @@ export default class CanGraph extends Component {
 
     onNewView(view) {
         this.view = view;
+        if(this.state.bounds) {
+            this.onPlotResize({bounds: this.state.bounds});
+        }
         if(this.props.segment.length > 0) {
             view.signal('segment', this.props.segment);
         }
