@@ -7,15 +7,41 @@
 
 @import '../../styles/_global/all';
 
+$input-border-color: $color-grey-40;
 $input-height: 42px;
 $input-height--small: 34px;
 $input-height--tiny: 22px;
 $input-radius: 3px;
 $input-background: #fff;
 $button-background: $color-grey-50;
+$button-background--primary: $color-blue-50;
 $button-background--alpha: rgba(0,0,0,.02);
+$button-background--dark: $color-grey-80;
+$button-background--disabled: $color-grey-30;
+$button-border--inverted: $color-grey-40;
+$button-border--disabled: $color-grey-50;
+$button-color--disabled: $color-grey-60;
+$button-color--inverted: $color-grey-70;
 
 .form-field {
+  &:not(:last-child) {
+    margin-bottom: 22px;
+  }
+  label {
+    color: $color-grey-80;
+    cursor: pointer;
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  sup {
+    color: $color-grey-60;
+    display: block;
+    font-size: 14px;
+    font-weight: normal;
+    padding-top: 2px;
+    padding-bottom: 11px;
+  }
   &.form-field--small {
     input,
     select {
@@ -23,24 +49,78 @@ $button-background--alpha: rgba(0,0,0,.02);
       height: $input-height--small;
     }
   }
+  &-inset {
+    background: rgba(0,0,0,.02);
+    border: 1px solid rgba(0,0,0,.03);
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 11px;
+    &-list {
+      &-item {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 11px;
+      }
+      &-item-title {
+        font-weight: 600;
+        flex: 1;
+      }
+      &-item-action {
+        flex: 1;
+      }
+    }
+  }
+  &[data-extension] {
+    position: relative;
+    &:after {
+      background: $color-grey-30;
+      border-left: 1px solid $input-border-color;
+      bottom: 1px;
+      cursor: default;
+      color: $color-grey-70;
+      content: attr(data-extension);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: $input-height - 2px;
+      padding: 0 11px;
+      position: absolute;
+      pointer-events: none;
+      right: 1px;
+    }
+  }
 }
 
+// Text-like Inputs
+// ~~~~~~~~~~~~~~~~
 input[type='text'],
 input[type='number'],
+textarea,
 select {
   background: $input-background;
-  border: 1px solid $color-grey-50;
+  border: 1px solid $input-border-color;
   border-radius: $input-radius;
   font-size: 14px;
   height: $input-height;
   outline: none;
   padding: 0 14px;
+  transition-duration: .1s;
   width: 100%;
   &:focus {
     border-color: $color-grey-60;
   }
+  &::placeholder {
+    color: $color-grey-40;
+  }
 }
 
+textarea {
+  min-height: 144px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+// Buttons
+// ~~~~~~~
 input[type='button'],
 button,
 a.button {
@@ -60,11 +140,22 @@ a.button {
   text-align: center;
   text-decoration: none;
   text-shadow: 0 1px rgba(0,0,0,.2);
+  transition-duration: .1s;
   white-space: nowrap;
   &:active {
     background: $color-grey-60;
     border-bottom-width: 1px;
   }
+  // Button Display Variations
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~
+  &.button--inline {
+    display: inline-block;
+  }
+  &.button--wide {
+    width: 100%;
+  }
+  // Button Size Variations
+  // ~~~~~~~~~~~~~~~~~~~~~~
   &.button--small {
     height: $input-height--small;
     line-height: $input-height--small - 2px;
@@ -73,6 +164,18 @@ a.button {
     height: $input-height--tiny;
     font-size: 12px;
     line-height: $input-height--tiny - 2px;
+  }
+  // Button Color Variations
+  // ~~~~~~~~~~~~~~~~~~~~~~~
+  &.button--primary {
+    background: $button-background--primary;
+    border-color: darken($button-background--primary, 8%);
+    &:hover {
+      background: darken($button-background--primary, 2%);
+    }
+    &:active {
+      background: darken($button-background--primary, 8%);
+    }
   }
   &.button--alpha {
     background: $button-background--alpha;
@@ -83,7 +186,35 @@ a.button {
   }
   &.button--inverted {
     background: transparent;
+    border-color: $button-border--inverted;
     border-width: 1px;
-    color: $button-background;
+    color: $button-color--inverted;
+    text-shadow: none;
+    &:hover {
+      border-color: darken($button-border--inverted, 5%);
+    }
+    &:active {
+      background: $button-background--alpha;
+    }
+  }
+  &.button--dark {
+    background: $button-background--dark;
+    border-color: darken($button-background--dark, 10%);
+    &:hover {
+      background: darken($button-background--dark, 3%);
+    }
+    &:active {
+      background: darken($button-background--dark, 10%);
+    }
+  }
+  // Button Disabled Variations
+  &[disabled] {
+    background: $button-background--disabled;
+    border-color: $button-border--disabled;
+    border-bottom-width: 1px;
+    color: $button-color--disabled;
+    cursor: default;
+    pointer-events: none;
+    text-shadow: none;
   }
 }

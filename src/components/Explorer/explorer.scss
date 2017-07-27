@@ -12,6 +12,20 @@
   height: 100%;
   flex-direction: column;
   flex-grow: 1;
+  &.is-showing-modal {
+    .cabana-window {
+      filter: blur(1px);
+    }
+    .cabana-modal-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .cabana-modal-container {
+      margin-top: 0;
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 }
 
 .cabana-header {
@@ -30,11 +44,14 @@
   }
   &-account {
     float: right;
+    width: 177px;
     a {
       color: #fff;
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
+      margin: -10px 0;
+      width: 100%;
     }
   }
 }
@@ -43,6 +60,7 @@
   display: flex;
   flex-grow: 1;
   overflow: hidden;
+  transition-duration: .2s;
 }
 
 .cabana-explorer {

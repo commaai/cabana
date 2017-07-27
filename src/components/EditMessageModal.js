@@ -1,15 +1,13 @@
-import React, { Component } from 'react';
-import { css, StyleSheet } from 'aphrodite/no-important';
-import PropTypes from 'prop-types';
+import React, { Component, PropTypes } from 'react';
 
-import Modal from './Modal';
+import Modal from './Modals/baseModal';
 import Frame from '../models/can/frame';
 import {copyOmittingKey} from '../utils/object';
 
 export default class EditMessageModal extends Component {
     static propTypes = {
-        onCancel: PropTypes.func.isRequired,
-        onMessageFrameEdited: PropTypes.func.isRequired,
+        handleClose: PropTypes.func.isRequired,
+        handleSave: PropTypes.func.isRequired,
         message: PropTypes.object.isRequired,
     };
 
@@ -19,13 +17,14 @@ export default class EditMessageModal extends Component {
         this.state = {
             messageFrame: props.message.frame.copy()
         }
-        this.onContinue = this.onContinue.bind(this);
+        this.handleSave = this.handleSave.bind(this);
         this.editTransmitter = this.editTransmitter.bind(this);
         this.addTransmitter = this.addTransmitter.bind(this);
+        this.renderActions = this.renderActions.bind(this);
     }
 
-    onContinue() {
-        this.props.onMessageFrameEdited(this.state.messageFrame);
+    handleSave() {
+        this.props.handleSave(this.state.messageFrame);
     }
 
     addTransmitter() {
@@ -35,58 +34,91 @@ export default class EditMessageModal extends Component {
     }
 
     editTransmitter(transmitter) {
-      return <div className={css(Styles.transmitterRow)}>
-                <p key={transmitter}>{transmitter}</p>
-                <p>Edit</p>
-              </div>
+      return;
+    }
+
+    renderActions() {
+      return (
+        <div>
+            <button
+                className='button--inverted'
+                onClick={ this.props.handleClose }>Cancel</button>
+            <button
+                className='button--primary'
+                onClick={ this.handleSave }>Save Message</button>
+        </div>
+      )
     }
 
     render() {
-        return (<Modal title={"Edit Message " + this.props.message.id}
-                       continueEnabled={true}
-                       onCancel={this.props.onCancel}
-                       onContinue={this.onContinue}>
-
-                    <div>
-                        <div>
-                            <p className={css(Styles.inputField)}>Name</p>
-                            <input type="text"
-                                   value={this.state.messageFrame.name}
-                                   onChange={(e) => {
-                                    const {messageFrame} = this.state;
-                                    messageFrame.name = e.target.value;
-                                    this.setState({messageFrame});
-                                   }} />
-                            <p className={css(Styles.inputField)}>Size</p>
-                            <input type="number"
-                                   className={css(Styles.inputSmall)}
-                                   value={this.state.messageFrame.size}
-                                   onChange={(e) => {
-                                    const {messageFrame} = this.state;
-                                    if(e.target.value > 8) {
-                                      return;
-                                    }
-                                    messageFrame.size = parseInt(e.target.value);
-                                    this.setState({messageFrame});
-                                   }} />
-                            <p className={css(Styles.inputField)}>Transmitters</p>
-                            {this.state.messageFrame.transmitters.map(this.editTransmitter)}
-                            <p className={css(Styles.addTransmitter)}
-                               onClick={this.addTransmitter}>Add</p>
-                        </div>
+        return (
+            <Modal
+                title={ `Edit Message: (${ this.props.message.id })`}
+                subtitle='Make changes and update defaults of this message'
+                handleClose={ this.props.handleClose }
+                handleSave={ this.handleSave }
+                actions={ this.renderActions() }>
+                <div className='form-field'>
+                    <label htmlFor='message_name'>
+                        <span>Name</span>
+                        <sup>Customize the name of this message</sup>
+                    </label>
+                    <input
+                        type='text'
+                        id='message_name'
+                        value={ this.state.messageFrame.name }
+                        onChange={ (e) => {
+                         const { messageFrame } = this.state;
+                         messageFrame.name = e.target.value;
+                         this.setState({ messageFrame });
+                        }} />
+                </div>
+                <div className='form-field'>
+                    <label htmlFor='message_size'>
+                        <span>Size</span>
+                        <sup>Add a size parameter to this message</sup>
+                    </label>
+                    <input
+                        type='number'
+                        id='message_size'
+                        value={this.state.messageFrame.size}
+                        onChange={(e) => {
+                        const {messageFrame} = this.state;
+                        if(e.target.value > 8) {
+                          return;
+                        }
+                        messageFrame.size = parseInt(e.target.value);
+                        this.setState({ messageFrame });
+                     }} />
+                </div>
+                <div className='form-field u-hidden'>
+                    <label htmlFor='message_transmitters'>
+                        <span>Transmitters</span>
+                        <sup>Add the physical ECU units that this message is coming from.</sup>
+                    </label>
+                    <div className='form-field-inset'>
+                        <ul className='form-field-inset-list'>
+                            { this.state.messageFrame.transmitters.map((transmitter) => {
+                              return (
+                                  <li className='form-field-inset-list-item' key={ transmitter }>
+                                      <div className='form-field-inset-list-item-title'>
+                                          <span>{ transmitter }</span>
+                                      </div>
+                                      <div className='form-field-inset-list-item-action'>
+                                          <button className='button--tiny button--alpha'>
+                                              Edit
+                                          </button>
+                                      </div>
+                                  </li>
+                              );
+                            }) }
+                            <button className='button--tiny button--alpha'>
+                                <span><i className='fa fa-plus'></i> Add Transmitter</span>
+                            </button>
+                        </ul>
                     </div>
-                </Modal>);
+                </div>
+            </Modal>
+        );
     }
 }
-
-const Styles = StyleSheet.create({
-  inputField: {
-    fontWeight: 'bold'
-  },
-  inputSmall: {
-    width: 30
-  },
-  addTransmitter: {
-    cursor: 'pointer'
-  }
-});

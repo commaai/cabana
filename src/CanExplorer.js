@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 
 import {USE_UNLOGGER, PART_SEGMENT_LENGTH} from './config';
 import * as GithubAuth from './api/github-auth';
+import cx from 'classnames';
+
+import Modal from './components/Modals/baseModal';
 import DBC from './models/can/dbc';
 import Meta from './components/meta';
 import Explorer from './components/explorer';
@@ -56,7 +59,7 @@ export default class CanExplorer extends Component {
             maxByteStateChangeCount: 0,
             isLoading: true,
             partsLoaded: 0,
-            spawnWorkerHash: null
+            spawnWorkerHash: null,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
         if(USE_UNLOGGER) {
@@ -80,6 +83,7 @@ export default class CanExplorer extends Component {
         this.onMessageUnselected = this.onMessageUnselected.bind(this);
         this.initCanData = this.initCanData.bind(this);
         this.updateSelectedMessages = this.updateSelectedMessages.bind(this);
+        this.showingModal = this.showingModal.bind(this);
     }
 
     componentWillMount() {
@@ -219,24 +223,30 @@ export default class CanExplorer extends Component {
                         });
     }
 
+    showingModal() {
+      const {
+        showLoadDbc,
+        showSaveDbc,
+        showAddSignal,
+        showEditMessageModal,
+      } = this.state;
+      return showLoadDbc || showSaveDbc || showAddSignal || showEditMessageModal;
+    }
+
     showLoadDbc() {
       this.setState({showLoadDbc: true});
-      document.body.style.overflow = 'hidden';
     }
 
     hideLoadDbc() {
       this.setState({showLoadDbc: false});
-      document.body.style.overflow = '';
     }
 
     showSaveDbc() {
       this.setState({showSaveDbc: true})
-      document.body.style.overflow = 'hidden';
     }
 
     hideSaveDbc() {
       this.setState({showSaveDbc: false})
-      document.body.style.overflow = '';
     }
 
     onConfirmedSignalChange(message) {
@@ -379,7 +389,8 @@ export default class CanExplorer extends Component {
 
     loginWithGithub() {
         return (
-            <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}>
+            <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}
+                className='button button--dark button--inline'>
                 <i className='fa fa-github'></i>
                 <span> Log in with Github</span>
             </a>
@@ -388,7 +399,7 @@ export default class CanExplorer extends Component {
 
     render() {
         return (
-            <div id="cabana">
+            <div id='cabana' className={ cx({ 'is-showing-modal': this.showingModal() }) }>
                 {this.state.isLoading ?
                     <LoadingBar
                       isLoading={this.state.isLoading}
@@ -445,25 +456,31 @@ export default class CanExplorer extends Component {
                           : null}
                 </div>
 
-                {this.state.showLoadDbc ? <LoadDbcModal
-                                            onDbcSelected={this.onDbcSelected}
-                                            onCancel={this.hideLoadDbc}
-                                            openDbcClient={this.openDbcClient}
-                                            loginWithGithub={this.loginWithGithub()}
-                                             /> : null}
-                {this.state.showSaveDbc ? <SaveDbcModal
-                                            dbc={this.state.dbc}
-                                            sourceDbcFilename={this.state.dbcFilename}
-                                            onDbcSaved={this.onDbcSaved}
-                                            onCancel={this.hideSaveDbc}
-                                            openDbcClient={this.openDbcClient}
-                                            hasGithubAuth={this.props.githubAuthToken !== null}
-                                            loginWithGithub={this.loginWithGithub()} /> : null}
+                {this.state.showLoadDbc ?
+                    <LoadDbcModal
+                        onDbcSelected={this.onDbcSelected}
+                        handleClose={this.hideLoadDbc}
+                        openDbcClient={this.openDbcClient}
+                        loginWithGithub={this.loginWithGithub()}
+                        /> : null}
+
+                {this.state.showSaveDbc ?
+                    <SaveDbcModal
+                        dbc={this.state.dbc}
+                        sourceDbcFilename={this.state.dbcFilename}
+                        onDbcSaved={this.onDbcSaved}
+                        handleClose={this.hideSaveDbc}
+                        openDbcClient={this.openDbcClient}
+                        hasGithubAuth={this.props.githubAuthToken !== null}
+                        loginWithGithub={this.loginWithGithub()}
+                        /> : null}
+
                 {this.state.showEditMessageModal ?
                     <EditMessageModal
-                      onCancel={this.hideEditMessageModal}
-                      onMessageFrameEdited={this.onMessageFrameEdited}
-                      message={this.state.messages[this.state.editMessageModalMessage]} /> : null}
+                        handleClose={this.hideEditMessageModal}
+                        handleSave={this.onMessageFrameEdited}
+                        message={this.state.messages[this.state.editMessageModalMessage]}
+                        /> : null}
             </div>
         );
     }

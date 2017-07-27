@@ -1,3 +1,7 @@
+// Base Style Resets
+// ~~~~~~~~~~~~~~~~~
+
+@import '../_global/all';
 
 html, body {
   min-width: 1340px;
@@ -21,4 +25,12 @@ p {
 
 * {
     box-sizing: border-box;
+}
+
+hr {
+  background: $color-grey-30;
+  height: 1px;
+  border: none;
+  margin: 22px 0;
+  width: 100%;
 }

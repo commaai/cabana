@@ -1,18 +1,19 @@
 import React, {Component} from 'react';
 import { StyleSheet, css } from 'aphrodite/no-important';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
 import FileSaver from 'file-saver';
 
 import OpenDbc from '../api/opendbc';
 import DBC from '../models/can/dbc';
-import Modal from './Modal';
-import TabStyles from '../styles/modal-tabs';
+import Modal from './Modals/baseModal';
+// import TabStyles from '../styles/modal-tabs';
 
 export default class SaveDbcModal extends Component {
     static propTypes = {
         dbc: PropTypes.instanceOf(DBC).isRequired,
         sourceDbcFilename: PropTypes.string.isRequired,
-        onCancel: PropTypes.func.isRequired,
+        handleClose: PropTypes.func.isRequired,
         onDbcSaved: PropTypes.func.isRequired,
         openDbcClient: PropTypes.instanceOf(OpenDbc).isRequired,
         hasGithubAuth: PropTypes.bool.isRequired,
@@ -24,11 +25,16 @@ export default class SaveDbcModal extends Component {
         this.state = {
             tab: 'GitHub',
             openDbcFork: null,
-            dbcFilename: this.props.sourceDbcFilename
+            dbcFilename: this.props.sourceDbcFilename,
+            tabs: ['GitHub', 'Download'],
         };
 
-        this.onContinue = this.onContinue.bind(this);
+        this.commitToGitHub = this.commitToGitHub.bind(this);
+        this.downloadDbcFile = this.downloadDbcFile.bind(this);
         this.forkOpenDbcAndWait = this.forkOpenDbcAndWait.bind(this);
+        this.renderForkButton = this.renderForkButton.bind(this);
+        this.renderTabNavigation = this.renderTabNavigation.bind(this);
+        this.renderActions = this.renderActions.bind(this);
     }
 
     async componentWillMount() {
@@ -36,24 +42,21 @@ export default class SaveDbcModal extends Component {
         this.setState({openDbcFork})
     }
 
-    async onContinue() {
-        const {tab} = this.state;
-        if(tab === 'GitHub') {
-            const {openDbcFork, dbcFilename} = this.state;
-            const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
-            const success = await this.props.openDbcClient.commitFile(openDbcFork,
-                                                     filename,
-                                                     this.props.dbc.text());
-            if(success) {
-                this.props.onDbcSaved(filename);
-            }
-        } else if(tab === 'Download') {
-            const blob = new Blob([this.props.dbc.text()], {type: "text/plain;charset=utf-8"});
+    async commitToGitHub() {
+      const { openDbcFork, dbcFilename } = this.state;
+      const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+      const success = await this.props.openDbcClient.commitFile(openDbcFork,
+                                               filename,
+                                               this.props.dbc.text());
+      if (success) {
+          this.props.onDbcSaved(filename);
+      }
+    }
 
-
-            const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
-            FileSaver.saveAs(blob, filename, true);
-        }
+    async downloadDbcFile() {
+      const blob = new Blob([this.props.dbc.text()], {type: "text/plain;charset=utf-8"});
+      const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+      FileSaver.saveAs(blob, filename, true);
     }
 
     async forkOpenDbcAndWait() {
@@ -81,108 +84,142 @@ export default class SaveDbcModal extends Component {
         }
     }
 
-    forkStep() {
-        const {openDbcFork} = this.state;
-        let content;
-        if(openDbcFork !== null) {
-            content = <p>Done! {openDbcFork}</p>;
-        } else if(this.props.hasGithubAuth) {
-            content = <p className={css(Styles.pointer, Styles.forkOpenDbc)}
-                         onClick={this.forkOpenDbcAndWait}>Fork OpenDBC</p>;
-        } else {
-            content = this.props.loginWithGithub;
-        }
-        return (<div className={css(Styles.step, (openDbcFork !== null ? Styles.stepDone : null))}>
-                    {openDbcFork !== null ? <p>Fork OpenDBC</p> : null}
-                    {content}
-                </div>);
-    }
-
-    nameStep() {
-        return (<div className={css(Styles.step)}>
-                    <p>Choose a filename</p>
-                    <input type="text"
-                           value={this.state.dbcFilename.replace(/\.dbc/g, '')}
-                           size={this.state.dbcFilename.length + 2}
-                           onChange={(e) =>
-                            this.setState({dbcFilename: e.target.value})} />
-                    <span className={css(Styles.fileExtension)}>.dbc</span>
-                </div>);
-    }
-
-    tabContent() {
-        const {tab} = this.state;
-        if(tab === 'GitHub') {
-            return (<div><p>Save your DBC modificiations to GitHub</p>
-                    {this.forkStep()}
-                    {this.nameStep()}</div>);
-        } else if(tab === 'Download') {
-            return (<div>
-                        <p>Download your DBC</p>
-                        {this.nameStep()}
-                    </div>);
-        }
-    }
-
-    tab(tabName) {
-      return <p className={css(TabStyles.tab, this.state.tab === tabName ? TabStyles.selectedTab : null)}
-                onClick={() => {this.setState({tab: tabName})}}>
-              {tabName}
-             </p>
-    }
-
-    continueText() {
-        const {tab} = this.state;
-        if(tab === 'GitHub'){
-            return "Commit to GitHub";
-        } else if(tab === 'Download') {
-            return "Download";
-        }
-    }
-
-    continueEnabled() {
-        const {tab} = this.state;
-        if(tab === 'GitHub') {
+    primaryActionDisabled() {
+        const { tab } = this.state;
+        if (tab === 'GitHub') {
             return this.state.openDbcFork != null
                     && this.state.dbcFilename.length > 0
-        } else if(tab === 'Download') {
+        } else if (tab === 'Download') {
             return true;
         }
     }
 
+    renderForkButton() {
+        return (
+            <button onClick={ this.forkOpenDbcAndWait }>
+                <i className='fa fa-code-fork'></i>
+                <span> Fork OpenDBC</span>
+            </button>
+        );
+    }
+
+    renderForkStep() {
+        const { openDbcFork } = this.state;
+        let content;
+        if (openDbcFork !== null) {
+            content = (
+                <button disabled>
+                    <i className='fa fa-code-fork'></i>
+                    <span> Forked: { openDbcFork }</span>
+                </button>
+            )
+        } else if (this.props.hasGithubAuth) {
+            content = this.renderForkButton();
+        } else {
+            content = this.props.loginWithGithub;
+        }
+        return (
+            <div>
+                { openDbcFork !== null ? this.renderForkButton() : null }
+                { content }
+                <hr />
+            </div>
+        );
+    }
+
+    renderFilenameField() {
+        return (
+            <div className='form-field' data-extension='.dbc'>
+                <label htmlFor='filename'>
+                    <span>Choose a filename:</span>
+                    <sup>Pick a unique name for your car DBC file</sup>
+                </label>
+                <input type='text'
+                        id='filename'
+                        value={ this.state.dbcFilename.replace(/\.dbc/g, '') }
+                        size={ this.state.dbcFilename.length + 2 }
+                        onChange={ (e) =>
+                          this.setState({dbcFilename: e.target.value}) } />
+            </div>
+        );
+    }
+
+    renderTabNavigation() {
+      return (
+        <div className='cabana-tabs-navigation'>
+            { this.state.tabs.map((tab) => {
+                return (
+                    <a className={ cx({'is-active': this.state.tab === tab})}
+                        onClick={ () => { this.setState({ tab }) }}>
+                        <span>{ tab }</span>
+                    </a>
+                )
+            })}
+        </div>
+      )
+    }
+
+    renderTabContent() {
+        const { tab } = this.state;
+        if (tab === 'GitHub') {
+            return (
+                <div>
+                    { this.renderForkStep() }
+                    { this.renderFilenameField() }
+                </div>
+            );
+        }
+        else if (tab === 'Download') {
+            return (
+                <div>
+                    { this.renderFilenameField() }
+                </div>
+            );
+        }
+    }
+
+    renderActions() {
+        const { tab } = this.state;
+        if (tab === 'GitHub') {
+            return (
+                <div>
+                    <button className='button--inverted'
+                            onClick={ this.props.handleClose }>
+                        <span>Cancel</span>
+                    </button>
+                    <button className='button--primary'
+                            onClick={ this.commitToGitHub }>
+                        <span>Commit to GitHub</span>
+                    </button>
+                </div>
+            )
+        }
+        else if (tab === 'Download') {
+            return (
+                <div>
+                    <button className='button--inverted'
+                            onClick={ this.props.handleClose }>
+                        <span>Cancel</span>
+                    </button>
+                    <button className='button--primary'
+                            onClick={ this.downloadDbcFile }>
+                        <span>Download</span>
+                    </button>
+                </div>
+            )
+        }
+    }
+
     render() {
-        return (<Modal title={"Save DBC"}
-                       continueText={this.continueText()}
-                       continueEnabled={this.continueEnabled()}
-                       onCancel={this.props.onCancel}
-                       onContinue={this.onContinue}>
-                   <div className={css(TabStyles.tabs)}>
-                     {this.tab('GitHub')}
-                     {this.tab('Download')}
-                   </div>
-                   <div className={css(TabStyles.tabContent)}>
-                     {this.tabContent()}
-                   </div>
-                </Modal>);
+        return (
+            <Modal
+                title='Save DBC File'
+                subtitle='Save your progress and output to a DBC file'
+                handleClose={ this.props.handleClose }
+                navigation={ this.renderTabNavigation() }
+                actions={ this.renderActions() }>
+                { this.renderTabContent() }
+            </Modal>
+        );
     }
 }
-
-const Styles = StyleSheet.create({
-    step: {
-        borderBottom: '1px solid rgba(0,0,0,0.2)',
-        flexDirection: 'row',
-        paddingTop: 10,
-        paddingBottom: 10
-    },
-    stepDone: {
-        color: 'rgb(200,200,200)'
-    },
-    forkOpenDbc: {
-        ':hover': {
-            textDecoration: 'underline'
-        }
-    },
-    pointer: {
-        cursor: 'pointer'
-    }
-});
