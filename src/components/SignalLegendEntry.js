@@ -207,7 +207,7 @@ export default class SignalLegendEntry extends Component {
                 <input id={`${signal}_${field}`}
                         type="number"
                         value={value}
-                        onChange={(e) => {this.updateField(fieldSpec, e.target)}
+                        onChange={(e) => {this.updateField(fieldSpec, e.target.value)}
                 }/>
             );
         } else {
