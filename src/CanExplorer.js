@@ -108,7 +108,9 @@ export default class CanExplorer extends Component {
       const {dongleId, name, isDemo} = this.props;
       if(this.props.max && this.props.url) {
         const {max, url} = this.props;
-        const route = {fullname: name, proclog: max, url: url};
+        const {startTime} = Routes.parseRouteName(name);
+
+        const route = {fullname: name, proclog: max, url: url, start_time: startTime};
         this.setState({route, currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]}, this.initCanData);
       } else if(dongleId && name) {
         Routes.fetchRoutes(dongleId).then((routes) => {
@@ -318,10 +320,19 @@ export default class CanExplorer extends Component {
                           canStartTime: this.state.firstCanTime});
     }
 
+    updateMessageFrame(messageId, frame) {
+      const {messages} = this.state;
+
+      messages[messageId].frame = frame;
+      this.setState({messages});
+    }
+
     onConfirmedSignalChange(message, signals) {
       const {dbc, dbcFilename, route} = this.state;
 
       dbc.setSignals(message.address, {...signals});
+
+      this.updateMessageFrame(message.id, dbc.messages.get(message.address));
 
       if(route) {
         persistDbc(route.fullname,
@@ -568,6 +579,7 @@ export default class CanExplorer extends Component {
         });
     }
 
+
     render() {
         return (
             <div id='cabana' className={ cx({ 'is-showing-modal': this.showingModal() }) }>
@@ -624,7 +636,7 @@ export default class CanExplorer extends Component {
                           autoplay={this.props.autoplay}
                           showEditMessageModal={this.showEditMessageModal}
                           onPartChange={this.onPartChange}
-                          route={this.state.route}
+                          routeStartTime={this.state.route ? this.state.route.start_time : 0}
                           partsCount={this.state.route ? this.state.route.proclog : 0}
                            />
                           : null}

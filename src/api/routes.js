@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import Moment from 'moment';
 
 const ROUTES_ENDPOINT = 'https://api.commadotai.com/v1/{dongleId}/routes/';
 
@@ -104,4 +105,9 @@ export async function fetchRoutes(dongleId) {
 
 export function cameraPath(routeUrl, frame) {
   return `${routeUrl}/sec${frame}.jpg`
+}
+
+export function parseRouteName(name) {
+  const startTime = Moment(name, "YYYY-MM-DD--H-m-s");
+  return {startTime};
 }

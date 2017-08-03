@@ -286,13 +286,13 @@ export default class Explorer extends Component {
     }
 
     timeWindow() {
-        const {route, currentParts} = this.props;
-        if(route) {
+        const {routeStartTime, currentParts} = this.props;
+        if(routeStartTime) {
             const partStartOffset = currentParts[0] * 60,
                   partEndOffset = (currentParts[1] + 1) * 60;
 
-            const windowStartTime = Moment(route.start_time).add(partStartOffset, 's').format('HH:mm:ss');
-            const windowEndTime = Moment(route.start_time).add(partEndOffset, 's').format('HH:mm:ss');
+            const windowStartTime = routeStartTime.clone().add(partStartOffset, 's').format('HH:mm:ss');
+            const windowEndTime = routeStartTime.clone().add(partEndOffset, 's').format('HH:mm:ss');
 
             return `${windowStartTime} - ${windowEndTime}`;
         } else return '';
