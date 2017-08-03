@@ -15,34 +15,32 @@ import './index.css';
 
 const routeFullName = getUrlParameter('route');
 let isDemo = !routeFullName;
-let props = {autoplay: false, isDemo};
+let props = {autoplay: true, isDemo};
+let persistedDbc = null;
+
 if(routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
     props.dongleId = dongleId;
     props.name = route;
 
-    const persistedDbc = fetchPersistedDbc(routeFullName);
-    if(persistedDbc) {
-      const {dbcFilename, dbc} = persistedDbc;
-      props.dbc = dbc;
-      props.dbcFilename = dbcFilename;
-    }
+    persistedDbc = fetchPersistedDbc(routeFullName);
 
     let max = getUrlParameter('max'), url = getUrlParameter('url');
     if(max && url) {
       props.max = max;
       props.url = url;
     }
-} else if(getUrlParameter('prius')) {
-  props.autoplay = true;
-  props.dongleId = 'b67ff0c1d78774da';
-  props.name = '2017-06-30--17-37-49';
-} else {
-  props.autoplay = true;
+} else if(getUrlParameter('demo')) {
   props.dongleId = 'cb38263377b873ee';
   props.name = '2017-06-12--18-51-47';
   props.dbc = AcuraDbc;
   props.dbcFilename = 'acura_ilx_2016_can.dbc';
+}
+
+if(persistedDbc) {
+  const {dbcFilename, dbc} = persistedDbc;
+  props.dbc = dbc;
+  props.dbcFilename = dbcFilename;
 }
 
 const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);

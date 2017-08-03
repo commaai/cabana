@@ -6,7 +6,7 @@ export function fetchPersistedDbc(routeName) {
     const {dbcFilename, dbcText} = JSON.parse(maybeDbc);
     const dbc = new DBC(dbcText);
 
-    return {dbc, dbcFilename};
+    return {dbc, dbcText, dbcFilename};
   } else return null;
 }
 

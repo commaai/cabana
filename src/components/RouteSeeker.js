@@ -43,6 +43,7 @@ export default class RouteSeeker extends Component {
         this.onClick = this.onClick.bind(this);
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
+        this.executePlayTimer = this.executePlayTimer.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -73,7 +74,7 @@ export default class RouteSeeker extends Component {
     }
 
     componentWillUnmount() {
-        window.clearInterval(this.playTimer);
+        window.cancelAnimationFrame(this.playTimer);
     }
 
     mouseEventXOffsetPercent(e) {
@@ -137,28 +138,9 @@ export default class RouteSeeker extends Component {
         this.props.onUserSeek(ratio);
     }
 
+
     onPlay() {
-        window.clearInterval(this.playTimer);
-        this.playTimer = window.setInterval(() => {
-            const {videoElement} = this.props;
-            if(videoElement === null) return;
-
-            const {currentTime} = videoElement;
-            let newRatio = this.props.segmentProgress(currentTime);
-            if(newRatio === this.state.ratio) {
-                return;
-            }
-
-            if(newRatio >= 1) {
-                newRatio = 0;
-                this.props.onUserSeek(newRatio);
-            }
-
-            if(newRatio >= 0) {
-                this.updateSeekedBar(newRatio);
-                this.props.onPlaySeek(currentTime);
-            }
-        }, 30);
+        this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
         let {ratio} = this.state;
         if(ratio >= 1) {
             ratio = 0;
@@ -167,8 +149,36 @@ export default class RouteSeeker extends Component {
         this.props.onPlay();
     }
 
+    executePlayTimer() {
+        const {videoElement} = this.props;
+        if(videoElement === null) {
+            this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
+            return;
+        }
+
+        const {currentTime} = videoElement;
+        let newRatio = this.props.segmentProgress(currentTime);
+
+        if(newRatio === this.state.ratio) {
+            this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
+            return;
+        }
+
+        if(newRatio >= 1) {
+            newRatio = 0;
+            this.props.onUserSeek(newRatio);
+        }
+
+        if(newRatio >= 0) {
+            this.updateSeekedBar(newRatio);
+            this.props.onPlaySeek(currentTime);
+        }
+
+        this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
+    }
+
     onPause() {
-        window.clearInterval(this.playTimer);
+        window.cancelAnimationFrame(this.playTimer);
         this.setState({isPlaying: false});
         this.props.onPause();
     }

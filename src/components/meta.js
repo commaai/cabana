@@ -4,6 +4,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Clipboard from 'clipboard';
 require('core-js/fn/array/includes');
+const {ckmeans} = require('simple-statistics');
 
 import {modifyQueryParameters} from '../utils/url';
 import LoadDbcModal from './LoadDbcModal';
@@ -33,6 +34,7 @@ export default class Meta extends Component {
         seekTime: PropTypes.number,
         loginWithGithub: PropTypes.element,
         isDemo: PropTypes.bool,
+        live: PropTypes.bool,
     };
 
     constructor(props) {
@@ -41,12 +43,14 @@ export default class Meta extends Component {
         this.state = {
             filterText: 'Filter',
             lastSaved: dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
-            hoveredMessages: []
+            hoveredMessages: [],
+            orderedMessageKeys: [],
         };
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onFilterFocus = this.onFilterFocus.bind(this);
         this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
-        this.msgKeyFilter = this.msgKeyFilter.bind(this);
+        this.msgFilter = this.msgFilter.bind(this);
+        this.renderMessageBytes = this.renderMessageBytes.bind(this);
     }
 
     componentWillMount() {
@@ -70,8 +74,58 @@ export default class Meta extends Component {
         if(JSON.stringify(nextMsgKeys) != JSON.stringify(Object.keys(this.props.messages))) {
             let {selectedMessages} = this.props;
             selectedMessages = selectedMessages.filter((m) => nextMsgKeys.indexOf(m) !== -1);
-            this.setState({hoveredMessages: []});
+
+            const orderedMessageKeys = this.sortMessages(nextProps.messages);
+            this.setState({hoveredMessages: [], orderedMessageKeys});
+        } else if((this.state.orderedMessageKeys.length === 0)
+                    || (!this.props.live && this.props.messages && nextProps.messages
+                        && this.byteCountsDidUpdate(this.props.messages, nextProps.messages))) {
+            const orderedMessageKeys = this.sortMessages(nextProps.messages);
+            this.setState({orderedMessageKeys});
         }
+    }
+
+    byteCountsDidUpdate(prevMessages, nextMessages) {
+        return Object.entries(nextMessages).some(([msgId, msg]) =>
+                JSON.stringify(msg.byteStateChangeCounts)
+                !== JSON.stringify(prevMessages[msgId].byteStateChangeCounts));
+    }
+
+    sortMessages(messages) {
+        // Returns list of message keys, ordered as follows:
+        // messages are binned into at most 10 bins based on entry count
+        // each bin is sorted by message CAN address
+        // then the list of bins is flattened and reversed to
+        // yield a count-descending, address-ascending order.
+
+        if(Object.keys(messages).length === 0) return [];
+        const messagesByEntryCount = Object.entries(messages).reduce((partialMapping, [msgId, msg]) => {
+            const entryCountKey = msg.entries.length.toString(); // js object keys are strings
+            if( !partialMapping[entryCountKey] ) {
+                partialMapping[entryCountKey] = [msg];
+            } else {
+                partialMapping[entryCountKey].push(msg);
+            }
+            return partialMapping;
+        }, {});
+
+        const entryCounts = Object.keys(messagesByEntryCount).map((count) => parseInt(count));
+        const binnedEntryCounts = ckmeans(entryCounts, Math.min(entryCounts.length, 10));
+        const sortedKeys = binnedEntryCounts.map((bin) =>
+            bin.map((entryCount) => messagesByEntryCount[entryCount.toString()])
+               .reduce((messages, partial) => messages.concat(partial), [])
+               .sort((msg1, msg2) => {
+                    if(msg1.address < msg2.address) {
+                       return 1;
+                    } else {
+                       return -1;
+                    }
+                })
+               .map((msg) => msg.id)
+        ).reduce((keys, bin) => keys.concat(bin), [])
+         .reverse();
+
+        return sortedKeys;
     }
 
     onFilterChanged(e) {
@@ -93,14 +147,13 @@ export default class Meta extends Component {
         }
     }
 
-    msgKeyFilter(key) {
+    msgFilter(msg) {
         const {filterText} = this.state;
-        const msg = this.props.messages[key];
         const msgName = (msg.frame ? msg.frame.name : '');
 
         return (filterText == 'Filter'
                 || filterText == ''
-                || key.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+                || msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
                 || msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
     }
 
@@ -140,48 +193,41 @@ export default class Meta extends Component {
     }
 
     orderedMessages() {
+        const {orderedMessageKeys} = this.state;
         const {messages} = this.props;
-        const keys = Object.keys(messages)
-                           .filter(this.msgKeyFilter)
-                           .sort((key1, key2) => {
-                               const msg1 = messages[key1], msg2 = messages[key2];
-                               if(msg1.entries.length < msg2.entries.length) {
-                                   return 1;
-                               } else if(msg1.entries.length === msg2.entries.length) {
-                                   return 0;
-                               } else {
-                                   return -1;
-                               }
-                           });
-
-        let bins = [];
-        keys.forEach((key, idx) => {
-            const msg = messages[key];
-            let bin = bins.find((bin) =>
-                bin.some((binMsg) =>
-                    Math.abs(binMsg.entries.length - msg.entries.length) < 100
-                )
-            );
-            if(bin) {
-                bin.push(msg);
-            } else {
-                bins.push([msg]);
-            }
-        });
-        bins = bins.map((bin) => bin.sort((msg1, msg2) => {
-                if(msg1.address < msg2.address) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            })
-        );
-
-        return bins.reduce((arr, bin) => arr.concat(bin), []);
+        return orderedMessageKeys.map((key) => messages[key]);
     }
 
     selectedMessageClass(messageId) {
       return (this.props.selectedMessages.includes(messageId) ? 'is-selected' : null);
+    }
+
+    renderMessageBytes(msg) {
+        return (
+            <tr onClick={() => {this.onMessageSelected(msg.id)}}
+                key={msg.id}
+                className={cx('cabana-meta-messages-list-item', this.selectedMessageClass(msg.id))}>
+                    <td>{msg.frame ? msg.frame.name : 'undefined'}</td>
+                    <td>{msg.id}</td>
+                    <td>{msg.entries.length}</td>
+                    <td>
+                        <div className='cabana-meta-messages-list-item-bytes'>
+                            <MessageBytes
+                                key={msg.id}
+                                message={msg}
+                                seekIndex={this.props.seekIndex}
+                                seekTime={this.props.seekTime}
+                                live={this.props.live}
+                            />
+                        </div>
+                    </td>
+                </tr>
+        );
+    }
+    renderMessages() {
+        return this.orderedMessages()
+            .filter(this.msgFilter)
+            .map(this.renderMessageBytes);
     }
 
     renderAvailableMessagesList() {
@@ -199,24 +245,7 @@ export default class Meta extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.orderedMessages()
-                        .map((msg) => {
-                            return (
-                                <tr onClick={() => {this.onMessageSelected(msg.id)}}
-                                    key={msg.id}
-                                    className={cx('cabana-meta-messages-list-item', this.selectedMessageClass(msg.id))}>
-                                        <td>{msg.frame ? msg.frame.name : 'undefined'}</td>
-                                        <td>{msg.id}</td>
-                                        <td>{msg.entries.length}</td>
-                                        <td>
-                                            <MessageBytes
-                                                message={msg}
-                                                seekTime={this.props.seekTime}
-                                                maxByteStateChangeCount={this.props.maxByteStateChangeCount} />
-                                        </td>
-                                    </tr>
-                            )
-                        })}
+                    {this.renderMessages()}
                     </tbody>
             </table>
         );
@@ -258,14 +287,15 @@ export default class Meta extends Component {
                         <div className='cabana-meta-header-action'>
                             <button onClick={this.props.showLoadDbc}>Load DBC</button>
                         </div>
-                        <div className='cabana-meta-header-action'
-                             data-clipboard-text={this.shareUrl()}
-                             data-clipboard-action='copy'
-                             ref={(ref) => ref ? new Clipboard(ref) : null}>
-                            <a className='button'
-                               href={this.shareUrl()}
-                               onClick={(e) => e.preventDefault()}>Copy Share Link</a>
-                        </div>
+                        {this.props.route ?
+                            <div className='cabana-meta-header-action'
+                                 data-clipboard-text={this.shareUrl()}
+                                 data-clipboard-action='copy'
+                                 ref={(ref) => ref ? new Clipboard(ref) : null}>
+                                <a className='button'
+                                   href={this.shareUrl()}
+                                   onClick={(e) => e.preventDefault()}>Copy Share Link</a>
+                            </div> : null}
                         <div className='cabana-meta-header-action'>
                             <button onClick={this.props.showSaveDbc}>Save DBC</button>
                         </div>

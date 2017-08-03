@@ -1,8 +1,9 @@
+
 import React, { Component } from 'react';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
 
-import {USE_UNLOGGER, PART_SEGMENT_LENGTH} from './config';
+import {USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW} from './config';
 import * as GithubAuth from './api/github-auth';
 import cx from 'classnames';
 
@@ -11,19 +12,23 @@ import DBC from './models/can/dbc';
 import Meta from './components/meta';
 import Explorer from './components/explorer';
 import * as Routes from './api/routes';
+import OnboardingModal from './components/Modals/OnboardingModal';
 import SaveDbcModal from './components/SaveDbcModal';
 import LoadDbcModal from './components/LoadDbcModal';
 const CanFetcher = require('./workers/can-fetcher.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
+const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
 import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
 import LoadingBar from './components/LoadingBar';
-import {persistDbc} from './api/localstorage';
+import {persistDbc, fetchPersistedDbc} from './api/localstorage';
 import OpenDbc from './api/opendbc';
 import UnloggerClient from './api/unlogger';
+import PandaReader from './api/panda-reader';
 import * as ObjectUtils from './utils/object';
 import {hash} from './utils/string';
+import DbcUtils from './utils/dbc';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -42,17 +47,20 @@ export default class CanExplorer extends Component {
         this.state = {
             messages: {},
             selectedMessages: [],
-            route: {},
+            route: null,
             canFrameOffset: -1,
             firstCanTime: 0,
+            lastBusTime: null,
             selectedMessage: null,
             currentParts: [0,0],
+            showOnboarding: false,
             showLoadDbc: false,
             showSaveDbc: false,
             showEditMessageModal: false,
             editMessageModalMessage: null,
-            dbc: new DBC(),
-            dbcFilename: 'New_DBC',
+            dbc: (props.dbc ? props.dbc : new DBC()),
+            dbcText: (props.dbc ? props.dbc.text() : (new DBC()).text()),
+            dbcFilename: (props.dbcFilename ? props.dbcFilename : 'New_DBC'),
             dbcLastSaved: null,
             seekTime: 0,
             seekIndex: 0,
@@ -60,12 +68,18 @@ export default class CanExplorer extends Component {
             isLoading: true,
             partsLoaded: 0,
             spawnWorkerHash: null,
+            attemptingPandaConnection: false,
+            pandaNoDeviceSelected: false,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
         if(USE_UNLOGGER) {
           this.unloggerClient = new UnloggerClient();
         }
 
+        this.pandaReader = new PandaReader();
+
+        this.showOnboarding = this.showOnboarding.bind(this);
+        this.hideOnboarding = this.hideOnboarding.bind(this);
         this.showLoadDbc = this.showLoadDbc.bind(this);
         this.hideLoadDbc = this.hideLoadDbc.bind(this);
         this.showSaveDbc = this.showSaveDbc.bind(this);
@@ -83,27 +97,33 @@ export default class CanExplorer extends Component {
         this.onMessageUnselected = this.onMessageUnselected.bind(this);
         this.initCanData = this.initCanData.bind(this);
         this.updateSelectedMessages = this.updateSelectedMessages.bind(this);
+        this.handlePandaConnect = this.handlePandaConnect.bind(this);
+        this.processStreamedCanMessages = this.processStreamedCanMessages.bind(this);
+        this.onStreamedCanMessagesProcessed = this.onStreamedCanMessagesProcessed.bind(this);
         this.showingModal = this.showingModal.bind(this);
+        this.lastMessageEntriesById = this.lastMessageEntriesById.bind(this);
     }
 
     componentWillMount() {
-      const {dongleId, name} = this.props;
-      Routes.fetchRoutes(dongleId).then((routes) => {
-        if(routes && routes[name]) {
-          const route = routes[name];
+      const {dongleId, name, isDemo} = this.props;
+      if(this.props.max && this.props.url) {
+        const {max, url} = this.props;
+        const route = {fullname: name, proclog: max, url: url};
+        this.setState({route, currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]}, this.initCanData);
+      } else if(dongleId && name) {
+        Routes.fetchRoutes(dongleId).then((routes) => {
+          if(routes && routes[name]) {
+            const route = routes[name];
 
-          const newState = {route, currentParts: [0, Math.min(route.proclog - 1, PART_SEGMENT_LENGTH - 1)]};
-          if(this.props.dbc !== undefined) {
-            newState.dbc = this.props.dbc;
-            newState.dbcFilename = this.props.dbcFilename;
+            const newState = {route, currentParts: [0, Math.min(route.proclog - 1, PART_SEGMENT_LENGTH - 1)]};
+            this.setState(newState, this.initCanData);
+          } else {
+            this.showOnboarding();
           }
-          this.setState(newState, this.initCanData);
-        } else if(this.props.max && this.props.url) {
-          const {max, url} = this.props;
-          const route = {fullname: name, proclog: max, url: url};
-          this.setState({route, currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]}, this.initCanData);
-        }
-      });
+        });
+      } else {
+        this.showOnboarding();
+      }
     }
 
     initCanData() {
@@ -123,26 +143,54 @@ export default class CanExplorer extends Component {
     }
 
     onDbcSelected(dbcFilename, dbc) {
-      const {route} = this.state;
+      const {route, messages} = this.state;
       this.hideLoadDbc();
-      persistDbc(route.fullname,
-                 {dbcFilename, dbc});
-      this.setState({dbc,
-                     dbcFilename,
-                     partsLoaded: 0,
-                     selectedMessage: null,
-                     messages: {}}, () => {
-        const {route} = this.state;
+      if(route) {
+        persistDbc(route.fullname,
+                   {dbcFilename, dbc});
+        this.setState({dbc,
+                       dbcFilename,
+                       dbcText: dbc.text(),
+                       partsLoaded: 0,
+                       selectedMessage: null,
+                       messages: {}}, () => {
+          const {route} = this.state;
 
-        // Pass DBC text to webworker b/c can't pass instance of es6 class
-        this.spawnWorker(this.state.currentParts);
-      });
+          // Pass DBC text to webworker b/c can't pass instance of es6 class
+          this.spawnWorker(this.state.currentParts);
+        });
+      } else {
+        persistDbc('live', {dbcFilename, dbc});
+
+        this.setState({dbc, dbcFilename, dbcText: dbc.text(), messages: {}});
+      }
     }
 
     onDbcSaved(dbcFilename) {
       const dbcLastSaved = Moment();
       this.setState({dbcLastSaved, dbcFilename})
       this.hideSaveDbc();
+    }
+
+    addAndRehydrateMessages(newMessages, options) {
+      // Adds new message entries to messages state
+      // and "rehydrates" ES6 classes (message frame)
+      // lost from JSON serialization in webworker data cloning.
+      if(options === undefined) options = {};
+
+      const messages = {...this.state.messages};
+      for(var key in newMessages) {
+        // add message
+        if ((options.replace !== true) && key in messages) {
+          messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
+          messages[key].byteStateChangeCounts = newMessages[key].byteStateChangeCounts;
+        } else {
+          messages[key] = newMessages[key];
+          messages[key].frame = this.state.dbc.messages.get(messages[key].address);
+        }
+      }
+
+      return messages;
     }
 
     spawnWorker(parts, options) {
@@ -168,7 +216,7 @@ export default class CanExplorer extends Component {
         this.setState({partsLoaded: 0});
       }
 
-      const {dbc, dbcFilename, route, firstCanTime, canFrameOffset} = this.state;
+      const {dbc, dbcFilename, route, firstCanTime, canFrameOffset, maxByteStateChangeCount} = this.state;
       var worker = new CanFetcher();
 
       worker.onmessage = (e) => {
@@ -177,33 +225,27 @@ export default class CanExplorer extends Component {
           return;
         }
 
-        const {messages} = this.state;
         if(this.state.dbcFilename != dbcFilename) {
           // DBC changed while this worker was running
           // -- don't update messages and halt recursion.
           return;
         }
 
-        const {newMessages, maxByteStateChangeCount} = e.data;
+        let {newMessages, maxByteStateChangeCount} = e.data;
         if(maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
           this.setState({maxByteStateChangeCount});
+        } else {
+          maxByteStateChangeCount = this.state.maxByteStateChangeCount;
         }
 
-        for(var key in newMessages) {
-          if (key in messages) {
-            messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
-          } else {
-            messages[key] = newMessages[key];
-            messages[key].signals = this.state.dbc.getSignals(messages[key].address);
-            messages[key].frame = this.state.dbc.messages.get(messages[key].address);
-          }
-        }
-
+        const messages = this.addAndRehydrateMessages(newMessages, maxByteStateChangeCount);
         const prevMsgEntries = {};
         for(let key in newMessages) {
           const msg = newMessages[key];
+
           prevMsgEntries[key] = msg.entries[msg.entries.length - 1];
         }
+
 
         this.setState({messages,
                        partsLoaded: this.state.partsLoaded + 1}, () => {
@@ -219,18 +261,28 @@ export default class CanExplorer extends Component {
                           base: route.url,
                           num: part,
                           canStartTime: firstCanTime - canFrameOffset,
-                          prevMsgEntries
+                          prevMsgEntries,
+                          maxByteStateChangeCount
                         });
     }
 
     showingModal() {
       const {
+        showOnboarding,
         showLoadDbc,
         showSaveDbc,
         showAddSignal,
         showEditMessageModal,
       } = this.state;
-      return showLoadDbc || showSaveDbc || showAddSignal || showEditMessageModal;
+      return showOnboarding || showLoadDbc || showSaveDbc || showAddSignal || showEditMessageModal;
+    }
+
+    showOnboarding() {
+        this.setState({ showOnboarding: true });
+    }
+
+    hideOnboarding() {
+        this.setState({ showOnboarding: false });
     }
 
     showLoadDbc() {
@@ -249,31 +301,44 @@ export default class CanExplorer extends Component {
       this.setState({showSaveDbc: false})
     }
 
-    onConfirmedSignalChange(message) {
-      const signals = message.signals;
-      const {dbc, dbcFilename, route} = this.state;
+    reparseMessages(messages) {
+      this.setState({isLoading: true});
 
-      dbc.setSignals(message.address, message.signals);
-      persistDbc(route.fullname,
-                 {dbcFilename, dbc});
-
-      this.setState({dbc, isLoading: true});
-
+      const {dbc} = this.state;
       var worker = new MessageParser();
       worker.onmessage = (e) => {
-        const newMessage = e.data;
-        newMessage.signals = dbc.getSignals(newMessage.address);
-        newMessage.frame = dbc.messages.get(newMessage.address);
+        let messages = e.data;
+        messages = this.addAndRehydrateMessages(messages, {replace: true});
 
-        const messages = {};
-        Object.assign(messages, this.state.messages);
-        messages[message.id] = newMessage;
         this.setState({messages, isLoading: false})
       }
 
-      worker.postMessage({message,
+      worker.postMessage({messages,
                           dbcText: dbc.text(),
                           canStartTime: this.state.firstCanTime});
+    }
+
+    onConfirmedSignalChange(message, signals) {
+      const {dbc, dbcFilename, route} = this.state;
+
+      dbc.setSignals(message.address, {...signals});
+
+      if(route) {
+        persistDbc(route.fullname,
+                   {dbcFilename, dbc});
+      } else {
+        persistDbc('live', {dbcFilename, dbc});
+      }
+
+      const messages = {};
+      const newMessage = {...message};
+      const frame = dbc.messages.get(message.address);
+      newMessage.frame = frame;
+
+      messages[message.id] = newMessage;
+
+      this.setState({dbc, dbcText: dbc.text()},
+        () => this.reparseMessages(messages));
     }
 
     partChangeDebounced = debounce(() => {
@@ -315,7 +380,8 @@ export default class CanExplorer extends Component {
 
       this.setState({showEditMessageModal: true,
                      editMessageModalMessage: msgKey,
-                     messages: this.state.messages});
+                     messages: this.state.messages,
+                     dbcText: dbc.text()});
     }
 
     hideEditMessageModal() {
@@ -336,7 +402,7 @@ export default class CanExplorer extends Component {
                  {dbcFilename, dbc});
 
       messages[editMessageModalMessage] = message;
-      this.setState({messages});
+      this.setState({messages, dbc, dbcText: dbc.text()});
       this.hideEditMessageModal();
     }
 
@@ -388,13 +454,118 @@ export default class CanExplorer extends Component {
     }
 
     loginWithGithub() {
+        const {route} = this.state;
         return (
-            <a href={GithubAuth.authorizeUrl(this.state.route.fullname || '')}
+            <a href={GithubAuth.authorizeUrl(route && route.fullname ? route.fullname : '')}
                 className='button button--dark button--inline'>
                 <i className='fa fa-github'></i>
                 <span> Log in with Github</span>
             </a>
         )
+    }
+
+    lastMessageEntriesById(obj, [msgId, message]) {
+        obj[msgId] = message.entries[message.entries.length - 1];
+        return obj;
+    }
+
+    processStreamedCanMessages(newCanMessages) {
+      const {dbcText} = this.state;
+      const {firstCanTime, lastBusTime, messages, maxByteStateChangeCount} = this.state;
+      // map msg id to arrays
+      const prevMsgEntries = Object.entries(messages).reduce(this.lastMessageEntriesById, {});
+
+      const byteStateChangeCountsByMessage = Object.entries(messages).reduce(
+        (obj, [msgId, msg]) => {
+          obj[msgId] = msg.byteStateChangeCounts
+          return obj;
+        }, {});
+
+      this.canStreamerWorker.postMessage({ newCanMessages,
+                                           prevMsgEntries,
+                                           firstCanTime,
+                                           dbcText,
+                                           lastBusTime,
+                                           byteStateChangeCountsByMessage,
+                                           maxByteStateChangeCount });
+    }
+
+    firstEntryIndexInsideStreamingWindow(entries) {
+      const lastEntryTime = entries[entries.length - 1].relTime;
+      const windowFloor = lastEntryTime - STREAMING_WINDOW;
+
+      for(let i = 0; i < entries.length; i++) {
+        if(entries[i].relTime > windowFloor) {
+          return i;
+        }
+      }
+
+      return 0;
+    }
+
+    enforceStreamingMessageWindow(messages) {
+      let messageIds = Object.keys(messages);
+      for(let i = 0; i < messageIds.length; i++) {
+        const messageId = messageIds[i];
+        const message = messages[messageId];
+        if(message.entries.length < 2) {
+          continue;
+        }
+
+        const lastEntryTime = message.entries[message.entries.length - 1].relTime;
+        const entrySpan = lastEntryTime - message.entries[0].relTime;
+        if(entrySpan > STREAMING_WINDOW) {
+          const newEntryFloor = this.firstEntryIndexInsideStreamingWindow(message.entries);
+          message.entries = message.entries.slice(newEntryFloor);
+          messages[messageId] = message;
+        }
+      }
+
+      return messages;
+    }
+
+    _onStreamedCanMessagesProcessed(data) {
+      let {newMessages, seekTime, lastBusTime, firstCanTime, byteStateChangeCountsByMessage, maxByteStateChangeCount} = data;
+
+      if(maxByteStateChangeCount < this.state.maxByteStateChangeCount) {
+        maxByteStateChangeCount = this.state.maxByteStateChangeCount;
+      }
+
+      let messages = this.addAndRehydrateMessages(newMessages);
+      messages = this.enforceStreamingMessageWindow(messages);
+      let {seekIndex, selectedMessages} = this.state;
+      if(selectedMessages.length > 0) {
+        seekIndex = messages[selectedMessages[0]].entries.length - 1;
+      }
+      this.setState({messages, seekTime, seekIndex, lastBusTime, firstCanTime, maxByteStateChangeCount});
+    }
+
+    onStreamedCanMessagesProcessed(e) {
+      this._onStreamedCanMessagesProcessed(e.data);
+    }
+
+    handlePandaConnect(e) {
+        this.setState({ attemptingPandaConnection: true, live: true });
+
+        const persistedDbc = fetchPersistedDbc('live');
+        if(persistedDbc) {
+          const {dbc, dbcText} = persistedDbc;
+          this.setState({dbc, dbcText});
+        }
+        this.canStreamerWorker = new CanStreamerWorker();
+        this.canStreamerWorker.onmessage = this.onStreamedCanMessagesProcessed;
+        this.pandaReader.setOnMessagesReceivedCallback(this.processStreamedCanMessages);
+        this.pandaReader.connect().then(() => {
+            this.pandaReader.readLoop();
+            this.setState({ attemptingPandaConnection: false });
+            this.setState({ showOnboarding: false });
+            this.setState({ showLoadDbc: true });
+        }).catch((err) => {
+            if (err.code === PandaReader.ERROR_NO_DEVICE_SELECTED) {
+                this.setState({ attemptingPandaConnection: false });
+            }
+            else { console.log(err) }
+        });
     }
 
     render() {
@@ -414,7 +585,7 @@ export default class CanExplorer extends Component {
                     </div>
                 </div>
                 <div className='cabana-window'>
-                    <Meta url={this.state.route.url}
+                    <Meta url={this.state.route ? this.state.route.url : null}
                           messages={this.state.messages}
                           selectedMessages={this.state.selectedMessages}
                           updateSelectedMessages={this.updateSelectedMessages}
@@ -430,12 +601,15 @@ export default class CanExplorer extends Component {
                           name={this.props.name}
                           route={this.state.route}
                           seekTime={this.state.seekTime}
+                          seekIndex={this.state.seekIndex}
                           maxByteStateChangeCount={this.state.maxByteStateChangeCount}
                           isDemo={this.props.isDemo}
+                          live={this.state.live}
                   />
-                  {this.state.route.url ?
+                  {this.state.route || this.state.live ?
                       <Explorer
-                          url={this.state.route.url}
+                          url={this.state.route ? this.state.route.url : null}
+                          live={this.state.live}
                           messages={this.state.messages}
                           selectedMessage={this.state.selectedMessage}
                           onConfirmedSignalChange={this.onConfirmedSignalChange}
@@ -451,10 +625,16 @@ export default class CanExplorer extends Component {
                           showEditMessageModal={this.showEditMessageModal}
                           onPartChange={this.onPartChange}
                           route={this.state.route}
-                          partsCount={this.state.route.proclog || 0}
+                          partsCount={this.state.route ? this.state.route.proclog : 0}
                            />
                           : null}
                 </div>
+
+                { this.state.showOnboarding ?
+                    <OnboardingModal
+                        handlePandaConnect={ this.handlePandaConnect }
+                        attemptingPandaConnection= { this.state.attemptingPandaConnection }
+                        /> : null }
 
                 {this.state.showLoadDbc ?
                     <LoadDbcModal
@@ -481,6 +661,7 @@ export default class CanExplorer extends Component {
                         handleSave={this.onMessageFrameEdited}
                         message={this.state.messages[this.state.editMessageModalMessage]}
                         /> : null}
+
             </div>
         );
     }

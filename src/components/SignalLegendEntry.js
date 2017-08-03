@@ -330,7 +330,8 @@ export default class SignalLegendEntry extends Component {
         <div className='signals-legend-entry-form'>
             {SignalLegendEntry.fields.map((field) => {
                 return (
-                    <div className='signals-legend-entry-form-field'>
+                    <div className='signals-legend-entry-form-field'
+                         key={field.field}>
                         {this.renderFieldNode(field, signal.name)}
                     </div>
                 )

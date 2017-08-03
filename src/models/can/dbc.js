@@ -173,8 +173,9 @@ export default class DBC {
     setSignals(msgId, signals) {
         const msg = this.messages.get(msgId);
         if(msg) {
-            msg.signals = signals;
-            this.messages.set(msgId, msg);
+            const newMsg = Object.assign(Object.create(msg), msg);
+            newMsg.signals = signals;
+            this.messages.set(msgId, newMsg);
         } else {
             const msg = this.createFrame(msgId);
             msg.signals = signals;

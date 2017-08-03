@@ -1,8 +1,46 @@
 // Lists
 // ~~~~~
 
+@import '../_global/all';
+
+$list-bubble-size: 25px;
+
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+ol {
+  margin: 0;
+  &.list--bubbled {
+    list-style-type: none;
+    padding: 0;
+    li {
+      counter-increment: list-counter;
+      min-height: $list-bubble-size;
+      margin-bottom: 2%;
+      padding-bottom: 2%;
+      padding-top: 4px;
+      padding-left: $list-bubble-size * 1.6;
+      position: relative;
+      &:before {
+        background: #fff;
+        border: 1px solid $color-grey-30;
+        border-radius: 100%;
+        content: counter(list-counter);
+        font-size: 12px;
+        line-height: $list-bubble-size;
+        margin-right: 5px;
+        left: 0;
+        top: 0;
+        position: absolute;
+        text-align: center;
+        width: $list-bubble-size;
+      }
+      p {
+        margin-bottom: 3%;
+      }
+    }
+  }
 }

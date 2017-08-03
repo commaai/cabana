@@ -7,6 +7,8 @@
 
 @import '../../styles/_global/all';
 
+$cabana-modal-padding--wide: 76px;
+
 .cabana-modal {
   &-backdrop {
     background: rgba(233,233,233,.8);
@@ -32,7 +34,7 @@
     position: absolute;
     top: 50%;
     width: 600px;
-    transition: ease-in-out .2s;
+    // transition: ease-in-out .2s;
     z-index: 101;
   }
   &-header {
@@ -73,11 +75,14 @@
     border-style: solid;
     border-width: 1px 0;
     padding: 34px 50px;
+    position: relative;
   }
   &-actions {
     text-align: right;
-    padding: 22px 50px;
     width: 100%;
+    &:not(:empty) {
+      padding: 22px 50px;
+    }
     button {
       display: inline-block;
       &:not(:last-child) {
@@ -85,13 +90,56 @@
       }
     }
   }
+  &-footer {
+    background: $color-grey-20;
+    color: $color-grey-70;
+    font-size: 14px;
+    line-height: 70px;
+    text-align: center;
+    a {
+      color: inherit;
+      font-weight: 600;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  // Functional Variations
+  &.cabana-modal--not-closable {
+    .cabana-modal-backdrop {
+      pointer-events: none;
+    }
+    .cabana-modal-close-icon {
+      display: none;
+    }
+  }
+  &.cabana-modal--scrollable-y {
+    .cabana-modal-container {
+      transform: translate(-50%, 0);
+      top: 5%;
+      margin-bottom: 5%;
+    }
+  }
+  // Size Variations
   &.cabana-modal--small {
     width: 480px;
   }
-  &.cabana-modal--large {
-    width: 800px;
+  &.cabana-modal--wide {
+    .cabana-modal-container {
+      width: 820px;
+    }
+    .cabana-modal-header,
+    .cabana-modal-body {
+      padding-left: $cabana-modal-padding--wide;
+      padding-right: $cabana-modal-padding--wide;
+    }
   }
-
+  // Color variations
+  &.cabana-modal--dark {
+    .cabana-modal-backdrop {
+      background: rgba(0,0,0,.85);
+    }
+  }
   // Overrides
   .cabana-tabs-navigation {
     padding: 0 44px;

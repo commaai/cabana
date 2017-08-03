@@ -76,6 +76,13 @@
         cursor: pointer;
         position: relative;
         transition-duration: .1s;
+        &-bytes {
+          width: 160px;
+          &-canvas {
+            width: 160px;
+            height: 15px;
+          }
+        }
         &:not(.is-selected):hover {
           background: rgba(0,0,0,.05);
         }

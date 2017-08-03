@@ -40,6 +40,10 @@ class CloudLog {
     warn(message) {
         this.emit(message, 'warn');
     }
+
+    error(message) {
+        this.emit(message, 'error');
+    }
 }
 
 export default (new CloudLog());

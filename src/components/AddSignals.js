@@ -31,8 +31,8 @@ export default class AddSignals extends Component {
         super(props);
 
         let signals = {};
-        if(props.message && props.message.signals) {
-            Object.assign(signals, props.message.signals);
+        if(props.message && props.message.frame && props.message.frame.signals) {
+            signals = this.copySignals(props.message.frame.signals);
         }
 
         this.state = {
@@ -54,6 +54,20 @@ export default class AddSignals extends Component {
         this.onSignalRemove = this.onSignalRemove.bind(this);
         this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
         this.resetDragState = this.resetDragState.bind(this);
+    }
+
+    copySignals(signals) {
+        return Object.entries(signals).reduce((signalsCopy, [signalName, signal]) => {
+            signalsCopy[signalName] = Object.assign(Object.create(signal), signal);
+            return signalsCopy;
+        }, {});
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.message.hexData !== this.props.message.hexData
+                || nextProps.messageIndex !== this.props.messageIndex
+                || JSON.stringify(nextProps.plottedSignals) !== JSON.stringify(this.props.plottedSignals)
+                || JSON.stringify(this.state) !== JSON.stringify(nextState);
     }
 
     signalColorStyle(signal) {
@@ -94,13 +108,11 @@ export default class AddSignals extends Component {
     }
 
     componentWillReceiveProps({message}) {
-        const isNewMessage = message.address != this.props.message.address;
-
+        const isNewMessage = message.address !== this.props.message.address;
         if(isNewMessage) {
-            const signalStyles = this.updateSignalStyles(message.signals);
-            const signals = {};
-            Object.assign(signals, message.signals);
-            this.setState({signals}, this.updateSignalStyles);
+            const signals = (message.frame ? message.frame.signals : {});
+            const signalStyles = this.updateSignalStyles(signals);
+            this.setState({signals: this.copySignals(signals)}, this.updateSignalStyles);
         }
     }
 
@@ -446,12 +458,8 @@ export default class AddSignals extends Component {
 
     propagateUpSignalChange() {
         const {signals} = this.state;
-        const newMessage = {};
 
-        Object.assign(newMessage, this.props.message);
-        newMessage.signals = signals;
-
-        this.props.onConfirmedSignalChange(newMessage);
+        this.props.onConfirmedSignalChange(this.props.message, this.copySignals(signals));
     }
 
     onSignalPlotChange(shouldPlot, signalName) {

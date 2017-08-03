@@ -124,7 +124,7 @@ export default class CanGraphList extends Component {
                 messages={this.props.messages}
                 messageId={messageId}
                 messageName={msg.frame ? msg.frame.name : null}
-                signalSpec={Object.assign(Object.create(msg.signals[signalName]), msg.signals[signalName])}
+                signalSpec={Object.assign(Object.create(msg.frame.signals[signalName]), msg.frame.signals[signalName])}
                 onSegmentChanged={this.props.onSegmentChanged}
                 segment={this.props.segment}
                 data={this.props.graphData[index]}
@@ -136,6 +136,7 @@ export default class CanGraphList extends Component {
                 dragPos={isDragging ? this.state.dragPos : null}
                 canReceiveGraphDrop={canReceiveGraphDrop}
                 plottedSignals={plottedSignals}
+                live={this.props.live}
             />
         );
     }

@@ -111,7 +111,8 @@ module.exports = {
           /\.(js|jsx)$/,
           /\.css$/,
           /\.json$/,
-          /\.svg$/
+          /\.svg$/,
+          /\.png$/
         ],
         loader: 'url',
         query: {
@@ -169,6 +170,11 @@ module.exports = {
           { loader: 'worker-loader' },
           { loader: 'babel-loader' }
         ]
+      },
+      {
+        // static image loader
+        test: /\.png$/,
+        loader: 'base64-inline-loader?name=[name].[ext]'
       }
       // ** STOP ** Are you adding a new loader?
       // Remember to add the new extension(s) to the "url" loader exclusion list.

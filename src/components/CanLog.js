@@ -52,7 +52,8 @@ export default class CanLog extends Component {
       const curMessageLength = this.props.message ? this.props.message.entries.length : 0;
       const nextMessageLength = nextProps.message ? nextProps.message.entries.length : 0;
 
-      const shouldUpdate = nextMessageLength != curMessageLength
+      const shouldUpdate = this.props.message !== nextProps.message
+        || nextMessageLength != curMessageLength
         || nextProps.messageIndex != this.props.messageIndex
         || nextProps.plottedSignals.length != this.props.plottedSignals.length
         || JSON.stringify(nextProps.segmentIndices) != JSON.stringify(this.props.segmentIndices)
@@ -60,13 +61,11 @@ export default class CanLog extends Component {
         || this.props.message != nextProps.message
         || (this.props.message !== undefined
             && nextProps.message !== undefined
+            && this.props.message.frame !== undefined
+            && nextProps.message.frame !== undefined
             &&
               (
-                (this.props.message.signals
-                && nextProps.message.signals
-                && JSON.stringify(this.props.message.signals) != JSON.stringify(nextProps.message.signals))
-              ||
-                (JSON.stringify(this.props.message.frame) != JSON.stringify(nextProps.message.frame))
+                (JSON.stringify(this.props.message.frame) !== JSON.stringify(nextProps.message.frame))
               ));
 
       return shouldUpdate;
@@ -115,7 +114,7 @@ export default class CanLog extends Component {
 
     toggleExpandPacketSignals(msg) {
         const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
-        const msgHasSignals = Object.keys(msg.signals).length > 0;
+        const msgHasSignals = Object.keys(this.props.message.frame.signals).length > 0;
         if (msgIsExpanded && msgHasSignals) {
             this.setState({expandedMessages: this.state.expandedMessages
               .filter((expMsgTime) => expMsgTime !== msg.time)})
@@ -132,7 +131,6 @@ export default class CanLog extends Component {
               { Object.entries(msg.signals).map(([name, value]) => {
                   return [name, value, this.isSignalPlotted(message.id, name)]
                 }).map(([name, value, isPlotted]) => {
-                  const signalValue = msg.signals[name];
                   const plottedButtonClass = isPlotted ? null : 'button--alpha';
                   const plottedButtonText = isPlotted ? 'Hide Plot' : 'Show Plot';
 
@@ -146,11 +144,11 @@ export default class CanLog extends Component {
                         </div>
                         <div className='signals-log-list-signal-value'>
                             <span>
-                                (<strong>{ this.signalValuePretty(signalValue, value) }</strong> { unit })
+                                (<strong>{ this.signalValuePretty(signal, value) }</strong> { unit })
                             </span>
                         </div>
                         <div className='signals-log-list-signal-action'
-                              onClick={ () => { this.toggleSignalPlot(this.props.message.id, name, isPlotted) } }>
+                              onClick={ () => { this.toggleSignalPlot(message.id, name, isPlotted) } }>
                           <button className={ cx('button--tiny', plottedButtonClass) }>
                               <span>{ plottedButtonText }</span>
                           </button>
@@ -163,6 +161,7 @@ export default class CanLog extends Component {
     }
 
     renderLogListItemMessage(msg, key) {
+        const { message } = this.props;
         const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
         const msgHasSignals = Object.keys(msg.signals).length > 0;
         const hasSignalsClass = msgHasSignals ? 'has-signals' : null;
@@ -172,7 +171,7 @@ export default class CanLog extends Component {
                 <div className='signals-log-list-item-header'
                       onClick={ () => { this.toggleExpandPacketSignals(msg) } }>
                     <div className='signals-log-list-message'>
-                        <strong>{(this.props.message.frame ? this.props.message.frame.name : null) || this.props.message.id}</strong>
+                        <strong>{(message.frame ? message.frame.name : null) || message.id}</strong>
                     </div>
                     <div className='signals-log-list-time'>
                         <span>[{msg.relTime.toFixed(3)}]</span>

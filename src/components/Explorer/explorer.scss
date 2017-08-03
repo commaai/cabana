@@ -25,6 +25,11 @@
       opacity: 1;
       pointer-events: auto;
     }
+    .cabana-modal.cabana-modal--not-closable {
+      .cabana-modal-backdrop {
+        pointer-events: none;
+      }
+    }
   }
 }
 

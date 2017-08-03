@@ -165,6 +165,16 @@ a.button {
     font-size: 12px;
     line-height: $input-height--tiny - 2px;
   }
+  // Button Disabled Variations
+  &[disabled] {
+    background: $button-background--disabled;
+    border-color: $button-border--disabled;
+    border-bottom-width: 1px;
+    color: $button-color--disabled;
+    cursor: default;
+    pointer-events: none;
+    text-shadow: none;
+  }
   // Button Color Variations
   // ~~~~~~~~~~~~~~~~~~~~~~~
   &.button--primary {
@@ -176,6 +186,13 @@ a.button {
     &:active {
       background: darken($button-background--primary, 8%);
     }
+  }
+  &.button--secondary {
+    background: linear-gradient(-180deg, #F9F9F9 0%, #F0F0F0 100%);
+    border-color: $color-grey-40;
+    border-radius: 5px;
+    color: $color-grey-80;
+    text-shadow: none;
   }
   &.button--alpha {
     background: $button-background--alpha;
@@ -207,14 +224,84 @@ a.button {
       background: darken($button-background--dark, 10%);
     }
   }
-  // Button Disabled Variations
-  &[disabled] {
-    background: $button-background--disabled;
-    border-color: $button-border--disabled;
-    border-bottom-width: 1px;
-    color: $button-color--disabled;
-    cursor: default;
-    pointer-events: none;
-    text-shadow: none;
+  // Major variations
+  &.button--kiosk {
+    box-shadow: 0 1px 3px 0 rgba(105,105,105,0.2);
+    height: 144px;
+    margin-bottom: 15px;
+    padding-bottom: 34px;
+    padding-left: 160px;
+    padding-top: 31px;
+    position: relative;
+    text-align: left;
+    width: 100%;
+    &:active {
+      > i {
+        top: 35px;
+      }
+    }
+    &[disabled],
+    &.is-disabled {
+      // it is expected when kiosk buttons are disabled
+      // that a context <p> will be provided
+      border-width: 1px;
+      box-shadow: none;
+      cursor: default;
+      padding-top: 22px;
+      strong,
+      sup,
+      > i {
+        opacity: .3;
+      }
+      sup {
+        font-size: 16px;
+      }
+      p {
+        font-size: 16px;
+        font-weight: 600;
+        span {
+          padding-left: 8px;
+        }
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+        pointer-events: auto;
+        &:hover {
+          text-decoration:  underline;
+        }
+      }
+    }
+    > i {
+      background: rgba(0,0,0,.2);
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 100%;
+      font-size: 36px;
+      line-height: 73px;
+      text-align: center;
+      left: 50px;
+      top: 34px;
+      opacity: .3;
+      position: absolute;
+      width: 73px;
+    }
+    strong,
+    sup {
+      display: block;
+      line-height: normal;
+    }
+    strong {
+      font-size: 26px;
+      letter-spacing: .0125em;
+      margin-bottom: 8px;
+    }
+    sup {
+      font-size: 18px;
+      font-weight: normal;
+    }
+    em {
+      font-style: normal;
+      font-weight: 500;
+    }
   }
 }

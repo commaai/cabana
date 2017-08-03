@@ -13,6 +13,7 @@ import CanLog from './CanLog';
 import RouteSeeker from './RouteSeeker';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
+import ArrayUtils from '../utils/array';
 import CommonStyles from '../styles/styles';
 import Images from '../styles/images';
 import PartSelector from './PartSelector';
@@ -22,6 +23,7 @@ export default class Explorer extends Component {
     static propTypes = {
        selectedMessage: PropTypes.string,
        url: PropTypes.string,
+       live: PropTypes.bool,
        messages: PropTypes.objectOf(PropTypes.object),
        onConfirmedSignalChange: PropTypes.func,
        canFrameOffset: PropTypes.number,
@@ -38,7 +40,7 @@ export default class Explorer extends Component {
         const msg = props.messages[props.selectedMessage];
 
         const  ShowAddSignal = (
-            msg && Object.keys(msg.signals).length === 0);
+            msg && Object.keys(msg.frame.signals).length === 0);
 
         this.state = {
             plottedSignals: [],
@@ -85,9 +87,10 @@ export default class Explorer extends Component {
     componentDidUpdate(prevProps, prevState) {
         if(this.props.selectedMessage === prevProps.selectedMessage
             && this.props.messages[this.props.selectedMessage]
-            && prevProps.messages[prevProps.selectedMessage]) {
-            const nextSignalNames = Object.keys(this.props.messages[this.props.selectedMessage].signals);
-            const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].signals);
+            && prevProps.messages[prevProps.selectedMessage]
+            && this.props.messages[this.props.selectedMessage].frame !== undefined) {
+            const nextSignalNames = Object.keys(this.props.messages[this.props.selectedMessage].frame.signals);
+            const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].frame.signals);
 
             const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
             for(let i = 0; i < newSignalNames.length; i++) {
@@ -100,30 +103,27 @@ export default class Explorer extends Component {
     componentWillReceiveProps(nextProps) {
         const nextMessage = nextProps.messages[nextProps.selectedMessage];
         const curMessage = this.props.messages[this.props.selectedMessage];
-        const {graphData} = this.state;
+        let {plottedSignals, graphData} = this.state;
 
         if(Object.keys(nextProps.messages).length === 0) {
             this.resetSegment();
         }
-        if(nextMessage && nextMessage !== curMessage) {
-            const nextSignalNames = Object.keys(nextMessage.signals);
+        if(nextMessage && nextMessage.frame && nextMessage !== curMessage) {
+            const nextSignalNames = Object.keys(nextMessage.frame.signals);
 
-            // this.setState({signals: Object.assign({}, nextMessage.signals)});
             if(nextSignalNames.length === 0) {
                 this.setState({shouldShowAddSignal: true});
             }
         }
 
-        let {plottedSignals} = this.state;
-        // unplot signals that have been removed
-
+        // remove plottedSignals that no longer exist
         plottedSignals = plottedSignals.map((plot) => plot.filter(({messageId, signalName}, index) => {
             const messageExists = Object.keys(nextProps.messages).indexOf(messageId) !== -1;
             let signalExists = true;
             if(!messageExists) {
                 graphData.splice(index, 1);
             } else {
-                const signalNames = Object.keys(nextProps.messages[messageId].signals);
+                const signalNames = Object.keys(nextProps.messages[messageId].frame.signals);
                 signalExists = signalNames.indexOf(signalName) !== -1;
 
                 if(!signalExists) {
@@ -133,7 +133,6 @@ export default class Explorer extends Component {
 
             return messageExists && signalExists;
         })).filter((plot) => plot.length > 0);
-
         this.setState({plottedSignals, graphData});
 
         if(nextProps.selectedMessage && nextProps.selectedMessage != this.props.selectedMessage) {
@@ -177,10 +176,20 @@ export default class Explorer extends Component {
                            userSeekTime: nextSeekTime})
         }
 
-        if(nextMessage && curMessage) {
-            // refresh graph data if the message entry lengths
-            // do not match
-            this.refreshGraphData(nextProps.messages, plottedSignals);
+        if(plottedSignals.length > 0) {
+            if(graphData.length === plottedSignals.length) {
+                if(plottedSignals.some((plot) =>
+                    plot.some(({messageId, signalName}) =>
+                        nextProps.messages[messageId].frame.signals[signalName] !== this.props.messages[messageId].frame.signals[signalName]
+                    ))) {
+                    this.refreshGraphData(nextProps.messages, plottedSignals);
+                } else {
+                    graphData = this.appendNewGraphData(plottedSignals, graphData, nextProps.messages);
+                    this.setState({graphData});
+                }
+            } else {
+                this.refreshGraphData(nextProps.messages, plottedSignals);
+            }
         }
 
         if(JSON.stringify(nextProps.currentParts) !== JSON.stringify(this.props.currentParts)) {
@@ -188,6 +197,92 @@ export default class Explorer extends Component {
             const nextSeekTime = (userSeekTime - this.props.currentParts[0] * 60) + nextProps.currentParts[0] * 60;
             this.setState({userSeekTime: nextSeekTime});
         }
+    }
+
+    appendNewGraphData(plottedSignals, graphData, messages) {
+        const messagesPerPlot = plottedSignals.map((plottedMessages) =>
+            plottedMessages.reduce((messages,
+               {messageId, signalName}) => {
+                   messages.push(messageId);
+                   return messages;
+            }, [])
+        );
+
+        const extendedPlots = messagesPerPlot
+            .map((plottedMessageIds, index) => {return {plottedMessageIds, index}}) // preserve index so we can look up graphData
+            .filter(({plottedMessageIds, index}) => {
+                let maxGraphTime = 0;
+                if(graphData.length > 0) {
+                    maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
+                }
+
+                return plottedMessageIds.some((messageId) =>
+                    messages[messageId].entries.some((e) => e.relTime > maxGraphTime));
+        }).map(({plottedMessageIds, index}) => {
+            plottedMessageIds = plottedMessageIds.reduce((arr, messageId) => {
+                if(arr.indexOf(messageId) === -1) {
+                    arr.push(messageId);
+                }
+                return arr;
+            }, []);
+            return {plottedMessageIds, index};
+        });
+
+        extendedPlots.forEach(({plottedMessageIds, index}) => {
+            const signalNamesByMessageId = plottedSignals[index].reduce((obj, {messageId, signalName}) => {
+                if(!obj[messageId]) {
+                    obj[messageId] = []
+                }
+                obj[messageId].push(signalName);
+                return obj;
+            }, {});
+            const graphDataMaxMessageTimes = plottedMessageIds.reduce((obj, messageId) => {
+                const signalNames = signalNamesByMessageId[messageId];
+                const maxIndex = ArrayUtils.findIndexRight(graphData[index], (entry) => {
+                    return signalNames.indexOf(entry.signalName) !== -1
+                });
+                if(maxIndex) {
+                    obj[messageId] = graphData[index][maxIndex].relTime;
+                } else {
+                    obj[messageId] = graphData[index][graphData[index].length - 1].relTime;
+                }
+
+                return obj;
+            }, {});
+
+            let newGraphData = [];
+            plottedMessageIds.map((messageId) => {
+                    return { messageId, entries: messages[messageId].entries }
+                }).filter(({messageId, entries}) => // Filter to only messages with stale graphData
+                    entries[entries.length - 1].relTime > graphDataMaxMessageTimes[messageId])
+                .forEach(({messageId, entries}) => { // Compute and append new graphData
+                    let firstNewEntryIdx =  entries.findIndex((entry) =>
+                        entry.relTime > graphDataMaxMessageTimes[messageId]);
+
+                    const newEntries = entries.slice(firstNewEntryIdx);
+
+                    signalNamesByMessageId[messageId].forEach((signalName) => {
+                        const signalGraphData = this._calcGraphData({...messages[messageId],
+                                                                     entries: newEntries}, signalName);
+                        newGraphData = newGraphData.concat(signalGraphData);
+                    });
+            });
+
+            const messageIdOutOfBounds = plottedMessageIds.find((messageId) =>
+                graphData[index][0].relTime < messages[messageId].entries[0].relTime);
+
+            graphData[index] = graphData[index].concat(newGraphData)
+            if(messageIdOutOfBounds) {
+                const graphDataLowerBound = graphData[index].findIndex(
+                    (e) => e.relTime > messages[messageIdOutOfBounds].entries[0].relTime);
+
+                if(graphDataLowerBound) {
+                    graphData[index] = graphData[index].slice(graphDataLowerBound);
+                }
+            }
+        });
+
+        return graphData;
     }
 
     timeWindow() {
@@ -219,12 +314,24 @@ export default class Explorer extends Component {
 
         return samples.map((entry) => {
             return {x: entry.time,
-                    xRel: entry.time - this.props.firstCanTime,
+                    relTime: entry.time - this.props.firstCanTime,
                     y: entry.signals[signalName],
-                    unit: msg.signals[signalName].unit,
-                    color: `rgba(${msg.signals[signalName].colors().join(",")}, 0.5)`,
+                    unit: msg.frame.signals[signalName].unit,
+                    color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
                     signalName}
         });
+    }
+
+    sortGraphData(graphData) {
+        return graphData.sort((entry1, entry2) => {
+                        if(entry1.relTime < entry2.relTime) {
+                            return -1;
+                        } else if(entry1.relTime > entry2.relTime) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                      });
     }
 
     calcGraphData(signals, messages) {
@@ -232,17 +339,8 @@ export default class Explorer extends Component {
             messages = this.props.messages;
         }
 
-        return signals.map(({messageId, signalName}) => this._calcGraphData(messages[messageId], signalName))
-                      .reduce((combined, signalData) => combined.concat(signalData), [])
-                      .sort((entry1, entry2) => {
-                        if(entry1.xRel < entry2.xRel) {
-                            return -1;
-                        } else if(entry1.xRel > entry2.xRel) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                      });
+        return this.sortGraphData(signals.map(({messageId, signalName}) => this._calcGraphData(messages[messageId], signalName))
+                            .reduce((combined, signalData) => combined.concat(signalData), []));
     }
 
     onSignalPlotPressed(messageId, signalName) {
@@ -253,6 +351,7 @@ export default class Explorer extends Component {
 
         graphData = [this.calcGraphData([{messageId, signalName}]), ...graphData];
         plottedSignals = [[{messageId, signalName}], ...plottedSignals];
+
         this.setState({plottedSignals, graphData});
         // }
     }
@@ -265,6 +364,7 @@ export default class Explorer extends Component {
             plottedSignals = this.state.plottedSignals;
         }
         let graphData = Array(plottedSignals.length);
+
         plottedSignals.forEach((plotSignals, index) => {
             const plotGraphData = this.calcGraphData(plotSignals, messages);
             graphData[index] = plotGraphData;
@@ -315,6 +415,8 @@ export default class Explorer extends Component {
         // returns index guaranteed to be in [0, entries.length - 1]
 
         const {entries} = this.props.messages[this.props.selectedMessage];
+        if(entries.length === 0) return null;
+
         const {segmentIndices} = this.state;
         let segmentLength, offset;
         if(segmentIndices.length === 2) {
@@ -345,11 +447,15 @@ export default class Explorer extends Component {
 
         const {entries} = message;
         const userSeekIndex = this.indexFromSeekTime(time);
-        const seekTime = entries[userSeekIndex].relTime;
+        if(userSeekIndex) {
+            const seekTime = entries[userSeekIndex].relTime;
 
-        this.setState({userSeekIndex, userSeekTime: seekTime});
-        this.props.onUserSeek(seekTime);
-        this.props.onSeek(userSeekIndex, seekTime);
+            this.setState({userSeekIndex, userSeekTime: seekTime});
+            this.props.onSeek(userSeekIndex, seekTime);
+        } else {
+            this.props.onUserSeek(time);
+            this.setState({userSeekTime: time});
+        }
     }
 
     onPlaySeek(time) {
@@ -556,29 +662,33 @@ export default class Explorer extends Component {
                     : this.renderSelectMessagePrompt()}
                 </div>
                 <div className='cabana-explorer-visuals'>
-                    <div className='cabana-explorer-visuals-header'>
-                        {this.timeWindow()}
-                        <PartSelector
-                            onPartChange={this.props.onPartChange}
-                            partsCount={this.props.partsCount}
-                        />
-                    </div>
-                    <RouteVideoSync
-                        message={this.props.messages[this.props.selectedMessage]}
-                        secondsLoaded={this.secondsLoaded()}
-                        startOffset={this.startOffset()}
-                        seekIndex={this.props.seekIndex}
-                        userSeekIndex={this.state.userSeekIndex}
-                        playing={this.state.playing}
-                        url={this.props.url}
-                        canFrameOffset={this.props.canFrameOffset}
-                        firstCanTime={this.props.firstCanTime}
-                        onVideoClick={this.onVideoClick}
-                        onPlaySeek={this.onPlaySeek}
-                        onUserSeek={this.onUserSeek}
-                        onPlay={this.onPlay}
-                        onPause={this.onPause}
-                        userSeekTime={this.state.userSeekTime} />
+                    { this.props.route !== null ?
+                        <div>
+                            <div className='cabana-explorer-visuals-header'>
+                                {this.timeWindow()}
+                                <PartSelector
+                                    onPartChange={this.props.onPartChange}
+                                    partsCount={this.props.partsCount}
+                                />
+                            </div>
+                            <RouteVideoSync
+                                message={this.props.messages[this.props.selectedMessage]}
+                                secondsLoaded={this.secondsLoaded()}
+                                startOffset={this.startOffset()}
+                                seekIndex={this.props.seekIndex}
+                                userSeekIndex={this.state.userSeekIndex}
+                                playing={this.state.playing}
+                                url={this.props.url}
+                                canFrameOffset={this.props.canFrameOffset}
+                                firstCanTime={this.props.firstCanTime}
+                                onVideoClick={this.onVideoClick}
+                                onPlaySeek={this.onPlaySeek}
+                                onUserSeek={this.onUserSeek}
+                                onPlay={this.onPlay}
+                                onPause={this.onPause}
+                                userSeekTime={this.state.userSeekTime} />
+                        </div>
+                        : null }
                     {this.state.segment.length > 0 ?
                         <div className={css(CommonStyles.button, Styles.resetSegment)}
                              onClick={() => {this.resetSegment()}}>
@@ -594,7 +704,8 @@ export default class Explorer extends Component {
                         onSegmentChanged={this.onSegmentChanged}
                         onSignalUnplotPressed={this.onSignalUnplotPressed}
                         segment={this.state.segment}
-                        mergePlots={this.mergePlots} />
+                        mergePlots={this.mergePlots}
+                        live={this.props.live} />
                 </div>
             </div>
         );

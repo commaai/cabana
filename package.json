@@ -5,6 +5,7 @@
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
     "aphrodite": "^1.2.1",
+    "base64-inline-loader": "^1.1.0",
     "classnames": "^2.2.5",
     "clipboard": "^1.7.1",
     "core-js": "^2.4.1",
@@ -28,6 +29,8 @@
     "react-measure": "^2.0.2",
     "react-test-renderer": "^15.6.1",
     "react-vega": "^3.0.0",
+    "react-visibility-sensor": "^3.10.1",
+    "simple-statistics": "^4.1.0",
     "socket.io-client": "^2.0.3",
     "vega": "git+ssh://git@github.com/commaai/vega.git#HEAD",
     "vega-tooltip": "^0.4.0"
@@ -79,7 +82,7 @@
     "start": "python simple-cors-http-server.py & python server.py & npm run sass & node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
-    "sass": "sass --watch src/index.scss:src/index.css"
+    "sass": "scss src/index.scss:src/index.css; sass --watch src/index.scss:src/index.css"
   },
   "esLintConfig": {
     "rules": {

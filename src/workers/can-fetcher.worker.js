@@ -9,25 +9,7 @@ import * as CanApi from '../api/can';
 
 const Int64LE = require('int64-buffer').Int64LE
 
-function createMessageSpec(dbc, address, id, bus) {
-    const frame = dbc.messages.get(address);
-    const size = frame ? frame.size : 8;
-
-    return {address: address,
-            id: id,
-            bus: bus,
-            entries: [],
-            frame: dbc.messages.get(address),
-            byteStateChangeCounts: Array(size).fill(0)}
-}
-
-function findMaxByteStateChangeCount(messages) {
-  return Object.values(messages).map((m) => m.byteStateChangeCounts)
-                                .reduce((counts, countArr) => counts.concat(countArr), []) // flatten arrays
-                                .reduce((count1, count2) => count1 > count2 ? count1 : count2, 0); // find max
-}
-
-async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
+async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries, maxByteStateChangeCount) {
     var messages = {};
     const {times,
            sources,
@@ -44,7 +26,7 @@ async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
 
        var addressNum = address.toNumber();
        var data = datas.slice(i*8, (i+1)*8);
-       if (messages[id] === undefined) messages[id] = createMessageSpec(dbc, address.toNumber(), id, src);
+       if (messages[id] === undefined) messages[id] = DbcUtils.createMessageSpec(dbc, address.toNumber(), id, src);
 
        const prevMsgEntry = messages[id].entries.length > 0 ?
                             messages[id].entries[messages[id].entries.length - 1]
@@ -65,15 +47,23 @@ async function loadCanPart(dbc, base, num, canStartTime, prevMsgEntries) {
        messages[id].entries.push(msgEntry);
   }
 
-  const maxByteStateChangeCount = findMaxByteStateChangeCount(messages);
+  const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(messages);
+  if(newMaxByteStateChangeCount > maxByteStateChangeCount) {
+    maxByteStateChangeCount = newMaxByteStateChangeCount;
+  }
+
+  Object.keys(messages).forEach((key) => {
+    messages[key] = DbcUtils.setMessageByteColors(messages[key], maxByteStateChangeCount);
+  });
+
   self.postMessage({newMessages: messages,
                     maxByteStateChangeCount});
   self.close();
 }
 
 self.onmessage = function(e) {
-    const {dbcText, base, num, canStartTime, prevMsgEntries} = e.data;
+    const {dbcText, base, num, canStartTime, prevMsgEntries, maxByteStateChangeCount} = e.data;
 
     const dbc = new DBC(dbcText);
-    loadCanPart(dbc, base, num, canStartTime, prevMsgEntries);
+    loadCanPart(dbc, base, num, canStartTime, prevMsgEntries, maxByteStateChangeCount);
 }

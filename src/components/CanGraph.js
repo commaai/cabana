@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Measure from 'react-measure';
 import Vega from 'react-vega';
+import * as vega from 'vega';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
@@ -42,6 +43,7 @@ export default class CanGraph extends Component {
           shiftX: 0,
           shiftY: 0,
           bounds: null,
+          initialData: props.data,
         };
         this.onNewView = this.onNewView.bind(this);
         this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -93,7 +95,7 @@ export default class CanGraph extends Component {
                 segmentChanged = true;
             }
 
-            if(nextProps.currentTime !== this.props.currentTime) {
+            if(!nextProps.live && nextProps.currentTime !== this.props.currentTime) {
                 this.view.signal('videoTime', nextProps.currentTime);
                 segmentChanged = true;
             }
@@ -104,9 +106,7 @@ export default class CanGraph extends Component {
         }
 
         const dataChanged = this.dataChanged(this.props, nextProps);
-        if(dataChanged) {
-            this.view.run();
-        }
+
         return dataChanged
                 || JSON.stringify(this.state) !== JSON.stringify(nextState)
                 || this.visualChanged(this.props, nextProps);
@@ -114,7 +114,8 @@ export default class CanGraph extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if(this.dataChanged(prevProps, this.props)) {
-          this.view.run();
+            this.view.remove('table', () => true).run();
+            this.view.insert('table', this.props.data).run();
         }
     }
 
@@ -211,7 +212,7 @@ export default class CanGraph extends Component {
                         <span className='fa fa-bars'></span>
                     </div>
                     {this.props.plottedSignals.map(({ messageId, signalName, messageName }) => {
-                        const color = this.props.messages[messageId].signals[signalName].colors();
+                        const color = this.props.messages[messageId].frame.signals[signalName].colors();
 
                         return (
                           <div className='cabana-explorer-visuals-plot-header'
@@ -243,10 +244,11 @@ export default class CanGraph extends Component {
                                          className='cabana-explorer-visuals-plot-container'>
                                         <CanPlot
                                             logLevel={0}
-                                            data={{table: this.props.data}}
+                                            data={{table: this.state.initialData}}
                                             onNewView={this.onNewView}
                                             onSignalClickTime={this.onSignalClickTime}
                                             onSignalSegment={this.onSignalSegment}
+                                            renderer={'canvas'}
                                         />
                                     </div>);
                             }

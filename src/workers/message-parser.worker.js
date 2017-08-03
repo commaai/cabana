@@ -11,17 +11,21 @@ function reparseEntry(entry, address, dbc, canStartTime, prevMsgEntry) {
 }
 
 self.onmessage = function(e) {
-    const {message, dbcText, canStartTime} = e.data;
+    const {messages, dbcText, canStartTime} = e.data;
     const dbc = new DBC(dbcText);
-    for(var i = 0; i < message.entries.length; i++) {
-        const entry = message.entries[i];
-        const prevMsgEntry = i > 0 ? message.entries[i - 1] : null;
+    Object.keys(messages).forEach((messageId) => {
+        const message = messages[messageId];
+        for(var i = 0; i < message.entries.length; i++) {
+            const entry = message.entries[i];
+            const prevMsgEntry = i > 0 ? message.entries[i - 1] : null;
 
-        const {msgEntry} = reparseEntry(entry, message.address, dbc, canStartTime, prevMsgEntry);
+            const {msgEntry} = reparseEntry(entry, message.address, dbc, canStartTime, prevMsgEntry);
 
-        message.entries[i] = msgEntry;
-    }
+            message.entries[i] = msgEntry;
+        }
+        messages[messageId] = message;
+    });
 
-    self.postMessage(message);
+    self.postMessage(messages);
     self.close();
 }
