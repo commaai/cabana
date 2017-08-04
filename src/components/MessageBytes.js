@@ -18,6 +18,8 @@ export default class MessageBytes extends Component {
             byteColors: [],
             isVisible: true,
             lastUpdatedMillis: 0,
+            lastMessageIndex: 0,
+            lastSeekTime: 0,
         };
 
         this.onVisibilityChange = this.onVisibilityChange.bind(this);
@@ -39,6 +41,32 @@ export default class MessageBytes extends Component {
         this.updateCanvas(nextProps);
     }
 
+    findMostRecentMessage(seekTime) {
+        const {message} = this.props;
+        const {lastMessageIndex, lastSeekTime} = this.state;
+        let mostRecentMessageIndex = null;
+        if(seekTime >= lastSeekTime) {
+            for(let i = lastMessageIndex; i < message.entries.length; i++) {
+                const msg = message.entries[i];
+                if(msg && msg.relTime >= seekTime) {
+                    mostRecentMessageIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if(!mostRecentMessageIndex) {
+            // TODO this can be faster with binary search, not currently a bottleneck though.
+
+            mostRecentMessageIndex = message.entries.findIndex((e) => e.relTime >= seekTime);
+        }
+
+        if(mostRecentMessageIndex) {
+            this.setState({lastMessageIndex: mostRecentMessageIndex, lastSeekTime: seekTime});
+            return message.entries[mostRecentMessageIndex];
+        }
+    }
+
     updateCanvas(props) {
         const {message, live, seekTime} = props;
         if(!this.canvas || message.entries.length === 0) return;
@@ -46,8 +74,7 @@ export default class MessageBytes extends Component {
         const {byteColors} = this.state;
         let mostRecentMsg = message.entries[message.entries.length - 1];
         if(!live) {
-
-            mostRecentMsg = message.entries.find((e) => e.relTime >= seekTime);
+            mostRecentMsg = this.findMostRecentMessage(seekTime);
 
             if(!mostRecentMsg) {
                 mostRecentMsg = message.entries[0];
