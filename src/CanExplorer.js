@@ -636,7 +636,7 @@ export default class CanExplorer extends Component {
                           autoplay={this.props.autoplay}
                           showEditMessageModal={this.showEditMessageModal}
                           onPartChange={this.onPartChange}
-                          routeStartTime={this.state.route ? this.state.route.start_time : 0}
+                          routeStartTime={this.state.route ? this.state.route.start_time : Moment()}
                           partsCount={this.state.route ? this.state.route.proclog : 0}
                            />
                           : null}

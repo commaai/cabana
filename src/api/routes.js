@@ -3,7 +3,7 @@ import Moment from 'moment';
 
 const ROUTES_ENDPOINT = 'https://api.commadotai.com/v1/{dongleId}/routes/';
 
-const DEMO_ROUTES = {
+let DEMO_ROUTES = {
   "2017-06-12--18-51-47": {
       "can": true,
       "device_type": 3,
@@ -73,8 +73,18 @@ const DEMO_ROUTES = {
     }
 };
 
+DEMO_ROUTES = momentizeTimes(DEMO_ROUTES);
+
 function getCommaAccessToken() {
     return Cookies.get('comma_access_token');
+}
+
+function momentizeTimes(routes) {
+  for(let routeName in routes) {
+    routes[routeName].start_time = Moment(routes[routeName].start_time);
+    routes[routeName].end_time = Moment(routes[routeName].end_time);
+  }
+  return routes;
 }
 
 export async function fetchRoutes(dongleId) {
@@ -93,7 +103,7 @@ export async function fetchRoutes(dongleId) {
           const resp = await fetch(request);
           const routes = await resp.json();
           if('routes' in routes) {
-              return routes.routes;
+              return momentizeTimes(routes.routes);
           }
       } catch(err) {
           console.log(err);

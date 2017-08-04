@@ -137,7 +137,7 @@ export default class Explorer extends Component {
 
         if(nextProps.selectedMessage && nextProps.selectedMessage != this.props.selectedMessage) {
             // Update segment and seek state
-            // by finding new message entry indices
+            // by finding a entry indices
             // corresponding to old message segment/seek times.
 
             let {segment, segmentIndices} = this.state;
@@ -212,7 +212,8 @@ export default class Explorer extends Component {
             .map((plottedMessageIds, index) => {return {plottedMessageIds, index}}) // preserve index so we can look up graphData
             .filter(({plottedMessageIds, index}) => {
                 let maxGraphTime = 0;
-                if(graphData.length > 0) {
+
+                if(index < graphData.length) {
                     maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
                 }
 
@@ -365,12 +366,8 @@ export default class Explorer extends Component {
         if(typeof plottedSignals === 'undefined') {
             plottedSignals = this.state.plottedSignals;
         }
-        let graphData = Array(plottedSignals.length);
+        let graphData = plottedSignals.map((plotSignals, index) => this.calcGraphData(plotSignals, messages));
 
-        plottedSignals.forEach((plotSignals, index) => {
-            const plotGraphData = this.calcGraphData(plotSignals, messages);
-            graphData[index] = plotGraphData;
-        });
         this.setState({graphData});
     }
 
