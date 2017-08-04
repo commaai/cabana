@@ -94,7 +94,6 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
                       signals: dbc.getSignalValues(address, data),
                       relTime,
                       hexData,
-                      byteStyles: new Array(8).fill({}),
                       byteStateChangeTimes}
 
     return {msgEntry, byteStateChangeCounts};
@@ -122,11 +121,6 @@ function setMessageByteColors(message, maxByteStateChangeCount) {
       'rgb(' + Math.round(red) + ',0,0)'
   );
 
-  for(let i = 0; i < message.entries.length; i++) {
-    message.entries[i].byteStyles = message.entries[i].byteStyles.map((style, idx) => {
-      return {backgroundColor: message.byteColors[idx], ...style};
-    });
-  }
 
   return message;
 

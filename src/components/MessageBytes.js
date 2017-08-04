@@ -85,7 +85,8 @@ export default class MessageBytes extends Component {
         ctx.clearRect(0,0,180,15);
         for(let i = 0; i < message.byteStateChangeCounts.length; i++) {
             const hexData = mostRecentMsg.hexData.substr(i * 2, 2);
-            ctx.fillStyle = mostRecentMsg.byteStyles[i].backgroundColor;
+            ctx.fillStyle = message.byteColors[i];
+
 
             ctx.fillRect(i * 20, 0, 20, 15);
 

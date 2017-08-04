@@ -287,6 +287,7 @@ export default class Explorer extends Component {
 
     timeWindow() {
         const {routeStartTime, currentParts} = this.props;
+
         if(routeStartTime) {
             const partStartOffset = currentParts[0] * 60,
                   partEndOffset = (currentParts[1] + 1) * 60;
@@ -312,13 +313,14 @@ export default class Explorer extends Component {
             }
         }
 
-        return samples.map((entry) => {
-            return {x: entry.time,
-                    relTime: entry.time - this.props.firstCanTime,
-                    y: entry.signals[signalName],
-                    unit: msg.frame.signals[signalName].unit,
-                    color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
-                    signalName}
+        return samples.filter((e) => e.signals[signalName])
+                      .map((entry) => {
+                    return {x: entry.time,
+                            relTime: entry.time - this.props.firstCanTime,
+                            y: entry.signals[signalName],
+                            unit: msg.frame.signals[signalName].unit,
+                            color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
+                            signalName}
         });
     }
 
