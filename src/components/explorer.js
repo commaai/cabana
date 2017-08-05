@@ -213,7 +213,7 @@ export default class Explorer extends Component {
             .filter(({plottedMessageIds, index}) => {
                 let maxGraphTime = 0;
 
-                if(index < graphData.length) {
+                if(index < graphData.length && graphData[index].length > 0) {
                     maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
                 }
 
