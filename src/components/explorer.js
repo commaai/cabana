@@ -661,7 +661,7 @@ export default class Explorer extends Component {
                     : this.renderSelectMessagePrompt()}
                 </div>
                 <div className='cabana-explorer-visuals'>
-                    { this.props.route !== null ?
+                    { this.props.live === false ?
                         <div>
                             <div className='cabana-explorer-visuals-header'>
                                 {this.timeWindow()}

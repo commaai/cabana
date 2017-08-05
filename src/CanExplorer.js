@@ -392,7 +392,7 @@ export default class CanExplorer extends Component {
       this.setState({showEditMessageModal: true,
                      editMessageModalMessage: msgKey,
                      messages: this.state.messages,
-                     dbcText: dbc.text()});
+                     dbcText: this.state.dbc.text()});
     }
 
     hideEditMessageModal() {
