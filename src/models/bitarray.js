@@ -75,9 +75,9 @@ const bitArray = {
     if (a.length * 32 < len) { return a; }
     a = a.slice(0, Math.ceil(len / 32));
     var l = a.length;
-    len = len & 31;
+    len &= 31;
     if (l > 0 && len) {
-      a[l-1] = bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
+      a[l-1] = bitArray.partial(len, a[l-1] & (0x80000000 >> (len-1)), 1);
     }
     return a;
   },
@@ -140,7 +140,7 @@ const bitArray = {
     }
 
     for (i=0; i<a.length; i++) {
-      out.push(carry | a[i]>>>shift);
+      out.push(carry | (a[i]>>>shift));
       carry = a[i] << (32-shift);
     }
     last2 = a.length ? a[a.length-1] : 0;
@@ -175,7 +175,7 @@ export default {
   fromBytes: function(bytes) {
     var out = [], i, tmp=0;
     for (i=0; i<bytes.length; i++) {
-      tmp = tmp << 8 | bytes[i];
+      tmp = (tmp << 8) | bytes[i];
       if ((i&3) === 3) {
         out.push(tmp);
         tmp = 0;

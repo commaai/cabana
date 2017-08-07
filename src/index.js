@@ -1,4 +1,5 @@
 import Sentry from './logging/Sentry';
+Sentry.init();
 
 import React from 'react';
 import ReactDOM from 'react-dom';

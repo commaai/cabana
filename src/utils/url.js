@@ -3,8 +3,8 @@ export function objToQuery(obj) {
 }
 
 export function getUrlParameter(name) {
-    var location = location || window.location;
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var location = window.location;
+    name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
     var results = regex.exec(location.search);
 

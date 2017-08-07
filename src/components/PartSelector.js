@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
-import Images from '../styles/images';
 import {PART_SEGMENT_LENGTH} from '../config';
 
 export default class PartSelector extends Component {
@@ -30,16 +28,14 @@ export default class PartSelector extends Component {
     }
 
     makePartStyle(partsCount, selectedPart) {
-        return StyleSheet.create({
-            selectedPart: {
-                left: (selectedPart / partsCount) * PartSelector.selectorWidth,
-                width: (PART_SEGMENT_LENGTH / partsCount) * PartSelector.selectorWidth
-            }
-        });
+        return {
+                 left: (selectedPart / partsCount) * PartSelector.selectorWidth,
+                 width: (PART_SEGMENT_LENGTH / partsCount) * PartSelector.selectorWidth
+               };
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.partsCount != this.props.partsCount) {
+        if(nextProps.partsCount !== this.props.partsCount) {
             const selectedPartStyle = this.makePartStyle(nextProps.partsCount, this.state.selectedPart);
             this.setState({selectedPartStyle});
         }
@@ -117,7 +113,7 @@ export default class PartSelector extends Component {
                       onMouseMove={ this.onSelectedPartMouseMove }
                       onClick={ this.onClick }>
                     <div className='cabana-explorer-part-selector-track-active'
-                          style={ selectedPartStyle.selectedPart._definition }
+                          style={ selectedPartStyle }
                           onMouseDown={ this.onSelectedPartDragStart }
                           onMouseUp={ this.onSelectedPartDragEnd }>
                     </div>

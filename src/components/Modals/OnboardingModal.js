@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
 
 import Modal from '../Modals/baseModal';
 
@@ -106,12 +105,14 @@ export default class OnboardingModal extends Component {
                         </div>
                     </li>
                     <li>
-                        <p><strong>Enable Expirimental Platform features:</strong></p>
-                        <img src={ OnboardingModal.instructionalImages.step2 } />
+                        <p><strong>Enable Experimental Platform features:</strong></p>
+                        <img alt={"Screenshot of Google Chrome Experimental Platform features"}
+                             src={ OnboardingModal.instructionalImages.step2 } />
                     </li>
                     <li>
                         <p><strong>Enable WebUSB:</strong></p>
-                        <img src={ OnboardingModal.instructionalImages.step3 } />
+                        <img alt={"Screenshot of Google Chrome enable WebUSB"}
+                             src={ OnboardingModal.instructionalImages.step3 } />
                     </li>
                     <li>
                         <p><strong>Relaunch your Chrome browser and try enabling live mode again.</strong></p>
@@ -133,7 +134,7 @@ export default class OnboardingModal extends Component {
     renderModalFooter() {
         return (
             <p>
-                <span>Don{"\'"}t have a <a href='https://panda.comma.ai' target='_blank'>panda</a>? </span>
+                <span>Don't have a <a href='https://panda.comma.ai' target='_blank'>panda</a>? </span>
                 <span><a href='https://panda.comma.ai' target='_blank'>Get one here</a> </span>
                 <span>or <a href='https://community.comma.ai/cabana/?demo=1'>try the demo</a>.</span>
             </p>

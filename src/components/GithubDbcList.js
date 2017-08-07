@@ -24,7 +24,7 @@ export default class GithubDbcList extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-      if(nextProps.repo != this.props.repo) {
+      if(nextProps.repo !== this.props.repo) {
           this.props.openDbcClient.list(nextProps.repo).then((paths) => {
             this.setState({paths, selectedPath: null})
           })
@@ -34,7 +34,7 @@ export default class GithubDbcList extends Component {
     componentWillMount() {
       this.props.openDbcClient.list(this.props.repo).then((paths) => {
           paths = paths.filter((path) => path.indexOf(".dbc") !== -1);
-          this.setState({paths})
+          this.setState({paths});
       })
     }
 

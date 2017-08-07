@@ -1,8 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import Modal from './Modals/baseModal';
-import Frame from '../models/can/frame';
-import {copyOmittingKey} from '../utils/object';
 
 export default class EditMessageModal extends Component {
     static propTypes = {
@@ -87,7 +86,7 @@ export default class EditMessageModal extends Component {
                         if(e.target.value > 8) {
                           return;
                         }
-                        messageFrame.size = parseInt(e.target.value);
+                        messageFrame.size = parseInt(e.target.value, 10);
                         this.setState({ messageFrame });
                      }} />
                 </div>

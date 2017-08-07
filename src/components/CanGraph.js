@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import Measure from 'react-measure';
-import Vega from 'react-vega';
-import * as vega from 'vega';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
@@ -55,14 +53,14 @@ export default class CanGraph extends Component {
     }
 
     segmentIsNew(newSegment) {
-        return newSegment.length != this.props.segment.length
-        || !(newSegment.every((val, idx) => this.props.segment[idx] == val));
+        return newSegment.length !== this.props.segment.length
+        || !(newSegment.every((val, idx) => this.props.segment[idx] === val));
     }
 
     dataChanged(prevProps, nextProps) {
-        return nextProps.data.length != prevProps.data.length
+        return nextProps.data.length !== prevProps.data.length
         || !(prevProps.signalSpec.equals(nextProps.signalSpec))
-        || prevProps.data.some((prevEntry, idx) => prevEntry.y != nextProps.data[idx].y);
+        || prevProps.data.some((prevEntry, idx) => prevEntry.y !== nextProps.data[idx].y);
     }
 
     visualChanged(prevProps, nextProps) {

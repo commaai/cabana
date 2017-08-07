@@ -20,7 +20,7 @@ export function uint64BEToHex(int64) {
 export function int64BufferToPrettyHexStr(buffer) {
   const uint = Uint64BE(buffer);
   let hex = uint.toString(16);
-  if(hex.length == 1) hex = '0' + hex;
+  if(hex.length === 1) hex = '0' + hex;
   let hexParts = hex.match(/.{1,2}/g);
 
   return hexParts.join(" ")
@@ -29,7 +29,7 @@ export function int64BufferToPrettyHexStr(buffer) {
 export function formatMsgHex(msg) {
     const uint = Uint64BE(msg[1]);
     let hex = uint.toString(16);
-    if(hex.length == 1) hex = '0' + hex;
+    if(hex.length === 1) hex = '0' + hex;
     let hexParts = hex.match(/.{1,2}/g);
 
     return [msg[0], hexParts.join(" ")]

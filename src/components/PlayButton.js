@@ -36,9 +36,8 @@ export default class PlayButton extends Component {
 
   onClick(e) {
     let {isPlaying} = this.props;
-    isPlaying = !isPlaying;
 
-    if(isPlaying) {
+    if(!isPlaying) {
       this.props.onPlay();
     } else {
       this.props.onPause();
@@ -47,6 +46,7 @@ export default class PlayButton extends Component {
 
   render() {
     return <img src={this.imageSource()}
+                alt={this.props.isPlaying ? 'Pause' : 'Play'}
                 className={this.props.className}
                 onClick={this.onClick}
                 onMouseOver={() => this.setState({hover: true})}

@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, css } from 'aphrodite/no-important';
-
-import PlayButton from './PlayButton';
-import debounce from '../utils/debounce';
+import PlayButton from '../PlayButton';
+import debounce from '../../utils/debounce';
 
 export default class RouteSeeker extends Component {
     static propTypes = {
@@ -20,9 +18,11 @@ export default class RouteSeeker extends Component {
         nearestFrameTime: PropTypes.number
     };
 
-    static hiddenMarkerStyle = StyleSheet.create({marker: {display: 'none', left: 0}});
-    static zeroSeekedBarStyle = StyleSheet.create({seekedBar: {width: 0}});
-    static hiddenTooltipStyle = StyleSheet.create({tooltip: {display: 'none', left: 0}});
+    static hiddenMarkerStyle = {display: 'none', left: 0};
+    static zeroSeekedBarStyle = {width: 0};
+    static hiddenTooltipStyle = {display: 'none', left: 0};
+    static markerWidth = 20;
+    static tooltipWidth = 50;
 
     constructor(props) {
         super(props);
@@ -61,7 +61,7 @@ export default class RouteSeeker extends Component {
             this.updateSeekedBar(newRatio);
         }
 
-        if(this.props.nearestFrameTime != nextProps.nearestFrameTime) {
+        if(this.props.nearestFrameTime !== nextProps.nearestFrameTime) {
             const newRatio = this.props.segmentProgress(nextProps.nearestFrameTime);
             this.updateSeekedBar(newRatio);
         }
@@ -92,19 +92,17 @@ export default class RouteSeeker extends Component {
             this.onMouseLeave();
             return;
         }
-        const markerWidth = Styles.marker._definition.width;
+        const markerWidth = RouteSeeker.markerWidth;
 
         const markerLeft = `calc(${markerOffsetPct + '%'} - ${markerWidth / 2}px)`;
-        const markerStyle = StyleSheet.create({
-            marker: {
-                display: '',
-                left: markerLeft
-            }
-        });
-        const tooltipWidth = Styles.tooltip._definition.width;
+        const markerStyle = {
+            display: '',
+            left: markerLeft
+        };
+        const tooltipWidth = RouteSeeker.tooltipWidth;
         const tooltipLeft = `calc(${markerOffsetPct + '%'} - ${tooltipWidth / 2}px)`;
 
-        const tooltipStyle = StyleSheet.create({tooltip: {display: 'flex', left: tooltipLeft}});
+        const tooltipStyle = { display: 'flex', left: tooltipLeft };
         const ratio = Math.max(0, markerOffsetPct / 100);
         if(this.state.isDragging) {
             this.updateSeekedBar(ratio);
@@ -123,11 +121,7 @@ export default class RouteSeeker extends Component {
     }
 
     updateSeekedBar(ratio) {
-        const seekedBarStyle = StyleSheet.create({
-            seekedBar: {
-                width: (100 * ratio) + '%'
-            }
-        });
+        const seekedBarStyle = { width: (100 * ratio) + '%' };
         this.setState({seekedBarStyle, ratio})
     }
 
@@ -199,96 +193,28 @@ export default class RouteSeeker extends Component {
         const {seekedBarStyle, markerStyle, tooltipStyle} = this.state;
         return (
           <div className='cabana-explorer-visuals-camera-seeker'>
-              <div className={css(Styles.root)}>
-                  <PlayButton
-                      className={css(Styles.playButton)}
-                      onPlay={this.onPlay}
-                      onPause={this.onPause}
-                      isPlaying={this.state.isPlaying} />
-                  <div className={css(Styles.progress)}>
-                      <div className={css(Styles.progressBar)}
-                           onMouseMove={this.onMouseMove}
-                           onMouseLeave={this.onMouseLeave}
-                           onMouseDown={this.onMouseDown}
-                           onMouseUp={this.onMouseUp}
-                           onClick={this.onClick}
-                           ref={(ref) => this.progressBar = ref}>
-                          <div className={css(Styles.tooltip, tooltipStyle.tooltip)}>
-                              {this.state.tooltipTime}
-                          </div>
-                          <div className={css(Styles.marker, markerStyle.marker)}></div>
-                          <div className={css(Styles.progressBarInner,
-                                              seekedBarStyle.seekedBar)}></div>
-                      </div>
+              <PlayButton
+                  className={'cabana-explorer-visuals-camera-seeker-playbutton'}
+                  onPlay={this.onPlay}
+                  onPause={this.onPause}
+                  isPlaying={this.state.isPlaying} />
+              <div className={'cabana-explorer-visuals-camera-seeker-progress'}
+                   onMouseMove={this.onMouseMove}
+                   onMouseLeave={this.onMouseLeave}
+                   onMouseDown={this.onMouseDown}
+                   onMouseUp={this.onMouseUp}
+                   onClick={this.onClick}
+                   ref={(ref) => this.progressBar = ref}>
+                  <div className={'cabana-explorer-visuals-camera-seeker-progress-tooltip'}
+                       style={tooltipStyle}>
+                      {this.state.tooltipTime}
                   </div>
+                  <div className={'cabana-explorer-visuals-camera-seeker-progress-marker'}
+                       style={markerStyle}></div>
+                  <div className={'cabana-explorer-visuals-camera-seeker-progress-inner'}
+                       style={seekedBarStyle}></div>
               </div>
           </div>
         );
     }
 }
-
-const controlsColor = 'rgba(255,255,255,0.8)';
-
-const Styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        flexDirection: 'row',
-        display: 'flex',
-        background: 'linear-gradient(top, rgba(0,0,0,0.0), rgba(0,0,0,0.5))',
-        userSelect: 'none'
-    },
-    playButton: {
-        height: 25,
-        width: 25,
-        display: 'flex',
-        alignSelf: 'center',
-        opacity: 0.8,
-        userSelect: 'none'
-    },
-    progress: {
-        display: 'flex',
-        flex: 10
-    },
-    progressBar: {
-        height: 15,
-        width: '100%',
-        marginTop: 10,
-        marginBottom: 10,
-        position: 'relative',
-        zIndex: 1
-    },
-    progressBarInner: {
-        position: 'absolute',
-        height: 14,
-        left: 0,
-        top: 0,
-        backgroundColor: controlsColor,
-        zIndex: 2,
-    },
-    marker: {
-        position: 'absolute',
-        width: 20,
-        height: 20,
-        backgroundColor: 'white',
-        borderRadius: '50%',
-        top: '-15%',
-        zIndex: 3,
-    },
-    tooltip: {
-        position: 'absolute',
-        zIndex: 2,
-        top: -25,
-        height: 20,
-        width: 50,
-        borderRadius: 1,
-        fontSize: 12,
-        padding: 5,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        color: 'rgb(225,225,225)'
-    },
-
-});

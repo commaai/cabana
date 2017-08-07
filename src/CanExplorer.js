@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import Moment from 'moment';
 import PropTypes from 'prop-types';
@@ -7,7 +6,6 @@ import {USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW} from './config';
 import * as GithubAuth from './api/github-auth';
 import cx from 'classnames';
 
-import Modal from './components/Modals/baseModal';
 import DBC from './models/can/dbc';
 import Meta from './components/meta';
 import Explorer from './components/explorer';
@@ -28,7 +26,6 @@ import UnloggerClient from './api/unlogger';
 import PandaReader from './api/panda-reader';
 import * as ObjectUtils from './utils/object';
 import {hash} from './utils/string';
-import DbcUtils from './utils/dbc';
 
 export default class CanExplorer extends Component {
     static propTypes = {
@@ -106,7 +103,7 @@ export default class CanExplorer extends Component {
     }
 
     componentWillMount() {
-      const {dongleId, name, isDemo} = this.props;
+      const {dongleId, name} = this.props;
       if(this.props.max && this.props.url) {
         const {max, url} = this.props;
         const {startTime} = Routes.parseRouteName(name);
@@ -146,7 +143,7 @@ export default class CanExplorer extends Component {
     }
 
     onDbcSelected(dbcFilename, dbc) {
-      const {route, messages} = this.state;
+      const {route} = this.state;
       this.hideLoadDbc();
       if(route) {
         persistDbc(route.fullname,
@@ -157,7 +154,6 @@ export default class CanExplorer extends Component {
                        partsLoaded: 0,
                        selectedMessage: null,
                        messages: {}}, () => {
-          const {route} = this.state;
 
           // Pass DBC text to webworker b/c can't pass instance of es6 class
           this.spawnWorker(this.state.currentParts);
@@ -228,7 +224,7 @@ export default class CanExplorer extends Component {
           return;
         }
 
-        if(this.state.dbcFilename != dbcFilename) {
+        if(this.state.dbcFilename !== dbcFilename) {
           // DBC changed while this worker was running
           // -- don't update messages and halt recursion.
           return;
@@ -359,7 +355,7 @@ export default class CanExplorer extends Component {
       }, 500);
 
     onPartChange(part) {
-      let {currentParts, partsLoaded, canFrameOffset, route, messages} = this.state;
+      let {currentParts, canFrameOffset, route, messages} = this.state;
       if(canFrameOffset === -1 || part + PART_SEGMENT_LENGTH >= route.proclog) {
         return
       }
@@ -537,7 +533,7 @@ export default class CanExplorer extends Component {
     }
 
     _onStreamedCanMessagesProcessed(data) {
-      let {newMessages, seekTime, lastBusTime, firstCanTime, byteStateChangeCountsByMessage, maxByteStateChangeCount} = data;
+      let {newMessages, seekTime, lastBusTime, firstCanTime, maxByteStateChangeCount} = data;
 
       if(maxByteStateChangeCount < this.state.maxByteStateChangeCount) {
         maxByteStateChangeCount = this.state.maxByteStateChangeCount;
@@ -646,7 +642,7 @@ export default class CanExplorer extends Component {
                 { this.state.showOnboarding ?
                     <OnboardingModal
                         handlePandaConnect={ this.handlePandaConnect }
-                        attemptingPandaConnection= { this.state.attemptingPandaConnection }
+                        attemptingPandaConnection={ this.state.attemptingPandaConnection }
                         /> : null }
 
                 {this.state.showLoadDbc ?

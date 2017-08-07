@@ -1,12 +1,9 @@
 // SignalLegend.js
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, css } from 'aphrodite/no-important';
 require('core-js/fn/array/includes');
 
 import SignalLegendEntry from './SignalLegendEntry';
-import Signal from '../models/can/signal';
-import TableStyles from '../styles/table';
 
 export default class SignalLegend extends Component {
     static propTypes = {

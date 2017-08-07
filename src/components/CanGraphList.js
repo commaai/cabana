@@ -27,7 +27,7 @@ export default class CanGraphList extends Component {
             graphToReceiveDrop: null,
         };
 
-        this.plotListRef = undefined;
+        this.plotListRef = null;
         this.plotRefs = [];
         this.renderSignalPlot = this.renderSignalPlot.bind(this);
         this.onPlotListRefReady = this.onPlotListRefReady.bind(this);

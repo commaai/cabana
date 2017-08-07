@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import FileSaver from 'file-saver';
@@ -44,7 +43,7 @@ export default class SaveDbcModal extends Component {
 
     async commitToGitHub() {
       const { openDbcFork, dbcFilename } = this.state;
-      const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+      const filename = dbcFilename.replace(/\.dbc/g, '') + '.dbc';
       const success = await this.props.openDbcClient.commitFile(openDbcFork,
                                                filename,
                                                this.props.dbc.text());
@@ -63,12 +62,17 @@ export default class SaveDbcModal extends Component {
         const forkResponseSuccess = await this.props.openDbcClient.fork();
         if(forkResponseSuccess) {
             let isTimedOut = false;
+            const timeout = window.setTimeout(() => {
+                isTimedOut = true;
+            }, 30000);
+
             const interval = window.setInterval(() => {
                 if(!isTimedOut) {
                     this.props.openDbcClient.getUserOpenDbcFork().then((openDbcFork) => {
                         if(openDbcFork !== null) {
                             this.setState({openDbcFork});
                             window.clearInterval(interval);
+                            window.clearTimeout(timeout);
                         }
                     });
                 } else {
@@ -76,9 +80,6 @@ export default class SaveDbcModal extends Component {
                 }
             }, 3000);
 
-            const timeout = window.setTimeout(() => {
-                isTimedOut = true;
-            }, 30000);
         } else {
             // fork failed
         }

@@ -1,7 +1,6 @@
 import GitHub from 'github-api';
 
 import {OPENDBC_SOURCE_REPO} from '../config';
-import {getUrlParameter} from '../utils/url';
 
 export default class OpenDBC {
   constructor(token) {
@@ -129,12 +128,11 @@ export default class OpenDBC {
       const createdTree = createTreeResp.data;
 
       // commit
-      const commitResp = await repo.commit(headCommit.  sha, createdTree.sha, 'OpenDBC updates');
+      const commitResp = await repo.commit(headCommit.sha, createdTree.sha, 'OpenDBC updates');
       const commit = commitResp.data;
 
       // update HEAD
       const updateHeadResp = await repo.updateHead('heads/master', commit.sha, false);
-      const updatedHead = updateHeadResp.data;
 
       return updateHeadResp.status === 200;
   }

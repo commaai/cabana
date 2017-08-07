@@ -6,8 +6,6 @@ import css from '../utils/css';
 import SignalLegend from './SignalLegend';
 import Signal from '../models/can/signal';
 import {shade} from '../utils/color';
-import TableStyles from '../styles/table';
-import {elementWiseEquals} from '../utils/array';
 import DbcUtils from '../utils/dbc';
 
 /*
@@ -17,6 +15,32 @@ a signal legend. Dragging on the matrix
 either extends or creates a signal, which is
 configurable in the legend.
 */
+
+const Styles = StyleSheet.create({
+    bit: {
+        margin: 0,
+        padding: 12,
+        userSelect: 'none',
+        cursor: 'pointer',
+        textAlign: 'center',
+        position: 'relative'
+    },
+    bitSelectedStyle: {
+        backgroundColor: 'rgba(0,119,158,0.5)'
+    },
+    bitSignificance: {
+        fontSize: 12,
+        display: 'block',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        margin: '0 auto'
+    },
+    highlightedSignalTitle: {
+        backgroundColor: 'rgba(0,0,0,0.2)'
+    },
+});
 
 export default class AddSignals extends Component {
     static propTypes = {
@@ -111,7 +135,7 @@ export default class AddSignals extends Component {
         const isNewMessage = message.address !== this.props.message.address;
         if(isNewMessage) {
             const signals = (message.frame ? message.frame.signals : {});
-            const signalStyles = this.updateSignalStyles(signals);
+
             this.setState({signals: this.copySignals(signals)}, this.updateSignalStyles);
         }
     }
@@ -148,7 +172,6 @@ export default class AddSignals extends Component {
                 if(dragStartBit === dragSignal.startBit && dragSignal.size > 1) {
                     if(!dragSignal.isLittleEndian) {
                         // should not be able to drag the msb past the lsb
-                        const startBigEndian = DbcUtils.bigEndianBitIndex(dragStartBit);
                         const hoveredBigEndian = DbcUtils.bigEndianBitIndex(bitIdx);
 
                         const lsbBigEndian = dragSignal.lsbBitNumber();
@@ -366,7 +389,6 @@ export default class AddSignals extends Component {
     }
 
     renderBitMatrix() {
-        const {bits} = this.state;
         const rows = [];
         let rowCount;
         if(this.props.message.frame && this.props.message.frame.size) {
@@ -495,32 +517,3 @@ export default class AddSignals extends Component {
          );
     }
 }
-
-const Styles = StyleSheet.create({
-    bit: {
-        margin: 0,
-        padding: 12,
-        userSelect: 'none',
-        cursor: 'pointer',
-        textAlign: 'center',
-        position: 'relative'
-    },
-    bitSelectedStyle: {
-        backgroundColor: 'rgba(0,119,158,0.5)'
-    },
-    bitSignificance: {
-        fontSize: 12,
-        display: 'block',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        margin: '0 auto'
-    },
-    highlightedSignalTitle: {
-        backgroundColor: 'rgba(0,0,0,0.2)'
-    },
-    hex: {
-
-    }
-});

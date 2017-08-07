@@ -22,7 +22,7 @@ export default class Modal extends Component {
         this.state = {
             windowHeight: {},
             modalHeight: {},
-        }
+        };
 
         this.updateHeights = this.updateHeights.bind(this);
     }
@@ -35,10 +35,9 @@ export default class Modal extends Component {
     readVariationClasses() {
         if (this.props.variations) {
             const { variations } = this.props;
-            let classes = '';
-            variations.map((variation) => {
-                classes = classes += `cabana-modal--${ variation } `;
-            })
+            const classes = variations.reduce((classes, variation) =>
+                classes + `cabana-modal--${variation} `,
+                '');
             return classes;
         }
     }

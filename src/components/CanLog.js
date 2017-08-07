@@ -2,11 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ReactList from 'react-list';
 
-import { StyleSheet, css } from 'aphrodite/no-important';
 import cx from 'classnames';
-import { formatMsgDec, formatMsgHex } from '../models/can-msg-fmt';
-import { elementWiseEquals } from '../utils/array';
-import Images from '../styles/images';
 
 export default class CanLog extends Component {
     static ITEMS_PER_PAGE = 50;
@@ -53,12 +49,12 @@ export default class CanLog extends Component {
       const nextMessageLength = nextProps.message ? nextProps.message.entries.length : 0;
 
       const shouldUpdate = this.props.message !== nextProps.message
-        || nextMessageLength != curMessageLength
-        || nextProps.messageIndex != this.props.messageIndex
-        || nextProps.plottedSignals.length != this.props.plottedSignals.length
-        || JSON.stringify(nextProps.segmentIndices) != JSON.stringify(this.props.segmentIndices)
-        || JSON.stringify(nextState) != JSON.stringify(this.state)
-        || this.props.message != nextProps.message
+        || nextMessageLength !== curMessageLength
+        || nextProps.messageIndex !== this.props.messageIndex
+        || nextProps.plottedSignals.length !== this.props.plottedSignals.length
+        || JSON.stringify(nextProps.segmentIndices) !== JSON.stringify(this.props.segmentIndices)
+        || JSON.stringify(nextState) !== JSON.stringify(this.state)
+        || this.props.message !== nextProps.message
         || (this.props.message !== undefined
             && nextProps.message !== undefined
             && this.props.message.frame !== undefined
@@ -90,7 +86,7 @@ export default class CanLog extends Component {
 
     isSignalPlotted(msgId, signalName) {
       const plottedSignal = this.props.plottedSignals.find((plot) =>
-        plot.some((signal) => signal.messageId == msgId && signal.signalName == signalName));
+        plot.some((signal) => signal.messageId === msgId && signal.signalName === signalName));
       return plottedSignal !== undefined;
     }
 
@@ -218,7 +214,7 @@ export default class CanLog extends Component {
       const {segmentIndices, messageIndex} = this.props;
       if(messageIndex > 0) {
         return this.props.message.entries.length - messageIndex;
-      } else if(segmentIndices.length == 2) {
+      } else if(segmentIndices.length === 2) {
         return segmentIndices[1] - segmentIndices[0];
       } else if(this.props.message) {
         return this.props.message.entries.length;

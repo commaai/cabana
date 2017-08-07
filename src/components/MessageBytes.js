@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
-import VisibilitySensor from 'react-visibility-sensor';
 
 export default class MessageBytes extends Component {
     static propTypes = {
@@ -14,9 +12,7 @@ export default class MessageBytes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            byteColors: [],
             isVisible: true,
-            lastUpdatedMillis: 0,
             lastMessageIndex: 0,
             lastSeekTime: 0,
         };
@@ -30,7 +26,7 @@ export default class MessageBytes extends Component {
             const nextLastEntry = nextProps.message.entries[nextProps.message.entries.length - 1];
             const curLastEntry = this.props.message.entries[this.props.message.entries.length - 1];
 
-            return (nextProps.hexData !== curLastEntry.hexData);
+            return (nextLastEntry.hexData !== curLastEntry.hexData);
         } else {
             return nextProps.seekTime !== this.props.seekTime
         }
@@ -70,7 +66,6 @@ export default class MessageBytes extends Component {
         const {message, live, seekTime} = props;
         if(!this.canvas || message.entries.length === 0) return;
 
-        const {byteColors} = this.state;
         let mostRecentMsg = message.entries[message.entries.length - 1];
         if(!live) {
             mostRecentMsg = this.findMostRecentMessage(seekTime);
@@ -116,14 +111,3 @@ export default class MessageBytes extends Component {
                              className='cabana-meta-messages-list-item-bytes-canvas'></canvas>);
     }
 }
-
-const Styles = StyleSheet.create({
-    byte: {
-        width: 20,
-        height: 15,
-        border: '1px solid rgba(0,0,0,0.9)',
-        color: 'white',
-        display: 'inline-block',
-        textAlign: 'center'
-    }
-});

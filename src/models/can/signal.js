@@ -150,7 +150,7 @@ export default class Signal {
     }
 
     valueForInt32Signal(signalSpec, bits, bitsSwapped) {
-        let value, startBit, dataBitPos, bitArr;
+        let startBit, bitArr;
 
         if (signalSpec.isLittleEndian) {
             bitArr = bitsSwapped;

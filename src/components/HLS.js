@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, css } from 'aphrodite/no-important';
-import Hls from 'hls.js';
+import Hls from 'hls.js/lib';
 
 export default class HLS extends Component {
   static propTypes = {
@@ -20,7 +19,7 @@ export default class HLS extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.shouldRestart || nextProps.startTime != this.props.startTime) {
+    if(nextProps.shouldRestart || nextProps.startTime !== this.props.startTime) {
       this.videoElement.currentTime = nextProps.startTime;
       this.props.onRestart();
     }

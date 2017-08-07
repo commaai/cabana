@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import PropTypes from 'prop-types';
 
 export default class DbcUpload extends Component {

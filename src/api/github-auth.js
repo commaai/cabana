@@ -1,9 +1,5 @@
-import {GITHUB_CLIENT_ID, GITHUB_REDIRECT_URL, GITHUB_AUTH_TOKEN_KEY} from '../config';
-import {objToQuery, getUrlParameter} from '../utils/url';
-
-function toHex(dec) {
-  return ('0' + dec.toString(16)).substr(-2);
-}
+import {GITHUB_CLIENT_ID, GITHUB_REDIRECT_URL} from '../config';
+import {objToQuery} from '../utils/url';
 
 export function authorizeUrl(route) {
   const params = {client_id: GITHUB_CLIENT_ID,

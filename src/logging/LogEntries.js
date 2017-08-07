@@ -1,6 +1,6 @@
 // Vendored from https://github.com/rapid7/le_js, which is broken with webpack.
 
-if (typeof window === 'undefined') {
+if (typeof window === 'undefined') { // eslint-disable-line no-use-before-define
   var window = self;
 }
 var _indexOf = function (array, obj) {
@@ -71,20 +71,80 @@ function LogStream(options) {
    /** @type {boolean} */
    var _sentPageInfo = false;
 
-   if (options.catchall) {
-       var oldHandler = window.onerror;
-       var newHandler = function(msg, url, line) {
-           _rawLog({error: msg, line: line, location: url}).level('ERROR').send();
-           if (oldHandler) {
-               return oldHandler(msg, url, line);
-           } else {
-               return false;
-           }
-       };
-       window.onerror = newHandler;
-   }
+   var _apiCall = function(token, data) {
+       _active = true;
 
-   var _agentInfo = function() {
+       var request = _getAjaxObject();
+
+       if (_shouldCall) {
+           if (request.constructor === XMLHttpRequest) {
+               // Currently we don't support fine-grained error
+               // handling in older versions of IE
+               request.onreadystatechange = function() {
+               if (request.readyState === 4) {
+                   // Handle any errors
+                   if (request.status >= 400) {
+                       console.error("Couldn't submit events.");
+                       if (request.status === 410) {
+                           // This API version has been phased out
+                           console.warn("This version of le_js is no longer supported!");
+                       }
+                   } else {
+                       if (request.status === 301) {
+                           // Server issued a deprecation warning
+                           console.warn("This version of le_js is deprecated! Consider upgrading.");
+                       }
+                       if (_backlog.length > 0) {
+                           // Submit the next event in the backlog
+                           _apiCall(token, _backlog.shift());
+                       } else {
+                           _active = false;
+                       }
+                   }
+               }
+
+               };
+           } else {
+             request.onload = function() {
+               if (_backlog.length > 0) {
+                 // Submit the next event in the backlog
+                 _apiCall(token, _backlog.shift());
+               } else {
+                 _active = false;
+               }
+             };
+           }
+
+           request.open("POST", _endpoint, true);
+           if (request.constructor === XMLHttpRequest) {
+               request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+               request.setRequestHeader('Content-type', 'application/json');
+           }
+
+           if (request.overrideMimeType) {
+               request.overrideMimeType('text');
+           }
+
+           request.send(data);
+       }
+   };
+
+   var _getEvent = function() {
+       var raw = null;
+       var args = Array.prototype.slice.call(arguments);
+       if (args.length === 0) {
+           throw new Error("No arguments!");
+       } else if (args.length === 1) {
+           raw = args[0];
+       } else {
+           // Handle a variadic overload,
+           // e.g. _rawLog("some text ", x, " ...", 1);
+         raw = args;
+       }
+       return raw;
+   };
+
+    var _agentInfo = function() {
        var nav = window.navigator || {doNotTrack: undefined};
        var screen = window.screen || {};
        var location = window.location || {};
@@ -108,21 +168,6 @@ function LogStream(options) {
          },
          platform: nav.platform
        };
-   };
-
-   var _getEvent = function() {
-       var raw = null;
-       var args = Array.prototype.slice.call(arguments);
-       if (args.length === 0) {
-           throw new Error("No arguments!");
-       } else if (args.length === 1) {
-           raw = args[0];
-       } else {
-           // Handle a variadic overload,
-           // e.g. _rawLog("some text ", x, " ...", 1);
-         raw = args;
-       }
-       return raw;
    };
 
    // Single arg stops the compiler arity warning
@@ -190,66 +235,26 @@ function LogStream(options) {
            }};
    };
 
+
+   if (options.catchall) {
+       var oldHandler = window.onerror;
+       var newHandler = function(msg, url, line) {
+           _rawLog({error: msg, line: line, location: url}).level('ERROR').send();
+           if (oldHandler) {
+               return oldHandler(msg, url, line);
+           } else {
+               return false;
+           }
+       };
+       window.onerror = newHandler;
+   }
+
+
+
    /** @expose */
    this.log = _rawLog;
 
-   var _apiCall = function(token, data) {
-       _active = true;
 
-       var request = _getAjaxObject();
-
-       if (_shouldCall) {
-           if (request.constructor === XMLHttpRequest) {
-               // Currently we don't support fine-grained error
-               // handling in older versions of IE
-               request.onreadystatechange = function() {
-               if (request.readyState === 4) {
-                   // Handle any errors
-                   if (request.status >= 400) {
-                       console.error("Couldn't submit events.");
-                       if (request.status === 410) {
-                           // This API version has been phased out
-                           console.warn("This version of le_js is no longer supported!");
-                       }
-                   } else {
-                       if (request.status === 301) {
-                           // Server issued a deprecation warning
-                           console.warn("This version of le_js is deprecated! Consider upgrading.");
-                       }
-                       if (_backlog.length > 0) {
-                           // Submit the next event in the backlog
-                           _apiCall(token, _backlog.shift());
-                       } else {
-                           _active = false;
-                       }
-                   }
-               }
-
-               };
-           } else {
-             request.onload = function() {
-               if (_backlog.length > 0) {
-                 // Submit the next event in the backlog
-                 _apiCall(token, _backlog.shift());
-               } else {
-                 _active = false;
-               }
-             };
-           }
-
-           request.open("POST", _endpoint, true);
-           if (request.constructor === XMLHttpRequest) {
-               request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-               request.setRequestHeader('Content-type', 'application/json');
-           }
-
-           if (request.overrideMimeType) {
-               request.overrideMimeType('text');
-           }
-
-           request.send(data);
-       }
-   };
 }
 
 /**

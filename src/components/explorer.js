@@ -1,21 +1,15 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-import { StyleSheet, css } from 'aphrodite/no-important';
 import cx from 'classnames';
-import Moment from 'moment';
 
 import AddSignals from './AddSignals';
-import CanHistogram from './CanHistogram';
 import CanGraphList from './CanGraphList';
 import RouteVideoSync from './RouteVideoSync';
 import CanLog from './CanLog';
-import RouteSeeker from './RouteSeeker';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
 import ArrayUtils from '../utils/array';
-import CommonStyles from '../styles/styles';
-import Images from '../styles/images';
 import PartSelector from './PartSelector';
 import {CAN_GRAPH_MAX_POINTS} from '../config';
 
@@ -36,11 +30,6 @@ export default class Explorer extends Component {
 
     constructor(props) {
         super(props);
-
-        const msg = props.messages[props.selectedMessage];
-
-        const  ShowAddSignal = (
-            msg && Object.keys(msg.frame.signals).length === 0);
 
         this.state = {
             plottedSignals: [],
@@ -135,7 +124,7 @@ export default class Explorer extends Component {
         })).filter((plot) => plot.length > 0);
         this.setState({plottedSignals, graphData});
 
-        if(nextProps.selectedMessage && nextProps.selectedMessage != this.props.selectedMessage) {
+        if(nextProps.selectedMessage && nextProps.selectedMessage !== this.props.selectedMessage) {
             // Update segment and seek state
             // by finding a entry indices
             // corresponding to old message segment/seek times.
@@ -156,7 +145,8 @@ export default class Explorer extends Component {
                     segmentIndices = [segmentStartIdx, segmentEndIdx];
                 } else {
                     // segment times are out of boudns for this message
-                    segment = [], segmentIndices = [];
+                    segment = [];
+                    segmentIndices = [];
                 }
             }
 
@@ -173,7 +163,7 @@ export default class Explorer extends Component {
             this.setState({segment,
                            segmentIndices,
                            userSeekIndex: nextProps.seekIndex,
-                           userSeekTime: nextSeekTime})
+                           userSeekTime: nextSeekTime});
         }
 
         if(plottedSignals.length > 0) {
@@ -306,7 +296,7 @@ export default class Explorer extends Component {
         let samples = [];
         let skip = Math.floor(msg.entries.length / CAN_GRAPH_MAX_POINTS);
 
-        if(skip == 0){
+        if(skip === 0){
             samples = msg.entries;
         } else {
             for(let i = 0; i < msg.entries.length; i += skip) {
@@ -417,7 +407,6 @@ export default class Explorer extends Component {
         if(entries.length === 0) return null;
 
         const {segmentIndices} = this.state;
-        let segmentLength, offset;
         if(segmentIndices.length === 2) {
             for(let i = segmentIndices[0]; i <= segmentIndices[1]; i++) {
                 if(entries[i].relTime >= time) {
@@ -475,12 +464,10 @@ export default class Explorer extends Component {
     onGraphTimeClick(messageId, time) {
         const canTime = time + this.props.firstCanTime;
 
-        const {segmentIndices} = this.state;
         const {entries} = this.props.messages[messageId];
         if(entries.length) {
             const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
-            const seekTime = entries[userSeekIndex].relTime;
             this.props.onUserSeek(time);
 
             this.setState({userSeekIndex,
@@ -525,7 +512,6 @@ export default class Explorer extends Component {
             return partOffset;
         }
 
-        const {canFrameOffset, firstCanTime} = this.props;
         const {entries} = message;
         const {segment} = this.state;
         let startTime;
@@ -626,7 +612,6 @@ export default class Explorer extends Component {
 
     mergePlots({fromPlot, toPlot}) {
         let {plottedSignals, graphData} = this.state;
-        const {messages} = this.props;
 
         // remove fromPlot from plottedSignals, graphData
         const fromPlotIdx = plottedSignals.findIndex(
@@ -689,7 +674,7 @@ export default class Explorer extends Component {
                         </div>
                         : null }
                     {this.state.segment.length > 0 ?
-                        <div className={css(CommonStyles.button, Styles.resetSegment)}
+                        <div className={'cabana-explorer-visuals-segmentreset'}
                              onClick={() => {this.resetSegment()}}>
                             <p>Reset Segment</p>
                         </div>
@@ -710,11 +695,3 @@ export default class Explorer extends Component {
         );
     }
 }
-
-const Styles = StyleSheet.create({
-    resetSegment: {
-        marginTop: 10,
-        padding: '10px 0',
-        width: 160
-    },
-})

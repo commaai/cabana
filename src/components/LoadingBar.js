@@ -1,12 +1,5 @@
 import React, { Component } from 'react';
 import { css, StyleSheet } from 'aphrodite/no-important';
-import PropTypes from 'prop-types';
-
-export default class LoadingBar extends Component {
-    render() {
-        return (<div className={css(Styles.loadingBar)}></div>)
-    }
-}
 
 const keyframes = {
     '0%': {
@@ -26,7 +19,6 @@ const Styles = StyleSheet.create({
         animationDuration: '2s',
         animationTimingFunction: 'linear',
         animationIterationCount: 'infinite',
-        width: '100%',
         backgroundColor: animationColor1,
         backgroundImage: `linear-gradient(to right,
                                           ${animationColor2} 0,
@@ -42,3 +34,9 @@ const Styles = StyleSheet.create({
         height: 2
     }
 });
+
+export default class LoadingBar extends Component {
+    render() {
+        return (<div className={css(Styles.loadingBar)}></div>)
+    }
+}

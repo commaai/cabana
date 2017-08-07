@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import { StyleSheet, css } from 'aphrodite/no-important';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Clipboard from 'clipboard';
@@ -7,9 +6,6 @@ require('core-js/fn/array/includes');
 const {ckmeans} = require('simple-statistics');
 
 import {modifyQueryParameters} from '../utils/url';
-import LoadDbcModal from './LoadDbcModal';
-import * as GithubAuth from '../api/github-auth';
-import Images from '../styles/images';
 import MessageBytes from './MessageBytes';
 import {GITHUB_AUTH_TOKEN_KEY} from '../config';
 
@@ -71,10 +67,7 @@ export default class Meta extends Component {
         }
 
         const nextMsgKeys = Object.keys(nextProps.messages);
-        if(JSON.stringify(nextMsgKeys) != JSON.stringify(Object.keys(this.props.messages))) {
-            let {selectedMessages} = this.props;
-            selectedMessages = selectedMessages.filter((m) => nextMsgKeys.indexOf(m) !== -1);
-
+        if(JSON.stringify(nextMsgKeys) !== JSON.stringify(Object.keys(this.props.messages))) {
             const orderedMessageKeys = this.sortMessages(nextProps.messages);
             this.setState({hoveredMessages: [], orderedMessageKeys});
         } else if((this.state.orderedMessageKeys.length === 0)
@@ -109,7 +102,7 @@ export default class Meta extends Component {
             return partialMapping;
         }, {});
 
-        const entryCounts = Object.keys(messagesByEntryCount).map((count) => parseInt(count));
+        const entryCounts = Object.keys(messagesByEntryCount).map((count) => parseInt(count, 10));
         const binnedEntryCounts = ckmeans(entryCounts, Math.min(entryCounts.length, 10));
         const sortedKeys = binnedEntryCounts.map((bin) =>
             bin.map((entryCount) => messagesByEntryCount[entryCount.toString()])
@@ -136,13 +129,13 @@ export default class Meta extends Component {
     }
 
     onFilterFocus(e) {
-        if(this.state.filterText.trim() == 'Filter') {
+        if(this.state.filterText.trim() === 'Filter') {
             this.setState({filterText: ''})
         }
     }
 
     onFilterUnfocus(e) {
-        if(this.state.filterText.trim() == '') {
+        if(this.state.filterText.trim() === '') {
             this.setState({filterText: 'Filter'})
         }
     }
@@ -151,8 +144,8 @@ export default class Meta extends Component {
         const {filterText} = this.state;
         const msgName = (msg.frame ? msg.frame.name : '');
 
-        return (filterText == 'Filter'
-                || filterText == ''
+        return (filterText === 'Filter'
+                || filterText === ''
                 || msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
                 || msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
     }
@@ -172,20 +165,20 @@ export default class Meta extends Component {
 
     onMessageHoverEnd(key) {
         let {hoveredMessages} = this.state;
-        hoveredMessages = hoveredMessages.filter((m) => m != key);
+        hoveredMessages = hoveredMessages.filter((m) => m !== key);
         this.setState({hoveredMessages});
     }
 
     onMsgRemoveClick(key) {
         let {selectedMessages} = this.state;
-        selectedMessages = selectedMessages.filter((m) => m != key);
+        selectedMessages = selectedMessages.filter((m) => m !== key);
         this.props.onMessageUnselected(key);
         this.setState({selectedMessages});
     }
 
     onMessageSelected(key) {
         // uncomment when we support multiple messages
-        // const selectedMessages = this.state.selectedMessages.filter((m) => m != key);
+        // const selectedMessages = this.state.selectedMessages.filter((m) => m !== key);
         const selectedMessages = [];
         selectedMessages.push(key);
         this.props.updateSelectedMessages(selectedMessages);

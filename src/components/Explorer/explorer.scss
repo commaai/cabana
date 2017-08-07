@@ -210,20 +210,30 @@
       border-radius: 5px;
       max-height: 480px;
       max-width: 640px;
+      background: #000;
       overflow: hidden;
       position: relative;
       &-wrapper {}
-      &-seeker {
-        background: rgba(233, 233, 233, .2);
-        bottom: 0;
-        position: absolute;
-        width: 100%;
-        z-index: 4;
-      }
       video {
         cursor: pointer;
         width: 100%;
       }
+    }
+    &-segmentreset {
+      cursor: pointer;
+      background-color: RGB(63, 135, 255);
+      border-radius: 5px;
+      min-width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      &:hover {
+          background-color: rgba(63, 135, 255, 0.5);
+      }
+      margin-top: 10px;
+      padding: 10px 0;
+      width: 160px;
     }
     &-plots {
       background: rgba(0,0,0,.02);

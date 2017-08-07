@@ -10,27 +10,27 @@ import Frame from './frame';
 import BoardUnit from './BoardUnit';
 import DbcUtils from '../../utils/dbc';
 
-const MSG_RE = /^BO\_ (\w+) (\w+) *: (\w+) (\w+)/
+const MSG_RE = /^BO_ (\w+) (\w+) *: (\w+) (\w+)/
 
-const SIGNAL_RE = /^SG\_ (\w+) : (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
+const SIGNAL_RE = /^SG_ (\w+) : (\d+)\|(\d+)@(\d+)([+|-]) \(([0-9.+-eE]+),([0-9.+-eE]+)\) \[([0-9.+-eE]+)\|([0-9.+-eE]+)\] "(.*)" (.*)/
 // Multiplexed signal
-const MP_SIGNAL_RE = /^SG\_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([\+|\-]) \(([0-9.+\-eE]+),([0-9.+\-eE]+)\) \[([0-9.+\-eE]+)\|([0-9.+\-eE]+)\] \"(.*)\" (.*)/
+const MP_SIGNAL_RE = /^SG_ (\w+) (\w+) *: (\d+)\|(\d+)@(\d+)([+|-]) \(([0-9.+-eE]+),([0-9.+-eE]+)\) \[([0-9.+-eE]+)\|([0-9.+-eE]+)\] "(.*)" (.*)/
 
-const VAL_RE = /^VAL\_ (\w+) (\w+) (.*);/;
-const VAL_TABLE_RE = /^VAL\_TABLE\_ (\w+) (.*);/;
+const VAL_RE = /^VAL_ (\w+) (\w+) (.*);/;
+const VAL_TABLE_RE = /^VAL_TABLE_ (\w+) (.*);/;
 
 const MSG_TRANSMITTER_RE = /^BO_TX_BU_ ([0-9]+) *: *(.+);/;
 
-const SIGNAL_COMMENT_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)\";/;
-const SIGNAL_COMMENT_MULTI_LINE_RE = /^CM\_ SG\_ *(\w+) *(\w+) *\"(.*)/
+const SIGNAL_COMMENT_RE = /^CM_ SG_ *(\w+) *(\w+) *"(.*)";/;
+const SIGNAL_COMMENT_MULTI_LINE_RE = /^CM_ SG_ *(\w+) *(\w+) *"(.*)/
 
 // Message Comments (CM_ BO_ )
-const MESSAGE_COMMENT_RE = /^CM\_ BO\_ *(\w+) *\"(.*)\";/;
-const MESSAGE_COMMENT_MULTI_LINE_RE = /^CM\_ BO\_ *(\w+) *\"(.*)/;
+const MESSAGE_COMMENT_RE = /^CM_ BO_ *(\w+) *"(.*)";/;
+const MESSAGE_COMMENT_MULTI_LINE_RE = /^CM_ BO_ *(\w+) *"(.*)/;
 
-const BOARD_UNIT_RE = /^BU\_\:(.*)/;
-const BOARD_UNIT_COMMENT_RE = /^CM\_ BU\_ *(\w+) *\"(.*)\";/;
-const BOARD_UNIT_COMMENT_MULTI_LINE_RE = /^CM\_ BU\_ *(\w+) *\"(.*)/;
+const BOARD_UNIT_RE = /^BU_:(.*)/;
+const BOARD_UNIT_COMMENT_RE = /^CM_ BU_ *(\w+) *"(.*)";/;
+const BOARD_UNIT_COMMENT_MULTI_LINE_RE = /^CM_ BU_ *(\w+) *"(.*)/;
 
 // Follow ups are used to parse multi-line comment definitions
 const FOLLOW_UP_SIGNAL_COMMENT = "FollowUpSignalComment";
@@ -39,7 +39,7 @@ const FOLLOW_UP_BOARD_UNIT_COMMENT = "FollowUpBoardUnitComment";
 
 function floatOrInt(numericStr) {
     if(Number.isInteger(numericStr)) {
-        return parseInt(numericStr);
+        return parseInt(numericStr, 10);
     } else {
         return parseFloat(numericStr);
     }
@@ -113,7 +113,7 @@ export default class DBC {
         txt += '\nBU_: ' + boardUnitsText + '\n\n\n';
 
         const frames = [];
-        for(let [msgId, frame] of this.messages.entries()) {
+        for(let frame of this.messages.values()) {
             frames.push(frame);
         }
         txt += frames.map((f) => f.text()).join("\n\n") + '\n\n';
@@ -232,7 +232,7 @@ export default class DBC {
                 }
                 let [idString, name, size, transmitter] = matches.slice(1);
                 id = parseInt(idString, 0); // 0 radix parses hex or dec
-                size = parseInt(size);
+                size = parseInt(size, 10);
                 const frame = new Frame({name, id, size, transmitters: [transmitter]})
                 messages.set(id, frame);
 
@@ -253,9 +253,9 @@ export default class DBC {
 
                 let [name, startBit, size, isLittleEndian, isSigned,
                        factor, offset, min, max, unit, receiverStr] = matches;
-                startBit = parseInt(startBit);
-                size = parseInt(size);
-                isLittleEndian = parseInt(isLittleEndian) === 1
+                startBit = parseInt(startBit, 10);
+                size = parseInt(size, 10);
+                isLittleEndian = parseInt(isLittleEndian, 10) === 1
                 isSigned = isSigned === '-'
                 factor = floatOrInt(factor);
                 offset = floatOrInt(offset);
@@ -278,7 +278,7 @@ export default class DBC {
                                 .map((s) => s.trim())
                                 .filter((s) => s.length > 0);
 
-                    messageId = parseInt(messageId);
+                    messageId = parseInt(messageId, 10);
                     const msg = messages.get(messageId);
                     const signal = msg.signals[signalName];
                     if(signal === undefined) {
@@ -315,7 +315,7 @@ export default class DBC {
 
                 if(matches !== null) {
                     let [messageId, transmitter] = matches.slice(1);
-                    messageId = parseInt(messageId)
+                    messageId = parseInt(messageId, 10)
 
                     const msg = messages.get(messageId);
                     msg.transmitters.push(transmitter);
@@ -337,7 +337,7 @@ export default class DBC {
 
                 let [messageId, signalName, comment] = matches.slice(1);
 
-                messageId = parseInt(messageId);
+                messageId = parseInt(messageId, 10);
                 const msg = messages.get(messageId);
                 const signal = msg.signals[signalName];
                 if(signal === undefined) {
@@ -364,7 +364,7 @@ export default class DBC {
                 }
 
                 let [messageId, comment] = matches.slice(1);
-                messageId = parseInt(messageId);
+                messageId = parseInt(messageId, 10);
                 const msg = messages.get(messageId);
                 msg.comment = comment;
 
@@ -399,7 +399,7 @@ export default class DBC {
                 }
 
                 let [boardUnitName, comment] = matches.slice(1);
-                let boardUnit = boardUnits.find((bu) => bu.name == boardUnitName);
+                let boardUnit = boardUnits.find((bu) => bu.name === boardUnitName);
                 if(boardUnit) {
                     boardUnit.comment = comment;
                 }
@@ -449,7 +449,7 @@ export default class DBC {
     }
 
     valueForInt32Signal(signalSpec, bits, bitsSwapped) {
-        let value, startBit, dataBitPos, bitArr;
+        let startBit, bitArr;
 
         if (signalSpec.isLittleEndian) {
             bitArr = bitsSwapped;

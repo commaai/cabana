@@ -1,5 +1,3 @@
-import {parseUrl} from '../utils/url';
-
 function videoUrl(dongleId, hashedRouteName) {
   return `https://video.comma.ai/hls/${dongleId}/${hashedRouteName}/index.m3u8`;
 }

@@ -63,7 +63,7 @@ function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage
         const currentData = hexData.substr(i * 2, 2),
               prevData = lastParsedMessage.hexData.substr(i * 2, 2);
 
-        if(currentData != prevData) {
+        if(currentData !== prevData) {
           byteStateChangeTimes[i] = time;
           byteStateChangeCounts[i] = 1;
         }

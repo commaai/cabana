@@ -3,8 +3,6 @@ require('core-js/fn/string/pad-end');
 
 const PANDA_VENDOR_ID = 0xbbaa;
 const PANDA_PRODUCT_ID = 0xddcc;
-const PANDA_ENDPOINT_IN = 1;
-const PANDA_BUS_SPEED = 500000.0;
 
 const CAN_EXTENDED = 4;
 const BUFFER_SIZE = 0x10 * 256;
@@ -32,7 +30,7 @@ export default class Panda {
                                value: 0,
                                index: 0};
         try {
-            const result = await this.device.controlTransferIn(controlParams, 13);
+            return await this.device.controlTransferIn(controlParams, 13);
         } catch(err) {
             CloudLog.error({event: 'Panda.health failed', 'error': err});
         }

@@ -1,0 +1,74 @@
+/*
+
+  RouteSeeker Component
+  ~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
+.cabana-explorer-visuals-camera-seeker {
+    background: rgba(233, 233, 233, .2);
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 4;
+    flex: 1;
+    flex-direction: row;
+    display: flex;
+    background: linear-gradient(to top, rgba(0,0,0,0.0), rgba(0,0,0,0.5));
+    user-select: none;
+
+    &-playbutton {
+        height: 25px;
+        width: 25px;
+        display: flex;
+        align-self: center;
+        opacity: 0.8;
+        user-select: none;
+    }
+
+    &-progress {
+        height: 15px;
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        position: relative;
+        display: flex;
+        flex: 10;
+        z-index: 1;
+
+        &-tooltip {
+            position: absolute;
+            z-index: 2;
+            top: -25px;
+            height: 20px;
+            width: 50px;
+            border-radius: 1px;
+            font-size: 12px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: rgba(0,0,0,0.9);
+            color: rgb(225,225,225);
+        }
+
+        &-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            top: -15%;
+            z-index: 3;
+        }
+
+        &-inner {
+            position: absolute;
+            height: 14px;
+            left: 0;
+            top: 0;
+            background-color: rgba(255,255,255,0.8);
+            z-index: 2;
+        }
+    }
+}

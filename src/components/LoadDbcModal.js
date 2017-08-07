@@ -5,7 +5,6 @@ import cx from 'classnames';
 import DBC from '../models/can/dbc';
 import OpenDbc from '../api/opendbc';
 import Modal from './Modals/baseModal';
-import OpenDbcList from './OpenDbcList';
 import GithubDbcList from './GithubDbcList';
 import DbcUpload from './DbcUpload';
 
