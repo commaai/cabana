@@ -29,8 +29,8 @@ import {hash} from './utils/string';
 
 export default class CanExplorer extends Component {
     static propTypes = {
-        dongleId: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
+        dongleId: PropTypes.string,
+        name: PropTypes.string,
         dbc: PropTypes.instanceOf(DBC),
         dbcFilename: PropTypes.string,
         githubAuthToken: PropTypes.string,
