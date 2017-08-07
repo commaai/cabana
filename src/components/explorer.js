@@ -23,14 +23,14 @@ export default class Explorer extends Component {
     static propTypes = {
        selectedMessage: PropTypes.string,
        url: PropTypes.string,
-       live: PropTypes.bool,
+       live: PropTypes.bool.isRequired,
        messages: PropTypes.objectOf(PropTypes.object),
-       onConfirmedSignalChange: PropTypes.func,
+       onConfirmedSignalChange: PropTypes.func.isRequired,
        canFrameOffset: PropTypes.number,
        firstCanTime: PropTypes.number,
-       onSeek: PropTypes.func,
-       autoplay: PropTypes.bool,
-       onPartChanged: PropTypes.func,
+       onSeek: PropTypes.func.isRequired,
+       autoplay: PropTypes.bool.isRequired,
+       onPartChange: PropTypes.func.isRequired,
        partsCount: PropTypes.number,
     };
 

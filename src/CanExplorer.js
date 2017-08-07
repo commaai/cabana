@@ -70,6 +70,7 @@ export default class CanExplorer extends Component {
             spawnWorkerHash: null,
             attemptingPandaConnection: false,
             pandaNoDeviceSelected: false,
+            live: false,
         };
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
         if(USE_UNLOGGER) {

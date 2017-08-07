@@ -8,7 +8,6 @@ export default class MessageBytes extends Component {
         seekTime: PropTypes.number.isRequired,
         message: PropTypes.object.isRequired,
         seekIndex: PropTypes.number,
-        maxByteStateChangeCount: PropTypes.number.isRequired,
         live: PropTypes.bool.isRequired,
     };
 
