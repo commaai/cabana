@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 
-import OpenDbc from '../api/opendbc';
+import OpenDbc from '../api/OpenDbc';
 
 export default class GithubDbcList extends Component {
     static propTypes = {

@@ -26,10 +26,17 @@ export default class OpenDBC {
   }
 
   async fetchGithubUsername() {
-      const resp = await this.github.getUser().getProfile();
-      if(resp) {
-        return resp.data.login;
+    try {
+      const user = await this.github.getUser();
+      if(user) {
+        const profile = await user.getProfile();
+        if(profile) {
+          return profile.data.login;
+        }
       }
+    } catch(e) {
+      return null;
+    }
   }
 
   async list(repoFullName) {
@@ -46,10 +53,13 @@ export default class OpenDBC {
       const [username, repoName] = repoFullName.split('/');
       repo = this.github.getRepo(username, repoName);
     }
+    try {
+      const response = await repo.getContents('master', '');
 
-    const response = await repo.getContents('master', '');
-
-    return response.data.map((content) => content.path);
+      return response.data.map((content) => content.path);
+    } catch(e) {
+      return [];
+    }
   }
 
   async getDbcContents(dbcPath, repoFullName) {
@@ -76,6 +86,8 @@ export default class OpenDBC {
 
   async getUserOpenDbcFork() {
       const githubUsername = await this.getGithubUsername();
+      if(!githubUsername) return null;
+
       const openDbcFork = this.github.getRepo(githubUsername, 'opendbc');
       const repoDetailResp = await openDbcFork.getDetails();
       const repoDetails = repoDetailResp.data;

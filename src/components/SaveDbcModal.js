@@ -3,7 +3,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import FileSaver from 'file-saver';
 
-import OpenDbc from '../api/opendbc';
+import OpenDbc from '../api/OpenDbc';
 import DBC from '../models/can/dbc';
 import Modal from './Modals/baseModal';
 // import TabStyles from '../styles/modal-tabs';
@@ -151,7 +151,8 @@ export default class SaveDbcModal extends Component {
             { this.state.tabs.map((tab) => {
                 return (
                     <a className={ cx({'is-active': this.state.tab === tab})}
-                        onClick={ () => { this.setState({ tab }) }}>
+                        onClick={ () => { this.setState({ tab }) }}
+                        key={tab}>
                         <span>{ tab }</span>
                     </a>
                 )

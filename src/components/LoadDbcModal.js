@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 import DBC from '../models/can/dbc';
-import OpenDbc from '../api/opendbc';
+import OpenDbc from '../api/OpenDbc';
 import Modal from './Modals/baseModal';
 import GithubDbcList from './GithubDbcList';
 import DbcUpload from './DbcUpload';
@@ -57,7 +57,8 @@ export default class LoadDbcModal extends Component {
                 { this.state.tabs.map((tab) => {
                     return (
                         <a className={ cx({'is-active': this.state.tab === tab})}
-                            onClick={ () => { this.setState({ tab }) }}>
+                            onClick={ () => { this.setState({ tab }) }}
+                            key={tab}>
                             <span>{ tab }</span>
                         </a>
                     )
