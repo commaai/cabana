@@ -17,13 +17,14 @@ function expectSampleMessageFieldsPreserved(messages, frame) {
     expect(messages[SAMPLE_MESSAGE_ID].byteStateChangeCounts).toEqual(Array(8).fill(0));
 }
 
+// function addCanMessage([address, busTime, data, source], dbc, canStartTime, messages, prevMsgEntries, byteStateChangeCountsByMessage) {
 function addMessages(messages, message, dbc, n) {
     const firstCanTime = 0;
     message = [...message];
     let nextMessage = () => {message[1] = message[1] + 1; return message};
 
     for(let i = 0; i < n; i++) {
-        DbcUtils.addCanMessage(nextMessage(), dbc, firstCanTime, messages);
+        DbcUtils.addCanMessage(nextMessage(), dbc, firstCanTime, messages, {}, {});
     }
 }
 test('addCanMessage should add raw can message with empty dbc', () => {
