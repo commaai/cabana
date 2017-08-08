@@ -87,13 +87,6 @@ export default class AddSignals extends Component {
         }, {});
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.message.hexData !== this.props.message.hexData
-                || nextProps.messageIndex !== this.props.messageIndex
-                || JSON.stringify(nextProps.plottedSignals) !== JSON.stringify(this.props.plottedSignals)
-                || JSON.stringify(this.state) !== JSON.stringify(nextState);
-    }
-
     signalColorStyle(signal) {
         const colors = signal.colors();
 
@@ -145,7 +138,7 @@ export default class AddSignals extends Component {
         // returns instance of Signal
 
         return Object.values(this.state.signals).filter((signal) => {
-            return signal.bitDescription(bitIdx) != null
+            return signal.bitDescription(bitIdx) !== null
         })[0];
     }
 
@@ -166,9 +159,11 @@ export default class AddSignals extends Component {
 
     onBitHover(bitIdx, signal) {
         let {dragStartBit, signals, dragSignal} = this.state;
-
         if(dragStartBit !== null) {
             if(dragSignal !== null) {
+                signals = {...signals};
+                dragSignal = Object.assign(Object.create(dragSignal), dragSignal);
+
                 if(dragStartBit === dragSignal.startBit && dragSignal.size > 1) {
                     if(!dragSignal.isLittleEndian) {
                         // should not be able to drag the msb past the lsb
@@ -221,6 +216,7 @@ export default class AddSignals extends Component {
                             }
                         }
                     }
+                    signals[dragSignal.name] = dragSignal;
                 } else if(dragSignal.isLittleEndian && dragStartBit === dragSignal.msbBitIndex()) {
                     if(bitIdx < dragSignal.startBit) {
                         // should not be able to drag the MSB past the LSB
@@ -244,6 +240,7 @@ export default class AddSignals extends Component {
                     signals[dragSignal.name] = dragSignal;
                     dragStartBit = dragSignal.lsbBitIndex();
                 }
+
                 this.setState({signals, dragCurrentBit: bitIdx, dragStartBit});
             } else {
                 this.setState({dragCurrentBit: bitIdx});
@@ -281,7 +278,8 @@ export default class AddSignals extends Component {
                                    startBit,
                                    size: size,
                                    isLittleEndian});
-        const {signals} = this.state;
+        let {signals} = this.state;
+        signals = {...signals};
         signals[signal.name] = signal;
 
         this.setState({signals}, this.propagateUpSignalChange);
@@ -329,6 +327,7 @@ export default class AddSignals extends Component {
             this.createSignal({startBit, size, isLittleEndian});
         }
     }
+
     onBitMouseUp(dragEndBit, signal) {
         if(this.state.dragStartBit !== null) {
             let {dragStartBit} = this.state;
