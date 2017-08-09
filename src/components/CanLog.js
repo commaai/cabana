@@ -108,23 +108,27 @@ export default class CanLog extends Component {
         }
     }
 
-    toggleExpandPacketSignals(msg) {
-        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
+    toggleExpandPacketSignals(msgEntry) {
+        if(!this.props.message.frame) {
+          return;
+        }
+        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msgEntry);
+
         const msgHasSignals = Object.keys(this.props.message.frame.signals).length > 0;
         if (msgIsExpanded && msgHasSignals) {
             this.setState({expandedMessages: this.state.expandedMessages
-              .filter((expMsgTime) => expMsgTime !== msg.time)})
+              .filter((expMsgTime) => expMsgTime !== msgEntry.time)})
         } else if (msgHasSignals) {
-            this.setState({expandedMessages: this.state.expandedMessages.concat([msg.time])})
+            this.setState({expandedMessages: this.state.expandedMessages.concat([msgEntry.time])})
             this.props.onMessageExpanded();
         } else { return; }
     }
 
-    renderLogListItemSignals(msg) {
+    renderLogListItemSignals(msgEntry) {
       const { message } = this.props;
       return (
           <div className='signals-log-list-signals'>
-              { Object.entries(msg.signals).map(([name, value]) => {
+              { Object.entries(msgEntry.signals).map(([name, value]) => {
                   return [name, value, this.isSignalPlotted(message.id, name)]
                 }).map(([name, value, isPlotted]) => {
                   const plottedButtonClass = isPlotted ? null : 'button--alpha';
@@ -156,28 +160,28 @@ export default class CanLog extends Component {
       )
     }
 
-    renderLogListItemMessage(msg, key) {
+    renderLogListItemMessage(msgEntry, key) {
         const { message } = this.props;
-        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msg);
-        const msgHasSignals = Object.keys(msg.signals).length > 0;
+        const msgIsExpanded = this.state.allPacketsExpanded || this.isMessageExpanded(msgEntry);
+        const msgHasSignals = Object.keys(msgEntry.signals).length > 0;
         const hasSignalsClass = msgHasSignals ? 'has-signals' : null;
         const expandedClass = msgIsExpanded ? 'is-expanded' : null;
         const row = (
             <div key={key} className={cx('signals-log-list-item', hasSignalsClass, expandedClass)}>
                 <div className='signals-log-list-item-header'
-                      onClick={ () => { this.toggleExpandPacketSignals(msg) } }>
+                      onClick={ () => { this.toggleExpandPacketSignals(msgEntry) } }>
                     <div className='signals-log-list-message'>
                         <strong>{(message.frame ? message.frame.name : null) || message.id}</strong>
                     </div>
                     <div className='signals-log-list-time'>
-                        <span>[{msg.relTime.toFixed(3)}]</span>
+                        <span>[{msgEntry.relTime.toFixed(3)}]</span>
                     </div>
                     <div className='signals-log-list-bytes'>
-                        <span className='t-mono'>{msg.hexData}</span>
+                        <span className='t-mono'>{msgEntry.hexData}</span>
                     </div>
               </div>
               <div className='signals-log-list-item-body'>
-                  { msgIsExpanded ? this.renderLogListItemSignals(msg) : null}
+                  { msgIsExpanded ? this.renderLogListItemSignals(msgEntry) : null}
               </div>
             </div>
         );

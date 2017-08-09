@@ -234,8 +234,11 @@ export default class Explorer extends Component {
                 });
                 if(maxIndex) {
                     obj[messageId] = graphData[index][maxIndex].relTime;
-                } else {
+                } else if(graphData[index].length > 0) {
                     obj[messageId] = graphData[index][graphData[index].length - 1].relTime;
+                } else {
+                    // Graph data is empty
+                    obj[messageId] = 0;
                 }
 
                 return obj;
