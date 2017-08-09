@@ -194,8 +194,11 @@ export default class CanLog extends Component {
         if(offset === 0 && this.props.segmentIndices.length === 2) {
             offset = this.props.segmentIndices[0];
         }
-
-        return this.renderLogListItemMessage(this.props.message.entries[offset + index], key);
+        if((offset + index) < this.props.message.entries.length) {
+          return this.renderLogListItemMessage(this.props.message.entries[offset + index], key);
+        } else {
+          return null;
+        }
     }
 
     renderLogList(items, ref) {

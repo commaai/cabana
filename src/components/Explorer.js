@@ -89,6 +89,30 @@ export default class Explorer extends Component {
         }
     }
 
+    clipSegment(segment, segmentIndices, nextMessage) {
+        if(segment.length === 2) {
+            const segmentStartIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[0]);
+            let segmentEndIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[1]);
+            if(segmentStartIdx !== -1) {
+                if(segmentEndIdx === -1) {
+                    // previous segment end is past bounds of this message
+                    segmentEndIdx = nextMessage.entries.length - 1;
+                }
+                const segmentStartTime = nextMessage.entries[segmentStartIdx].relTime;
+                const segmentEndTime = nextMessage.entries[segmentEndIdx].relTime;
+
+                segment = [segmentStartTime, segmentEndTime];
+                segmentIndices = [segmentStartIdx, segmentEndIdx];
+            } else {
+                // segment times are out of boudns for this message
+                segment = [];
+                segmentIndices = [];
+            }
+        }
+
+        return {segment, segmentIndices};
+    }
+
     componentWillReceiveProps(nextProps) {
         const nextMessage = nextProps.messages[nextProps.selectedMessage];
         const curMessage = this.props.messages[this.props.selectedMessage];
@@ -129,26 +153,9 @@ export default class Explorer extends Component {
             // by finding a entry indices
             // corresponding to old message segment/seek times.
 
-            let {segment, segmentIndices} = this.state;
-            if(segment.length === 2) {
-                const segmentStartIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[0]);
-                let segmentEndIdx = nextMessage.entries.findIndex((e) => e.relTime >= segment[1]);
-                if(segmentStartIdx !== -1) {
-                    if(segmentEndIdx === -1) {
-                        // previous segment end is past bounds of this message
-                        segmentEndIdx = nextMessage.entries.length - 1;
-                    }
-                    const segmentStartTime = nextMessage.entries[segmentStartIdx].relTime;
-                    const segmentEndTime = nextMessage.entries[segmentEndIdx].relTime;
-
-                    segment = [segmentStartTime, segmentEndTime];
-                    segmentIndices = [segmentStartIdx, segmentEndIdx];
-                } else {
-                    // segment times are out of boudns for this message
-                    segment = [];
-                    segmentIndices = [];
-                }
-            }
+            let {segment, segmentIndices} = this.clipSegment(this.state.segment,
+                                                             this.state.segmentIndices,
+                                                             nextMessage);
 
             const nextSeekMsgEntry = nextMessage.entries[nextProps.seekIndex];
             let nextSeekTime;
@@ -164,6 +171,13 @@ export default class Explorer extends Component {
                            segmentIndices,
                            userSeekIndex: nextProps.seekIndex,
                            userSeekTime: nextSeekTime});
+        }
+
+        if(nextMessage && curMessage && nextMessage.entries.length !== curMessage.entries.length) {
+            let {segment, segmentIndices} = this.clipSegment(this.state.segment,
+                                                             this.state.segmentIndices,
+                                                             nextMessage);
+            this.setState({segment, segmentIndices});
         }
 
         if(plottedSignals.length > 0) {
@@ -262,8 +276,11 @@ export default class Explorer extends Component {
                     });
             });
 
-            const messageIdOutOfBounds = plottedMessageIds.find((messageId) =>
-                graphData[index][0].relTime < messages[messageId].entries[0].relTime);
+            const messageIdOutOfBounds = (
+                graphData[index].length > 0
+                && messages[messageId].entries.length > 0
+                && plottedMessageIds.find((messageId) =>
+                    graphData[index][0].relTime < messages[messageId].entries[0].relTime));
 
             graphData[index] = graphData[index].concat(newGraphData)
             if(messageIdOutOfBounds) {
