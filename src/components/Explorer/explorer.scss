@@ -50,6 +50,14 @@
   &-account {
     float: right;
     width: 177px;
+    &-signout {
+      cursor: pointer;
+      font-size: 12px;
+      color: rgba(255,255,255,0.9);
+      &:hover {
+        text-decoration: underline;
+      }
+    }
     a {
       color: #fff;
       font-size: 14px;

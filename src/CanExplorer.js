@@ -20,7 +20,9 @@ const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
 import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
 import LoadingBar from './components/LoadingBar';
-import {persistDbc, fetchPersistedDbc} from './api/localstorage';
+import {persistDbc,
+        fetchPersistedDbc,
+        unpersistGithubAuthToken} from './api/localstorage';
 import OpenDbc from './api/OpenDbc';
 import UnloggerClient from './api/unlogger';
 import PandaReader from './api/panda-reader';
@@ -68,7 +70,9 @@ export default class CanExplorer extends Component {
             attemptingPandaConnection: false,
             pandaNoDeviceSelected: false,
             live: false,
+            isGithubAuthenticated: props.githubAuthToken !== null && props.githubAuthToken !== undefined,
         };
+
         this.openDbcClient = new OpenDbc(props.githubAuthToken);
         if(USE_UNLOGGER) {
           this.unloggerClient = new UnloggerClient();
@@ -100,6 +104,7 @@ export default class CanExplorer extends Component {
         this.onStreamedCanMessagesProcessed = this.onStreamedCanMessagesProcessed.bind(this);
         this.showingModal = this.showingModal.bind(this);
         this.lastMessageEntriesById = this.lastMessageEntriesById.bind(this);
+        this.githubSignOut = this.githubSignOut.bind(this);
     }
 
     componentWillMount() {
@@ -576,6 +581,12 @@ export default class CanExplorer extends Component {
         });
     }
 
+    githubSignOut(e) {
+      unpersistGithubAuthToken();
+      this.setState({isGithubAuthenticated: false});
+
+      e.preventDefault();
+    }
 
     render() {
         return (
@@ -587,8 +598,12 @@ export default class CanExplorer extends Component {
                 <div className='cabana-header'>
                     <a className='cabana-header-logo' href=''>Comma Cabana</a>
                     <div className='cabana-header-account'>
-                        {this.props.githubAuthToken  ?
-                            <p>GitHub Authenticated</p>
+                        {this.state.isGithubAuthenticated  ?
+                            <div>
+                              <p>GitHub Authenticated</p>
+                              <p className='cabana-header-account-signout'
+                                 onClick={this.githubSignOut}>Sign out</p>
+                            </div>
                             : this.loginWithGithub()
                         }
                     </div>

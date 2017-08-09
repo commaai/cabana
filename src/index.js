@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import CanExplorer from './CanExplorer';
 import AcuraDbc from './acura-dbc';
-import {getUrlParameter} from './utils/url';
+import {getUrlParameter, modifyQueryParameters} from './utils/url';
 import {GITHUB_AUTH_TOKEN_KEY} from './config';
 import {fetchPersistedDbc,
         fetchPersistedGithubAuthToken,
@@ -48,6 +48,8 @@ const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);
 if(authTokenQueryParam !== null) {
   props.githubAuthToken = authTokenQueryParam;
   persistGithubAuthToken(authTokenQueryParam);
+  const urlNoAuthToken = modifyQueryParameters({remove: [GITHUB_AUTH_TOKEN_KEY]});
+  window.location.href = urlNoAuthToken;
 } else {
   props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
