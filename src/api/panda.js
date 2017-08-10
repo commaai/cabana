@@ -61,6 +61,13 @@ export default class Panda {
         return messages;
     }
 
+    async mockCanRecv() {
+        const promise = new Promise((resolve) =>
+            setTimeout(() => resolve({time: performance.now() / 1000,
+                                      canMessages: [[0, Math.random() * 65000, ''.padEnd(16, '0'), 0]]}), 100));
+        return await promise;
+    }
+
     async canRecv() {
         let result = null, receiptTime = null;
         while(result === null) {
