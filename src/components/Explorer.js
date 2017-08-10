@@ -9,9 +9,8 @@ import RouteVideoSync from './RouteVideoSync';
 import CanLog from './CanLog';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
-import ArrayUtils from '../utils/array';
 import PartSelector from './PartSelector';
-import {CAN_GRAPH_MAX_POINTS} from '../config';
+import GraphData from '../models/graph-data';
 
 export default class Explorer extends Component {
     static propTypes = {
@@ -188,7 +187,7 @@ export default class Explorer extends Component {
                     ))) {
                     this.refreshGraphData(nextProps.messages, plottedSignals);
                 } else {
-                    graphData = this.appendNewGraphData(plottedSignals, graphData, nextProps.messages);
+                    graphData = GraphData.appendNewGraphData(plottedSignals, graphData, nextProps.messages, nextProps.firstCanTime);
                     this.setState({graphData});
                 }
             } else {
@@ -203,98 +202,6 @@ export default class Explorer extends Component {
         }
     }
 
-    appendNewGraphData(plottedSignals, graphData, messages) {
-        const messagesPerPlot = plottedSignals.map((plottedMessages) =>
-            plottedMessages.reduce((messages,
-               {messageId, signalName}) => {
-                   messages.push(messageId);
-                   return messages;
-            }, [])
-        );
-
-        const extendedPlots = messagesPerPlot
-            .map((plottedMessageIds, index) => {return {plottedMessageIds, index}}) // preserve index so we can look up graphData
-            .filter(({plottedMessageIds, index}) => {
-                let maxGraphTime = 0;
-
-                if(index < graphData.length && graphData[index].length > 0) {
-                    maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
-                }
-
-                return plottedMessageIds.some((messageId) =>
-                    messages[messageId].entries.some((e) => e.relTime > maxGraphTime));
-        }).map(({plottedMessageIds, index}) => {
-            plottedMessageIds = plottedMessageIds.reduce((arr, messageId) => {
-                if(arr.indexOf(messageId) === -1) {
-                    arr.push(messageId);
-                }
-                return arr;
-            }, []);
-            return {plottedMessageIds, index};
-        });
-
-        extendedPlots.forEach(({plottedMessageIds, index}) => {
-            const signalNamesByMessageId = plottedSignals[index].reduce((obj, {messageId, signalName}) => {
-                if(!obj[messageId]) {
-                    obj[messageId] = []
-                }
-                obj[messageId].push(signalName);
-                return obj;
-            }, {});
-            const graphDataMaxMessageTimes = plottedMessageIds.reduce((obj, messageId) => {
-                const signalNames = signalNamesByMessageId[messageId];
-                const maxIndex = ArrayUtils.findIndexRight(graphData[index], (entry) => {
-                    return signalNames.indexOf(entry.signalName) !== -1
-                });
-                if(maxIndex) {
-                    obj[messageId] = graphData[index][maxIndex].relTime;
-                } else if(graphData[index].length > 0) {
-                    obj[messageId] = graphData[index][graphData[index].length - 1].relTime;
-                } else {
-                    // Graph data is empty
-                    obj[messageId] = 0;
-                }
-
-                return obj;
-            }, {});
-
-            let newGraphData = [];
-            plottedMessageIds.map((messageId) => {
-                    return { messageId, entries: messages[messageId].entries }
-                }).filter(({messageId, entries}) => // Filter to only messages with stale graphData
-                    entries[entries.length - 1].relTime > graphDataMaxMessageTimes[messageId])
-                .forEach(({messageId, entries}) => { // Compute and append new graphData
-                    let firstNewEntryIdx =  entries.findIndex((entry) =>
-                        entry.relTime > graphDataMaxMessageTimes[messageId]);
-
-                    const newEntries = entries.slice(firstNewEntryIdx);
-
-                    signalNamesByMessageId[messageId].forEach((signalName) => {
-                        const signalGraphData = this._calcGraphData({...messages[messageId],
-                                                                     entries: newEntries}, signalName);
-                        newGraphData = newGraphData.concat(signalGraphData);
-                    });
-            });
-
-            const messageIdOutOfBounds = (
-                graphData[index].length > 0
-                && messages[messageId].entries.length > 0
-                && plottedMessageIds.find((messageId) =>
-                    graphData[index][0].relTime < messages[messageId].entries[0].relTime));
-
-            graphData[index] = graphData[index].concat(newGraphData)
-            if(messageIdOutOfBounds) {
-                const graphDataLowerBound = graphData[index].findIndex(
-                    (e) => e.relTime > messages[messageIdOutOfBounds].entries[0].relTime);
-
-                if(graphDataLowerBound) {
-                    graphData[index] = graphData[index].slice(graphDataLowerBound);
-                }
-            }
-        });
-
-        return graphData;
-    }
 
     timeWindow() {
         const {routeStartTime, currentParts} = this.props;
@@ -310,31 +217,6 @@ export default class Explorer extends Component {
         } else return '';
     }
 
-    _calcGraphData(msg, signalName) {
-        if(!msg) return null;
-
-        let samples = [];
-        let skip = Math.floor(msg.entries.length / CAN_GRAPH_MAX_POINTS);
-
-        if(skip === 0){
-            samples = msg.entries;
-        } else {
-            for(let i = 0; i < msg.entries.length; i += skip) {
-                samples.push(msg.entries[i]);
-            }
-        }
-
-        return samples.filter((e) => e.signals[signalName])
-                      .map((entry) => {
-                    return {x: entry.time,
-                            relTime: entry.time - this.props.firstCanTime,
-                            y: entry.signals[signalName],
-                            unit: msg.frame.signals[signalName].unit,
-                            color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
-                            signalName}
-        });
-    }
-
     sortGraphData(graphData) {
         return graphData.sort((entry1, entry2) => {
                         if(entry1.relTime < entry2.relTime) {
@@ -348,12 +230,14 @@ export default class Explorer extends Component {
     }
 
     calcGraphData(signals, messages) {
+        const {firstCanTime} = this.props;
         if(typeof messages === 'undefined') {
             messages = this.props.messages;
         }
 
-        return this.sortGraphData(signals.map(({messageId, signalName}) => this._calcGraphData(messages[messageId], signalName))
-                            .reduce((combined, signalData) => combined.concat(signalData), []));
+        return this.sortGraphData(signals.map(({messageId, signalName}) =>
+                                    GraphData._calcGraphData(messages[messageId], signalName, firstCanTime))
+                                  .reduce((combined, signalData) => combined.concat(signalData), []));
     }
 
     onSignalPlotPressed(messageId, signalName) {

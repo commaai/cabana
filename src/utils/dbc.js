@@ -45,7 +45,7 @@ function createMessageSpec(dbc, address, id, bus) {
             id: id,
             bus: bus,
             entries: [],
-            frame: dbc.messages.get(address),
+            frame: frame,
             byteColors: Array(size).fill(0),
             byteStateChangeCounts: Array(size).fill(0)}
 }
@@ -73,6 +73,16 @@ function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage
     return {byteStateChangeTimes, byteStateChangeCounts};
 }
 
+function createMessageEntry(dbc, address, time, relTime, data, byteStateChangeTimes) {
+    return {
+      signals: dbc.getSignalValues(address, data),
+      time,
+      relTime,
+      hexData: Buffer.from(data).toString('hex'),
+      byteStateChangeTimes
+    };
+}
+
 function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
     let hexData;
     if(typeof data === 'string') {
@@ -90,11 +100,7 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
                                                        relTime,
                                                        msgSize,
                                                        lastParsedMessage);
-    const msgEntry = {time: time,
-                      signals: dbc.getSignalValues(address, data),
-                      relTime,
-                      hexData,
-                      byteStateChangeTimes}
+    const msgEntry = createMessageEntry(dbc, address, time, relTime, data, byteStateChangeTimes);
 
     return {msgEntry, byteStateChangeCounts};
 }
@@ -132,4 +138,5 @@ export default {bigEndianBitIndex,
                 matrixBitNumber,
                 parseMessage,
                 findMaxByteStateChangeCount,
-                setMessageByteColors};
+                setMessageByteColors,
+                createMessageEntry};
