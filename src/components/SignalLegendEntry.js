@@ -148,7 +148,6 @@ export default class SignalLegendEntry extends Component {
 
         this.toggleEditing = this.toggleEditing.bind(this);
         this.updateField = this.updateField.bind(this);
-        this.onNameChange = this.onNameChange.bind(this);
         this.toggleSignalPlot = this.toggleSignalPlot.bind(this);
     }
 
@@ -277,7 +276,7 @@ export default class SignalLegendEntry extends Component {
 
 
     toggleEditing(e) {
-        let {isEditing, signalEdited, nameEdited} = this.state;
+        let {isEditing, signalEdited} = this.state;
         const {signal} = this.props;
         const signalCopy = Object.assign(Object.create(signal), signal);
 
@@ -293,7 +292,6 @@ export default class SignalLegendEntry extends Component {
 
                 signalCopy[field] = value;
             });
-            signalCopy['name'] = nameEdited;
             this.props.onSignalChange(signalCopy, signal);
         }  else {
             signalEdited = signalCopy;
@@ -308,10 +306,6 @@ export default class SignalLegendEntry extends Component {
         this.props.toggleExpandSignal(signal);
         e.stopPropagation();
 
-    }
-
-    onNameChange(e) {
-        this.setState({nameEdited: e.target.value});
     }
 
     renderSignalForm(signal) {

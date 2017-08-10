@@ -472,9 +472,11 @@ export default class AddSignals extends Component {
 
     onSignalChange(signal, oldSignal) {
         const {signals} = this.state;
-        if(oldSignal.name !== signal.name) {
-            // name change, erase the old signal
-            delete signals[oldSignal.name];
+
+        for(let signalName in signals) {
+            if(signals[signalName].uid === signal.uid) {
+                delete signals[signalName];
+            }
         }
         signals[signal.name] = signal;
 

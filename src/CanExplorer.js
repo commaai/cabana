@@ -331,7 +331,6 @@ export default class CanExplorer extends Component {
 
     onConfirmedSignalChange(message, signals) {
       const {dbc, dbcFilename, route} = this.state;
-
       dbc.setSignals(message.address, {...signals});
 
       this.updateMessageFrame(message.id, dbc.messages.get(message.address));
