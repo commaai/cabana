@@ -13,11 +13,13 @@ function _calcGraphData(msg, signalName, firstCanTime) {
         for(let i = 0; i < msg.entries.length; i += skip) {
             samples.push(msg.entries[i]);
         }
+        // Always include last message entry, which faciliates graphData comparison
+        samples.push(msg.entries[msg.entries.length - 1]);
     }
     return samples.filter((e) => e.signals[signalName] !== undefined)
                   .map((entry) => {
                 return {x: entry.time,
-                        relTime: entry.time - firstCanTime,
+                        relTime: entry.relTime,
                         y: entry.signals[signalName],
                         unit: msg.frame.signals[signalName].unit,
                         color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
@@ -42,6 +44,7 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
                 if(graphData[index].length > 0) {
                     maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
                 }
+
                 return plottedMessageIds.some((messageId) =>
                     (messages[messageId].entries.length > 0 && graphData[index].length === 0)
                     ||

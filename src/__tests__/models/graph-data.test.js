@@ -6,13 +6,13 @@ import Signal from '../../models/can/signal';
 import DBC from '../../models/can/dbc';
 import DbcUtils from '../../utils/dbc';
 
-function appendMockGraphData(existingGraphData) {
+function appendMockGraphData(existingGraphData, entryCount = 1) {
     const dbc = new DBC();
     const signal = new Signal({name: 'NEW_SIGNAL_1'});
     dbc.setSignals(0, {[signal.name]: signal});
     const message = DbcUtils.createMessageSpec(dbc, 0, '0', 0);
     //  time, relTime, data, byteStateChangeTimes) {
-    message.entries = [DbcUtils.createMessageEntry(dbc, 0, 0, 0, Buffer.alloc(8), [])];
+    message.entries = Array(entryCount).fill(DbcUtils.createMessageEntry(dbc, 0, 0, 0, Buffer.alloc(8), []));
     const messages = {[message.id]: message};
 
     const plottedSignals = [[{signalName: 'NEW_SIGNAL_1', messageId: '0'}]];
