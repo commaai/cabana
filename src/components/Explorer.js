@@ -163,8 +163,12 @@ export default class Explorer extends Component {
             this.setState({segment, segmentIndices});
         }
 
+        const partsDidChange = JSON.stringify(nextProps.currentParts) !== JSON.stringify(this.props.currentParts);
+
         if(plottedSignals.length > 0) {
-            if(graphData.length === plottedSignals.length) {
+            if(graphData.length !== plottedSignals.length || partsDidChange) {
+                this.refreshGraphData(nextProps.messages, plottedSignals);
+            } else if(graphData.length === plottedSignals.length) {
                 if(plottedSignals.some((plot) =>
                     plot.some(({messageId, signalUid}) => {
                         const signalName = Object.values(this.props.messages[messageId].frame.signals)
@@ -176,12 +180,10 @@ export default class Explorer extends Component {
                     graphData = GraphData.appendNewGraphData(plottedSignals, graphData, nextProps.messages, nextProps.firstCanTime);
                     this.setState({graphData});
                 }
-            } else {
-                this.refreshGraphData(nextProps.messages, plottedSignals);
             }
         }
 
-        if(JSON.stringify(nextProps.currentParts) !== JSON.stringify(this.props.currentParts)) {
+        if(partsDidChange) {
             const {userSeekTime} = this.state;
             const nextSeekTime = (userSeekTime - this.props.currentParts[0] * 60) + nextProps.currentParts[0] * 60;
             this.setState({userSeekTime: nextSeekTime});
