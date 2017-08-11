@@ -36,18 +36,17 @@ export default class CanGraphList extends Component {
         this.onMouseMove = this.onMouseMove.bind(this);
     }
 
-    onGraphDragStart(messageId, signalName, shiftX, shiftY) {
-        this.setState({draggingSignal: {messageId, signalName},
+    onGraphDragStart(messageId, signalUid, shiftX, shiftY) {
+        this.setState({draggingSignal: {messageId, signalUid},
                        dragShift: {x: shiftX, y: shiftY}});
     }
 
     determineDraggingGraph() {
         const {draggingSignal} = this.state;
         return this.plotRefs.find(
-                ({messageId, signalName}) =>
+                ({messageId, signalUid}) =>
                   draggingSignal.messageId === messageId
-                  && draggingSignal.signalName === signalName);
-
+                  && draggingSignal.signalUid === signalUid);
     }
 
     onMouseMove(e) {
@@ -65,9 +64,9 @@ export default class CanGraphList extends Component {
             const ele = document.elementFromPoint(e.clientX, e.clientY);
             draggingGraph.ref.hidden = false;
             const closestPlot = ele.closest('.cabana-explorer-visuals-plot');
-            const closestPlotRef = this.plotRefs.find(({ref, messageId, signalName}) =>
+            const closestPlotRef = this.plotRefs.find(({ref, messageId, signalUid}) =>
                                     !(messageId === draggingGraph.messageId
-                                        && signalName === draggingGraph.signalName)
+                                        && signalUid === draggingGraph.signalUid)
                                     && ref.isEqualNode(closestPlot));
             if(closestPlotRef) {
                 this.setState({graphToReceiveDrop: closestPlotRef});
@@ -92,39 +91,41 @@ export default class CanGraphList extends Component {
                        graphToReceiveDrop: null});
     }
 
-    addCanGraphRef(ref, messageId, signalName) {
+    addCanGraphRef(ref, messageId, signalUid) {
         if(ref) {
             let {plotRefs} = this;
-            plotRefs = plotRefs.filter((ref) => !(ref.messageId === messageId && ref.signalName === signalName))
-                               .concat([{messageId, signalName, ref}]);
+            plotRefs = plotRefs.filter((ref) => !(ref.messageId === messageId && ref.signalUid === signalUid))
+                               .concat([{messageId, signalUid, ref}]);
             this.plotRefs = plotRefs;
         }
     }
 
     renderSignalPlot(plottedSignals, index) {
         const {draggingSignal, graphToReceiveDrop} = this.state;
-        const {messageId, signalName} = plottedSignals[0];
+        const {messageId, signalUid} = plottedSignals[0];
         const msg = this.props.messages[messageId];
-        const isDragging = draggingSignal.signalName === signalName && draggingSignal.messageId === messageId;
+        const signal = Object.values(msg.frame.signals).find((s) => s.uid === signalUid);
+
+        const isDragging = draggingSignal.signalUid === signalUid && draggingSignal.messageId === messageId;
         const canReceiveGraphDrop = (graphToReceiveDrop
-                                    && graphToReceiveDrop.signalName === signalName
+                                    && graphToReceiveDrop.signalUid === signalUid
                                     && graphToReceiveDrop.messageId === messageId);
-        plottedSignals = plottedSignals.map((signal) => {
-            return {messageName: this.props.messages[signal.messageId].frame.name, ...signal}
+        plottedSignals = plottedSignals.map((plottedSignal) => {
+            return {messageName: this.props.messages[plottedSignal.messageId].frame.name,
+                     ...plottedSignal}
         });
         const key = plottedSignals.reduce(
-            (key, {messageId, signalName}) => key + messageId + '_' + signalName,
+            (key, {messageId, signalUid}) => key + messageId + '_' + signalUid,
             '');
-
         return (
             <CanGraph
-                onGraphRefAvailable={(ref) => {this.addCanGraphRef(ref, messageId, signalName)}}
+                onGraphRefAvailable={(ref) => {this.addCanGraphRef(ref, messageId, signalUid)}}
                 key={key}
                 unplot={this.props.onSignalUnplotPressed}
                 messages={this.props.messages}
                 messageId={messageId}
                 messageName={msg.frame ? msg.frame.name : null}
-                signalSpec={Object.assign(Object.create(msg.frame.signals[signalName]), msg.frame.signals[signalName])}
+                signalSpec={Object.assign(Object.create(signal), signal)}
                 onSegmentChanged={this.props.onSegmentChanged}
                 segment={this.props.segment}
                 data={this.props.graphData[index]}

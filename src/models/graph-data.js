@@ -1,9 +1,14 @@
 import ArrayUtils from '../utils/array';
 import {CAN_GRAPH_MAX_POINTS} from '../config';
 
-function _calcGraphData(msg, signalName, firstCanTime) {
+function _calcGraphData(msg, signalUid, firstCanTime) {
     if(!msg) return null;
 
+    const signal = Object.values(msg.frame.signals).find((s) => s.uid === signalUid);
+    if(!signal) {
+        console.warn('_calcGraphData: no signal', signalUid, msg)
+        return null;
+    }
     let samples = [];
     let skip = Math.floor(msg.entries.length / CAN_GRAPH_MAX_POINTS);
 
@@ -16,21 +21,22 @@ function _calcGraphData(msg, signalName, firstCanTime) {
         // Always include last message entry, which faciliates graphData comparison
         samples.push(msg.entries[msg.entries.length - 1]);
     }
-    return samples.filter((e) => e.signals[signalName] !== undefined)
+    return samples.filter((e) => e.signals[signal.name] !== undefined)
                   .map((entry) => {
                 return {x: entry.time,
                         relTime: entry.relTime,
-                        y: entry.signals[signalName],
-                        unit: msg.frame.signals[signalName].unit,
-                        color: `rgba(${msg.frame.signals[signalName].colors().join(",")}, 0.5)`,
-                        signalName}
+                        y: entry.signals[signal.name],
+                        unit: signal.unit,
+                        color: `rgba(${signal.colors().join(",")}, 0.5)`,
+                        signalName: signal.name,
+                        signalUid}
     });
 }
 
 function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
      const messagesPerPlot = plottedSignals.map((plottedMessages) =>
             plottedMessages.reduce((messages,
-               {messageId, signalName}) => {
+               {messageId, signalUid}) => {
                    messages.push(messageId);
                    return messages;
             }, [])
@@ -63,17 +69,17 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
     });
 
     extendedPlots.forEach(({plottedMessageIds, index}) => {
-        const signalNamesByMessageId = plottedSignals[index].reduce((obj, {messageId, signalName}) => {
+        const signalUidsByMessageId = plottedSignals[index].reduce((obj, {messageId, signalUid}) => {
             if(!obj[messageId]) {
                 obj[messageId] = []
             }
-            obj[messageId].push(signalName);
+            obj[messageId].push(signalUid);
             return obj;
         }, {});
         const graphDataMaxMessageTimes = plottedMessageIds.reduce((obj, messageId) => {
-            const signalNames = signalNamesByMessageId[messageId];
+            const signalUids = signalUidsByMessageId[messageId];
             const maxIndex = ArrayUtils.findIndexRight(graphData[index], (entry) => {
-                return signalNames.indexOf(entry.signalName) !== -1
+                return signalUids.indexOf(entry.signalUid) !== -1
             });
             if(maxIndex) {
                 obj[messageId] = graphData[index][maxIndex].relTime;
@@ -97,10 +103,10 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
                     entry.relTime > graphDataMaxMessageTimes[messageId]);
 
                 const newEntries = entries.slice(firstNewEntryIdx);
-                signalNamesByMessageId[messageId].forEach((signalName) => {
+                signalUidsByMessageId[messageId].forEach((signalUid) => {
                     const signalGraphData = _calcGraphData({...messages[messageId],
                                                                  entries: newEntries},
-                                                           signalName,
+                                                           signalUid,
                                                            firstCanTime);
 
                     newGraphData = newGraphData.concat(signalGraphData);

@@ -15,7 +15,7 @@ function appendMockGraphData(existingGraphData, entryCount = 1) {
     message.entries = Array(entryCount).fill(DbcUtils.createMessageEntry(dbc, 0, 0, 0, Buffer.alloc(8), []));
     const messages = {[message.id]: message};
 
-    const plottedSignals = [[{signalName: 'NEW_SIGNAL_1', messageId: '0'}]];
+    const plottedSignals = [[{signalUid: signal.uid, messageId: '0'}]];
 
     return GraphData.appendNewGraphData(plottedSignals, existingGraphData, messages, 0);
 }

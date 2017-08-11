@@ -84,9 +84,9 @@ export default class CanLog extends Component {
                                         .filter((expMsgTime) => expMsgTime !== msg.time)})
     }
 
-    isSignalPlotted(msgId, signalName) {
+    isSignalPlotted(msgId, signalUid) {
       const plottedSignal = this.props.plottedSignals.find((plot) =>
-        plot.some((signal) => signal.messageId === msgId && signal.signalName === signalName));
+        plot.some((signal) => signal.messageId === msgId && signal.signalUid === signalUid));
       return plottedSignal !== undefined;
     }
 
@@ -100,11 +100,11 @@ export default class CanLog extends Component {
         return this.state.expandedMessages.indexOf(msg.time) !== -1;
     }
 
-    toggleSignalPlot(msg, name, plotted) {
+    toggleSignalPlot(msg, signalUid, plotted) {
         if (!plotted) {
-            this.props.onSignalPlotPressed(msg, name);
+            this.props.onSignalPlotPressed(msg, signalUid);
         } else {
-            this.props.onSignalUnplotPressed(msg, name);
+            this.props.onSignalUnplotPressed(msg, signalUid);
         }
     }
 
@@ -128,15 +128,13 @@ export default class CanLog extends Component {
       const { message } = this.props;
       return (
           <div className='signals-log-list-signals'>
-              { Object.entries(msgEntry.signals).map(([name, value]) => {
-                  return [name, value, this.isSignalPlotted(message.id, name)]
-                }).map(([name, value, isPlotted]) => {
-                  const plottedButtonClass = isPlotted ? null : 'button--alpha';
-                  const plottedButtonText = isPlotted ? 'Hide Plot' : 'Show Plot';
-
+              { Object.entries(msgEntry.signals).map(
+                ([name, value]) => {
                   const signal = message.frame.signals[name];
                   const unit = signal.unit.length > 0 ? signal.unit : 'units';
-
+                  const isPlotted = this.isSignalPlotted(message.id, signal.uid);
+                  const plottedButtonClass = isPlotted ? null : 'button--alpha';
+                  const plottedButtonText = isPlotted ? 'Hide Plot' : 'Show Plot';
                   return (
                     <div key={ name } className='signals-log-list-signal'>
                         <div className='signals-log-list-signal-message'>
@@ -148,7 +146,7 @@ export default class CanLog extends Component {
                             </span>
                         </div>
                         <div className='signals-log-list-signal-action'
-                              onClick={ () => { this.toggleSignalPlot(message.id, name, isPlotted) } }>
+                              onClick={ () => { this.toggleSignalPlot(message.id, signal.uid, isPlotted) } }>
                           <button className={ cx('button--tiny', plottedButtonClass) }>
                               <span>{ plottedButtonText }</span>
                           </button>

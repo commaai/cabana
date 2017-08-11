@@ -16,7 +16,7 @@ export default class SignalLegend extends Component {
         onSignalChange: PropTypes.func,
         onSignalRemove: PropTypes.func,
         onSignalPlotChange: PropTypes.func,
-        plottedSignals: PropTypes.array
+        plottedSignalUids: PropTypes.array
     };
 
     constructor(props) {
@@ -44,7 +44,15 @@ export default class SignalLegend extends Component {
 
     render() {
         const {signals, highlightedSignal} = this.props;
-        const signalRowsNested = Object.entries(signals).map(([signalName, signal]) => {
+        const signalRowsNested = Object.entries(signals)
+            .sort(([_, signal1], [__, signal2]) => {
+              if(signal1.startBit < signal2.startBit) {
+                return -1;
+              } else {
+                return 1;
+              }
+            })
+            .map(([signalName, signal]) => {
             const color = signals[signalName].colors();
             const isHighlighted = highlightedSignal === signalName;
 
@@ -60,7 +68,7 @@ export default class SignalLegend extends Component {
                       onSignalRemove={this.props.onSignalRemove}
                       onSignalPlotChange={this.props.onSignalPlotChange}
                       toggleExpandSignal={this.toggleExpandSignal}
-                      isPlotted={this.props.plottedSignals.indexOf(signalName) !== -1}
+                      isPlotted={this.props.plottedSignalUids.indexOf(signal.uid) !== -1}
                       isExpanded={this.checkExpandedSignal(signal.uid)}/>;
         });
 

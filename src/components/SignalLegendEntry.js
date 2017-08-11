@@ -330,7 +330,7 @@ export default class SignalLegendEntry extends Component {
     toggleSignalPlot(e) {
       const {signal, isPlotted} = this.props;
       e.preventDefault();
-      this.props.onSignalPlotChange(!isPlotted, signal.name);
+      this.props.onSignalPlotChange(!isPlotted, signal.uid);
     }
 
     render() {

@@ -51,7 +51,7 @@ export default class Explorer extends Component {
         this.onPlay = this.onPlay.bind(this);
         this.onPause = this.onPause.bind(this);
         this.onVideoClick = this.onVideoClick.bind(this);
-        this.onSignalPlotChanged = this.onSignalPlotChanged.bind(this);
+        this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
         this._onKeyDown = this._onKeyDown.bind(this);
         this.mergePlots = this.mergePlots.bind(this);
         this.refreshGraphData = this.refreshGraphData.bind(this);
@@ -70,22 +70,6 @@ export default class Explorer extends Component {
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this._onKeyDown);
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if(this.props.selectedMessage === prevProps.selectedMessage
-            && this.props.messages[this.props.selectedMessage]
-            && prevProps.messages[prevProps.selectedMessage]
-            && this.props.messages[this.props.selectedMessage].frame !== undefined) {
-            const nextSignalNames = Object.keys(this.props.messages[this.props.selectedMessage].frame.signals);
-            const currentSignalNames = Object.keys(prevProps.messages[prevProps.selectedMessage].frame.signals);
-
-            const newSignalNames = nextSignalNames.filter((s) => currentSignalNames.indexOf(s) === -1);
-            for(let i = 0; i < newSignalNames.length; i++) {
-                this.onSignalPlotPressed(this.props.selectedMessage, newSignalNames[i]);
-            }
-
-        }
     }
 
     clipSegment(segment, segmentIndices, nextMessage) {
@@ -129,17 +113,17 @@ export default class Explorer extends Component {
         }
 
         // remove plottedSignals that no longer exist
-        plottedSignals = plottedSignals.map((plot) => plot.filter(({messageId, signalName}, index) => {
+        plottedSignals = plottedSignals.map((plot) => plot.filter(({messageId, signalUid}, index) => {
             const messageExists = Object.keys(nextProps.messages).indexOf(messageId) !== -1;
             let signalExists = true;
             if(!messageExists) {
                 graphData.splice(index, 1);
             } else {
-                const signalNames = Object.keys(nextProps.messages[messageId].frame.signals);
-                signalExists = signalNames.indexOf(signalName) !== -1;
+                signalExists = Object.values(nextProps.messages[messageId].frame.signals)
+                                .some((signal) => signal.uid === signalUid);
 
                 if(!signalExists) {
-                    graphData[index] = graphData[index].filter((entry) => entry.signalName !== signalName);
+                    graphData[index] = graphData[index].filter((entry) => entry.signalUid !== signalUid);
                 }
             }
 
@@ -182,9 +166,11 @@ export default class Explorer extends Component {
         if(plottedSignals.length > 0) {
             if(graphData.length === plottedSignals.length) {
                 if(plottedSignals.some((plot) =>
-                    plot.some(({messageId, signalName}) =>
-                        nextProps.messages[messageId].frame.signals[signalName] !== this.props.messages[messageId].frame.signals[signalName]
-                    ))) {
+                    plot.some(({messageId, signalUid}) => {
+                        const signalName = Object.values(this.props.messages[messageId].frame.signals)
+                                            .find((s) => s.uid === signalUid);
+                        return nextProps.messages[messageId].frame.signals[signalName] !== this.props.messages[messageId].frame.signals[signalName]
+                    }))) {
                     this.refreshGraphData(nextProps.messages, plottedSignals);
                 } else {
                     graphData = GraphData.appendNewGraphData(plottedSignals, graphData, nextProps.messages, nextProps.firstCanTime);
@@ -229,28 +215,24 @@ export default class Explorer extends Component {
                       });
     }
 
-    calcGraphData(signals, messages) {
+    calcGraphData(plottedSignals, messages) {
         const {firstCanTime} = this.props;
         if(typeof messages === 'undefined') {
             messages = this.props.messages;
         }
 
-        return this.sortGraphData(signals.map(({messageId, signalName}) =>
-                                    GraphData._calcGraphData(messages[messageId], signalName, firstCanTime))
+        return this.sortGraphData(plottedSignals.map(({messageId, signalUid}) =>
+                                    GraphData._calcGraphData(messages[messageId], signalUid, firstCanTime))
                                   .reduce((combined, signalData) => combined.concat(signalData), []));
     }
 
-    onSignalPlotPressed(messageId, signalName) {
+    onSignalPlotPressed(messageId, signalUid) {
         let {plottedSignals, graphData} = this.state;
 
-        // if (!plottedSignals.find((plottedSignal) =>
-        //   (plottedSignal.messageId === messageId) && (plottedSignal.signalName === signalName))) {
-
-        graphData = [this.calcGraphData([{messageId, signalName}]), ...graphData];
-        plottedSignals = [[{messageId, signalName}], ...plottedSignals];
+        graphData = [this.calcGraphData([{messageId, signalUid}]), ...graphData];
+        plottedSignals = [[{messageId, signalUid}], ...plottedSignals];
 
         this.setState({plottedSignals, graphData});
-        // }
     }
 
     refreshGraphData(messages, plottedSignals) {
@@ -265,10 +247,10 @@ export default class Explorer extends Component {
         this.setState({graphData});
     }
 
-    onSignalUnplotPressed(messageId, name) {
+    onSignalUnplotPressed(messageId, signalUid) {
         const {plottedSignals} = this.state;
         const newPlottedSignals = plottedSignals.map((plot) =>
-                                  (plot.filter((signal) => !(signal.messageId === messageId && signal.signalName === name))))
+                                  (plot.filter((signal) => !(signal.messageId === messageId && signal.signalUid === signalUid))))
                                   .filter((plot) => plot.length > 0);
 
         this.setState({plottedSignals: newPlottedSignals}, this.refreshGraphData(this.props.messages, newPlottedSignals));
@@ -444,11 +426,11 @@ export default class Explorer extends Component {
         return msg.entries[userSeekIndex].time;
     }
 
-    onSignalPlotChanged(shouldPlot, messageId, signalName) {
+    onSignalPlotChange(shouldPlot, messageId, signalUid) {
         if(shouldPlot) {
-            this.onSignalPlotPressed(messageId, signalName);
+            this.onSignalPlotPressed(messageId, signalUid);
         } else {
-            this.onSignalUnplotPressed(messageId, signalName);
+            this.onSignalUnplotPressed(messageId, signalUid);
         }
     }
 
@@ -460,14 +442,14 @@ export default class Explorer extends Component {
         )
     }
 
-    selectedMessagePlottedSignalNames() {
+    selectedMessagePlottedSignalUids() {
         const {plottedSignals} = this.state;
         return plottedSignals
                 .map((plot) =>
-                    plot.filter(({messageId, signalName}) =>
+                    plot.filter(({messageId, signalUid}) =>
                             messageId === this.props.selectedMessage)
-                         .map(({signalName}) => signalName))
-                .reduce((arr, signalName) => arr.concat(signalName), []);
+                         .map(({signalUid}) => signalUid))
+                .reduce((arr, signalUid) => arr.concat(signalUid), []);
     }
 
     renderExplorerSignals() {
@@ -498,8 +480,8 @@ export default class Explorer extends Component {
                           message={this.props.messages[this.props.selectedMessage]}
                           onClose={() => {this.setState({shouldShowAddSignal: false})}}
                           messageIndex={this.props.seekIndex}
-                          onSignalPlotChange={this.onSignalPlotChanged}
-                          plottedSignals={this.selectedMessagePlottedSignalNames()}
+                          onSignalPlotChange={this.onSignalPlotChange}
+                          plottedSignalUids={this.selectedMessagePlottedSignalUids()}
                       /> : null}
                     <CanLog message={this.props.messages[this.props.selectedMessage]}
                         messageIndex={this.props.seekIndex}
@@ -521,7 +503,7 @@ export default class Explorer extends Component {
         const fromPlotIdx = plottedSignals.findIndex(
             (plot) =>
                 plot.some((signal) =>
-                    signal.signalName === fromPlot.signalName
+                    signal.signalUid === fromPlot.signalUid
                         && signal.messageId === fromPlot.messageId));
         plottedSignals.splice(fromPlotIdx, 1);
         graphData.splice(fromPlotIdx, 1);
@@ -532,7 +514,7 @@ export default class Explorer extends Component {
         const toPlotIdx = plottedSignals.findIndex(
             (plot) =>
                 plot.some((signal) =>
-                    signal.signalName === toPlot.signalName
+                    signal.signalUid === toPlot.signalUid
                         && signal.messageId === toPlot.messageId));
         graphData[toPlotIdx] = newGraphData;
         plottedSignals[toPlotIdx] = [fromPlot, toPlot];

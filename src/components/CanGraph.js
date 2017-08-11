@@ -181,7 +181,7 @@ export default class CanGraph extends Component {
                        () => {
                         this.setState({plotInnerStyle: this.plotInnerStyleFromMouseEvent(e)});
                        });
-        this.props.onDragStart(this.props.messageId, this.props.signalSpec.name, shiftX, shiftY);
+        this.props.onDragStart(this.props.messageId, this.props.signalSpec.uid, shiftX, shiftY);
     }
 
     onDragAnchorMouseUp(e) {
@@ -209,15 +209,16 @@ export default class CanGraph extends Component {
                          onMouseDown={this.onDragAnchorMouseDown}>
                         <span className='fa fa-bars'></span>
                     </div>
-                    {this.props.plottedSignals.map(({ messageId, signalName, messageName }) => {
-                        const color = this.props.messages[messageId].frame.signals[signalName].colors();
+                    {this.props.plottedSignals.map(({ messageId, signalUid, messageName }) => {
+                        const signal = Object.values(this.props.messages[messageId].frame.signals).find((s) => s.uid === signalUid);
+                        const color = signal.colors();
 
                         return (
                           <div className='cabana-explorer-visuals-plot-header'
-                                key={messageId + '_' + signalName}>
+                                key={messageId + '_' + signal.uid}>
                               <div className='cabana-explorer-visuals-plot-header-toggle'>
                                   <button className='button--tiny'
-                                            onClick={ () => this.props.unplot(messageId, signalName)}>
+                                            onClick={ () => this.props.unplot(messageId, signalUid)}>
                                       <span>Hide Plot</span>
                                   </button>
                               </div>
@@ -228,7 +229,7 @@ export default class CanGraph extends Component {
                                   <div className='cabana-explorer-visuals-plot-signal'>
                                       <div className='cabana-explorer-visuals-plot-signal-color'
                                             style={{background: `rgb(${color}`}}></div>
-                                      <strong>{signalName}</strong>
+                                      <strong>{signal.name}</strong>
                                   </div>
                               </div>
                           </div>

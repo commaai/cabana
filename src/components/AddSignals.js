@@ -48,7 +48,7 @@ export default class AddSignals extends Component {
         onConfirmedSignalChange: PropTypes.func,
         messageIndex: PropTypes.number,
         onSignalPlotChange: PropTypes.func,
-        plottedSignals: PropTypes.array
+        plottedSignalUids: PropTypes.array
     };
 
     constructor(props) {
@@ -90,7 +90,7 @@ export default class AddSignals extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         return nextProps.message.hexData !== this.props.message.hexData
                 || nextProps.messageIndex !== this.props.messageIndex
-                || JSON.stringify(nextProps.plottedSignals) !== JSON.stringify(this.props.plottedSignals)
+                || JSON.stringify(nextProps.plottedSignalUids) !== JSON.stringify(this.props.plottedSignalUids)
                 || JSON.stringify(this.state) !== JSON.stringify(nextState);
     }
 
@@ -495,10 +495,10 @@ export default class AddSignals extends Component {
         this.props.onConfirmedSignalChange(this.props.message, this.copySignals(signals));
     }
 
-    onSignalPlotChange(shouldPlot, signalName) {
+    onSignalPlotChange(shouldPlot, signalUid) {
         const {message} = this.props;
 
-        this.props.onSignalPlotChange(shouldPlot, message.id, signalName)
+        this.props.onSignalPlotChange(shouldPlot, message.id, signalUid)
     }
 
     render() {
@@ -522,7 +522,7 @@ export default class AddSignals extends Component {
                 onSignalChange={this.onSignalChange}
                 onSignalRemove={this.onSignalRemove}
                 onSignalPlotChange={this.onSignalPlotChange}
-                plottedSignals={this.props.plottedSignals}
+                plottedSignalUids={this.props.plottedSignalUids}
                  />
            </div>
          );

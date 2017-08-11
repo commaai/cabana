@@ -3,7 +3,8 @@ import Bitarray from '../bitarray';
 require('core-js/fn/array/from');
 require('core-js/fn/number/is-integer');
 require('core-js/es6/map');
-require('core-js/library/fn/symbol/iterator');
+require('core-js/es6/symbol');
+require('core-js/fn/symbol/iterator');
 
 import CloudLog from '../../logging/CloudLog';
 import Signal from './signal';
