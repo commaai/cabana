@@ -35,7 +35,7 @@ export default createClassFromSpec('CanPlot', {
       "transform": [
         {
           "type": "filter",
-          "expr": "abs(datum.relTime - tipTime) <= 0.1"
+          "expr": "abs(datum.relTime - tipTime) <= 0.01"
         },
         {
           "type": "aggregate",
@@ -146,7 +146,7 @@ export default createClassFromSpec('CanPlot', {
           "on": [
             {
               "events": "window:mouseup",
-              "update": "span(brush) && span(invert('xrelscale', brush)) > 1 ? invert('xrelscale', brush) : segment"
+              "update": "span(brush) && span(brush) > 15 ? invert('xrelscale', brush) : segment"
             }
           ]
         }
