@@ -3,7 +3,7 @@ function isAuthenticated() {
 }
 
 function authUrl() {
-    return window.location;
+    return window.location.href;
 }
 
 export default {isAuthenticated, authUrl};

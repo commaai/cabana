@@ -6,6 +6,7 @@ import {USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW} from './config';
 import * as GithubAuth from './api/github-auth';
 import cx from 'classnames';
 
+import auth from './api/comma-auth';
 import DBC from './models/can/dbc';
 import Meta from './components/Meta';
 import Explorer from './components/Explorer';
@@ -47,6 +48,7 @@ export default class CanExplorer extends Component {
             messages: {},
             selectedMessages: [],
             route: null,
+            routes: [],
             canFrameOffset: -1,
             firstCanTime: 0,
             lastBusTime: null,
@@ -115,11 +117,22 @@ export default class CanExplorer extends Component {
 
         const route = {fullname: name, proclog: max, url: url, start_time: startTime};
         this.setState({route, currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]}, this.initCanData);
-      } else if(dongleId && name) {
+      } else if (auth.isAuthenticated() && !name) {
+          Routes.fetchRoutes().then((routes) => {
+              const _routes = [];
+              Object.keys(routes).forEach((route) => {
+                  _routes.push(routes[route]);
+              })
+              this.setState({ routes: _routes });
+              if (!_routes[name]) {
+                this.showOnboarding();
+              }
+          })
+      }
+      else if(dongleId && name) {
         Routes.fetchRoutes(dongleId).then((routes) => {
           if(routes && routes[name]) {
             const route = routes[name];
-
             const newState = {route, currentParts: [0, Math.min(route.proclog - 1, PART_SEGMENT_LENGTH - 1)]};
             this.setState(newState, this.initCanData);
           } else {
@@ -657,6 +670,7 @@ export default class CanExplorer extends Component {
                     <OnboardingModal
                         handlePandaConnect={ this.handlePandaConnect }
                         attemptingPandaConnection={ this.state.attemptingPandaConnection }
+                        routes={ this.state.routes }
                         /> : null }
 
                 {this.state.showLoadDbc ?
