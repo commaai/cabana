@@ -23,3 +23,6 @@ export const PART_SEGMENT_LENGTH = 3;
 export const CAN_GRAPH_MAX_POINTS = 10000;
 
 export const STREAMING_WINDOW = 60;
+
+export const COMMA_ACCESS_TOKEN_COOKIE = 'comma_access_token';
+export const COMMA_OAUTH_REDIRECT_COOKIE = 'wiki_login_redirect';

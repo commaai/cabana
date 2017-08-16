@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 import Moment from 'moment';
+import CommaAuth from './comma-auth';
 
 const ROUTES_ENDPOINT = 'https://api.commadotai.com/v1/{dongleId}/routes/';
 
@@ -75,10 +76,6 @@ let DEMO_ROUTES = {
 
 DEMO_ROUTES = momentizeTimes(DEMO_ROUTES);
 
-function getCommaAccessToken() {
-    return Cookies.get('comma_access_token');
-}
-
 function momentizeTimes(routes) {
   for(let routeName in routes) {
     routes[routeName].start_time = Moment(routes[routeName].start_time);
@@ -92,11 +89,11 @@ export async function fetchRoutes(dongleId) {
         dongleId = 'me';
     }
 
-    const accessToken = getCommaAccessToken();
+    const accessToken = CommaAuth.getCommaAccessToken();
     if(accessToken) {
       const endpoint = ROUTES_ENDPOINT.replace('{dongleId}', dongleId);
       const headers = new Headers();
-      headers.append('Authorization', `JWT ${getCommaAccessToken()}`);
+      headers.append('Authorization', `JWT ${accessToken}`);
 
       try {
           const request = new Request(endpoint, {headers});
