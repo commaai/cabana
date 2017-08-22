@@ -412,9 +412,11 @@ export default class DBC {
             }
         }
 
-        if(warnings.length > 0) {
-            warnings.forEach((warning) => CloudLog.warn('importDbcString: ' + warning));
-        }
+        // Disabled b/c live mode frequently calls this function
+        // and executes way too many network requests
+        // if(warnings.length > 0) {
+        //     warnings.forEach((warning) => CloudLog.warn('importDbcString: ' + warning));
+        // }
 
         this.messages = messages;
         this.boardUnits = boardUnits;

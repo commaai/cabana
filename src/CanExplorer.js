@@ -573,7 +573,7 @@ export default class CanExplorer extends Component {
         this.setState({ attemptingPandaConnection: true, live: true });
 
         const persistedDbc = fetchPersistedDbc('live');
-        if(persistedDbc) {
+        if( persistedDbc ) {
           const {dbc, dbcText} = persistedDbc;
           this.setState({dbc, dbcText});
         }
@@ -586,10 +586,8 @@ export default class CanExplorer extends Component {
             this.setState({ showOnboarding: false });
             this.setState({ showLoadDbc: true });
         }).catch((err) => {
-            if (err.code === PandaReader.ERROR_NO_DEVICE_SELECTED) {
-                this.setState({ attemptingPandaConnection: false });
-            }
-            else { console.log(err) }
+          console.log(err);
+          this.setState({ attemptingPandaConnection: false });
         });
     }
 
