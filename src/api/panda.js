@@ -45,12 +45,8 @@ export default class Panda {
             const datView = Buffer.from(dat);
             const f1 = datView.readInt32LE(0), f2 = datView.readInt32LE(4);
 
-            let address;
-            if(f2 & CAN_EXTENDED) {
-                address = f1 >>> 3;
-            } else {
-                address = f1 >>> 21;
-            }
+            const address = f1 >>> 21;
+
             const busTime = (f2 >>> 16);
             const data = new Buffer(dat.slice(8, 8 + (f2 & 0xF)));
             const source = ((f2 >> 4) & 0xF) & 0xFF;
