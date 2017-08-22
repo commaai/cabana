@@ -4,7 +4,6 @@ require('core-js/fn/string/pad-end');
 const PANDA_VENDOR_ID = 0xbbaa;
 const PANDA_PRODUCT_ID = 0xddcc;
 
-const CAN_EXTENDED = 4;
 const BUFFER_SIZE = 0x10 * 256;
 
 export default class Panda {
@@ -14,7 +13,7 @@ export default class Panda {
 
     connect() {
         // Must be called via a mouse click handler, per Chrome restrictions.
-        return navigator.usb.requestDevice({ filters: [{ vendorId: PANDA_VENDOR_ID, productId: PANDA_PRODUCT_ID }] })
+        return navigator.usb.requestDevice({ filters: [{ vendorId: PANDA_VENDOR_ID }] })
             .then(device => {
                 this.device = device;
                 return device.open();
@@ -24,11 +23,11 @@ export default class Panda {
     }
 
     async health() {
-        const controlParams = {requestType: 'vendor',
-                               recipient: 'device',
-                               request: 0xd2,
-                               value: 0,
-                               index: 0};
+        const controlParams = { requestType: 'vendor',
+                                recipient: 'device',
+                                request: 0xd2,
+                                value: 0,
+                                index: 0 };
         try {
             return await this.device.controlTransferIn(controlParams, 13);
         } catch(err) {
