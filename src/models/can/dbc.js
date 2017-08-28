@@ -62,7 +62,6 @@ export function swapOrder(arr, wordSize, gSize) {
 
 export default class DBC {
     constructor(dbcString) {
-        CloudLog.log('parsing DBC');
         this.boardUnits = [];
         this.messages = new Map();
 
