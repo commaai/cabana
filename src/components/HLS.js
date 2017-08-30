@@ -19,7 +19,8 @@ export default class HLS extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.shouldRestart || nextProps.startTime !== this.props.startTime) {
+    if( (nextProps.shouldRestart || nextProps.startTime !== this.props.startTime)
+        && isFinite(nextProps.startTime)) {
       this.videoElement.currentTime = nextProps.startTime;
       this.props.onRestart();
     }
