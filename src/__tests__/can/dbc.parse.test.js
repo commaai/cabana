@@ -323,3 +323,18 @@ test('int32 parser produces correct value for 4-bit little endian signal', () =>
 });
 
 
+
+const DBC_CHFFR_METRIC_COMMENT = `
+BO_ 37 STEERING_CONTROL: 8 XXX
+  SG_ STEER_ANGLE : 6|4@1+ (1,0) [0|15] "" XXX
+
+CM_ "CHFFR_METRIC 37 STEER_ANGLE STEER_ANGLE 0.36 180";
+`;
+
+test('dbc parser parses top-level comment with chffr metric', () => {
+    const dbc = new DBC(DBC_CHFFR_METRIC_COMMENT);
+    const { comments } = dbc;
+
+    expect(comments.length).toEqual(1);
+    expect(comments[0]).toEqual("CHFFR_METRIC 37 STEER_ANGLE STEER_ANGLE 0.36 180");
+})
