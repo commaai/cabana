@@ -106,7 +106,7 @@ export default class LoadDbcModal extends Component {
                 </button>
                 <button className='button--primary'
                         onClick={ this.handleSave }>
-                    <span>Upload DBC</span>
+                    <span>Load DBC</span>
                 </button>
             </div>
         );

@@ -163,9 +163,9 @@ export default class CanExplorer extends Component {
     onDbcSelected(dbcFilename, dbc) {
       const {route} = this.state;
       this.hideLoadDbc();
+      this.persistDbc({ dbcFilename, dbc });
+
       if(route) {
-        persistDbc(route.fullname,
-                   {dbcFilename, dbc});
         this.setState({dbc,
                        dbcFilename,
                        dbcText: dbc.text(),
@@ -177,8 +177,6 @@ export default class CanExplorer extends Component {
           this.spawnWorker(this.state.currentParts);
         });
       } else {
-        persistDbc('live', {dbcFilename, dbc});
-
         this.setState({dbc, dbcFilename, dbcText: dbc.text(), messages: {}});
       }
     }
@@ -342,18 +340,22 @@ export default class CanExplorer extends Component {
       this.setState({messages});
     }
 
+    persistDbc({ dbcFilename, dbc }) {
+      const { route } = this.state;
+      if(route) {
+        persistDbc(route.fullname, { dbcFilename, dbc });
+      } else {
+        persistDbc('live', { dbcFilename, dbc });
+      }
+    }
+
     onConfirmedSignalChange(message, signals) {
       const {dbc, dbcFilename, route} = this.state;
       dbc.setSignals(message.address, {...signals});
 
       this.updateMessageFrame(message.id, dbc.messages.get(message.address));
 
-      if(route) {
-        persistDbc(route.fullname,
-                   {dbcFilename, dbc});
-      } else {
-        persistDbc('live', {dbcFilename, dbc});
-      }
+      this.persistDbc({ dbcFilename, dbc });
 
       const messages = {};
       const newMessage = {...message};
@@ -423,8 +425,8 @@ export default class CanExplorer extends Component {
       const message = Object.assign({}, messages[editMessageModalMessage]);
       message.frame = messageFrame;
       dbc.messages.set(messageFrame.id, messageFrame);
-      persistDbc(route.fullname,
-                 {dbcFilename, dbc});
+      this.persistDbc({ dbcFilename, dbc });
+
 
       messages[editMessageModalMessage] = message;
       this.setState({messages, dbc, dbcText: dbc.text()});

@@ -30,6 +30,8 @@ async function onMessage(e) {
             break;
         }
     }
+
+    self.close();
 }
 
 self.onmessage = onMessage;

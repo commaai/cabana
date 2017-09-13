@@ -40,6 +40,7 @@ export default class OnboardingModal extends Component {
     }
 
     attemptPandaConnection() {
+        if (!this.state.webUsbEnabled) { return };
         this.props.handlePandaConnect();
     }
 
@@ -213,9 +214,10 @@ export default class OnboardingModal extends Component {
                     { this.renderChffrOption() }
                 </div>
                 <div className='cabana-onboarding-mode'>
-                    <button className='button--secondary button--kiosk'
-                            onClick={ this.attemptPandaConnection }
-                            disabled={ !this.state.webUsbEnabled || this.props.attemptingPandaConnection }>
+                    <button className={ cx('button--secondary button--kiosk', {
+                                          'is-disabled': !this.state.webUsbEnabled || this.props.attemptingPandaConnection
+                                        }) }
+                            onClick={ this.attemptPandaConnection }>
                         <i className='fa fa-bolt'></i>
                         <strong>Launch Realtime Streaming</strong>
                         <sup>Interactively stream car data over USB with <em>panda</em></sup>

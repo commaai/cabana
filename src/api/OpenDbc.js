@@ -74,7 +74,8 @@ export default class OpenDBC {
     const fileContents = await repo.getContents('master', dbcPath);
 
     const rawContentsUrl = fileContents.data.download_url;
-    const resp = await fetch(rawContentsUrl);
+
+    const resp = await fetch(rawContentsUrl, { cache: "no-cache" });
 
     return resp.text();
   }

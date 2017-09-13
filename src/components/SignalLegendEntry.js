@@ -141,7 +141,6 @@ export default class SignalLegendEntry extends Component {
         super(props);
         this.state = {
             isExpanded: false,
-            isEditing: false,
             signalEdited: Object.assign(Object.create(props.signal), props.signal),
             nameEdited: props.signal.name
         };
@@ -198,7 +197,7 @@ export default class SignalLegendEntry extends Component {
         const {field, title} = fieldSpec;
         let valueCol;
 
-        if(this.state.isEditing) {
+        if(this.props.isExpanded) {
             let value = this.state.signalEdited[field];
             if(value !== '') {
                 let num = Number(value);
@@ -221,7 +220,7 @@ export default class SignalLegendEntry extends Component {
     renderStringField(fieldSpec, signal) {
         const {field, title} = fieldSpec;
         let valueCol;
-        if(this.state.isEditing) {
+        if(this.props.isExpanded) {
             valueCol = (
               <input id={`${signal.name}_${field}`}
                       type="text"
@@ -243,7 +242,7 @@ export default class SignalLegendEntry extends Component {
         const {options, optionValues} = fieldSpec.options;
         let valueOptions = swapKeysAndValues(optionValues);
 
-        if(this.state.isEditing) {
+        if(this.props.isExpanded) {
             const optionEles = options.map((opt) =>
                 <option key={opt}
                         value={optionValues[opt]}>{opt}</option>
@@ -276,11 +275,11 @@ export default class SignalLegendEntry extends Component {
 
 
     toggleEditing(e) {
-        let {isEditing, signalEdited} = this.state;
-        const {signal} = this.props;
+        let { signalEdited } = this.state;
+        const { signal, isExpanded } = this.props;
         const signalCopy = Object.assign(Object.create(signal), signal);
 
-        if(isEditing) {
+        if(isExpanded) {
             // Finished editing, save changes & reset intermediate
             // signalEdited state.
             Object.entries(signalEdited).forEach(([field, value]) => {
@@ -298,9 +297,7 @@ export default class SignalLegendEntry extends Component {
         }
 
         // Expand and enable signal editing
-        isEditing = !isEditing;
         this.setState({
-          isEditing,
           signalEdited
         })
         this.props.toggleExpandSignal(signal);
