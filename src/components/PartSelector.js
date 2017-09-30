@@ -42,12 +42,11 @@ export default class PartSelector extends Component {
     }
 
     selectPart(part) {
-        if(part + PART_SEGMENT_LENGTH - 1 >= this.props.partsCount) {
-            return;
-        }
+        part = Math.max(0, Math.min(this.props.partsCount - PART_SEGMENT_LENGTH, part));
         if(part === this.state.selectedPart){
             return;
         }
+
         this.props.onPartChange(part);
         this.setState({selectedPart: part,
                        selectedPartStyle: this.makePartStyle(this.props.partsCount,
@@ -104,7 +103,11 @@ export default class PartSelector extends Component {
 
     render() {
         const {selectedPartStyle} = this.state;
+        if (this.props.partsCount <= PART_SEGMENT_LENGTH) {
+            // all parts are available so no need to render the partselector
 
+            return null;
+        }
         return (
             <div className='cabana-explorer-part-selector'>
                 <div className='cabana-explorer-part-selector-track'
@@ -122,3 +125,4 @@ export default class PartSelector extends Component {
         )
     }
 }
+

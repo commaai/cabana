@@ -375,7 +375,7 @@ export default class CanExplorer extends Component {
 
     onPartChange(part) {
       let {currentParts, canFrameOffset, route, messages} = this.state;
-      if(canFrameOffset === -1 || part + PART_SEGMENT_LENGTH >= route.proclog) {
+      if (canFrameOffset === -1 || part + PART_SEGMENT_LENGTH > route.proclog) {
         return
       }
 
