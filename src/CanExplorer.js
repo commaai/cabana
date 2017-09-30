@@ -248,7 +248,7 @@ export default class CanExplorer extends Component {
 
         let {newMessages, maxByteStateChangeCount} = e.data;
         if(maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
-          this.setState({maxByteStateChangeCount});
+          this.setState({ maxByteStateChangeCount });
         } else {
           maxByteStateChangeCount = this.state.maxByteStateChangeCount;
         }

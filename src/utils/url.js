@@ -1,5 +1,5 @@
 export function objToQuery(obj) {
-  return Object.keys(obj).map(k => k + '=' + encodeURIComponent(obj[k])).join('&');
+  return Object.keys(obj).map(k => k + '=' + encodeURIComponent(decodeURIComponent(obj[k]))).join('&');
 }
 
 export function getUrlParameter(name) {
@@ -30,5 +30,6 @@ export function modifyQueryParameters({add, remove}) {
     } else {
         params = add;
     }
+
     return location.origin + location.pathname + '?' + objToQuery(params);
 }

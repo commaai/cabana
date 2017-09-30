@@ -245,12 +245,16 @@ export default class Meta extends Component {
     }
 
     shareUrl() {
-        const add = {max: this.props.route.proclog, url: this.props.route.url};
+        const add = {
+            max: this.props.route.proclog,
+            url: this.props.route.url,
+        };
         const remove = [GITHUB_AUTH_TOKEN_KEY]; // don't share github access
-        const shareUrl = modifyQueryParameters({add, remove})
+        const shareUrl = modifyQueryParameters({ add, remove })
 
         return shareUrl;
     }
+
     render() {
         return (
             <div className='cabana-meta'>

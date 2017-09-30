@@ -19,7 +19,7 @@ let isDemo = !routeFullName;
 let props = {autoplay: true, isDemo};
 let persistedDbc = null;
 
-if(routeFullName) {
+if (routeFullName) {
     const [dongleId, route] = routeFullName.split('|');
     props.dongleId = dongleId;
     props.name = route;
@@ -38,14 +38,14 @@ if(routeFullName) {
   props.dbcFilename = 'acura_ilx_2016_can.dbc';
 }
 
-if(persistedDbc) {
+if (persistedDbc) {
   const {dbcFilename, dbc} = persistedDbc;
   props.dbc = dbc;
   props.dbcFilename = dbcFilename;
 }
 
 const authTokenQueryParam = getUrlParameter(GITHUB_AUTH_TOKEN_KEY);
-if(authTokenQueryParam !== null) {
+if (authTokenQueryParam !== null) {
   props.githubAuthToken = authTokenQueryParam;
   persistGithubAuthToken(authTokenQueryParam);
   const urlNoAuthToken = modifyQueryParameters({remove: [GITHUB_AUTH_TOKEN_KEY]});
@@ -54,7 +54,7 @@ if(authTokenQueryParam !== null) {
   props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
 
-if(routeFullName || isDemo) {
+if (routeFullName || isDemo) {
   ReactDOM.render(
     <CanExplorer
        {...props} />,
