@@ -153,7 +153,7 @@ export default class DBC {
                              .map(([msgAddr, sig]) => sig.valueDescriptionText(msgAddr))
                              .join("\n") + '\n';
 
-        txt += this.comments.map((comment) => `CM_ "${comment}"`)
+        txt += this.comments.map((comment) => `CM_ "${comment}";`)
                             .join("\n");
         if(this.comments.length > 0) {
             console.log(this.comments.map((comment) => `CM_ "${comment}"`)
@@ -521,7 +521,7 @@ export default class DBC {
         if(!this.messages.has(messageId)) {
             return {};
         }
-        const {signals} = this.messages.get(messageId);
+        const { signals } = this.messages.get(messageId);
 
         const signalValuesByName = {};
         Object.values(signals).forEach((signalSpec) => {
