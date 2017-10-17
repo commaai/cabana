@@ -291,7 +291,11 @@ export default class DBC {
                                          receiver};
                 const signal = new Signal(signalProperties);
 
-                messages.get(id).signals[name] = signal;
+                if (messages.get(id) !== undefined) {
+                    messages.get(id).signals[name] = signal;
+                } else {
+                    CloudLog.warn('importDbcString: could not add signal: ' + name + ' due to missing message: ' + id);
+                }
             } else if(line.indexOf("VAL_ ") === 0) {
                 let matches = line.match(VAL_RE);
 

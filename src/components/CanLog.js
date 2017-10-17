@@ -131,6 +131,10 @@ export default class CanLog extends Component {
               { Object.entries(msgEntry.signals).map(
                 ([name, value]) => {
                   const signal = message.frame.signals[name];
+                  if (signal === undefined) {
+                    // Signal removed?
+                    return null;
+                  }
                   const unit = signal.unit.length > 0 ? signal.unit : 'units';
                   const isPlotted = this.isSignalPlotted(message.id, signal.uid);
                   const plottedButtonClass = isPlotted ? null : 'button--alpha';
