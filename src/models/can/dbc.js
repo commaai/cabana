@@ -1,5 +1,6 @@
 const UINT64 = require('cuint').UINT64
 import Bitarray from '../bitarray';
+import leftPad from 'left-pad';
 require('core-js/fn/array/from');
 require('core-js/fn/number/is-integer');
 require('core-js/es6/map');
@@ -510,7 +511,12 @@ export default class DBC {
     }
 
     getSignalValues(messageId, data) {
-        const buffer = Buffer.from(data);
+        let buffer = Buffer.from(data);
+        if (data.length % 8 !== 0) {
+            // pad data it's 64 bits long
+            const paddedDataHex = leftPad(buffer.toString('hex'), 16, '0');
+            buffer = Buffer.from(paddedDataHex);
+        }
 
         const hexData = buffer.toString('hex');
         const bufferSwapped = Buffer.from(buffer).swap64();

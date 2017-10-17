@@ -57,6 +57,9 @@ const NumpyLoader = (function NumpyLoader() {
       } else if (info.descr === "<i8") {
           // 8 byte int64s
           data = new Uint8Array(buf, offsetBytes);
+      } else if (info.descr === "|s5") {
+          // 5 byte string
+          data = new Uint8Array(buf, offsetBytes);
       } else if (info.descr === "|s8") {
           // 8 byte strings
           data = new Uint8Array(buf, offsetBytes);
