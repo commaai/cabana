@@ -358,7 +358,7 @@ export default class DBC {
                     hasFollowUp = true;
                 }
                 if(matches === null) {
-                    warnings.push(`failed to signal comment on line ${i + 1} -- ${line}`);
+                    warnings.push(`failed to parse signal comment on line ${i + 1} -- ${line}`);
                     continue;
                 }
 
@@ -366,9 +366,14 @@ export default class DBC {
 
                 messageId = parseInt(messageId, 10);
                 const msg = messages.get(messageId);
+                if (msg === undefined) {
+                    warnings.push(`failed to parse signal comment on line ${i + 1} -- ${line}:
+                                    message id ${messageId} does not exist prior to this line`);
+                    continue;
+                }
                 const signal = msg.signals[signalName];
                 if(signal === undefined) {
-                    warnings.push(`failed to signal comment on line ${i + 1} -- ${line}`);
+                    warnings.push(`failed to parse signal comment on line ${i + 1} -- ${line}`);
                     continue;
                 } else {
                     signal.comment = comment;
@@ -457,9 +462,10 @@ export default class DBC {
 
         // Disabled b/c live mode frequently calls this function
         // and executes way too many network requests
-        // if(warnings.length > 0) {
-        //     warnings.forEach((warning) => CloudLog.warn('importDbcString: ' + warning));
-        // }
+        if(warnings.length > 0) {
+            // warnings.forEach((warning) => CloudLog.warn('importDbcString: ' + warning));
+            // warnings.forEach((warning) => console.log('importDbcString: ' + warning));
+        }
 
         this.messages = messages;
         this.boardUnits = boardUnits;
