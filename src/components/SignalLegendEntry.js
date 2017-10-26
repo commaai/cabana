@@ -142,7 +142,6 @@ export default class SignalLegendEntry extends Component {
         this.state = {
             isExpanded: false,
             signalEdited: Object.assign(Object.create(props.signal), props.signal),
-            nameEdited: props.signal.name
         };
 
         this.toggleEditing = this.toggleEditing.bind(this);

@@ -219,7 +219,7 @@ export default class CanGraph extends Component {
                     </div>
                     {this.props.plottedSignals.map(({ messageId, signalUid, messageName }) => {
                         const signal = Object.values(this.props.messages[messageId].frame.signals).find((s) => s.uid === signalUid);
-                        const color = signal.colors();
+                        const { colors } = signal;
 
                         return (
                           <div className='cabana-explorer-visuals-plot-header'
@@ -236,7 +236,7 @@ export default class CanGraph extends Component {
                                   </div>
                                   <div className='cabana-explorer-visuals-plot-signal'>
                                       <div className='cabana-explorer-visuals-plot-signal-color'
-                                            style={{background: `rgb(${color}`}}></div>
+                                            style={{background: `rgb(${colors}`}}></div>
                                       <strong>{signal.name}</strong>
                                   </div>
                               </div>

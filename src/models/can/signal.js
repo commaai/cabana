@@ -47,7 +47,9 @@ export default class Signal {
             max = this.calculateMax();
         }
 
-        Object.assign(this, {min, max, uid});
+        const colors = this.generateColors();
+
+        Object.assign(this, {min, max, uid, colors});
     }
 
     text() {
@@ -198,13 +200,10 @@ export default class Signal {
         return ival;
     }
 
-    colors() {
-        const signalNameHashHex = hash(this.name);
-
-        let colors = [255,255,255];
-        const step = Math.ceil(signalNameHashHex.length/3);
-        for(let i = 0; i < signalNameHashHex.length; i+= step) {
-            colors[i / step] = ((step + signalNameHashHex.charCodeAt(i) << 5 * (i + 8))) % 255;
+    generateColors() {
+        let colors = Array(3);
+        for(let i = 0; i < 3; i++) {
+            colors[i] = Math.floor(Math.random() * 255);
         }
 
         return colors;

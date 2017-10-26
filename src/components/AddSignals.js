@@ -95,7 +95,7 @@ export default class AddSignals extends Component {
     }
 
     signalColorStyle(signal) {
-        const colors = signal.colors();
+        const { colors } = signal;
 
         let colorRgbStr, backgroundColor;
         if(this.state && this.state.highlightedSignal === signal.name) {

@@ -53,14 +53,14 @@ export default class SignalLegend extends Component {
               }
             })
             .map(([signalName, signal]) => {
-            const color = signals[signalName].colors();
+            const { colors } = signals[signalName];
             const isHighlighted = highlightedSignal === signalName;
 
             return <SignalLegendEntry
                       key={signal.uid}
                       signal={signal}
                       isHighlighted={isHighlighted}
-                      color={color}
+                      color={colors}
                       onSignalHover={this.props.onSignalHover}
                       onSignalHoverEnd={this.props.onSignalHoverEnd}
                       onTentativeSignalChange={this.props.onTentativeSignalChange}

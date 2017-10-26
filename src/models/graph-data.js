@@ -27,7 +27,7 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
                         relTime: entry.relTime,
                         y: entry.signals[signal.name],
                         unit: signal.unit,
-                        color: `rgba(${signal.colors().join(",")}, 0.5)`,
+                        color: `rgba(${signal.colors.join(",")}, 0.5)`,
                         signalName: signal.name,
                         signalUid}
     });
