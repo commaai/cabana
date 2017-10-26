@@ -258,7 +258,8 @@ module.exports = {
       },
       filenameTransform: function(filename) {
         return `~${publicUrl}/${filename}`;
-      }
+      },
+      suppressConflictError: true
     }),
     new webpack.ExtendedAPIPlugin()
   ],

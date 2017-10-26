@@ -90,7 +90,7 @@ export default createClassFromSpec('CanPlot', {
     }
   ],
   "axes": [
-    {"orient": "bottom", "scale": "xrelscale"},
+    {"orient": "bottom", "scale": "xrelscale", labelOverlap: true},
     {"orient": "left", "scale": "yscale"}
   ],
   "marks": [
