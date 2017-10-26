@@ -561,7 +561,7 @@ export default class CanExplorer extends Component {
       let messages = this.addAndRehydrateMessages(newMessages);
       messages = this.enforceStreamingMessageWindow(messages);
       let {seekIndex, selectedMessages} = this.state;
-      if(selectedMessages.length > 0) {
+      if (selectedMessages.length > 0 && messages[selectedMessages[0]] !== undefined) {
         seekIndex = messages[selectedMessages[0]].entries.length - 1;
       }
       this.setState({messages, seekTime, seekIndex, lastBusTime, firstCanTime, maxByteStateChangeCount});
