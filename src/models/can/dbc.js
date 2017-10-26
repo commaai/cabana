@@ -156,10 +156,6 @@ export default class DBC {
 
         txt += this.comments.map((comment) => `CM_ "${comment}";`)
                             .join("\n");
-        if(this.comments.length > 0) {
-            console.log(this.comments.map((comment) => `CM_ "${comment}"`)
-                            .join("\n"));
-        }
 
         return (txt.trim()) + '\n';
     }

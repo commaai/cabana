@@ -60,9 +60,6 @@ export default class CanGraph extends Component {
     }
 
     dataChanged(prevProps, nextProps) {
-        if (this.props.data.updated !== nextProps.data.updated) {
-            console.log({prevUpdated: this.props.data.updated, nextUpdated: nextProps.data.updated})
-        }
         return nextProps.data.series.length !== prevProps.data.series.length
         || !prevProps.signalSpec.equals(nextProps.signalSpec)
         || nextProps.data.updated !== this.props.data.updated;
@@ -116,7 +113,6 @@ export default class CanGraph extends Component {
     }
 
     insertData() {
-        console.log('insertData')
         this.view.remove('table', () => true).run();
         this.view.insert('table', this.props.data.series).run();
     }

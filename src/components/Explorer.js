@@ -250,7 +250,7 @@ export default class Explorer extends Component {
             plottedSignals = this.state.plottedSignals;
         }
         let graphData = plottedSignals.map((plotSignals, index) => this.calcGraphData(plotSignals, messages));
-        console.log('refreshGraphData')
+
         this.setState({graphData});
     }
 

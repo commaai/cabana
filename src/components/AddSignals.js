@@ -196,7 +196,6 @@ export default class AddSignals extends Component {
                     } else if(dragSignal.bitDescription(bitIdx) === null) {
                         dragSignal.size += Math.abs(diff);
                     } else {
-                        console.log(bitIdx, dragSignal.bitDescription(bitIdx));
                         dragSignal.size -= Math.abs(diff);
                     }
 
