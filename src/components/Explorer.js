@@ -123,7 +123,7 @@ export default class Explorer extends Component {
                                 .some((signal) => signal.uid === signalUid);
 
                 if(!signalExists) {
-                    graphData[index] = graphData[index].filter((entry) => entry.signalUid !== signalUid);
+                    graphData[index].series = graphData[index].series.filter((entry) => entry.signalUid !== signalUid);
                 }
             }
 
@@ -173,7 +173,10 @@ export default class Explorer extends Component {
                     plot.some(({messageId, signalUid}) => {
                         const signalName = Object.values(this.props.messages[messageId].frame.signals)
                                             .find((s) => s.uid === signalUid);
-                        return nextProps.messages[messageId].frame.signals[signalName] !== this.props.messages[messageId].frame.signals[signalName]
+
+                        return nextProps.messages[messageId].entries.length > 0
+                                && this.props.messages[messageId].entries.length > 0
+                                && nextProps.messages[messageId].entries[0].updated !== this.props.messages[messageId].entries[0].updated;
                     }))) {
                     this.refreshGraphData(nextProps.messages, plottedSignals);
                 } else {
@@ -223,9 +226,11 @@ export default class Explorer extends Component {
             messages = this.props.messages;
         }
 
-        return this.sortGraphData(plottedSignals.map(({messageId, signalUid}) =>
+        const series = this.sortGraphData(plottedSignals.map(({messageId, signalUid}) =>
                                     GraphData._calcGraphData(messages[messageId], signalUid, firstCanTime))
                                   .reduce((combined, signalData) => combined.concat(signalData), []));
+
+        return { series, updated: Date.now() };
     }
 
     onSignalPlotPressed(messageId, signalUid) {
@@ -245,7 +250,7 @@ export default class Explorer extends Component {
             plottedSignals = this.state.plottedSignals;
         }
         let graphData = plottedSignals.map((plotSignals, index) => this.calcGraphData(plotSignals, messages));
-
+        console.log('refreshGraphData')
         this.setState({graphData});
     }
 

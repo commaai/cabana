@@ -47,12 +47,13 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
         .filter(({plottedMessageIds, index}) => {
             if(index < graphData.length) {
                 let maxGraphTime = 0;
-                if(graphData[index].length > 0) {
-                    maxGraphTime = graphData[index][graphData[index].length - 1].relTime;
+                const { series } = graphData[index];
+                if(series.length > 0) {
+                    maxGraphTime = series[graphData[index].series.length - 1].relTime;
                 }
 
                 return plottedMessageIds.some((messageId) =>
-                    (messages[messageId].entries.length > 0 && graphData[index].length === 0)
+                    (messages[messageId].entries.length > 0 && series.length === 0)
                     ||
                     messages[messageId].entries.some((e) => e.relTime > maxGraphTime));
             } else {
@@ -76,15 +77,16 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
             obj[messageId].push(signalUid);
             return obj;
         }, {});
+        const { series } = graphData[index];
         const graphDataMaxMessageTimes = plottedMessageIds.reduce((obj, messageId) => {
             const signalUids = signalUidsByMessageId[messageId];
-            const maxIndex = ArrayUtils.findIndexRight(graphData[index], (entry) => {
+            const maxIndex = ArrayUtils.findIndexRight(series, (entry) => {
                 return signalUids.indexOf(entry.signalUid) !== -1
             });
             if(maxIndex) {
-                obj[messageId] = graphData[index][maxIndex].relTime;
-            } else if(graphData[index].length > 0) {
-                obj[messageId] = graphData[index][graphData[index].length - 1].relTime;
+                obj[messageId] = series[maxIndex].relTime;
+            } else if(series.length > 0) {
+                obj[messageId] = series[series.length - 1].relTime;
             } else {
                 // Graph data is empty
                 obj[messageId] = -1;
@@ -114,23 +116,26 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
         });
 
         const messageIdOutOfBounds = (
-            graphData[index].length > 0
+            series.length > 0
             && plottedMessageIds.find((messageId) =>
                 messages[messageId].entries.length > 0
-                && graphData[index][0].relTime < messages[messageId].entries[0].relTime));
-        graphData[index] = graphData[index].concat(newGraphData)
+                && series[0].relTime < messages[messageId].entries[0].relTime));
+        graphData[index] = {
+            series: graphData[index].series.concat(newGraphData),
+            updated: Date.now()
+        };
 
         if(messageIdOutOfBounds) {
-            const graphDataLowerBound = graphData[index].findIndex(
+            const graphDataLowerBound = graphData[index].series.findIndex(
                 (e) => e.relTime > messages[messageIdOutOfBounds].entries[0].relTime);
 
             if(graphDataLowerBound) {
-                graphData[index] = graphData[index].slice(graphDataLowerBound);
+                graphData[index].series = graphData[index].series.slice(graphDataLowerBound);
             }
         }
     });
 
-    return graphData;
+    return [...graphData];
 }
 
 export default {_calcGraphData, appendNewGraphData};

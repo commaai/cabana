@@ -13,8 +13,10 @@ const DefaultPlotInnerStyle = {
 };
 
 export default class CanGraph extends Component {
+    static emptyTable = [];
+
     static propTypes = {
-        data: PropTypes.array,
+        data: PropTypes.object,
         messages: PropTypes.object,
         messageId: PropTypes.string,
         messageName: PropTypes.string,
@@ -37,11 +39,11 @@ export default class CanGraph extends Component {
         super(props);
 
         this.state = {
-          plotInnerStyle: {},
+          plotInnerStyle: null,
           shiftX: 0,
           shiftY: 0,
           bounds: null,
-          initialData: props.data,
+          isDataInserted: false,
         };
         this.onNewView = this.onNewView.bind(this);
         this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -58,9 +60,12 @@ export default class CanGraph extends Component {
     }
 
     dataChanged(prevProps, nextProps) {
-        return nextProps.data.length !== prevProps.data.length
-        || !(prevProps.signalSpec.equals(nextProps.signalSpec))
-        || prevProps.data.some((prevEntry, idx) => prevEntry.y !== nextProps.data[idx].y);
+        if (this.props.data.updated !== nextProps.data.updated) {
+            console.log({prevUpdated: this.props.data.updated, nextUpdated: nextProps.data.updated})
+        }
+        return nextProps.data.series.length !== prevProps.data.series.length
+        || !prevProps.signalSpec.equals(nextProps.signalSpec)
+        || nextProps.data.updated !== this.props.data.updated;
     }
 
     visualChanged(prevProps, nextProps) {
@@ -110,23 +115,28 @@ export default class CanGraph extends Component {
                 || this.visualChanged(this.props, nextProps);
     }
 
+    insertData() {
+        console.log('insertData')
+        this.view.remove('table', () => true).run();
+        this.view.insert('table', this.props.data.series).run();
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if(this.dataChanged(prevProps, this.props)) {
-            this.view.remove('table', () => true).run();
-            this.view.insert('table', this.props.data).run();
+            this.insertData();
         }
     }
 
     componentWillReceiveProps(nextProps) {
         if(nextProps.dragPos && JSON.stringify(nextProps.dragPos) !== JSON.stringify(this.props.dragPos)) {
             this.updateStyleFromDragPos(nextProps.dragPos);
-        } else if(!nextProps.dragPos) {
-            this.setState({plotInnerStyle: {}})
+        } else if(!nextProps.dragPos && this.state.plotInnerStyle !== null) {
+            this.setState({plotInnerStyle: null});
         }
     }
 
     updateStyleFromDragPos({left, top}) {
-        const plotInnerStyle = {...this.state.plotInnerStyle};
+        const plotInnerStyle = this.state.plotInnerStyle || {};
         plotInnerStyle.left = left;
         plotInnerStyle.top = top;
         this.setState({plotInnerStyle});
@@ -140,6 +150,8 @@ export default class CanGraph extends Component {
         if(this.props.segment.length > 0) {
             view.signal('segment', this.props.segment);
         }
+
+        this.insertData();
     }
 
     onSignalClickTime(signal, clickTime) {
@@ -186,7 +198,7 @@ export default class CanGraph extends Component {
 
     onDragAnchorMouseUp(e) {
         this.props.onDragEnd();
-        this.setState({plotInnerStyle: {},
+        this.setState({plotInnerStyle: null,
                        shiftX: 0,
                        shiftY: 0});
     }
@@ -204,7 +216,7 @@ export default class CanGraph extends Component {
             <div className='cabana-explorer-visuals-plot'
                  ref={this.props.onGraphRefAvailable}>
                 <div className={ cx('cabana-explorer-visuals-plot-inner', canReceiveDropClass) }
-                     style={{...plotInnerStyle}}>
+                     style={ plotInnerStyle || null }>
                     <div className='cabana-explorer-visuals-plot-draganchor'
                          onMouseDown={this.onDragAnchorMouseDown}>
                         <span className='fa fa-bars'></span>
@@ -241,14 +253,14 @@ export default class CanGraph extends Component {
                         {({measureRef}) => {
                             return (<div ref={measureRef}
                                          className='cabana-explorer-visuals-plot-container'>
-                                        <CanPlot
-                                            logLevel={0}
-                                            data={{table: this.state.initialData}}
-                                            onNewView={this.onNewView}
-                                            onSignalClickTime={this.onSignalClickTime}
-                                            onSignalSegment={this.onSignalSegment}
-                                            renderer={'canvas'}
-                                        />
+                                         <CanPlot
+                                             logLevel={0}
+                                             data={{table: CanGraph.emptyTable}}
+                                             onNewView={this.onNewView}
+                                             onSignalClickTime={this.onSignalClickTime}
+                                             onSignalSegment={this.onSignalSegment}
+                                             renderer={'canvas'}
+                                         />
                                     </div>);
                             }
                         }

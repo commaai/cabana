@@ -79,7 +79,8 @@ function createMessageEntry(dbc, address, time, relTime, data, byteStateChangeTi
       time,
       relTime,
       hexData: Buffer.from(data).toString('hex'),
-      byteStateChangeTimes
+      byteStateChangeTimes,
+      updated: Date.now(),
     };
 }
 
