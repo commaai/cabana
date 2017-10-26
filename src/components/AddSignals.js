@@ -367,8 +367,10 @@ export default class AddSignals extends Component {
         if(this.props.messageIndex < entries.length) {
             const entry = entries[this.props.messageIndex];
             const data = Buffer.from(entry.hexData, 'hex');
+            if (byteIdx >= data.length) {
+                return '-';
+            }
             const byte = data.readInt8(byteIdx);
-
             return (byte >> byteBitIdx) & 1;
         } else {
             return '-';
@@ -419,6 +421,8 @@ export default class AddSignals extends Component {
                     bitStyle = Styles.bitSelectedStyle;
                 }
                 const className = css('bit', Styles.bit, bitStyle);
+                const bitValue = this.bitValue(i, j);
+
                 rowBits.push((<td key={j.toString()}
                                   className={className}
                                   onMouseEnter={() => this.onBitHover(bitIdx, signal)}
@@ -427,10 +431,10 @@ export default class AddSignals extends Component {
                                   onMouseUp={this.onBitMouseUp.bind(this, bitIdx, signal)}
                                   onDoubleClick={(() => this.onBitDoubleClick(bitIdx, signal))}
                                   ><span>
-                                        {this.bitValue(i, j)}
+                                        { bitValue }
                                     </span>
                                     <span className={css(Styles.bitSignificance)}>
-                                        {bitSignificance}
+                                        { bitSignificance }
                                     </span>
                                     </td>));
             }

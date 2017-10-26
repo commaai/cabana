@@ -41,13 +41,15 @@ function createMessageSpec(dbc, address, id, bus) {
     const frame = dbc.messages.get(address);
     const size = frame ? frame.size : 8;
 
-    return {address: address,
-            id: id,
-            bus: bus,
-            entries: [],
-            frame: frame,
-            byteColors: Array(size).fill(0),
-            byteStateChangeCounts: Array(size).fill(0)}
+    return {
+      address: address,
+      id: id,
+      bus: bus,
+      entries: [],
+      frame: frame,
+      byteColors: Array(size).fill(0),
+      byteStateChangeCounts: Array(size).fill(0)
+    };
 }
 
 function determineByteStateChangeTimes(hexData, time, msgSize, lastParsedMessage) {
