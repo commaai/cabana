@@ -127,7 +127,9 @@ export default class CanExplorer extends Component {
               if (!_routes[name]) {
                 this.showOnboarding();
               }
-          })
+          }).catch((err) => {
+
+          });
       }
       else if(dongleId && name) {
         Routes.fetchRoutes(dongleId).then((routes) => {
@@ -138,6 +140,8 @@ export default class CanExplorer extends Component {
           } else {
             this.showOnboarding();
           }
+        }).catch((err) => {
+
         });
       } else {
         this.showOnboarding();

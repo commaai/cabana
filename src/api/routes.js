@@ -85,6 +85,8 @@ function momentizeTimes(routes) {
 }
 
 export async function fetchRoutes(dongleId) {
+    // will throw errors from fetch() on HTTP failure
+
     if(dongleId === undefined) {
         dongleId = 'me';
     }
@@ -95,15 +97,12 @@ export async function fetchRoutes(dongleId) {
       const headers = new Headers();
       headers.append('Authorization', `JWT ${accessToken}`);
 
-      try {
-          const request = new Request(endpoint, {headers});
-          const resp = await fetch(request);
-          const routes = await resp.json();
-          if('routes' in routes) {
-              return momentizeTimes(routes.routes);
-          }
-      } catch(err) {
-          console.log(err);
+
+      const request = new Request(endpoint, {headers});
+      const resp = await fetch(request);
+      const routes = await resp.json();
+      if('routes' in routes) {
+          return momentizeTimes(routes.routes);
       }
     }
 
