@@ -128,7 +128,7 @@ export default class CanExplorer extends Component {
                 this.showOnboarding();
               }
           }).catch((err) => {
-
+            this.showOnboarding();
           });
       }
       else if(dongleId && name) {
@@ -141,7 +141,7 @@ export default class CanExplorer extends Component {
             this.showOnboarding();
           }
         }).catch((err) => {
-
+          this.showOnboarding();
         });
       } else {
         this.showOnboarding();

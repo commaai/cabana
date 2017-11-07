@@ -32,8 +32,10 @@ if (routeFullName) {
       props.url = url;
     }
 } else if(getUrlParameter('demo')) {
-  props.dongleId = 'cb38263377b873ee';
+  props.max = 12;
+  props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/cb38263377b873ee/78392b99580c5920227cc5b43dff8a70_2017-06-12--18-51-47';
   props.name = '2017-06-12--18-51-47';
+  props.dongleId = 'cb38263377b873ee';
   props.dbc = AcuraDbc;
   props.dbcFilename = 'acura_ilx_2016_can.dbc';
 }
