@@ -63,6 +63,9 @@ const NumpyLoader = (function NumpyLoader() {
       } else if (info.descr === "|s8") {
           // 8 byte strings
           data = new Uint8Array(buf, offsetBytes);
+      } else if (info.descr === '|s15') {
+          // 15 byte strings?
+          data = new Uint8Array(buf, offsetBytes);
       } else {
           throw new Error('unknown numeric dtype '+info.descr)
       }
