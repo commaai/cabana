@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import {USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW} from './config';
 import * as GithubAuth from './api/github-auth';
 import cx from 'classnames';
+import { createWriteStream, supported, version } from 'streamsaver'
+
 
 import auth from './api/comma-auth';
 import DBC from './models/can/dbc';
@@ -15,6 +17,7 @@ import OnboardingModal from './components/Modals/OnboardingModal';
 import SaveDbcModal from './components/SaveDbcModal';
 import LoadDbcModal from './components/LoadDbcModal';
 const CanFetcher = require('./workers/can-fetcher.worker.js');
+const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker.js');
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require('./workers/can-offset-finder.worker.js');
 const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
@@ -189,6 +192,38 @@ export default class CanExplorer extends Component {
       const dbcLastSaved = Moment();
       this.setState({dbcLastSaved, dbcFilename})
       this.hideSaveDbc();
+    }
+
+    // async downloadDbcFile() {
+    //   const blob = new Blob([this.props.dbc.text()], {type: "text/plain;charset=utf-8"});
+    //   const filename = this.state.dbcFilename.replace(/\.dbc/g, '') + '.dbc';
+    //   FileSaver.saveAs(blob, filename, true);
+    // }
+
+    downloadRawLogAsCSV = () => {
+      console.log('downloadRawLogAsCSV:start');
+      // Trigger file processing and dowload in worker
+      const { firstCanTime, canFrameOffset, route, currentParts, dbcFilename } = this.state;
+      const worker = new LogCSVDownloader();
+      const fileStream = createWriteStream(`${dbcFilename.replace(/\.dbc/g, '-')}${+new Date()}.csv`)
+      const writer = fileStream.getWriter()
+      const encoder = new TextEncoder()
+
+      worker.onmessage = e => {
+        const { progress, logData, shouldClose } = e.data;
+        if(shouldClose) {
+          console.log('downloadRawLogAsCSV:close');
+          writer.close()
+          return;
+        }
+        const uint8array = encoder.encode(logData + "\n")
+        writer.write(uint8array)
+      }
+      worker.postMessage({
+        base: route.url,
+        parts: [0,this.props.max],
+        canStartTime: firstCanTime - canFrameOffset,
+      });
     }
 
     addAndRehydrateMessages(newMessages, options) {
@@ -645,6 +680,7 @@ export default class CanExplorer extends Component {
                           maxByteStateChangeCount={this.state.maxByteStateChangeCount}
                           isDemo={this.props.isDemo}
                           live={this.state.live}
+                          saveLog={debounce(this.downloadRawLogAsCSV, 500)}
                   />
                   {this.state.route || this.state.live ?
                       <Explorer

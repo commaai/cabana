@@ -15,7 +15,16 @@ export async function fetchCanPart(base, part) {
                   base+"/Log/"+part+"/can/data"];
 
     var messages = {};
-    const canData = await Promise.all(urls.map(NumpyLoader.promise));
+    let canData = null;
+    try {
+          canData = await Promise.all(urls.map(NumpyLoader.promise));
+    } catch (e) {
+      console.log('this is a 404 workaround that is hacky', e) 
+      return {times: [],
+            sources: [],
+            addresses: [],
+            datas: []}
+    }
     return {times: canData[0].data,
             sources: canData[1].data,
             addresses: canData[2].data,

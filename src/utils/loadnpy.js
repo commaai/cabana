@@ -99,6 +99,9 @@ const NumpyLoader = (function NumpyLoader() {
             var buf = req.response; // not responseText
             var ndarray = fromArrayBuffer(buf);
             resolve(ndarray);
+          } else if (req.status == 404) {
+            console.log('yup')
+            reject({is404: true})
           } else {
             // Otherwise reject with the status text
             // which will hopefully be a meaningful error

@@ -271,8 +271,11 @@ export default class Meta extends Component {
                         <div className='cabana-meta-header-action'>
                             <button onClick={this.props.showLoadDbc}>Load DBC</button>
                         </div>
+                        <div className='cabana-meta-header-action'>
+                            <button onClick={this.props.saveLog}>Save Log</button>
+                        </div>
                         {this.props.route ?
-                            <div className='cabana-meta-header-action'
+                            <div className='cabana-meta-header-action special-wide'
                                  data-clipboard-text={this.shareUrl()}
                                  data-clipboard-action='copy'
                                  ref={(ref) => ref ? new Clipboard(ref) : null}>

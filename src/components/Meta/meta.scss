@@ -35,7 +35,7 @@
     &-action {
       float: left;
       padding: 0 1%;
-      width: (100%/3);
+      width: 22%; /* 22% by default. 33.33% for copy via .special-wide */
       &:first-child {
         padding-left: 0;
       }
@@ -45,6 +45,9 @@
       button {
         width: 100%;
       }
+    }
+    & .special-wide {
+      width: 33%;
     }
   }
   &-messages {

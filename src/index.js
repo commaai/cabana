@@ -38,6 +38,22 @@ if (routeFullName) {
   props.dongleId = 'cb38263377b873ee';
   props.dbc = AcuraDbc;
   props.dbcFilename = 'acura_ilx_2016_can.dbc';
+
+  // lots of 404s on this one
+  // props.max = 752;
+  // props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/07e243287e48432a/d97fcc321a58e660a14de72b749269ba_2017-09-09--22-00-00';
+  // props.name = '2017-09-09--22-00-00';
+  // props.dongleId = '07e243287e48432a';
+  // props.dbc = AcuraDbc;
+  // props.dbcFilename = 'acura_ilx_2016_can.dbc';
+
+  // really long one with real content
+  // props.max = 597;
+  // props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/0c249898b339e978/957935e6a75bc2bf6f626fcbe6db93ba_2017-08-11--04-47-54';
+  // props.name = '2017-08-11--04-47-54';
+  // props.dongleId = '0c249898b339e978';
+  // props.dbc = AcuraDbc;
+  // props.dbcFilename = 'acura_ilx_2016_can.dbc';
 }
 
 if (persistedDbc) {
