@@ -255,6 +255,14 @@ export default class Meta extends Component {
         return shareUrl;
     }
 
+    saveable() {
+        try {
+            'serviceWorker' in navigator && !!new ReadableStream() && !!new WritableStream()
+            return 'saveable';
+        } catch (e) {
+            return false;
+        }
+    }
     render() {
         return (
             <div className='cabana-meta'>
@@ -267,13 +275,14 @@ export default class Meta extends Component {
                         </div>
                         : null
                     }
-                    <div className='cabana-meta-header-actions'>
+                    <div className={`cabana-meta-header-actions ${this.saveable()}`}>
                         <div className='cabana-meta-header-action'>
                             <button onClick={this.props.showLoadDbc}>Load DBC</button>
                         </div>
-                        <div className='cabana-meta-header-action'>
+                        {this.saveable() && <div className='cabana-meta-header-action'>
                             <button onClick={this.props.saveLog}>Save Log</button>
                         </div>
+                        }
                         {this.props.route ?
                             <div className='cabana-meta-header-action special-wide'
                                  data-clipboard-text={this.shareUrl()}

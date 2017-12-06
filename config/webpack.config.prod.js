@@ -7,6 +7,8 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var ManifestPlugin = require('webpack-manifest-plugin');
 var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 var paths = require('./paths');
+var path = require('path');
+var fs = require('fs')
 var getClientEnvironment = require('./env');
 var SentryPlugin = require('webpack-sentry-plugin');
 
@@ -124,6 +126,12 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         include: paths.appSrc,
+        loader: 'babel',
+
+      },
+      {
+        test: /\.(js|jsx)$/,
+        include: path.resolve(fs.realpathSync(process.cwd()), 'node_modules/streamsaver'),
         loader: 'babel',
 
       },
