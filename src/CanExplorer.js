@@ -133,8 +133,7 @@ export default class CanExplorer extends Component {
           }).catch((err) => {
             this.showOnboarding();
           });
-      }
-      else if(dongleId && name) {
+      } else if(dongleId && name) {
         Routes.fetchRoutes(dongleId).then((routes) => {
           if(routes && routes[name]) {
             const route = routes[name];
@@ -221,7 +220,7 @@ export default class CanExplorer extends Component {
       }
       worker.postMessage({
         base: route.url,
-        parts: [0,this.props.max],
+        parts: [0, route.proclog],
         canStartTime: firstCanTime - canFrameOffset,
       });
     }
