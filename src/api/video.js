@@ -5,16 +5,18 @@ function videoUrl(dongleId, hashedRouteName) {
 function videoUrlForRouteUrl(routeUrlString) {
   const url = new URL(routeUrlString);
 
-  const pathParts = url.pathname.split('/');
+  const pathParts = url.pathname.split("/");
 
-  const [dongleIdPrefixed, hashedRouteName] = pathParts.slice(pathParts.length - 2);
-  let dongleId = dongleIdPrefixed
-  if(dongleIdPrefixed.indexOf('comma-') === 0) {
-    const [_, dongleIdNoPrefix] = dongleIdPrefixed.split('comma-');
+  const [dongleIdPrefixed, hashedRouteName] = pathParts.slice(
+    pathParts.length - 2
+  );
+  let dongleId = dongleIdPrefixed;
+  if (dongleIdPrefixed.indexOf("comma-") === 0) {
+    const [_, dongleIdNoPrefix] = dongleIdPrefixed.split("comma-");
     dongleId = dongleIdNoPrefix;
   }
 
   return videoUrl(dongleId, hashedRouteName);
 }
 
-export default {videoUrl, videoUrlForRouteUrl};
+export default { videoUrl, videoUrlForRouteUrl };

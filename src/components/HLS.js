@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import Hls from 'hls.js/lib';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import Hls from "hls.js/lib";
 
 export default class HLS extends Component {
   static propTypes = {
@@ -19,13 +19,16 @@ export default class HLS extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if( (nextProps.shouldRestart || nextProps.startTime !== this.props.startTime)
-        && isFinite(nextProps.startTime)) {
+    if (
+      (nextProps.shouldRestart ||
+        nextProps.startTime !== this.props.startTime) &&
+      isFinite(nextProps.startTime)
+    ) {
       this.videoElement.currentTime = nextProps.startTime;
       this.props.onRestart();
     }
 
-    if(nextProps.playing) {
+    if (nextProps.playing) {
       this.videoElement.play();
     } else {
       this.videoElement.pause();
@@ -37,20 +40,20 @@ export default class HLS extends Component {
     this.player.loadSource(this.props.source);
     this.player.attachMedia(this.videoElement);
     // these events fire when video is playing
-    this.videoElement.addEventListener('waiting', this.props.onLoadStart);
-    this.videoElement.addEventListener('playing', this.props.onLoadEnd);
+    this.videoElement.addEventListener("waiting", this.props.onLoadStart);
+    this.videoElement.addEventListener("playing", this.props.onLoadEnd);
 
     // these events fire when video is paused & seeked
-    this.videoElement.addEventListener('seeking', () => {
-      if(!this.props.playing) {
+    this.videoElement.addEventListener("seeking", () => {
+      if (!this.props.playing) {
         this.props.onLoadStart();
         this.props.onPlaySeek(this.videoElement.currentTime);
       }
     });
     let shouldInitVideoTime = true;
-    this.videoElement.addEventListener('seeked', () => {
-      if(!this.props.playing) {
-        if(shouldInitVideoTime) {
+    this.videoElement.addEventListener("seeked", () => {
+      if (!this.props.playing) {
+        if (shouldInitVideoTime) {
           this.videoElement.currentTime = this.props.startTime;
           shouldInitVideoTime = false;
         }
@@ -59,7 +62,7 @@ export default class HLS extends Component {
     });
 
     this.props.onVideoElementAvailable(this.videoElement);
-    if(this.props.playing) {
+    if (this.props.playing) {
       this.videoElement.play();
     }
   }
@@ -67,9 +70,14 @@ export default class HLS extends Component {
   render() {
     return (
       <div
-        className='cabana-explorer-visuals-camera-wrapper'
-        onClick={this.props.onClick}>
-        <video ref={ (video) => { this.videoElement = video; } } />
+        className="cabana-explorer-visuals-camera-wrapper"
+        onClick={this.props.onClick}
+      >
+        <video
+          ref={video => {
+            this.videoElement = video;
+          }}
+        />
       </div>
     );
   }

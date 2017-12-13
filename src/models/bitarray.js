@@ -8,9 +8,9 @@ const bitArray = {
    * slice until the end of the array.
    * @return {bitArray} The requested slice.
    */
-  bitSlice: function (a, bstart, bend) {
-    a = bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
-    return (bend === undefined) ? a : bitArray.clamp(a, bend-bstart);
+  bitSlice: function(a, bstart, bend) {
+    a = bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+    return bend === undefined ? a : bitArray.clamp(a, bend - bstart);
   },
 
   /**
@@ -23,15 +23,17 @@ const bitArray = {
   extract: function(a, bstart, blength) {
     // FIXME: this Math.floor is not necessary at all, but for some reason
     // seems to suppress a bug in the Chromium JIT.
-    var x, sh = Math.floor((-bstart-blength) & 31);
-    if ((bstart + blength - 1 ^ bstart) & -32) {
+    var x,
+      sh = Math.floor((-bstart - blength) & 31);
+    if (((bstart + blength - 1) ^ bstart) & -32) {
       // it crosses a boundary
-      x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
+      x =
+        (a[(bstart / 32) | 0] << (32 - sh)) ^ (a[(bstart / 32 + 1) | 0] >>> sh);
     } else {
       // within a single word
-      x = a[bstart/32|0] >>> sh;
+      x = a[(bstart / 32) | 0] >>> sh;
     }
-    return x & ((1<<blength) - 1);
+    return x & ((1 << blength) - 1);
   },
 
   /**
@@ -40,16 +42,22 @@ const bitArray = {
    * @param {bitArray} a2 The second array.
    * @return {bitArray} The concatenation of a1 and a2.
    */
-  concat: function (a1, a2) {
+  concat: function(a1, a2) {
     if (a1.length === 0 || a2.length === 0) {
       return a1.concat(a2);
     }
 
-    var last = a1[a1.length-1], shift = bitArray.getPartial(last);
+    var last = a1[a1.length - 1],
+      shift = bitArray.getPartial(last);
     if (shift === 32) {
       return a1.concat(a2);
     } else {
-      return bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
+      return bitArray._shiftRight(
+        a2,
+        shift,
+        last | 0,
+        a1.slice(0, a1.length - 1)
+      );
     }
   },
 
@@ -58,11 +66,14 @@ const bitArray = {
    * @param {bitArray} a The array.
    * @return {Number} The length of a, in bits.
    */
-  bitLength: function (a) {
-    var l = a.length, x;
-    if (l === 0) { return 0; }
+  bitLength: function(a) {
+    var l = a.length,
+      x;
+    if (l === 0) {
+      return 0;
+    }
     x = a[l - 1];
-    return (l-1) * 32 + bitArray.getPartial(x);
+    return (l - 1) * 32 + bitArray.getPartial(x);
   },
 
   /**
@@ -71,13 +82,15 @@ const bitArray = {
    * @param {Number} len The length to truncate to, in bits.
    * @return {bitArray} A new array, truncated to len bits.
    */
-  clamp: function (a, len) {
-    if (a.length * 32 < len) { return a; }
+  clamp: function(a, len) {
+    if (a.length * 32 < len) {
+      return a;
+    }
     a = a.slice(0, Math.ceil(len / 32));
     var l = a.length;
     len &= 31;
     if (l > 0 && len) {
-      a[l-1] = bitArray.partial(len, a[l-1] & (0x80000000 >> (len-1)), 1);
+      a[l - 1] = bitArray.partial(len, a[l - 1] & (0x80000000 >> (len - 1)), 1);
     }
     return a;
   },
@@ -89,9 +102,11 @@ const bitArray = {
    * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
    * @return {Number} The partial word.
    */
-  partial: function (len, x, _end) {
-    if (len === 32) { return x; }
-    return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
+  partial: function(len, x, _end) {
+    if (len === 32) {
+      return x;
+    }
+    return (_end ? x | 0 : x << (32 - len)) + len * 0x10000000000;
   },
 
   /**
@@ -99,8 +114,8 @@ const bitArray = {
    * @param {Number} x The partial word.
    * @return {Number} The number of bits used by the partial word.
    */
-  getPartial: function (x) {
-    return Math.round(x/0x10000000000) || 32;
+  getPartial: function(x) {
+    return Math.round(x / 0x10000000000) || 32;
   },
 
   /**
@@ -109,15 +124,16 @@ const bitArray = {
    * @param {bitArray} b The second array.
    * @return {boolean} true if a == b; false otherwise.
    */
-  equal: function (a, b) {
+  equal: function(a, b) {
     if (bitArray.bitLength(a) !== bitArray.bitLength(b)) {
       return false;
     }
-    var x = 0, i;
-    for (i=0; i<a.length; i++) {
-      x |= a[i]^b[i];
+    var x = 0,
+      i;
+    for (i = 0; i < a.length; i++) {
+      x |= a[i] ^ b[i];
     }
-    return (x === 0);
+    return x === 0;
   },
 
   /** Shift an array right.
@@ -127,9 +143,13 @@ const bitArray = {
    * @param {bitArray} [out=[]] An array to prepend to the output.
    * @private
    */
-  _shiftRight: function (a, shift, carry, out) {
-    var i, last2=0, shift2;
-    if (out === undefined) { out = []; }
+  _shiftRight: function(a, shift, carry, out) {
+    var i,
+      last2 = 0,
+      shift2;
+    if (out === undefined) {
+      out = [];
+    }
 
     for (; shift >= 32; shift -= 32) {
       out.push(carry);
@@ -139,21 +159,27 @@ const bitArray = {
       return out.concat(a);
     }
 
-    for (i=0; i<a.length; i++) {
-      out.push(carry | (a[i]>>>shift));
-      carry = a[i] << (32-shift);
+    for (i = 0; i < a.length; i++) {
+      out.push(carry | (a[i] >>> shift));
+      carry = a[i] << (32 - shift);
     }
-    last2 = a.length ? a[a.length-1] : 0;
+    last2 = a.length ? a[a.length - 1] : 0;
     shift2 = bitArray.getPartial(last2);
-    out.push(bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
+    out.push(
+      bitArray.partial(
+        (shift + shift2) & 31,
+        shift + shift2 > 32 ? carry : out.pop(),
+        1
+      )
+    );
     return out;
   },
 
   /** xor a block of 4 words together.
    * @private
    */
-  _xor4: function(x,y) {
-    return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
+  _xor4: function(x, y) {
+    return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
   },
 
   /** byteswap a word array inplace.
@@ -162,7 +188,9 @@ const bitArray = {
    * @return {bitArray} byteswapped array
    */
   byteswapM: function(a) {
-    var i, v, m = 0xff00;
+    var i,
+      v,
+      m = 0xff00;
     for (i = 0; i < a.length; ++i) {
       v = a[i];
       a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
@@ -173,16 +201,18 @@ const bitArray = {
 
 export default {
   fromBytes: function(bytes) {
-    var out = [], i, tmp=0;
-    for (i=0; i<bytes.length; i++) {
+    var out = [],
+      i,
+      tmp = 0;
+    for (i = 0; i < bytes.length; i++) {
       tmp = (tmp << 8) | bytes[i];
-      if ((i&3) === 3) {
+      if ((i & 3) === 3) {
         out.push(tmp);
         tmp = 0;
       }
     }
-    if (i&3) {
-      out.push(bitArray.partial(8*(i&3), tmp));
+    if (i & 3) {
+      out.push(bitArray.partial(8 * (i & 3), tmp));
     }
     return out;
   },

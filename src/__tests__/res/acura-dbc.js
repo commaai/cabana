@@ -1,4 +1,4 @@
-export const ACURA_DBC= `VERSION ""
+export const ACURA_DBC = `VERSION ""
 
 
 NS_ :

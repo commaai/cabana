@@ -1,4 +1,4 @@
-import DBC from './models/can/dbc';
+import DBC from "./models/can/dbc";
 
 const CivicDbc = new DBC(`
 VERSION ""

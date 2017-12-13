@@ -1,14 +1,14 @@
-import {StyleSheet} from 'aphrodite/no-important';
+import { StyleSheet } from "aphrodite/no-important";
 
 export default StyleSheet.create({
   tab: {
-    display: 'inline',
+    display: "inline",
     marginRight: 20,
-    cursor: 'pointer'
+    cursor: "pointer"
   },
   selectedTab: {
-    borderBottom: '2px solid #000',
-    fontWeight: 'bold'
+    borderBottom: "2px solid #000",
+    fontWeight: "bold"
   },
   tabContent: {
     paddingTop: 20

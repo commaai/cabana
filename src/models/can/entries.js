@@ -1,13 +1,17 @@
 function findTimeIndex(entries, time) {
-    return entries.findIndex((e) => e.time >= time);
+  return entries.findIndex(e => e.time >= time);
 }
 
 function findRelativeTimeIndex(entries, relTime) {
-   return entries.findIndex((e) => e.relTime >= relTime);
+  return entries.findIndex(e => e.relTime >= relTime);
 }
 
-function findSegmentIndices(entries, [segmentTimeLow, segmentTimeHi], isRelative) {
-    /*
+function findSegmentIndices(
+  entries,
+  [segmentTimeLow, segmentTimeHi],
+  isRelative
+) {
+  /*
     Finds pair of indices (inclusive, exclusive) within entries array
     whose timestamps match segmentTimeLow and segmentTimeHi.
     if isRelative === true, then the segment times
@@ -16,15 +20,19 @@ function findSegmentIndices(entries, [segmentTimeLow, segmentTimeHi], isRelative
     Returns `[segmentIdxLow, segmentIdxHigh]`
              (inclusive, exclusive)
     */
-    let timeIndexFunc = (isRelative === true ? findRelativeTimeIndex : findTimeIndex);
+  let timeIndexFunc =
+    isRelative === true ? findRelativeTimeIndex : findTimeIndex;
 
-    const segmentIdxLow = timeIndexFunc(entries, segmentTimeLow);
+  const segmentIdxLow = timeIndexFunc(entries, segmentTimeLow);
 
-    const upperSegments = entries.slice(segmentIdxLow);
-    let upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
-    const segmentIdxHi = (upperSegmentIdxHi >= 0 ? upperSegmentIdxHi + segmentIdxLow + 1 : entries.length - 1)
+  const upperSegments = entries.slice(segmentIdxLow);
+  let upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
+  const segmentIdxHi =
+    upperSegmentIdxHi >= 0
+      ? upperSegmentIdxHi + segmentIdxLow + 1
+      : entries.length - 1;
 
-    return [segmentIdxLow, Math.min(segmentIdxHi, entries.length - 1)]
+  return [segmentIdxLow, Math.min(segmentIdxHi, entries.length - 1)];
 }
 
-export default {findTimeIndex, findRelativeTimeIndex, findSegmentIndices};
+export default { findTimeIndex, findRelativeTimeIndex, findSegmentIndices };

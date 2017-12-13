@@ -421,12 +421,9 @@ export default class DBC {
         messageId = parseInt(messageId, 10);
         const msg = messages.get(messageId);
         if (msg === undefined) {
-          warnings.push(`failed to parse signal comment on line ${i + 1} -- ${
-            line
-          }:
-                                    message id ${
-                                      messageId
-                                    } does not exist prior to this line`);
+          warnings.push(`failed to parse signal comment on line ${i +
+            1} -- ${line}:
+                                    message id ${messageId} does not exist prior to this line`);
           continue;
         }
         const signal = msg.signals[signalName];
