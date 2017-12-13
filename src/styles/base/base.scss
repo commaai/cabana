@@ -1,9 +1,10 @@
 // Base Style Resets
 // ~~~~~~~~~~~~~~~~~
 
-@import '../_global/all';
+@import "../_global/all";
 
-html, body {
+html,
+body {
   min-width: 1340px;
   margin: 0;
   overflow-x: hidden;
@@ -24,7 +25,7 @@ p {
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 hr {

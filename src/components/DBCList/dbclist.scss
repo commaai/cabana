@@ -5,7 +5,7 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .cabana-dbc-list {
   &-header {
@@ -13,14 +13,16 @@
       color: $color-grey-80;
       font-weight: 600;
       text-decoration: none;
-      i { padding-right: 5px; }
+      i {
+        padding-right: 5px;
+      }
     }
     .form-field {
       margin: 11px 0;
     }
   }
   &-files {
-    background: rgba(0,0,0,.02);
+    background: rgba(0, 0, 0, 0.02);
     border: $color-grey-50;
     border-radius: 5px;
   }
@@ -30,12 +32,12 @@
     padding: 6px;
     padding-left: 30px;
     position: relative;
-    transition-duration: .1s;
+    transition-duration: 0.1s;
     &:not(:last-child) {
       border-bottom: 1px solid $color-grey-30;
     }
     &:hover {
-      background: rgba(0,0,0,.025);
+      background: rgba(0, 0, 0, 0.025);
     }
     &:before {
       content: "";
@@ -46,7 +48,7 @@
       left: 8px;
       top: 7px;
       position: absolute;
-      transition-duration: .2s;
+      transition-duration: 0.2s;
       width: 12px;
     }
     &:after {
@@ -58,11 +60,11 @@
       left: 11px;
       top: 10px;
       position: absolute;
-      transition-duration: .2s;
+      transition-duration: 0.2s;
       width: 8px;
     }
     &.is-selected {
-      background: rgba(0,0,0,.04);
+      background: rgba(0, 0, 0, 0.04);
       font-weight: 600;
       &:before {
         border-color: $color-blue-50;

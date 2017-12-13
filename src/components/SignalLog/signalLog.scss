@@ -6,7 +6,7 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .signals-log-list {
   color: $color-grey-80;
@@ -21,7 +21,7 @@
     flex: 2;
   }
   &-header {
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     font-size: 11px;
     padding: 2% 3% 2% 7%;
@@ -33,9 +33,9 @@
     border-width: 1px 0;
     padding-right: 3%;
     position: relative;
-    transition-duration: .1s;
+    transition-duration: 0.1s;
     &:not(.is-expanded):hover {
-      background: rgba(0,0,0,.02);
+      background: rgba(0, 0, 0, 0.02);
     }
     &:not(.is-expanded):active {
       padding-top: 0.5%;
@@ -46,19 +46,19 @@
         color: $color-grey-80;
         content: $fa-var-chevron-right;
         display: block;
-        font-family: 'FontAwesome';
+        font-family: "FontAwesome";
         font-size: 8px;
         line-height: 26px;
         text-align: center;
         pointer-events: none;
         position: absolute;
-        transition-duration: .1s;
+        transition-duration: 0.1s;
         width: 8%;
       }
     }
     &.is-expanded {
-      background: rgba(0,0,0,.02);
-      border-color: rgba(0,0,0,.1);
+      background: rgba(0, 0, 0, 0.02);
+      border-color: rgba(0, 0, 0, 0.1);
       padding-top: 1%;
       &:before {
         margin-top: -3px;
@@ -72,11 +72,11 @@
     }
   }
   &-signals {
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
   &-signal {
     align-items: center;
-    border-top: 1px solid rgba(0,0,0,.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     font-size: 12px;
     padding: 1% 0 1% 7%;
@@ -91,7 +91,7 @@
       flex: 1;
       button {
         font-size: 10px;
-        width: 100%
+        width: 100%;
       }
     }
   }

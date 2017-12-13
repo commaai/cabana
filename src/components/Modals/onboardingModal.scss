@@ -1,7 +1,7 @@
 // Onboarding Modal Styles
 // ~~~~~~~~~~~~~~~~~~~~~~~
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .cabana-onboarding-mode-chffr {
   background: darken($color-grey-10, 2%);
@@ -10,7 +10,11 @@
   margin-bottom: 13px;
   position: relative;
   &:after {
-    background: linear-gradient(-180deg, transparent 0%, darken($color-grey-10, 2%) 100%);
+    background: linear-gradient(
+      -180deg,
+      transparent 0%,
+      darken($color-grey-10, 2%) 100%
+    );
     bottom: 0;
     content: "";
     display: block;
@@ -24,12 +28,12 @@
     min-height: 53px;
     padding: 5px 0;
     position: relative;
-    transition-duration: .2s;
+    transition-duration: 0.2s;
     &:before {
       content: $fa-var-search;
       color: $color-grey-30;
       display: block;
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       font-size: 14px;
       line-height: 53px;
       position: absolute;
@@ -40,7 +44,7 @@
       background: transparent;
       border: none;
       margin-left: 21px;
-      &[value='']:focus {
+      &[value=""]:focus {
         ~ .cabana-onboarding-mode-chffr-search-helper {
           max-height: 50px;
           padding-bottom: 13px;
@@ -55,11 +59,11 @@
       max-height: 0;
       overflow: hidden;
       padding-left: 34px;
-      transition-duration: .2s;
+      transition-duration: 0.2s;
     }
   }
   &-header {
-    border-bottom: 1px solid rgba(0,0,0,.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     color: $color-grey-60;
     display: flex;
     flex-direction: row;
@@ -80,20 +84,20 @@
         padding-left: 34px;
       }
       &:not(:empty):not(.is-sorted):hover {
-        background: rgba(0,0,0,.01);
+        background: rgba(0, 0, 0, 0.01);
       }
       &.is-sorted {
         color: $color-grey-70;
         font-weight: 600;
         span:after {
-          opacity: .8;
+          opacity: 0.8;
         }
       }
       span:after {
         content: $fa-var-caret-down;
         display: inline-block;
-        font-family: 'FontAwesome';
-        opacity: .5;
+        font-family: "FontAwesome";
+        opacity: 0.5;
         padding-left: 2px;
       }
     }

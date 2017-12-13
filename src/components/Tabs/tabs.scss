@@ -5,7 +5,7 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .cabana-tabs-navigation {
   border-top: 1px solid $color-grey-20;
@@ -19,7 +19,7 @@
     font-size: 14px;
     font-weight: 600;
     padding: 11px 16px;
-    transition-duration: .1s;
+    transition-duration: 0.1s;
     &:hover {
       color: $color-grey-70;
     }

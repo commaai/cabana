@@ -5,7 +5,7 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 $input-border-color: $color-grey-40;
 $input-height: 42px;
@@ -15,7 +15,7 @@ $input-radius: 3px;
 $input-background: #fff;
 $button-background: $color-grey-50;
 $button-background--primary: $color-blue-50;
-$button-background--alpha: rgba(0,0,0,.02);
+$button-background--alpha: rgba(0, 0, 0, 0.02);
 $button-background--dark: $color-grey-80;
 $button-background--disabled: $color-grey-30;
 $button-border--inverted: $color-grey-40;
@@ -50,8 +50,8 @@ $button-color--inverted: $color-grey-70;
     }
   }
   &-inset {
-    background: rgba(0,0,0,.02);
-    border: 1px solid rgba(0,0,0,.03);
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.03);
     border-radius: 5px;
     font-size: 14px;
     padding: 11px;
@@ -92,8 +92,8 @@ $button-color--inverted: $color-grey-70;
 
 // Text-like Inputs
 // ~~~~~~~~~~~~~~~~
-input[type='text'],
-input[type='number'],
+input[type="text"],
+input[type="number"],
 textarea,
 select {
   background: $input-background;
@@ -103,7 +103,7 @@ select {
   height: $input-height;
   outline: none;
   padding: 0 14px;
-  transition-duration: .1s;
+  transition-duration: 0.1s;
   width: 100%;
   &:focus {
     border-color: $color-grey-60;
@@ -121,7 +121,7 @@ textarea {
 
 // Buttons
 // ~~~~~~~
-input[type='button'],
+input[type="button"],
 button,
 a.button {
   background: $color-grey-50;
@@ -139,8 +139,8 @@ a.button {
   padding: 0 5%;
   text-align: center;
   text-decoration: none;
-  text-shadow: 0 1px rgba(0,0,0,.2);
-  transition-duration: .1s;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.2);
+  transition-duration: 0.1s;
   white-space: nowrap;
   &:active {
     background: $color-grey-60;
@@ -188,7 +188,7 @@ a.button {
     }
   }
   &.button--secondary {
-    background: linear-gradient(-180deg, #F9F9F9 0%, #F0F0F0 100%);
+    background: linear-gradient(-180deg, #f9f9f9 0%, #f0f0f0 100%);
     border-color: $color-grey-40;
     border-radius: 5px;
     color: $color-grey-80;
@@ -226,7 +226,7 @@ a.button {
   }
   // Major variations
   &.button--kiosk {
-    box-shadow: 0 1px 3px 0 rgba(105,105,105,0.2);
+    box-shadow: 0 1px 3px 0 rgba(105, 105, 105, 0.2);
     height: 144px;
     margin-bottom: 15px;
     padding-bottom: 34px;
@@ -251,7 +251,7 @@ a.button {
       strong,
       sup,
       > i {
-        opacity: .3;
+        opacity: 0.3;
       }
       sup {
         font-size: 16px;
@@ -268,20 +268,20 @@ a.button {
         text-decoration: none;
         pointer-events: auto;
         &:hover {
-          text-decoration:  underline;
+          text-decoration: underline;
         }
       }
     }
     > i {
-      background: rgba(0,0,0,.2);
-      border: 1px solid rgba(0,0,0,.1);
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 100%;
       font-size: 36px;
       line-height: 73px;
       text-align: center;
       left: 50px;
       top: 34px;
-      opacity: .3;
+      opacity: 0.3;
       position: absolute;
       width: 73px;
     }
@@ -292,7 +292,7 @@ a.button {
     }
     strong {
       font-size: 26px;
-      letter-spacing: .0125em;
+      letter-spacing: 0.0125em;
       margin-bottom: 8px;
     }
     sup {

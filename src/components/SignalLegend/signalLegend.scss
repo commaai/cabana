@@ -5,11 +5,11 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .cabana-explorer-signals-legend {
   background: $color-grey-10;
-  border: 1px solid rgba(0,0,0,.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   margin-top: 5%;
 }
@@ -18,18 +18,18 @@
   $entry-header-height: 42px;
   $entry-header-icon-size: 28px;
   overflow: auto;
-  transition-duration: .1s;
+  transition-duration: 0.1s;
   padding: 0 2%;
   position: relative;
   &:not(:last-child) {
-    border-bottom: 1px solid rgba(0,0,0,.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
   &:hover {
-    background: rgba(0,0,0,.02);
+    background: rgba(0, 0, 0, 0.02);
   }
   &.is-expanded {
     .signals-legend-entry-header {
-      border-bottom-color: rgba(0,0,0,.05);
+      border-bottom-color: rgba(0, 0, 0, 0.05);
       height: $entry-header-height + 3px;
       &:before {
         left: 0;
@@ -44,14 +44,14 @@
   }
   &.is-highlighted {
     .signals-legend-entry-color {
-      opacity: .5;
+      opacity: 0.5;
     }
   }
   &-color {
     display: block;
     height: 100%;
     left: 0;
-    opacity: .3;
+    opacity: 0.3;
     position: absolute;
     width: 1.5%;
   }
@@ -61,19 +61,19 @@
     height: $entry-header-height;
     line-height: $entry-header-height;
     position: relative;
-    transition-duration: .2s;
+    transition-duration: 0.2s;
     &:before {
       color: $color-grey-80;
       content: $fa-var-chevron-right;
       display: block;
       font-size: 10px;
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       height: $entry-header-height;
       left: -2px;
       top: 0;
       pointer-events: none;
       position: absolute;
-      transition-duration: .1s;
+      transition-duration: 0.1s;
       text-align: center;
       width: $entry-header-icon-size;
     }
@@ -105,7 +105,7 @@
       padding: 1px 0;
       @extend %clearfix;
       &:not(:last-child) {
-        border-bottom: 1px solid rgba(0,0,0,.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         margin-bottom: 3px;
       }
       label {

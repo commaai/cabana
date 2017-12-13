@@ -5,7 +5,7 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 #cabana {
   display: flex;
@@ -53,7 +53,7 @@
     &-signout {
       cursor: pointer;
       font-size: 12px;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255, 255, 255, 0.9);
       &:hover {
         text-decoration: underline;
       }
@@ -73,13 +73,14 @@
   display: flex;
   flex-grow: 1;
   overflow: hidden;
-  transition-duration: .2s;
+  transition-duration: 0.2s;
 }
 
 .cabana-explorer {
   display: flex;
   flex: 1;
-  &-header {}
+  &-header {
+  }
   &-select-prompt {
     background: $color-grey-10;
     height: 100%;
@@ -92,7 +93,7 @@
         content: $fa-var-long-arrow-left;
         color: $color-grey-70;
         display: block;
-        font-family: 'FontAwesome';
+        font-family: "FontAwesome";
         left: -50px;
         position: absolute;
         top: 3px;
@@ -114,7 +115,7 @@
       flex-direction: column;
     }
     &-header {
-      border-bottom: 1px solid rgba(0,0,0,.2);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: row;
       min-height: 89px;
@@ -150,12 +151,12 @@
         content: $fa-var-chevron-right;
         display: block;
         font-size: 12px;
-        font-family: 'FontAwesome';
+        font-family: "FontAwesome";
         left: 4%;
         line-height: 45px;
         position: absolute;
         text-align: center;
-        transition-duration: .1s;
+        transition-duration: 0.1s;
         top: 0;
         width: 25px;
       }
@@ -170,7 +171,7 @@
     }
     &-matrix {
       table {
-        border: 1px solid rgba(0,0,0,.2);
+        border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 5px;
         font-family: monospace;
         margin: 2% 0;
@@ -193,7 +194,7 @@
       }
       &-body {
         background: $color-grey-10;
-        border: 1px solid rgba(0,0,0,.2);
+        border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 5px;
       }
       &-list {
@@ -209,7 +210,7 @@
     overflow-y: scroll;
     padding: 1.5% 3%;
     &-header {
-      border-bottom: 1px solid rgba(0,0,0,.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       margin-bottom: 2%;
       padding: 2% 0;
     }
@@ -221,7 +222,8 @@
       background: #000;
       overflow: hidden;
       position: relative;
-      &-wrapper {}
+      &-wrapper {
+      }
       video {
         cursor: pointer;
         width: 100%;
@@ -237,14 +239,14 @@
       justify-content: center;
       color: white;
       &:hover {
-          background-color: rgba(63, 135, 255, 0.5);
+        background-color: rgba(63, 135, 255, 0.5);
       }
       margin-top: 10px;
       padding: 10px 0;
       width: 160px;
     }
     &-plots {
-      background: rgba(0,0,0,.02);
+      background: rgba(0, 0, 0, 0.02);
       border-radius: 5px;
       margin: 3% 0;
       position: relative;
@@ -311,7 +313,7 @@
           height: $signal-color-size;
           float: left;
           margin: 1px -3px 0 -25px;
-          opacity: .5;
+          opacity: 0.5;
           width: $signal-color-size;
         }
       }

@@ -5,13 +5,13 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 $cabana-modal-padding--wide: 76px;
 
 .cabana-modal {
   &-backdrop {
-    background: rgba(233,233,233,.8);
+    background: rgba(233, 233, 233, 0.8);
     position: fixed;
     top: 0;
     right: 0;
@@ -19,14 +19,14 @@ $cabana-modal-padding--wide: 76px;
     left: 0;
     opacity: 0;
     pointer-events: none;
-    transition-duration: .1s;
+    transition-duration: 0.1s;
     z-index: 100;
   }
   &-container {
     background: #fff;
     border: 1px solid $color-grey-30;
     border-radius: 5px;
-    box-shadow: rgba(0,0,0,.07) 0 2px 18px 8px;
+    box-shadow: rgba(0, 0, 0, 0.07) 0 2px 18px 8px;
     transform: translate(-50%, -50%);
     left: 50%;
     margin-top: 18px;
@@ -56,13 +56,13 @@ $cabana-modal-padding--wide: 76px;
       color: $color-grey-30;
       cursor: pointer;
       display: block;
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       font-size: 22px;
       position: absolute;
       right: 22px;
       top: 18px;
       padding: 5px;
-      transition-duration: .1s;
+      transition-duration: 0.1s;
       z-index: 110;
     }
     &:hover:before {
@@ -137,7 +137,7 @@ $cabana-modal-padding--wide: 76px;
   // Color variations
   &.cabana-modal--dark {
     .cabana-modal-backdrop {
-      background: rgba(0,0,0,.85);
+      background: rgba(0, 0, 0, 0.85);
     }
   }
   // Overrides

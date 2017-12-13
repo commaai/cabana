@@ -6,27 +6,27 @@
 */
 
 // Globals
-@import './styles/base/base';
-@import './styles/base/grid';
-@import './styles/base/forms';
-@import './styles/base/lists';
-@import './styles/base/typography';
-@import './styles/base/utils';
-@import './styles/base/animations';
-@import './styles/base/insets';
+@import "./styles/base/base";
+@import "./styles/base/grid";
+@import "./styles/base/forms";
+@import "./styles/base/lists";
+@import "./styles/base/typography";
+@import "./styles/base/utils";
+@import "./styles/base/animations";
+@import "./styles/base/insets";
 
 // Libraries
-@import './styles/lib/index';
-@import './styles/lib/font-awesome';
+@import "./styles/lib/index";
+@import "./styles/lib/font-awesome";
 
 // Components
-@import './components/Meta/meta';
-@import './components/Explorer/explorer';
-@import './components/RouteSeeker/RouteSeeker';
-@import './components/SignalLegend/signalLegend';
-@import './components/SignalLog/signalLog';
-@import './components/PartSelector/partSelector';
-@import './components/Modals/modal';
-@import './components/Modals/onboardingModal';
-@import './components/Tabs/tabs';
-@import './components/DBCList/dbclist';
+@import "./components/Meta/meta";
+@import "./components/Explorer/explorer";
+@import "./components/RouteSeeker/RouteSeeker";
+@import "./components/SignalLegend/signalLegend";
+@import "./components/SignalLog/signalLog";
+@import "./components/PartSelector/partSelector";
+@import "./components/Modals/modal";
+@import "./components/Modals/onboardingModal";
+@import "./components/Tabs/tabs";
+@import "./components/DBCList/dbclist";

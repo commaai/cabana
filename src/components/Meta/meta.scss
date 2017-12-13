@@ -5,21 +5,22 @@
 
 */
 
-@import '../../styles/_global/all';
+@import "../../styles/_global/all";
 
 .cabana-meta {
   background: $color-grey-20;
   display: flex;
-  flex: .5;
+  flex: 0.5;
   flex-direction: column;
   max-height: 100vh;
   overflow-y: scroll;
   &-header {
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     flex-direction: row;
     padding: 22px;
     @extend %clearfix;
-    &-label {}
+    &-label {
+    }
     &-filename {
       display: block;
     }
@@ -32,7 +33,7 @@
     &-actions {
       padding: 18px 0;
     }
-    .saveable &-action  {
+    .saveable &-action {
       width: 22%;
       &.special-wide {
         width: 33%;
@@ -73,7 +74,7 @@
       height: 100%;
     }
     &-filter {
-      border-bottom: 1px solid rgba(0,0,0,.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       height: 64px;
       padding: 11px;
     }
@@ -84,7 +85,7 @@
       &-item {
         cursor: pointer;
         position: relative;
-        transition-duration: .1s;
+        transition-duration: 0.1s;
         &-bytes {
           width: 160px;
           &-canvas {
@@ -93,7 +94,7 @@
           }
         }
         &:not(.is-selected):hover {
-          background: rgba(0,0,0,.05);
+          background: rgba(0, 0, 0, 0.05);
         }
         &.is-selected {
           background: $color-grey-40;
