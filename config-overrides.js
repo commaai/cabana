@@ -26,7 +26,7 @@ module.exports = function override(config, env) {
         apiKey:
           "7a932ab144984dd3979993cf61dbdd2a1489ac77af4d4f46b85d64598b9a4ca6",
         release: function(hash) {
-          return hash; // webpack build hash
+          return process.env.COMMIT_REF + ";" + hash; // webpack build hash
         }
       })
     );
