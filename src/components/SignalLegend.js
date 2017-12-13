@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 import SignalLegendEntry from "./SignalLegendEntry";
-require("core-js/fn/array/includes");
 
 export default class SignalLegend extends Component {
   static propTypes = {

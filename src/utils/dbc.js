@@ -1,5 +1,3 @@
-require("core-js/fn/array/from");
-
 function findMaxByteStateChangeCount(messages) {
   return Object.values(messages)
     .map(m => m.byteStateChangeCounts)

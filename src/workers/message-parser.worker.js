@@ -5,7 +5,6 @@ import DBC from "../models/can/dbc";
 import DbcUtils from "../utils/dbc";
 
 var window = self;
-require("core-js/fn/object/values");
 
 function reparseEntry(entry, address, dbc, canStartTime, prevMsgEntry) {
   const data = Buffer.from(entry.hexData, "hex");

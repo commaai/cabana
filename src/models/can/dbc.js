@@ -7,11 +7,6 @@ import BoardUnit from "./BoardUnit";
 import DbcUtils from "../../utils/dbc";
 
 const UINT64 = require("cuint").UINT64;
-require("core-js/fn/array/from");
-require("core-js/fn/number/is-integer");
-require("core-js/es6/map");
-require("core-js/es6/symbol");
-require("core-js/fn/symbol/iterator");
 
 const DBC_COMMENT_RE = /^CM_ *"(.*)";/;
 const DBC_COMMENT_MULTI_LINE_RE = /^CM_ *"(.*)/;

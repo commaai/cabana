@@ -6,7 +6,6 @@ import NumpyLoader from "../utils/loadnpy";
 import * as CanApi from "../api/can";
 
 var window = self;
-require("core-js/fn/object/values");
 
 const Int64LE = require("int64-buffer").Int64LE;
 

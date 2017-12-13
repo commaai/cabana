@@ -1,4 +1,12 @@
 {
-  "presets": ["env", "stage-0"],
+  "presets": [
+    [
+      "env",
+      {
+        useBuiltIns: "usage"
+      }
+    ],
+    "stage-0"
+  ],
   "plugins": ["emotion"]
 }

@@ -4,7 +4,6 @@ import Sentry from "../logging/Sentry";
 import * as CanApi from "../api/can";
 
 var window = self;
-require("core-js/fn/object/values");
 
 function calcCanFrameOffset(firstCanPart, partCanTimes) {
   const firstCanTime = partCanTimes[0];

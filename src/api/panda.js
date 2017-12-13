@@ -1,5 +1,4 @@
 import CloudLog from "../logging/CloudLog";
-require("core-js/fn/string/pad-end");
 
 const PANDA_VENDOR_ID = 0xbbaa;
 const PANDA_PRODUCT_ID = 0xddcc;

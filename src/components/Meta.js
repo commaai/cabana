@@ -6,7 +6,6 @@ import Clipboard from "clipboard";
 import { modifyQueryParameters } from "../utils/url";
 import MessageBytes from "./MessageBytes";
 import { GITHUB_AUTH_TOKEN_KEY } from "../config";
-require("core-js/fn/array/includes");
 const { ckmeans } = require("simple-statistics");
 
 export default class Meta extends Component {

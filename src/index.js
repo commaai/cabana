@@ -13,8 +13,6 @@ import {
 import "./index.css";
 
 Sentry.init();
-require("core-js/fn/object/entries");
-require("core-js/fn/object/values");
 
 const routeFullName = getUrlParameter("route");
 let isDemo = !routeFullName;
