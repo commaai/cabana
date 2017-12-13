@@ -1,4 +1,5 @@
 // Vendored from https://github.com/rapid7/le_js, which is broken with webpack.
+/* eslint-disable */
 
 if (typeof window === 'undefined') { // eslint-disable-line no-use-before-define
   var window = self;

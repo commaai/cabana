@@ -1,37 +1,38 @@
-import Sentry from '../logging/Sentry';
+/* eslint-disable no-restricted-globals */
+import Sentry from "../logging/Sentry";
+
+import * as CanApi from "../api/can";
 
 var window = self;
-require('core-js/fn/object/values');
-import * as CanApi from '../api/can';
+require("core-js/fn/object/values");
 
 function calcCanFrameOffset(firstCanPart, partCanTimes) {
   const firstCanTime = partCanTimes[0];
   const firstPartLastCanTime = partCanTimes[partCanTimes.length - 1];
 
-  return (60 * firstCanPart
-          + (60 - (firstPartLastCanTime - firstCanTime)));
+  return 60 * firstCanPart + (60 - (firstPartLastCanTime - firstCanTime));
 }
 
 async function fetchCanTimes(base, part) {
-    const times = await CanApi.fetchCanTimes(base, part);
-    return times.length > 0 ? times : null;
+  const times = await CanApi.fetchCanTimes(base, part);
+  return times.length > 0 ? times : null;
 }
 
 async function onMessage(e) {
-    const {base, partCount} = e.data;
+  const { base, partCount } = e.data;
 
-    for(let part = 0; part < partCount; part++) {
-        const canTimes = await fetchCanTimes(base, part);
+  for (let part = 0; part < partCount; part++) {
+    const canTimes = await fetchCanTimes(base, part);
 
-        if(canTimes !== null) {
-            const canFrameOffset = calcCanFrameOffset(part, canTimes);
-            self.postMessage({canFrameOffset, firstCanTime: canTimes[0]});
-            self.close();
-            break;
-        }
+    if (canTimes !== null) {
+      const canFrameOffset = calcCanFrameOffset(part, canTimes);
+      self.postMessage({ canFrameOffset, firstCanTime: canTimes[0] });
+      self.close();
+      break;
     }
+  }
 
-    self.close();
+  self.close();
 }
 
 self.onmessage = onMessage;
