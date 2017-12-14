@@ -25,7 +25,8 @@ export default class SaveDbcModal extends Component {
       tab: "GitHub",
       openDbcFork: null,
       dbcFilename: this.props.sourceDbcFilename,
-      tabs: ["GitHub", "Download"]
+      tabs: ["GitHub", "Download"],
+      commitMessage: "OpenDBC updates"
     };
 
     this.commitToGitHub = this.commitToGitHub.bind(this);
@@ -47,7 +48,8 @@ export default class SaveDbcModal extends Component {
     const success = await this.props.openDbcClient.commitFile(
       openDbcFork,
       filename,
-      this.props.dbc.text()
+      this.props.dbc.text(),
+      this.state.commitMessage
     );
     if (success) {
       this.props.onDbcSaved(filename);
@@ -170,6 +172,23 @@ export default class SaveDbcModal extends Component {
     );
   }
 
+  renderCommitMessage() {
+    return (
+      <div className="form-field">
+        <label htmlFor="commit-message">
+          <span>Commit Message:</span>
+          <sup>Message appears in git logs</sup>
+        </label>
+        <input
+          type="text"
+          id="commit-message"
+          value={this.state.commitMessage}
+          onChange={e => this.setState({ commitMessage: e.target.value })}
+        />
+      </div>
+    );
+  }
+
   renderTabContent() {
     const { tab } = this.state;
     if (tab === "GitHub") {
@@ -177,6 +196,7 @@ export default class SaveDbcModal extends Component {
         <div>
           {this.renderForkStep()}
           {this.renderFilenameField()}
+          {this.renderCommitMessage()}
         </div>
       );
     } else if (tab === "Download") {

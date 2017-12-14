@@ -110,7 +110,7 @@ export default class OpenDBC {
     }
   }
 
-  async commitFile(repoFullName, path, contents) {
+  async commitFile(repoFullName, path, contents, commitMessage) {
     /*
       repo is of format username/reponame
       authenciated user must have write access to repo
@@ -147,7 +147,7 @@ export default class OpenDBC {
     const commitResp = await repo.commit(
       headCommit.sha,
       createdTree.sha,
-      "OpenDBC updates"
+      commitMessage || "OpenDBC updates"
     );
     const commit = commitResp.data;
 
