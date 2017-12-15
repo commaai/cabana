@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import Moment from "moment";
 import CommaAuth from "./comma-auth";
 

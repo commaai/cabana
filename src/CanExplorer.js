@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
 import cx from "classnames";
-import { createWriteStream, supported, version } from "streamsaver";
+import { createWriteStream } from "streamsaver";
 
 import auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
@@ -236,13 +236,7 @@ export default class CanExplorer extends Component {
   downloadRawLogAsCSV = () => {
     console.log("downloadRawLogAsCSV:start");
     // Trigger file processing and dowload in worker
-    const {
-      firstCanTime,
-      canFrameOffset,
-      route,
-      currentParts,
-      dbcFilename
-    } = this.state;
+    const { firstCanTime, canFrameOffset, route, dbcFilename } = this.state;
     const worker = new LogCSVDownloader();
     const fileStream = createWriteStream(
       `${dbcFilename.replace(/\.dbc/g, "-")}${+new Date()}.csv`
@@ -251,7 +245,7 @@ export default class CanExplorer extends Component {
     const encoder = new TextEncoder();
 
     worker.onmessage = e => {
-      const { progress, logData, shouldClose } = e.data;
+      const { logData, shouldClose } = e.data;
       if (shouldClose) {
         console.log("downloadRawLogAsCSV:close");
         writer.close();
@@ -466,7 +460,7 @@ export default class CanExplorer extends Component {
   }
 
   onConfirmedSignalChange(message, signals) {
-    const { dbc, dbcFilename, route } = this.state;
+    const { dbc, dbcFilename } = this.state;
     dbc.setSignals(message.address, { ...signals });
 
     this.updateMessageFrame(message.id, dbc.messages.get(message.address));
@@ -540,13 +534,7 @@ export default class CanExplorer extends Component {
   }
 
   onMessageFrameEdited(messageFrame) {
-    const {
-      messages,
-      route,
-      dbcFilename,
-      dbc,
-      editMessageModalMessage
-    } = this.state;
+    const { messages, dbcFilename, dbc, editMessageModalMessage } = this.state;
 
     const message = Object.assign({}, messages[editMessageModalMessage]);
     message.frame = messageFrame;

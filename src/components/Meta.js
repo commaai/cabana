@@ -289,6 +289,7 @@ export default class Meta extends Component {
 
   saveable() {
     try {
+      // eslint-disable-next-line
       "serviceWorker" in navigator &&
         !!new ReadableStream() &&
         !!new WritableStream(); // eslint-disable-line no-undef

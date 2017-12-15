@@ -223,7 +223,7 @@ export default class DBC {
 
       if (followUp != null) {
         const { type, data } = followUp;
-        line = line.replace(/\" *;/, "");
+        line = line.replace(/" *;/, "");
         let followUpLine = `\n${line.substr(0, line.length)}`;
         if (line.indexOf('"') !== -1) {
           followUp = null;
@@ -239,7 +239,7 @@ export default class DBC {
           const boardUnit = data;
           boardUnit.comment += followUpLine;
         } else if (type === FOLLOW_UP_DBC_COMMENT) {
-          const comment = data;
+          //          const comment = data;
           const partialComment = this.comments[this.comments.length - 1];
           this.comments[this.comments.length - 1] =
             partialComment + followUpLine;
@@ -631,7 +631,7 @@ export default class DBC {
       .reduce(
         (metrics, [_, messageId, signalName, metricName, factor, offset]) => {
           metrics[metricName] = {
-            messageId: parseInt(messageId),
+            messageId: parseInt(messageId, 10),
             signalName,
             factor: parseFloat(factor),
             offset: parseFloat(offset)

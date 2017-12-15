@@ -1,4 +1,3 @@
-import React, { Component } from "react";
 import styled, { keyframes } from "react-emotion";
 
 const frames = keyframes`

@@ -12,7 +12,7 @@ function videoUrlForRouteUrl(routeUrlString) {
   );
   let dongleId = dongleIdPrefixed;
   if (dongleIdPrefixed.indexOf("comma-") === 0) {
-    const [_, dongleIdNoPrefix] = dongleIdPrefixed.split("comma-");
+    const [, dongleIdNoPrefix] = dongleIdPrefixed.split("comma-");
     dongleId = dongleIdNoPrefix;
   }
 
