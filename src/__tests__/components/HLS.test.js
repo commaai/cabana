@@ -1,5 +1,3 @@
-global.__JEST__ = 1;
-
 import HLS from "../../components/HLS";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
