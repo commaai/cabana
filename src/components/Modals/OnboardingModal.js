@@ -343,12 +343,20 @@ export default class OnboardingModal extends Component {
       <p>
         <span>
           Don't have a{" "}
-          <a href="https://panda.comma.ai" target="_blank">
+          <a
+            href="https://panda.comma.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             panda
           </a>?{" "}
         </span>
         <span>
-          <a href="https://panda.comma.ai" target="_blank">
+          <a
+            href="https://panda.comma.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Get one here
           </a>{" "}
         </span>

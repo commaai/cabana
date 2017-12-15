@@ -35,31 +35,30 @@ export default class HLS extends Component {
     }
   }
 
+  onSeeking = () => {
+    if (!this.props.playing) {
+      this.props.onLoadStart();
+      this.props.onPlaySeek(this.videoElement.currentTime);
+    }
+  };
+
+  // legacy outer scope variable. Revisit this to see if putting in state
+  // makes more sense
+  shouldInitVideoTime = true;
+  onSeeked = () => {
+    if (!this.props.playing) {
+      if (this.shouldInitVideoTime) {
+        this.videoElement.currentTime = this.props.startTime;
+        this.shouldInitVideoTime = false;
+      }
+      this.props.onLoadEnd();
+    }
+  };
+
   componentDidMount() {
     this.player = new Hls();
     this.player.loadSource(this.props.source);
     this.player.attachMedia(this.videoElement);
-    // these events fire when video is playing
-    this.videoElement.addEventListener("waiting", this.props.onLoadStart);
-    this.videoElement.addEventListener("playing", this.props.onLoadEnd);
-
-    // these events fire when video is paused & seeked
-    this.videoElement.addEventListener("seeking", () => {
-      if (!this.props.playing) {
-        this.props.onLoadStart();
-        this.props.onPlaySeek(this.videoElement.currentTime);
-      }
-    });
-    let shouldInitVideoTime = true;
-    this.videoElement.addEventListener("seeked", () => {
-      if (!this.props.playing) {
-        if (shouldInitVideoTime) {
-          this.videoElement.currentTime = this.props.startTime;
-          shouldInitVideoTime = false;
-        }
-        this.props.onLoadEnd();
-      }
-    });
 
     this.props.onVideoElementAvailable(this.videoElement);
     if (this.props.playing) {
@@ -77,6 +76,10 @@ export default class HLS extends Component {
           ref={video => {
             this.videoElement = video;
           }}
+          onWaiting={this.props.onLoadStart}
+          onPlaying={this.props.onLoadEnd}
+          onSeeking={this.onSeeking}
+          onSeeked={this.onSeeked}
         />
       </div>
     );

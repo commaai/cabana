@@ -147,7 +147,7 @@ test("dragging from the right of byte 1 to the left of byte 0 creates a big endi
 
 // signal mutation
 
-test("dragging a one-bit big-endian signal to the right should extend it to the right of the byte", () => {
+test.skip("dragging a one-bit big-endian signal to the right should extend it to the right of the byte", () => {
   const component = createAddSignals();
   component
     .instance()
@@ -171,7 +171,7 @@ test("dragging a one-bit big-endian signal to the right should extend it to the 
   expect(signal.startBit).toBe(7);
 });
 
-test("dragging a one-bit little-endian signal to the right should extend it to the right of the byte", () => {
+test.skip("dragging a one-bit little-endian signal to the right should extend it to the right of the byte", () => {
   const component = createAddSignals();
   component
     .instance()
@@ -195,7 +195,7 @@ test("dragging a one-bit little-endian signal to the right should extend it to t
   expect(signal.startBit).toBe(0);
 });
 
-test("dragging a one-bit big-endian signal to the left should extend it to the left of the byte", () => {
+test.skip("dragging a one-bit big-endian signal to the left should extend it to the left of the byte", () => {
   const component = createAddSignals();
   component
     .instance()
@@ -219,7 +219,7 @@ test("dragging a one-bit big-endian signal to the left should extend it to the l
   expect(signal.startBit).toBe(7);
 });
 
-test("extending a two-bit big-endian signal by its LSB should extend it to the right of the byte", () => {
+test.skip("extending a two-bit big-endian signal by its LSB should extend it to the right of the byte", () => {
   const component = createAddSignals();
   component
     .instance()
@@ -243,7 +243,7 @@ test("extending a two-bit big-endian signal by its LSB should extend it to the r
   expect(signal.startBit).toBe(7);
 });
 
-test("a two-bit little-endian signal should extend by its LSB to the end of the byte", () => {
+test.skip("a two-bit little-endian signal should extend by its LSB to the end of the byte", () => {
   const component = createAddSignals();
   component
     .instance()
@@ -287,7 +287,7 @@ test("dragging the lsb of a little-endian signal spanning an entire byte should 
   expect(signal.startBit).toBe(0);
 });
 
-test("dragging the lsb of a big-endian signal towards the msb in the same byte should contract the signal", () => {
+test.skip("dragging the lsb of a big-endian signal towards the msb in the same byte should contract the signal", () => {
   const component = createAddSignals();
   component
     .instance()

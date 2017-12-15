@@ -1,4 +1,3 @@
-import { hash } from "../../utils/string";
 import Bitarray from "../bitarray";
 
 import DbcUtils from "../../utils/dbc";

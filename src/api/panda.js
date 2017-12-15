@@ -1,7 +1,7 @@
 import CloudLog from "../logging/CloudLog";
 
 const PANDA_VENDOR_ID = 0xbbaa;
-const PANDA_PRODUCT_ID = 0xddcc;
+//const PANDA_PRODUCT_ID = 0xddcc;
 
 const BUFFER_SIZE = 0x10 * 256;
 

@@ -200,10 +200,10 @@ export default class Explorer extends Component {
         if (
           plottedSignals.some(plot =>
             plot.some(({ messageId, signalUid }) => {
-              const signalName = Object.values(
-                this.props.messages[messageId].frame.signals
-              ).find(s => s.uid === signalUid);
-
+              /* const signalName = Object.values(
+               *   this.props.messages[messageId].frame.signals
+               * ).find(s => s.uid === signalUid);
+               */
               return (
                 nextProps.messages[messageId].entries.length > 0 &&
                 this.props.messages[messageId].entries.length > 0 &&

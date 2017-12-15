@@ -1,5 +1,3 @@
-global.__JEST__ = 1;
-
 import LoadingBar from "../../components/LoadingBar";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
