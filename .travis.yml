@@ -12,3 +12,9 @@ before_script: yarn netlify-sass
 script:
   - yarn test
   - yarn build 
+
+deploy:
+  provider: script
+  script: scripts/travis-deploy.sh
+  on:
+    branch: master
