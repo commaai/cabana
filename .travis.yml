@@ -1,6 +1,8 @@
 language: node_js
 sudo: required
 
+# install azure-cli 2.0, which is the preferred version. Switch to use this
+# after azure accounts are handled.
 before_install:
   - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
   - sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
@@ -15,7 +17,7 @@ script:
 
 deploy:
   provider: script
-  script: scripts/travis-deploy.sh
+  script: scripts/travis-deploy-deprecated.sh
   skip_cleanup: true
   on:
     branch: master
