@@ -234,7 +234,7 @@ export default class Meta extends Component {
           this.selectedMessageClass(msg.id)
         )}
       >
-        <td>{msg.frame ? msg.frame.name : "undefined"}</td>
+        <td>{msg.frame ? msg.frame.name : "untitled"}</td>
         <td>{msg.id}</td>
         <td>{msg.entries.length}</td>
         <td>
