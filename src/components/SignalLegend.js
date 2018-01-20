@@ -18,15 +18,11 @@ export default class SignalLegend extends Component {
     plottedSignalUids: PropTypes.array
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      expandedSignals: []
-    };
-    this.toggleExpandSignal = this.toggleExpandSignal.bind(this);
-  }
+  state = {
+    expandedSignals: []
+  };
 
-  toggleExpandSignal(s) {
+  toggleExpandSignal = s => {
     const { expandedSignals } = this.state;
     if (!expandedSignals.includes(s.uid)) {
       const updatedExpandedSignals = [...expandedSignals, s.uid];
@@ -35,7 +31,7 @@ export default class SignalLegend extends Component {
       const updatedExpandedSignals = expandedSignals.filter(i => i !== s.uid);
       this.setState({ expandedSignals: updatedExpandedSignals });
     }
-  }
+  };
 
   checkExpandedSignal(s) {
     return this.state.expandedSignals.includes(s);

@@ -42,19 +42,6 @@
       display: block;
     }
   }
-  &.is-highlighted {
-    .signals-legend-entry-color {
-      opacity: 0.5;
-    }
-  }
-  &-color {
-    display: block;
-    height: 100%;
-    left: 0;
-    opacity: 0.3;
-    position: absolute;
-    width: 1.5%;
-  }
   &-header {
     border-bottom: 1px solid transparent;
     cursor: pointer;

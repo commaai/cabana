@@ -68,16 +68,6 @@ export default class AddSignals extends Component {
       dragSignal: null,
       dragCurrentBit: null
     };
-
-    this.updateSignalStyles = this.updateSignalStyles.bind(this);
-    this.onSignalHover = this.onSignalHover.bind(this);
-    this.onBitHover = this.onBitHover.bind(this);
-    this.onSignalHoverEnd = this.onSignalHoverEnd.bind(this);
-    this.onTentativeSignalChange = this.onTentativeSignalChange.bind(this);
-    this.onSignalChange = this.onSignalChange.bind(this);
-    this.onSignalRemove = this.onSignalRemove.bind(this);
-    this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
-    this.resetDragState = this.resetDragState.bind(this);
   }
 
   copySignals(signals) {
@@ -124,11 +114,11 @@ export default class AddSignals extends Component {
     return style;
   }
 
-  updateSignalStyles() {
+  updateSignalStyles = () => {
     const signalStyles = this.calcSignalStyles(this.state.signals);
 
     this.setState({ signalStyles });
-  }
+  };
 
   calcSignalStyles(signals) {
     const signalStyles = {};
@@ -160,11 +150,11 @@ export default class AddSignals extends Component {
     })[0];
   }
 
-  onSignalHover(signal) {
+  onSignalHover = signal => {
     if (!signal) return;
 
     this.setState({ highlightedSignal: signal.name }, this.updateSignalStyles);
-  }
+  };
 
   signalBitIndex(bitIdx, signal) {
     // todo does this work for both big and little endian?
@@ -175,7 +165,7 @@ export default class AddSignals extends Component {
     return bitIdx - startBit;
   }
 
-  onBitHover(bitIdx, signal) {
+  onBitHover = (bitIdx, signal) => {
     let { dragStartBit, signals, dragSignal } = this.state;
 
     if (dragStartBit !== null) {
@@ -279,13 +269,13 @@ export default class AddSignals extends Component {
     if (signal) {
       this.onSignalHover(signal);
     }
-  }
+  };
 
-  onSignalHoverEnd(signal) {
+  onSignalHoverEnd = signal => {
     if (!signal) return;
 
     this.setState({ highlightedSignal: null }, this.updateSignalStyles);
-  }
+  };
 
   nextNewSignalName() {
     const existingNames = Object.keys(this.state.signals);
@@ -440,10 +430,11 @@ export default class AddSignals extends Component {
   }
 
   renderBitMatrix() {
+    const { message } = this.props;
     const rows = [];
     let rowCount;
-    if (this.props.message.frame && this.props.message.frame.size) {
-      rowCount = Math.floor(this.props.message.frame.size * 8 / 8);
+    if (message.frame && message.frame.size) {
+      rowCount = Math.floor(message.frame.size * 8 / 8);
     } else {
       rowCount = 8;
     }
@@ -483,11 +474,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(
-        <td key={"hex-repr"} className={css(Styles.hex)}>
-          {this.byteValueHex(i)}
-        </td>
-      );
+      rowBits.push(<td key={"hex-repr"}>{this.byteValueHex(i)}</td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
@@ -500,23 +487,23 @@ export default class AddSignals extends Component {
     );
   }
 
-  resetDragState() {
+  resetDragState = () => {
     this.setState({
       dragStartBit: null,
       dragSignal: null,
       dragCurrentBit: null
     });
-  }
+  };
 
-  onTentativeSignalChange(signal) {
+  onTentativeSignalChange = signal => {
     // Tentative signal changes are not propagated up
     // but their effects are displayed in the bitmatrix
     const { signals } = this.state;
     signals[signal.name] = signal;
     this.setState({ signals });
-  }
+  };
 
-  onSignalChange(signal, oldSignal) {
+  onSignalChange = (signal, oldSignal) => {
     const { signals } = this.state;
 
     for (let signalName in signals) {
@@ -527,13 +514,13 @@ export default class AddSignals extends Component {
     signals[signal.name] = signal;
 
     this.setState({ signals }, this.propagateUpSignalChange);
-  }
+  };
 
-  onSignalRemove(signal) {
+  onSignalRemove = signal => {
     const { signals } = this.state;
     delete signals[signal.name];
     this.setState({ signals }, this.propagateUpSignalChange);
-  }
+  };
 
   propagateUpSignalChange() {
     const { signals } = this.state;
@@ -544,11 +531,11 @@ export default class AddSignals extends Component {
     );
   }
 
-  onSignalPlotChange(shouldPlot, signalUid) {
+  onSignalPlotChange = (shouldPlot, signalUid) => {
     const { message } = this.props;
 
     this.props.onSignalPlotChange(shouldPlot, message.id, signalUid);
-  }
+  };
 
   render() {
     return (
