@@ -1,4 +1,4 @@
-import SignalLegendEntry from "../../components/SignalLegendEntry";
+import SignalLegendEntry from ".";
 import Signal from "../../models/can/signal";
 import React from "react";
 import { shallow, mount, render } from "enzyme";

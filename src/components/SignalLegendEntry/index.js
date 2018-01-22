@@ -7,6 +7,7 @@ import cx from "classnames";
 import Signal from "../../models/can/signal";
 import SignalForm from "./SignalForm";
 import ColorBar from "./ColorBar";
+import FIELDS from "./FIELDS";
 
 export default class SignalLegendEntry extends Component {
   static propTypes = {
@@ -24,7 +25,7 @@ export default class SignalLegendEntry extends Component {
   };
 
   static fieldSpecForName = name => {
-    return SignalLegendEntry.fields.find(field => field.field === name);
+    return FIELDS.find(field => field.field === name);
   };
 
   constructor(props) {
