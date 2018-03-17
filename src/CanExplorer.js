@@ -235,32 +235,38 @@ export default class CanExplorer extends Component {
   // }
 
   downloadLogAsCSV() {
-    if (this.state.live) {
-      return this.downloadLiveLogAsCSV();
-    }
-    return this.downloadRawLogAsCSV();
-  }
-  downloadRawLogAsCSV() {
-    console.log("downloadRawLogAsCSV:start");
-    // Trigger file processing and dowload in worker
-    const { firstCanTime, canFrameOffset, route, dbcFilename } = this.state;
-    const worker = new LogCSVDownloader();
+    console.log("downloadLogAsCSV:start");
+    const { dbcFilename } = this.state;
     const fileStream = createWriteStream(
       `${dbcFilename.replace(/\.dbc/g, "-")}${+new Date()}.csv`
     );
     const writer = fileStream.getWriter();
     const encoder = new TextEncoder();
 
-    worker.onmessage = e => {
-      const { logData, shouldClose } = e.data;
+    if (this.state.live) {
+      return this.downloadLiveLogAsCSV(dataHandler);
+    }
+    return this.downloadRawLogAsCSV(dataHandler);
+
+    function dataHandler(e) {
+      const { logData, shouldClose, progress } = e.data;
       if (shouldClose) {
-        console.log("downloadRawLogAsCSV:close");
+        console.log("downloadLogAsCSV:close");
         writer.close();
         return;
       }
+      console.log("CSV export progress:", progress);
       const uint8array = encoder.encode(logData + "\n");
       writer.write(uint8array);
-    };
+    }
+  }
+  downloadRawLogAsCSV(handler) {
+    // Trigger file processing and dowload in worker
+    const { firstCanTime, canFrameOffset, route } = this.state;
+    const worker = new LogCSVDownloader();
+
+    worker.onmessage = handler;
+
     worker.postMessage({
       base: route.url,
       parts: [0, route.proclog],
@@ -268,27 +274,15 @@ export default class CanExplorer extends Component {
     });
   }
 
-  downloadLiveLogAsCSV() {
-    console.log("downloadLiveLogAsCSV:start");
-    // Trigger file processing and dowload in worker
-    const { firstCanTime, canFrameOffset, route, dbcFilename } = this.state;
+  downloadLiveLogAsCSV(handler) {
+    // Trigger processing of in-memory data in worker
+    // this method *could* just fetch the data needed for the worked, but
+    // eventually this might be in it's own worker instead of the shared one
+    const { firstCanTime, canFrameOffset } = this.state;
     const worker = new LogCSVDownloader();
-    const fileStream = createWriteStream(
-      `${dbcFilename.replace(/\.dbc/g, "-")}${+new Date()}.csv`
-    );
-    const writer = fileStream.getWriter();
-    const encoder = new TextEncoder();
 
-    worker.onmessage = e => {
-      const { logData, shouldClose } = e.data;
-      if (shouldClose) {
-        console.log("downloadLiveLogAsCSV:close");
-        writer.close();
-        return;
-      }
-      const uint8array = encoder.encode(logData + "\n");
-      writer.write(uint8array);
-    };
+    worker.onmessage = handler;
+
     worker.postMessage({
       data: Object.keys(this.state.messages).map(sourceId => {
         var source = this.state.messages[sourceId];

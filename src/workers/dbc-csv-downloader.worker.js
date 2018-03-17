@@ -71,7 +71,9 @@ async function fetchAndPostData(
 }
 
 function transformAndSend(rawData) {
+  var totalSize = 0;
   var maxTime = rawData.reduce(function(memo, sourceData) {
+    totalSize += sourceData.entries.length;
     sourceData.entries = sourceData.entries.sort(function(a, b) {
       if (a.relTime > b.relTime) {
         return 1;
@@ -131,9 +133,9 @@ function transformAndSend(rawData) {
 
     entryBuffer.push(makeEntry(nextSource));
 
-    if (entryBuffer.length > 100) {
+    if (entryBuffer.length > 5000) {
       self.postMessage({
-        progress: 10,
+        progress: 100 * (totalEntries / totalSize),
         logData: entryBuffer.join("\n"),
         shouldClose: false
       });
