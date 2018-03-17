@@ -80,19 +80,31 @@ export default class Panda {
 
   async canRecv() {
     let result = null,
-      receiptTime = null;
+      receiptTime = null,
+      attempts = 0;
+
     while (result === null) {
       try {
         result = await this.device.transferIn(1, BUFFER_SIZE);
         receiptTime = performance.now() / 1000;
       } catch (err) {
         console.warn("can_recv failed, retrying");
+        attempts = Math.min(++attempts, 10);
+        await wait(attempts * 100);
       }
     }
+
+    await wait(0);
 
     return {
       time: receiptTime,
       canMessages: this.parseCanBuffer(result.data.buffer)
     };
   }
+}
+
+async function wait(ms) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(resolve, ms);
+  });
 }
