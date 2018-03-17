@@ -117,6 +117,7 @@ export default class CanExplorer extends Component {
     this.showingModal = this.showingModal.bind(this);
     this.lastMessageEntriesById = this.lastMessageEntriesById.bind(this);
     this.githubSignOut = this.githubSignOut.bind(this);
+    this.downloadLogAsCSV = this.downloadLogAsCSV.bind(this);
   }
 
   componentWillMount() {
@@ -233,7 +234,13 @@ export default class CanExplorer extends Component {
   //   FileSaver.saveAs(blob, filename, true);
   // }
 
-  downloadRawLogAsCSV = () => {
+  downloadLogAsCSV() {
+    if (this.state.live) {
+      return this.downloadLiveLogAsCSV();
+    }
+    return this.downloadRawLogAsCSV();
+  }
+  downloadRawLogAsCSV() {
     console.log("downloadRawLogAsCSV:start");
     // Trigger file processing and dowload in worker
     const { firstCanTime, canFrameOffset, route, dbcFilename } = this.state;
@@ -259,7 +266,42 @@ export default class CanExplorer extends Component {
       parts: [0, route.proclog],
       canStartTime: firstCanTime - canFrameOffset
     });
-  };
+  }
+
+  downloadLiveLogAsCSV() {
+    console.log("downloadLiveLogAsCSV:start");
+    // Trigger file processing and dowload in worker
+    const { firstCanTime, canFrameOffset, route, dbcFilename } = this.state;
+    const worker = new LogCSVDownloader();
+    const fileStream = createWriteStream(
+      `${dbcFilename.replace(/\.dbc/g, "-")}${+new Date()}.csv`
+    );
+    const writer = fileStream.getWriter();
+    const encoder = new TextEncoder();
+
+    worker.onmessage = e => {
+      const { logData, shouldClose } = e.data;
+      if (shouldClose) {
+        console.log("downloadLiveLogAsCSV:close");
+        writer.close();
+        return;
+      }
+      const uint8array = encoder.encode(logData + "\n");
+      writer.write(uint8array);
+    };
+    worker.postMessage({
+      data: Object.keys(this.state.messages).map(sourceId => {
+        var source = this.state.messages[sourceId];
+        return {
+          id: source.id,
+          bus: source.bus,
+          address: source.address,
+          entries: source.entries.slice()
+        };
+      }),
+      canStartTime: firstCanTime - canFrameOffset
+    });
+  }
 
   addAndRehydrateMessages(newMessages, options) {
     // Adds new message entries to messages state
@@ -803,7 +845,7 @@ export default class CanExplorer extends Component {
             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
             isDemo={this.props.isDemo}
             live={this.state.live}
-            saveLog={debounce(this.downloadRawLogAsCSV, 500)}
+            saveLog={debounce(this.downloadLogAsCSV, 500)}
           />
           {this.state.route || this.state.live ? (
             <Explorer
