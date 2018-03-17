@@ -21,6 +21,7 @@ export async function fetchCanPart(base, part) {
   try {
     canData = await Promise.all(urls.map(NumpyLoader.promise));
   } catch (e) {
+    ///@TODO: Match the 404 error specifically and handle it differently than other errors
     console.log("this is a 404 workaround that is hacky", e);
     return {
       times: [],
