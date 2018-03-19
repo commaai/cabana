@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import Moment from "moment";
 import PropTypes from "prop-types";
+import cx from "classnames";
+import { createWriteStream } from "streamsaver";
+import Panda from "@commaai/pandajs";
 
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
-import cx from "classnames";
-import { createWriteStream } from "streamsaver";
 
 import auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
@@ -25,7 +26,6 @@ import {
 } from "./api/localstorage";
 import OpenDbc from "./api/OpenDbc";
 import UnloggerClient from "./api/unlogger";
-import PandaReader from "./api/panda-reader";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 
@@ -86,8 +86,6 @@ export default class CanExplorer extends Component {
       this.unloggerClient = new UnloggerClient();
     }
 
-    this.pandaReader = new PandaReader();
-
     this.showOnboarding = this.showOnboarding.bind(this);
     this.hideOnboarding = this.hideOnboarding.bind(this);
     this.showLoadDbc = this.showLoadDbc.bind(this);
@@ -118,6 +116,9 @@ export default class CanExplorer extends Component {
     this.lastMessageEntriesById = this.lastMessageEntriesById.bind(this);
     this.githubSignOut = this.githubSignOut.bind(this);
     this.downloadLogAsCSV = this.downloadLogAsCSV.bind(this);
+
+    this.pandaReader = new Panda();
+    this.pandaReader.onMessage(this.processStreamedCanMessages);
   }
 
   componentWillMount() {
@@ -754,34 +755,33 @@ export default class CanExplorer extends Component {
     this._onStreamedCanMessagesProcessed(e.data);
   }
 
-  handlePandaConnect(e) {
+  async handlePandaConnect(e) {
     this.setState({ attemptingPandaConnection: true, live: true });
 
     const persistedDbc = fetchPersistedDbc("live");
     if (persistedDbc) {
-      const { dbc, dbcText } = persistedDbc;
+      let { dbc, dbcText } = persistedDbc;
       this.setState({ dbc, dbcText });
     }
     this.canStreamerWorker = new CanStreamerWorker();
     this.canStreamerWorker.onmessage = this.onStreamedCanMessagesProcessed;
-    this.pandaReader.setOnMessagesReceivedCallback(
-      this.processStreamedCanMessages
+
+    // if any errors go off during connection, mark as not trying to connect anymore...
+    let unlisten = this.pandaReader.onError(err =>
+      this.setState({ attemptingPandaConnection: false })
     );
-    this.pandaReader
-      .connect()
-      .then(() => {
-        this.pandaReader.readLoop();
-        this.setState({ attemptingPandaConnection: false });
-        this.setState({ showOnboarding: false });
-        this.setState({ showLoadDbc: true });
-      })
-      .catch(err => {
-        console.log(err);
-        this.setState({ attemptingPandaConnection: false });
+    try {
+      await this.pandaReader.start();
+      this.setState({
+        showOnboarding: false,
+        showLoadDbc: true
       });
+    } catch (e) {}
+    this.setState({ attemptingPandaConnection: false });
+    unlisten();
   }
 
-  githubSignOut(e) {
+  githubSignOut(e, dataArray) {
     unpersistGithubAuthToken();
     this.setState({ isGithubAuthenticated: false });
 

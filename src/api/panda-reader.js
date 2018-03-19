@@ -1,10 +1,16 @@
-import Panda from "./panda";
+import CloudLog from "../logging/CloudLog";
+import Panda from "pandajs";
+
+///@TODO move this file into pandajs and fix up the API
+// it should handle read loops, event management, pausing, unpausing, etc...
 
 export default class PandaReader {
   static ERROR_NO_DEVICE_SELECTED = 8;
 
   constructor() {
     this.panda = new Panda();
+    this.panda.onError(CloudLog.error.bind(CloudLog));
+
     this.isReading = false;
     this.onMessagesReceived = () => {};
     this.callbackQueue = [];
