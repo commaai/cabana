@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import Moment from "moment";
 import PropTypes from "prop-types";
+import cx from "classnames";
+import { createWriteStream } from "streamsaver";
+import Panda from "@commaai/pandajs";
 
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
-import cx from "classnames";
-import { createWriteStream } from "streamsaver";
 
 import auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
@@ -25,7 +26,6 @@ import {
 } from "./api/localstorage";
 import OpenDbc from "./api/OpenDbc";
 import UnloggerClient from "./api/unlogger";
-import Panda from "pandajs";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 
