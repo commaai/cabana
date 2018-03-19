@@ -2,6 +2,7 @@
 /* eslint-disable no-restricted-globals */
 import DBC from "../models/can/dbc";
 import DbcUtils from "../utils/dbc";
+import extend from "xtend";
 
 function processStreamedCanMessages(
   newCanMessages,
@@ -30,7 +31,8 @@ function processStreamedCanMessages(
     let busTimeSum = 0;
 
     for (let i = 0; i < canMessages.length; i++) {
-      let [address, busTime, data, source] = canMessages[i];
+      let { address, busTime, data, bus } = canMessages[i];
+
       let prevBusTime;
       if (i === 0) {
         if (lastBusTime === null) {
@@ -39,7 +41,7 @@ function processStreamedCanMessages(
           prevBusTime = lastBusTime;
         }
       } else {
-        prevBusTime = canMessages[i - 1][1];
+        prevBusTime = canMessages[i - 1].busTime;
       }
 
       if (busTime >= prevBusTime) {
@@ -47,11 +49,11 @@ function processStreamedCanMessages(
       } else {
         busTimeSum += 0x10000 - prevBusTime + busTime;
       }
-      const message = [...canMessages[i]];
-      message[1] = time + busTimeSum / 500000.0;
+      const message = extend(canMessages[i]);
+      message.busTime = time + busTimeSum / 500000.0;
 
       if (firstCanTime === 0) {
-        firstCanTime = message[1];
+        firstCanTime = message.busTime;
       }
 
       const msgEntry = DbcUtils.addCanMessage(
@@ -67,7 +69,7 @@ function processStreamedCanMessages(
       }
     }
 
-    lastBusTime = canMessages[canMessages.length - 1][1];
+    lastBusTime = canMessages[canMessages.length - 1].busTime;
     const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
       messages
     );

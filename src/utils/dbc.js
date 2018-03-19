@@ -6,17 +6,18 @@ function findMaxByteStateChangeCount(messages) {
 }
 
 function addCanMessage(
-  [address, busTime, data, source],
+  canMessage,
   dbc,
   canStartTime,
   messages,
   prevMsgEntries,
   byteStateChangeCountsByMessage
 ) {
-  var id = source + ":" + address.toString(16);
+  var { address, busTime, data, bus } = canMessage;
+  var id = bus + ":" + address.toString(16);
 
   if (messages[id] === undefined)
-    messages[id] = createMessageSpec(dbc, address, id, source);
+    messages[id] = createMessageSpec(dbc, address, id, bus);
 
   const prevMsgEntry =
     messages[id].entries.length > 0
