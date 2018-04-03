@@ -3,28 +3,34 @@ global.__JEST__ = 1;
 import DbcUtils from "../../utils/dbc";
 import DBC from "../../models/can/dbc";
 import Signal from "../../models/can/signal";
+import extend from "xtend";
 
 // want to mock pandareader and test processStreamedCanMessages
-const SAMPLE_MESSAGE = [0x10, 0, Buffer.from("abababababababab", "hex"), 1];
+const SAMPLE_MESSAGE = {
+  address: 0x10,
+  busTime: 0,
+  data: Buffer.from("abababababababab", "hex"),
+  bus: 1
+};
 const SAMPLE_MESSAGE_ID = "1:10";
 
 function expectSampleMessageFieldsPreserved(messages, frame) {
-  const [address, busTime, data, source] = SAMPLE_MESSAGE;
+  const { address, busTime, data, bus } = SAMPLE_MESSAGE;
   expect(messages[SAMPLE_MESSAGE_ID].address).toEqual(address);
   expect(messages[SAMPLE_MESSAGE_ID].id).toEqual(SAMPLE_MESSAGE_ID);
-  expect(messages[SAMPLE_MESSAGE_ID].bus).toEqual(source);
+  expect(messages[SAMPLE_MESSAGE_ID].bus).toEqual(bus);
   expect(messages[SAMPLE_MESSAGE_ID].frame).toEqual(frame);
   expect(messages[SAMPLE_MESSAGE_ID].byteStateChangeCounts).toEqual(
     Array(8).fill(0)
   );
 }
 
-// function addCanMessage([address, busTime, data, source], dbc, canStartTime, messages, prevMsgEntries, byteStateChangeCountsByMessage) {
+// function addCanMessage([address, busTime, data, bus], dbc, canStartTime, messages, prevMsgEntries, byteStateChangeCountsByMessage) {
 function addMessages(messages, message, dbc, n) {
   const firstCanTime = 0;
-  message = [...message];
   let nextMessage = () => {
-    message[1] = message[1] + 1;
+    message = extend(message);
+    message.busTime += 1;
     return message;
   };
 
@@ -52,9 +58,9 @@ test("addCanMessage should add parsed can message with dbc containing message sp
   const messages = {};
   // create dbc with message spec and signal for sample_message
   const dbc = new DBC();
-  dbc.createFrame(SAMPLE_MESSAGE[0]);
+  dbc.createFrame(SAMPLE_MESSAGE.address);
   const signal = new Signal({ name: "NEW_SIGNAL", startBit: 0, size: 8 });
-  dbc.addSignal(SAMPLE_MESSAGE[0], signal);
+  dbc.addSignal(SAMPLE_MESSAGE.address, signal);
 
   // add 1 sample_message
   addMessages(messages, SAMPLE_MESSAGE, dbc, 1);
@@ -65,6 +71,6 @@ test("addCanMessage should add parsed can message with dbc containing message sp
   expect(sampleMessages.entries[0].signals[signal.name]).toEqual(0xab);
   expectSampleMessageFieldsPreserved(
     messages,
-    dbc.messages.get(SAMPLE_MESSAGE[0])
+    dbc.messages.get(SAMPLE_MESSAGE.address)
   );
 });

@@ -15,7 +15,7 @@ test("CanGraph successfully mounts with minimal default props", () => {
       signalSpec={null}
       onSegmentChanged={() => {}}
       segment={[]}
-      data={[]}
+      data={{}}
       onRelativeTimeClick={() => {}}
       currentTime={0}
       onDragStart={() => {}}
