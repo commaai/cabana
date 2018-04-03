@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
-    "@commaai/pandajs": "^0.1.8",
+    "@commaai/pandajs": "^0.1.9",
     "aphrodite": "^1.2.1",
     "babel-preset-stage-0": "^6.24.1",
     "base64-inline-loader": "^1.1.0",
