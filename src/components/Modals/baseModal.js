@@ -4,7 +4,7 @@ import cx from "classnames";
 import Measure from "react-measure";
 
 export default class Modal extends Component {
-  static PropTypes = {
+  static propTypes = {
     variations: PropTypes.array,
     disableClose: PropTypes.bool,
     handleClose: PropTypes.func,
