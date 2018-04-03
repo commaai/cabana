@@ -13,7 +13,7 @@ before_install:
 before_script: yarn netlify-sass
 
 script:
-  - yarn test
+  - NODE_ENV=test yarn test
   - yarn build
 
 deploy:
