@@ -17,9 +17,9 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@commaai/pandajs@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.1.7.tgz#595ff8dfa4aadc7db689596852803b881c2ef3c3"
+"@commaai/pandajs@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.1.8.tgz#4d99c68adb83fe9211f452ab286e1177dbf3367b"
   dependencies:
     ap "^0.2.0"
     can-message "^0.1.0"
