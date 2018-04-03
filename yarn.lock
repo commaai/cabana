@@ -17,13 +17,12 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@commaai/pandajs@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.1.6.tgz#45b8daf5142d61c151e250baa6b3821e6ae31ba4"
+"@commaai/pandajs@^0.1.10":
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.1.10.tgz#89ac13c78bc2194144e8d868dadd351967659788"
   dependencies:
     ap "^0.2.0"
     can-message "^0.1.0"
-    es6-sleep "^2.0.2"
     is-browser "^2.0.1"
     is-node "^1.0.2"
     is-promise "^2.1.0"
@@ -2720,10 +2719,6 @@ es6-set@~0.1.5:
     es6-iterator "~2.0.1"
     es6-symbol "3.1.1"
     event-emitter "~0.3.5"
-
-es6-sleep@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/es6-sleep/-/es6-sleep-2.0.2.tgz#3d3a599fef280b709ca11d5ddd4ff57973618471"
 
 es6-symbol@3.1.1, es6-symbol@^3.1.1, es6-symbol@~3.1.1:
   version "3.1.1"
