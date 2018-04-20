@@ -150,6 +150,7 @@ export default class CanGraph extends Component {
 
   onNewView(view) {
     this.view = view;
+
     if (this.state.bounds) {
       this.onPlotResize({ bounds: this.state.bounds });
     }
@@ -172,11 +173,14 @@ export default class CanGraph extends Component {
     }
 
     this.props.onSegmentChanged(this.props.messageId, segment);
-    if (this.view) {
+
+    this.view.runAfter(() => {
       const state = this.view.getState();
       state.subcontext[0].signals.brush = 0;
-      this.view = this.view.setState(state);
-    }
+      this.view.setState(state).runAfter(() => {
+        this.insertData();
+      });
+    });
   }
 
   plotInnerStyleFromMouseEvent(e) {

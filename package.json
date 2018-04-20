@@ -46,7 +46,7 @@
     "simple-statistics": "^4.1.0",
     "socket.io-client": "^2.0.3",
     "streamsaver": "^1.0.1",
-    "vega": "3.0.0",
+    "vega": "3.0.10",
     "vega-tooltip": "^0.4.0"
   },
   "devDependencies": {
