@@ -8,7 +8,7 @@ import Panda from "@commaai/pandajs";
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
 
-import auth from "./api/comma-auth";
+import * as auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
 import Meta from "./components/Meta";
 import Explorer from "./components/Explorer";
@@ -30,6 +30,7 @@ import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 
 const CanFetcher = require("./workers/can-fetcher.worker.js");
+const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require("./workers/can-offset-finder.worker.js");
@@ -325,22 +326,17 @@ export default class CanExplorer extends Component {
   }
 
   spawnWorker(parts, options) {
-    // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
     }
+    // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
     const [minPart, maxPart] = parts;
-    let part = minPart,
-      prevMsgEntries = {},
-      prepend = false,
-      spawnWorkerHash;
-    if (options) {
-      if (options.part) part = options.part;
-      if (options.prevMsgEntries) prevMsgEntries = options.prevMsgEntries;
-      if (options.spawnWorkerHash) {
-        spawnWorkerHash = options.spawnWorkerHash;
-      }
-    }
+    options = options || {};
+    let part = options.part || minPart;
+    let prevMsgEntries = options.prevMsgEntries || {};
+    let prepend = false;
+    let spawnWorkerHash = options.spawnWorkerHash; // || undefined
+
     if (!spawnWorkerHash) {
       spawnWorkerHash = hash(Math.random().toString(16));
       this.setState({ spawnWorkerHash });
@@ -358,7 +354,7 @@ export default class CanExplorer extends Component {
       canFrameOffset,
       maxByteStateChangeCount
     } = this.state;
-    var worker = new CanFetcher();
+    var worker = new RLogDownloader();
 
     worker.onmessage = e => {
       if (spawnWorkerHash !== this.state.spawnWorkerHash) {
@@ -412,8 +408,8 @@ export default class CanExplorer extends Component {
 
     worker.postMessage({
       dbcText: dbc.text(),
-      base: route.url,
-      num: part,
+      route: route.fullname,
+      part: part,
       canStartTime: firstCanTime - canFrameOffset,
       prevMsgEntries,
       maxByteStateChangeCount

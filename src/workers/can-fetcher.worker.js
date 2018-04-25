@@ -32,13 +32,14 @@ async function loadCanPart(
 
     var addressNum = address.toNumber();
     var data = datas.slice(i * 8, (i + 1) * 8);
-    if (messages[id] === undefined)
+    if (messages[id] === undefined) {
       messages[id] = DbcUtils.createMessageSpec(
         dbc,
         address.toNumber(),
         id,
         src
       );
+    }
 
     const prevMsgEntry =
       messages[id].entries.length > 0

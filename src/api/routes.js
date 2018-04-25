@@ -1,5 +1,5 @@
 import Moment from "moment";
-import CommaAuth from "./comma-auth";
+import * as CommaAuth from "./comma-auth";
 
 const ROUTES_ENDPOINT = "https://api.commadotai.com/v1/{dongleId}/routes/";
 
@@ -18,7 +18,7 @@ export async function fetchRoutes(dongleId) {
     dongleId = "me";
   }
 
-  const accessToken = CommaAuth.getCommaAccessToken();
+  const accessToken = await CommaAuth.getCommaAccessToken();
   if (accessToken) {
     const endpoint = ROUTES_ENDPOINT.replace("{dongleId}", dongleId);
     const headers = new Headers();
