@@ -22,8 +22,6 @@ export async function getLogPart(routeName, part) {
   return new Promise(async function(resolve, reject) {
     var logUrls = await getLogURLList(routeName);
 
-    console.log("These are my urls", part, logUrls);
-
     request(logUrls[part], function(err, res) {
       if (err) {
         return reject(err);

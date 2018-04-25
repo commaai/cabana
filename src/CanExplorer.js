@@ -303,7 +303,7 @@ export default class CanExplorer extends Component {
     // Adds new message entries to messages state
     // and "rehydrates" ES6 classes (message frame)
     // lost from JSON serialization in webworker data cloning.
-    if (options === undefined) options = {};
+    options = options || {};
 
     const messages = { ...this.state.messages };
     for (var key in newMessages) {
@@ -326,6 +326,7 @@ export default class CanExplorer extends Component {
   }
 
   spawnWorker(parts, options) {
+    console.log("Spawning worker for", parts);
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
     }
@@ -354,6 +355,7 @@ export default class CanExplorer extends Component {
       canFrameOffset,
       maxByteStateChangeCount
     } = this.state;
+    // var worker = new CanFetcher();
     var worker = new RLogDownloader();
 
     worker.onmessage = e => {
@@ -368,7 +370,7 @@ export default class CanExplorer extends Component {
         return;
       }
 
-      let { newMessages, maxByteStateChangeCount } = e.data;
+      let { newMessages, maxByteStateChangeCount, isFinished } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
       } else {
@@ -386,27 +388,36 @@ export default class CanExplorer extends Component {
         prevMsgEntries[key] = msg.entries[msg.entries.length - 1];
       }
 
-      this.setState(
-        {
-          messages,
-          partsLoaded: this.state.partsLoaded + 1
-        },
-        () => {
-          if (part < maxPart) {
-            this.spawnWorker(parts, {
-              part: part + 1,
-              prevMsgEntries,
-              spawnWorkerHash,
-              prepend
-            });
-          } else {
-            this.setState({ isLoading: false });
+      if (!isFinished) {
+        this.setState({ messages });
+      } else {
+        this.setState(
+          {
+            messages,
+            partsLoaded: this.state.partsLoaded + 1
+          },
+          () => {
+            if (part < maxPart) {
+              this.spawnWorker(parts, {
+                part: part + 1,
+                prevMsgEntries,
+                spawnWorkerHash,
+                prepend
+              });
+            } else {
+              this.setState({ isLoading: false });
+            }
           }
-        }
-      );
+        );
+      }
     };
 
     worker.postMessage({
+      // old stuff for reverse compatibility for easier testing
+      base: route.url,
+      num: part,
+
+      // data that is used
       dbcText: dbc.text(),
       route: route.fullname,
       part: part,

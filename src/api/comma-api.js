@@ -10,7 +10,6 @@ var initPromise = init();
 
 async function init() {
   var token = await getCommaAccessToken();
-  console.log("Setting token!");
   request.configure({
     baseUrl: URL_ROOT,
     token: "JWT " + token,

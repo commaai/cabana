@@ -41,6 +41,10 @@ async function loadCanPart(
       );
     }
 
+    if (i % 10000 === 0) {
+      console.log("can time", t);
+    }
+
     const prevMsgEntry =
       messages[id].entries.length > 0
         ? messages[id].entries[messages[id].entries.length - 1]
