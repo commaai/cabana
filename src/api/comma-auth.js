@@ -7,16 +7,23 @@ import {
 } from "../config";
 
 let isAuthed = false;
+let useForage = true;
 
 export async function getCommaAccessToken() {
   let token = getTokenInternal();
   if (!token) {
-    token = await storage.getItem("authorization");
+    try {
+      token = await storage.getItem("authorization");
+    } catch (e) {
+      useForage = false;
+    }
   }
 
   if (token) {
     isAuthed = true;
-    await storage.setItem("authorization", token);
+    if (useForage) {
+      await storage.setItem("authorization", token);
+    }
   }
 
   return token;
