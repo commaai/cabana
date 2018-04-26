@@ -208,7 +208,7 @@ export default class Signal {
   generateColors() {
     let colors = Array(3);
     for (let i = 0; i < 3; i++) {
-      colors[i] = Math.floor(Math.random() * 255);
+      colors[i] = Math.floor(Math.random() * 210);
     }
 
     return colors;
