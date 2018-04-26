@@ -29,7 +29,6 @@ import UnloggerClient from "./api/unlogger";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 
-const CanFetcher = require("./workers/can-fetcher.worker.js");
 const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
 const MessageParser = require("./workers/message-parser.worker.js");
