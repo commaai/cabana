@@ -6,11 +6,9 @@ import { getLogPart } from "../api/rlog";
 import DbcUtils from "../utils/dbc";
 import DBC from "../models/can/dbc";
 
-const CACHE_TIME = 1000 * 60 * 2; // 2 minutes seems fine
+const DEBOUNCE_DELAY = 100;
 
 self.onmessage = handleMessage;
-
-const PART_CACHE = {};
 
 function handleMessage(msg) {
   const options = msg.data;
@@ -21,32 +19,17 @@ function handleMessage(msg) {
 }
 
 function CacheEntry(options) {
-  console.log("Downloading logs...", options);
   options = options || {};
   this.options = options;
 
   let { route, part, dbc } = options;
 
-  if (PART_CACHE[route] && PART_CACHE[route][part]) {
-    return PART_CACHE[route][part];
-  }
   this.messages = {};
   this.route = route;
   this.part = part;
   this.dbc = dbc;
-  this.remove = partial(clearCache, this);
-  this.access = partial(accessCache, this);
   this.sendBatch = partial(sendBatch, this);
 
-  if (!PART_CACHE[route]) {
-    PART_CACHE[route] = {};
-  }
-
-  // store entry in global store
-  PART_CACHE[route][part] = this;
-
-  // bump the cache invalidation code
-  this.access();
   // load in the data!
   loadData(this);
 }
@@ -82,30 +65,6 @@ function sendBatch(entry) {
   });
 }
 
-function accessCache(entry) {
-  if (entry.removed) {
-    throw new Error("Cannot attempt to access an invalidated cache item");
-  }
-  if (entry.stop) {
-    entry.stop();
-  }
-
-  entry.stop = timeout(entry.remove, CACHE_TIME);
-}
-
-function clearCache(entry) {
-  if (!PART_CACHE[entry.route] || !PART_CACHE[entry.route][entry.part]) {
-    return; // already cleaned up?
-  }
-
-  if (entry.stop) {
-    entry.stop();
-  }
-  entry.removed = true;
-
-  delete PART_CACHE[entry.route][entry.part];
-}
-
 async function loadData(entry) {
   var res = await getLogPart(entry.route, entry.part);
   var logReader = new LogStream(res);
@@ -127,17 +86,16 @@ async function loadData(entry) {
       console.log("You can get msgs after end", msg);
     }
     if ("Can" in msg) {
+      let monoTime = msg.LogMonoTime / 1000000000;
+      msg.Can.forEach(partial(parseCanMessage, entry, monoTime));
       queueBatch(entry);
-      msg.Can.forEach(
-        partial(parseCanMessage, entry, msg.LogMonoTime / 1000000000)
-      );
     }
   });
 }
 
 function queueBatch(entry) {
   if (!entry.batching) {
-    entry.batching = timeout(entry.sendBatch, 100);
+    entry.batching = timeout(entry.sendBatch, DEBOUNCE_DELAY);
   }
 }
 

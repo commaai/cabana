@@ -36,7 +36,16 @@ export default class MessageBytes extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.updateCanvas(nextProps);
+    if (
+      this.props.seekIndex !== nextProps.seekIndex ||
+      frameForTime(this.props.seekTime) !== frameForTime(nextProps.seekTime)
+    ) {
+      this.updateCanvas(nextProps);
+    }
+
+    function frameForTime(t) {
+      return ~~(t * 60);
+    }
   }
 
   findMostRecentMessage(seekTime) {
@@ -44,7 +53,7 @@ export default class MessageBytes extends Component {
     const { lastMessageIndex, lastSeekTime } = this.state;
     let mostRecentMessageIndex = null;
     if (seekTime >= lastSeekTime) {
-      for (let i = lastMessageIndex; i < message.entries.length; i++) {
+      for (let i = lastMessageIndex; i < message.entries.length; ++i) {
         const msg = message.entries[i];
         if (msg && msg.relTime >= seekTime) {
           mostRecentMessageIndex = i;
@@ -84,9 +93,10 @@ export default class MessageBytes extends Component {
     }
 
     const ctx = this.canvas.getContext("2d");
-    ctx.clearRect(0, 0, 180, 15);
-    for (let i = 0; i < message.byteStateChangeCounts.length; i++) {
-      const hexData = mostRecentMsg.hexData.substr(i * 2, 2);
+    // ctx.clearRect(0, 0, 180, 15);
+
+    for (let i = 0; i < message.byteStateChangeCounts.length; ++i) {
+      const hexData = mostRecentMsg.hexData.substr(i * 2, 2) || "00";
       ctx.fillStyle = message.byteColors[i];
 
       ctx.fillRect(i * 20, 0, 20, 15);
