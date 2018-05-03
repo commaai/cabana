@@ -773,9 +773,10 @@ export default class CanExplorer extends Component {
     this.canStreamerWorker.onmessage = this.onStreamedCanMessagesProcessed;
 
     // if any errors go off during connection, mark as not trying to connect anymore...
-    let unlisten = this.pandaReader.onError(err =>
-      this.setState({ attemptingPandaConnection: false })
-    );
+    let unlisten = this.pandaReader.onError(err => {
+      console.error(err.stack || err);
+      this.setState({ attemptingPandaConnection: false });
+    });
     try {
       await this.pandaReader.start();
       this.setState({
