@@ -2,9 +2,10 @@ import LogStream from "@commaai/log_reader";
 import { timeout } from "thyming";
 import { partial } from "ap";
 
-import { getLogPart } from "../api/rlog";
+import { getLogPart, getLogURLList } from "../api/rlog";
 import DbcUtils from "../utils/dbc";
 import DBC from "../models/can/dbc";
+import { loadCanPart } from "./can-fetcher";
 
 const DEBOUNCE_DELAY = 100;
 
@@ -66,6 +67,21 @@ function sendBatch(entry) {
 }
 
 async function loadData(entry) {
+  var url = (await getLogURLList(entry.route))[entry.part];
+  if (url.indexOf(".7z") !== -1) {
+    // this is a shit log we can't read...
+    var data = await loadCanPart(
+      entry.dbc,
+      entry.options.base,
+      entry.options.num,
+      entry.options.canStartTime,
+      entry.options.prevMsgEntries,
+      entry.options.maxByteStateChangeCount
+    );
+    data.isFinished = true;
+
+    return self.postMessage(data);
+  }
   var res = await getLogPart(entry.route, entry.part);
   var logReader = new LogStream(res);
 
@@ -87,7 +103,7 @@ async function loadData(entry) {
     }
     if ("Can" in msg) {
       let monoTime = msg.LogMonoTime / 1000000000;
-      msg.Can.forEach(partial(parseCanMessage, entry, monoTime));
+      msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
       queueBatch(entry);
     }
   });
@@ -99,7 +115,7 @@ function queueBatch(entry) {
   }
 }
 
-function parseCanMessage(entry, logTime, msg) {
+function insertCanMessage(entry, logTime, msg) {
   var src = msg.Src;
   var address = Number(msg.Address);
   var busTime = msg.BusTime;
