@@ -5,11 +5,9 @@ import DBC from "../models/can/dbc";
 import DbcUtils from "../utils/dbc";
 import * as CanApi from "../api/can";
 
-var window = self;
-
 const Int64LE = require("int64-buffer").Int64LE;
 
-async function loadCanPart(
+export async function loadCanPart(
   dbc,
   base,
   num,
@@ -74,30 +72,35 @@ async function loadCanPart(
     );
   });
 
-  self.postMessage({
+  return {
     newMessages: messages,
     maxByteStateChangeCount
-  });
-  self.close();
+  };
+
+  // self.postMessage({
+  //   newMessages: messages,
+  //   maxByteStateChangeCount
+  // });
+  // self.close();
 }
 
-self.onmessage = function(e) {
-  const {
-    dbcText,
-    base,
-    num,
-    canStartTime,
-    prevMsgEntries,
-    maxByteStateChangeCount
-  } = e.data;
+// self.onmessage = function(e) {
+//   const {
+//     dbcText,
+//     base,
+//     num,
+//     canStartTime,
+//     prevMsgEntries,
+//     maxByteStateChangeCount
+//   } = e.data;
 
-  const dbc = new DBC(dbcText);
-  loadCanPart(
-    dbc,
-    base,
-    num,
-    canStartTime,
-    prevMsgEntries,
-    maxByteStateChangeCount
-  );
-};
+//   const dbc = new DBC(dbcText);
+//   loadCanPart(
+//     dbc,
+//     base,
+//     num,
+//     canStartTime,
+//     prevMsgEntries,
+//     maxByteStateChangeCount
+//   );
+// };

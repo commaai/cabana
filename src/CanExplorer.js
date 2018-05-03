@@ -8,7 +8,7 @@ import Panda from "@commaai/pandajs";
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
 
-import auth from "./api/comma-auth";
+import * as auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
 import Meta from "./components/Meta";
 import Explorer from "./components/Explorer";
@@ -29,7 +29,7 @@ import UnloggerClient from "./api/unlogger";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 
-const CanFetcher = require("./workers/can-fetcher.worker.js");
+const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
 const MessageParser = require("./workers/message-parser.worker.js");
 const CanOffsetFinder = require("./workers/can-offset-finder.worker.js");
@@ -302,7 +302,7 @@ export default class CanExplorer extends Component {
     // Adds new message entries to messages state
     // and "rehydrates" ES6 classes (message frame)
     // lost from JSON serialization in webworker data cloning.
-    if (options === undefined) options = {};
+    options = options || {};
 
     const messages = { ...this.state.messages };
     for (var key in newMessages) {
@@ -325,22 +325,18 @@ export default class CanExplorer extends Component {
   }
 
   spawnWorker(parts, options) {
-    // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
+    console.log("Spawning worker for", parts);
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
     }
+    // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
     const [minPart, maxPart] = parts;
-    let part = minPart,
-      prevMsgEntries = {},
-      prepend = false,
-      spawnWorkerHash;
-    if (options) {
-      if (options.part) part = options.part;
-      if (options.prevMsgEntries) prevMsgEntries = options.prevMsgEntries;
-      if (options.spawnWorkerHash) {
-        spawnWorkerHash = options.spawnWorkerHash;
-      }
-    }
+    options = options || {};
+    let part = options.part || minPart;
+    let prevMsgEntries = options.prevMsgEntries || {};
+    let prepend = false;
+    let spawnWorkerHash = options.spawnWorkerHash; // || undefined
+
     if (!spawnWorkerHash) {
       spawnWorkerHash = hash(Math.random().toString(16));
       this.setState({ spawnWorkerHash });
@@ -358,7 +354,8 @@ export default class CanExplorer extends Component {
       canFrameOffset,
       maxByteStateChangeCount
     } = this.state;
-    var worker = new CanFetcher();
+    // var worker = new CanFetcher();
+    var worker = new RLogDownloader();
 
     worker.onmessage = e => {
       if (spawnWorkerHash !== this.state.spawnWorkerHash) {
@@ -372,7 +369,7 @@ export default class CanExplorer extends Component {
         return;
       }
 
-      let { newMessages, maxByteStateChangeCount } = e.data;
+      let { newMessages, maxByteStateChangeCount, isFinished } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
       } else {
@@ -390,30 +387,39 @@ export default class CanExplorer extends Component {
         prevMsgEntries[key] = msg.entries[msg.entries.length - 1];
       }
 
-      this.setState(
-        {
-          messages,
-          partsLoaded: this.state.partsLoaded + 1
-        },
-        () => {
-          if (part < maxPart) {
-            this.spawnWorker(parts, {
-              part: part + 1,
-              prevMsgEntries,
-              spawnWorkerHash,
-              prepend
-            });
-          } else {
-            this.setState({ isLoading: false });
+      if (!isFinished) {
+        this.setState({ messages });
+      } else {
+        this.setState(
+          {
+            messages,
+            partsLoaded: this.state.partsLoaded + 1
+          },
+          () => {
+            if (part < maxPart) {
+              this.spawnWorker(parts, {
+                part: part + 1,
+                prevMsgEntries,
+                spawnWorkerHash,
+                prepend
+              });
+            } else {
+              this.setState({ isLoading: false });
+            }
           }
-        }
-      );
+        );
+      }
     };
 
     worker.postMessage({
-      dbcText: dbc.text(),
+      // old stuff for reverse compatibility for easier testing
       base: route.url,
       num: part,
+
+      // data that is used
+      dbcText: dbc.text(),
+      route: route.fullname,
+      part: part,
       canStartTime: firstCanTime - canFrameOffset,
       prevMsgEntries,
       maxByteStateChangeCount

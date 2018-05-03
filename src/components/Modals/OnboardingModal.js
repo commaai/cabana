@@ -4,7 +4,7 @@ import Moment from "moment";
 import _ from "lodash";
 import cx from "classnames";
 
-import auth from "../../api/comma-auth";
+import * as auth from "../../api/comma-auth";
 
 import Modal from "../Modals/baseModal";
 
