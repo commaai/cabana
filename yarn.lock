@@ -32,9 +32,9 @@
     geval "^2.2.0"
     stream-selector "^0.3.0"
 
-"@commaai/pandajs@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.3.3.tgz#c23202b849f26b326fae8295aa8d42cef1e79c17"
+"@commaai/pandajs@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@commaai/pandajs/-/pandajs-0.3.4.tgz#b8ad7f1e1cee2cce15f14f38cbf6f1ba8162814b"
   dependencies:
     ap "^0.2.0"
     babel-runtime "^6.26.0"
