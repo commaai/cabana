@@ -20,17 +20,21 @@ module.exports = function override(config, env) {
 
   if (env === "production") {
     const COMMIT = process.env.TRAVIS_COMMIT || process.env.COMMIT_REF;
-    config.plugins.push(
-      new SentryPlugin({
-        organisation: "commaai",
-        project: "cabana",
-        apiKey:
-          "7a932ab144984dd3979993cf61dbdd2a1489ac77af4d4f46b85d64598b9a4ca6",
-        release: function(hash) {
-          return COMMIT + ";" + hash; // webpack build hash
-        }
-      })
-    );
+    const tagName = process.env.TRAVIS_TAG;
+    // only use sentry on production builds
+    if (tagName && tagName.length) {
+      config.plugins.push(
+        new SentryPlugin({
+          organisation: "commaai",
+          project: "cabana",
+          apiKey:
+            "7a932ab144984dd3979993cf61dbdd2a1489ac77af4d4f46b85d64598b9a4ca6",
+          release: function(hash) {
+            return COMMIT + ";" + hash; // webpack build hash
+          }
+        })
+      );
+    }
   }
 
   return config;
