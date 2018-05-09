@@ -124,6 +124,7 @@ export default class CanExplorer extends Component {
   componentWillMount() {
     const { dongleId, name } = this.props;
     if (this.props.max && this.props.url) {
+      // probably the demo!
       const { max, url } = this.props;
       const { startTime } = Routes.parseRouteName(name);
 
@@ -159,6 +160,7 @@ export default class CanExplorer extends Component {
       Routes.fetchRoutes(dongleId)
         .then(routes => {
           if (routes && routes[name]) {
+            // this makes fullname = dongleId + '|' + name
             const route = routes[name];
             const newState = {
               route,
@@ -415,6 +417,9 @@ export default class CanExplorer extends Component {
       // old stuff for reverse compatibility for easier testing
       base: route.url,
       num: part,
+
+      // so that we don't try to read metadata about it...
+      isDemo: this.props.isDemo,
 
       // data that is used
       dbcText: dbc.text(),

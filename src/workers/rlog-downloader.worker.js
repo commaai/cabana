@@ -67,8 +67,12 @@ function sendBatch(entry) {
 }
 
 async function loadData(entry) {
-  var url = (await getLogURLList(entry.route))[entry.part];
-  if (url.indexOf(".7z") !== -1) {
+  var url = null;
+
+  if (!entry.options.isDemo) {
+    url = (await getLogURLList(entry.route))[entry.part];
+  }
+  if (!url || url.indexOf(".7z") !== -1) {
     // this is a shit log we can't read...
     var data = await loadCanPart(
       entry.dbc,
