@@ -129,7 +129,7 @@ export default class CanExplorer extends Component {
       const { startTime } = Routes.parseRouteName(name);
 
       const route = {
-        fullname: name,
+        fullname: dongleId + "|" + name,
         proclog: max,
         url: url,
         start_time: startTime
