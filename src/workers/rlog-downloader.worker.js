@@ -69,7 +69,7 @@ function sendBatch(entry) {
 async function loadData(entry) {
   var url = null;
 
-  if (!entry.options.isDemo) {
+  if (!entry.options.isDemo && !entry.options.isShare) {
     url = (await getLogURLList(entry.route))[entry.part];
   }
   if (!url || url.indexOf(".7z") !== -1) {

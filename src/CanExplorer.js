@@ -420,6 +420,7 @@ export default class CanExplorer extends Component {
 
       // so that we don't try to read metadata about it...
       isDemo: this.props.isDemo,
+      isShare: this.props.isShare,
 
       // data that is used
       dbcText: dbc.text(),

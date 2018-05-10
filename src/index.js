@@ -31,6 +31,7 @@ if (routeFullName) {
   if (max && url) {
     props.max = max;
     props.url = url;
+    props.isShare = true;
   }
 } else if (getUrlParameter("demo")) {
   props.max = 12;
