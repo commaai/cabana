@@ -17,9 +17,9 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@commaai/log_reader@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.3.0.tgz#6a19265dedab555407f999a4e5fe3f567ed8d551"
+"@commaai/log_reader@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.3.1.tgz#0e2b47b621ac9b852ccf5137787e17952a34170c"
   dependencies:
     "@commaai/unbzip2-stream" "^2.0.0"
     JSONStream "^1.3.2"
@@ -30,7 +30,7 @@
     commander "^2.15.1"
     file-type "^7.6.0"
     geval "^2.2.0"
-    stream-selector "^0.3.0"
+    stream-selector "^0.4.0"
 
 "@commaai/pandajs@^0.3.4":
   version "0.3.4"
@@ -8221,9 +8221,9 @@ stream-selector@^0.1.1:
   dependencies:
     inherits "^2.0.3"
 
-stream-selector@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/stream-selector/-/stream-selector-0.3.0.tgz#ba2223c0fd449e3a9ea16444f52142ea79506ec4"
+stream-selector@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/stream-selector/-/stream-selector-0.4.0.tgz#9d162b1667a656d0f0199ab1e6cb775fb9072c27"
   dependencies:
     inherits "^2.0.3"
     through2 "^2.0.3"
