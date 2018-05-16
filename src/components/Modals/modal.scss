@@ -76,6 +76,8 @@ $cabana-modal-padding--wide: 76px;
     border-width: 1px 0;
     padding: 34px 50px;
     position: relative;
+    max-height: 50vh;
+    overflow-y: scroll;
   }
   &-actions {
     text-align: right;
