@@ -93,7 +93,7 @@ async function loadData(entry) {
 
   res.on("end", function() {
     console.log("Stream ended");
-    entry.ended = true;
+    setTimeout(() => (entry.ended = true));
     queueBatch(entry);
   });
 

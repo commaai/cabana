@@ -427,7 +427,7 @@ export default class Explorer extends Component {
     const { entries } = message;
 
     const seekIndex = this.indexFromSeekTime(time);
-    const seekTime = entries[seekIndex].relTime;
+    const seekTime = time;
 
     this.props.onSeek(seekIndex, seekTime);
   }
