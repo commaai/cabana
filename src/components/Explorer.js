@@ -424,8 +424,6 @@ export default class Explorer extends Component {
       return;
     }
 
-    const { entries } = message;
-
     const seekIndex = this.indexFromSeekTime(time);
     const seekTime = time;
 
