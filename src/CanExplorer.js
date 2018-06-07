@@ -398,7 +398,7 @@ export default class CanExplorer extends Component {
             partsLoaded: this.state.partsLoaded + 1
           },
           () => {
-            if (part < maxPart) {
+            if (part <= maxPart) {
               this.spawnWorker(parts, {
                 part: part + 1,
                 prevMsgEntries,

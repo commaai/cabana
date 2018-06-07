@@ -93,8 +93,10 @@ async function loadData(entry) {
 
   res.on("end", function() {
     console.log("Stream ended");
-    setTimeout(() => (entry.ended = true));
-    queueBatch(entry);
+    setTimeout(() => {
+      entry.ended = true;
+      queueBatch(entry);
+    });
   });
 
   var msgArr = [];
