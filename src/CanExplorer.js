@@ -137,7 +137,7 @@ export default class CanExplorer extends Component {
       this.setState(
         {
           route,
-          currentParts: [0, Math.min(max - 1, PART_SEGMENT_LENGTH - 1)]
+          currentParts: [0, Math.min(max, PART_SEGMENT_LENGTH - 1)]
         },
         this.initCanData
       );
@@ -166,7 +166,7 @@ export default class CanExplorer extends Component {
               route,
               currentParts: [
                 0,
-                Math.min(route.proclog - 1, PART_SEGMENT_LENGTH - 1)
+                Math.min(route.proclog, PART_SEGMENT_LENGTH - 1)
               ]
             };
             this.setState(newState, this.initCanData);
