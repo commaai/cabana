@@ -1,6 +1,6 @@
 {
   "name": "can-explorer",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
