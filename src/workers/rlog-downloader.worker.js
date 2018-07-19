@@ -110,8 +110,13 @@ async function loadData(entry) {
     if ("Can" in msg) {
       let monoTime = msg.LogMonoTime / 1000000000;
       msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
-      queueBatch(entry);
+    } else if ("CarState" in msg) {
+      let monoTime = msg.LogMonoTime / 1000000000;
+      insertCarStateMessage(entry, monoTime, msg.CarState);
+    } else {
+      return;
     }
+    queueBatch(entry);
   });
 }
 
@@ -119,6 +124,73 @@ function queueBatch(entry) {
   if (!entry.batching) {
     entry.batching = timeout(entry.sendBatch, DEBOUNCE_DELAY);
   }
+}
+function insertCarStateMessage(entry, logTime, state) {
+  var src = "CarState";
+  var address = 0;
+  var id = src;
+
+  if (!entry.messages[id]) {
+    entry.messages[id] = DbcUtils.createMessageSpec(
+      entry.dbc,
+      address,
+      id,
+      src
+    );
+  }
+  let prevMsgEntry = getPrevMsgEntry(
+    entry.messages,
+    entry.options.prevMsgEntries,
+    id
+  );
+
+  var arrBuf = longToByteArray(state.SteeringAngle * 10);
+  var flags = 0x00;
+  if (state.LeftBlinker) {
+    flags |= 0x01;
+  }
+  if (state.RightBlinker) {
+    flags |= 0x02;
+  }
+  if (state.GenericToggle) {
+    flags |= 0x04;
+  }
+  if (state.DoorOpen) {
+    flags |= 0x08;
+  }
+  if (state.SeatbeltUnlatched) {
+    flags |= 0x10;
+  }
+  if (state.GasPressed) {
+    flags |= 0x20;
+  }
+  if (state.BrakeLights) {
+    flags |= 0x40;
+  }
+  if (state.SteeringPressed) {
+    flags |= 0x80;
+  }
+  arrBuf = arrBuf.concat([flags]);
+
+  let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
+    entry.dbc,
+    logTime,
+    address,
+    arrBuf,
+    entry.options.canStartTime,
+    prevMsgEntry
+  );
+
+  // console.log(data, longToByteArray(data * 1000));
+
+  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(function(
+    count,
+    idx
+  ) {
+    return entry.messages[id].byteStateChangeCounts[idx] + count;
+  });
+
+  entry.messages[id].entries.push(msgEntry);
 }
 
 function insertCanMessage(entry, logTime, msg) {
@@ -168,4 +240,21 @@ function getPrevMsgEntry(messages, prevMsgEntries, id) {
     return messages[id].entries[messages[id].entries.length - 1];
   }
   return prevMsgEntries[id] || null;
+}
+
+function longToByteArray(long) {
+  // we want to represent the input as a 4-bytes array
+  var byteArray = [0, 0];
+  var isNegative = long < 0;
+  if (isNegative) {
+    long += Math.pow(2, 8 * byteArray.length);
+  }
+
+  for (var index = byteArray.length - 1; index >= 0; --index) {
+    var byte = long & 0xff;
+    byteArray[index] = byte;
+    long = long >> 8;
+  }
+
+  return byteArray;
 }
