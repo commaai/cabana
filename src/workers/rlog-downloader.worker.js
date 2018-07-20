@@ -5,6 +5,7 @@ import { partial } from "ap";
 import { getLogPart, getLogURLList } from "../api/rlog";
 import DbcUtils from "../utils/dbc";
 import DBC from "../models/can/dbc";
+import { addressForName } from "../models/can/logSignals";
 import { loadCanPart } from "./can-fetcher";
 
 const DEBOUNCE_DELAY = 100;
@@ -153,8 +154,8 @@ function queueBatch(entry) {
   }
 }
 function insertEventData(src, part, entry, logTime, getData) {
-  var address = addressForPart(part);
   var id = src + ":" + part;
+  var address = addressForName(id);
 
   if (!entry.messages[id]) {
     entry.messages[id] = DbcUtils.createMessageSpec(
@@ -163,7 +164,9 @@ function insertEventData(src, part, entry, logTime, getData) {
       id,
       src
     );
-    // entry.messages[id].isLogEvent = true;
+    if (id === "CarState:WheelSpeeds") {
+      debugger;
+    }
   }
   let prevMsgEntry = getPrevMsgEntry(
     entry.messages,
@@ -171,17 +174,11 @@ function insertEventData(src, part, entry, logTime, getData) {
     id
   );
 
-  var arrBuf = getData();
-
-  // var arrBuf = signedLongToByteArray(state.SteeringAngle * 1000);
-  // arrBuf = arrBuf.concat(longToByteArray(state.VEgoRaw * 1000000));
-  // arrBuf = arrBuf.concat(longToByteArray(state.YawRate * 1000000));
-
   let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
     entry.dbc,
     logTime,
     address,
-    arrBuf,
+    getData(),
     entry.options.canStartTime,
     prevMsgEntry
   );
@@ -207,16 +204,6 @@ function getCarStateControls(state) {
   return signedLongToByteArray(state.SteeringAngle * 1000)
     .concat(signedShortToByteArray(state.Brake * 1000))
     .concat(signedShortToByteArray(state.Gas * 1000));
-}
-
-const ADDRESS_LIST = [];
-function addressForPart(part) {
-  var i = ADDRESS_LIST.indexOf(part);
-  if (i === -1) {
-    ADDRESS_LIST.push(part);
-    return ADDRESS_LIST.indexOf(part);
-  }
-  return i;
 }
 
 function getWheelSpeeds(state) {

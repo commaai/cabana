@@ -5,6 +5,7 @@ import Signal from "./signal";
 import Frame from "./frame";
 import BoardUnit from "./BoardUnit";
 import DbcUtils from "../../utils/dbc";
+import * as LogSignals from "./logSignals";
 
 const UINT64 = require("cuint").UINT64;
 
@@ -70,6 +71,13 @@ export default class DBC {
       this.dbcText = dbcString;
       this.importDbcString(dbcString);
     }
+  }
+
+  getMessageFrame(address) {
+    if (LogSignals.isLogAddress(address)) {
+      return LogSignals.frameForAddress(address);
+    }
+    return this.messages.get(address);
   }
 
   nextNewFrameName() {
@@ -161,13 +169,13 @@ export default class DBC {
   }
 
   getMessageName(msgId) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg && msg.frame) return msg.frame.name;
     return null;
   }
 
   getSignals(msgId) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg) return msg.signals;
     return {};
   }
@@ -184,7 +192,7 @@ export default class DBC {
   }
 
   setSignals(msgId, signals) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg) {
       const newMsg = Object.assign(Object.create(msg), msg);
       newMsg.signals = signals;
@@ -199,7 +207,7 @@ export default class DBC {
   }
 
   addSignal(msgId, signal) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
 
     if (msg) {
       msg.signals[signal.name] = signal;
@@ -601,7 +609,7 @@ export default class DBC {
     if (!this.messages.has(messageId)) {
       return {};
     }
-    const { signals } = this.messages.get(messageId);
+    const { signals } = this.getMessageFrame(messageId);
 
     const signalValuesByName = {};
     Object.values(signals).forEach(signalSpec => {

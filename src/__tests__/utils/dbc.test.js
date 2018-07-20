@@ -71,6 +71,6 @@ test("addCanMessage should add parsed can message with dbc containing message sp
   expect(sampleMessages.entries[0].signals[signal.name]).toEqual(0xab);
   expectSampleMessageFieldsPreserved(
     messages,
-    dbc.messages.get(SAMPLE_MESSAGE.address)
+    dbc.getMessageFrame(SAMPLE_MESSAGE.address)
   );
 });
