@@ -45,7 +45,8 @@ export default class Meta extends Component {
     this.onFilterChanged = this.onFilterChanged.bind(this);
     this.onFilterFocus = this.onFilterFocus.bind(this);
     this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
-    this.msgFilter = this.msgFilter.bind(this);
+    this.canMsgFilter = this.canMsgFilter.bind(this);
+    this.logEventMsgFilter = this.logEventMsgFilter.bind(this);
     this.renderMessageBytes = this.renderMessageBytes.bind(this);
   }
 
@@ -163,7 +164,25 @@ export default class Meta extends Component {
     }
   }
 
-  msgFilter(msg) {
+  canMsgFilter(msg) {
+    if (msg.isLogEvent) {
+      return;
+    }
+    const { filterText } = this.state;
+    const msgName = msg.frame ? msg.frame.name : "";
+
+    return (
+      filterText === "Filter" ||
+      filterText === "" ||
+      msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 ||
+      msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+    );
+  }
+
+  logEventMsgFilter(msg) {
+    if (!msg.isLogEvent) {
+      return;
+    }
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : "";
 
@@ -234,8 +253,14 @@ export default class Meta extends Component {
           this.selectedMessageClass(msg.id)
         )}
       >
-        <td>{msg.frame ? msg.frame.name : "untitled"}</td>
-        <td>{msg.id}</td>
+        {msg.isLogEvent ? (
+          <td colSpan="2">{msg.id}</td>
+        ) : (
+          <React.Fragment>
+            <td>{msg.frame ? msg.frame.name : "untitled"}</td>
+            <td>{msg.id}</td>
+          </React.Fragment>
+        )}
         <td>{msg.entries.length}</td>
         <td>
           <div className="cabana-meta-messages-list-item-bytes">
@@ -251,9 +276,16 @@ export default class Meta extends Component {
       </tr>
     );
   }
-  renderMessages() {
+
+  renderCanMessages() {
     return this.orderedMessages()
-      .filter(this.msgFilter)
+      .filter(this.canMsgFilter)
+      .map(this.renderMessageBytes);
+  }
+
+  renderLogEventMessages() {
+    return this.orderedMessages()
+      .filter(this.logEventMsgFilter)
       .map(this.renderMessageBytes);
   }
 
@@ -262,17 +294,34 @@ export default class Meta extends Component {
       return <p>Loading messages...</p>;
     }
     return (
-      <table cellPadding="5">
-        <thead>
-          <tr>
-            <td>Name</td>
-            <td>ID</td>
-            <td>Count</td>
-            <td>Bytes</td>
-          </tr>
-        </thead>
-        <tbody>{this.renderMessages()}</tbody>
-      </table>
+      <React.Fragment>
+        <table cellPadding="5">
+          <thead>
+            <tr>
+              <td colSpan="2">Name</td>
+              <td>Count</td>
+              <td>Bytes</td>
+            </tr>
+          </thead>
+          <tbody>
+            {this.renderLogEventMessages()}
+            <tr>
+              <td colSpan="4">
+                <hr />
+              </td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+              <td>Name</td>
+              <td>ID</td>
+              <td>Count</td>
+              <td>Bytes</td>
+            </tr>
+          </thead>
+          <tbody>{this.renderCanMessages()}</tbody>
+        </table>
+      </React.Fragment>
     );
   }
 

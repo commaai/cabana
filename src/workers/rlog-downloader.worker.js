@@ -137,6 +137,7 @@ function insertCarStateMessage(entry, logTime, state) {
       id,
       src
     );
+    entry.messages[id].isLogEvent = true;
   }
   let prevMsgEntry = getPrevMsgEntry(
     entry.messages,
@@ -207,6 +208,7 @@ function insertCanMessage(entry, logTime, msg) {
       id,
       src
     );
+    entry.messages[id].isLogEvent = false;
   }
   let prevMsgEntry = getPrevMsgEntry(
     entry.messages,

@@ -11,6 +11,7 @@ import FIELDS from "./FIELDS";
 
 export default class SignalLegendEntry extends Component {
   static propTypes = {
+    isLogEvent: PropTypes.bool,
     signal: PropTypes.instanceOf(Signal).isRequired,
     isHighlighted: PropTypes.bool,
     onSignalHover: PropTypes.func,
@@ -66,6 +67,9 @@ export default class SignalLegendEntry extends Component {
   };
 
   toggleEditing = e => {
+    if (this.props.isLogEvent) {
+      return;
+    }
     let { signalEdited } = this.state;
     const { signal, isExpanded } = this.props;
     const signalCopy = Object.assign(Object.create(signal), signal);
