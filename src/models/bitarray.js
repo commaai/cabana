@@ -33,7 +33,9 @@ const bitArray = {
       // within a single word
       x = a[(bstart / 32) | 0] >>> sh;
     }
-    return x & ((1 << blength) - 1);
+    // >>> 0 reinterprets the number as an unsigned int
+    // everything is expecting unsigned to come out of this function
+    return (x & (Math.pow(2, blength) - 1)) >>> 0;
   },
 
   /**

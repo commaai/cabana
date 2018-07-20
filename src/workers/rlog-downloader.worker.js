@@ -112,7 +112,34 @@ async function loadData(entry) {
       msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
     } else if ("CarState" in msg) {
       let monoTime = msg.LogMonoTime / 1000000000;
-      insertCarStateMessage(entry, monoTime, msg.CarState);
+      insertEventData(
+        "CarState",
+        "Ego",
+        entry,
+        monoTime,
+        partial(getEgoData, msg.CarState)
+      );
+      insertEventData(
+        "CarState",
+        "Controls",
+        entry,
+        monoTime,
+        partial(getCarStateControls, msg.CarState)
+      );
+      insertEventData(
+        "CarState",
+        "Flags",
+        entry,
+        monoTime,
+        partial(getFlags, msg.CarState)
+      );
+      insertEventData(
+        "CarState",
+        "WheelSpeeds",
+        entry,
+        monoTime,
+        partial(getWheelSpeeds, msg.CarState)
+      );
     } else {
       return;
     }
@@ -125,10 +152,9 @@ function queueBatch(entry) {
     entry.batching = timeout(entry.sendBatch, DEBOUNCE_DELAY);
   }
 }
-function insertCarStateMessage(entry, logTime, state) {
-  var src = "CarState";
-  var address = 0;
-  var id = src;
+function insertEventData(src, part, entry, logTime, getData) {
+  var address = addressForPart(part);
+  var id = src + ":" + part;
 
   if (!entry.messages[id]) {
     entry.messages[id] = DbcUtils.createMessageSpec(
@@ -137,7 +163,7 @@ function insertCarStateMessage(entry, logTime, state) {
       id,
       src
     );
-    entry.messages[id].isLogEvent = true;
+    // entry.messages[id].isLogEvent = true;
   }
   let prevMsgEntry = getPrevMsgEntry(
     entry.messages,
@@ -145,8 +171,65 @@ function insertCarStateMessage(entry, logTime, state) {
     id
   );
 
-  var arrBuf = longToByteArray(state.SteeringAngle * 10);
+  var arrBuf = getData();
+
+  // var arrBuf = signedLongToByteArray(state.SteeringAngle * 1000);
+  // arrBuf = arrBuf.concat(longToByteArray(state.VEgoRaw * 1000000));
+  // arrBuf = arrBuf.concat(longToByteArray(state.YawRate * 1000000));
+
+  let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
+    entry.dbc,
+    logTime,
+    address,
+    arrBuf,
+    entry.options.canStartTime,
+    prevMsgEntry
+  );
+
+  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(function(
+    count,
+    idx
+  ) {
+    return entry.messages[id].byteStateChangeCounts[idx] + count;
+  });
+
+  entry.messages[id].entries.push(msgEntry);
+}
+
+function getEgoData(state) {
+  return signedShortToByteArray(state.VEgo * 1000)
+    .concat(signedShortToByteArray(state.AEgo * 1000))
+    .concat(signedShortToByteArray(state.VEgoRaw * 1000))
+    .concat(signedShortToByteArray(state.YawRate * 1000));
+}
+
+function getCarStateControls(state) {
+  return signedLongToByteArray(state.SteeringAngle * 1000)
+    .concat(signedShortToByteArray(state.Brake * 1000))
+    .concat(signedShortToByteArray(state.Gas * 1000));
+}
+
+const ADDRESS_LIST = [];
+function addressForPart(part) {
+  var i = ADDRESS_LIST.indexOf(part);
+  if (i === -1) {
+    ADDRESS_LIST.push(part);
+    return ADDRESS_LIST.indexOf(part);
+  }
+  return i;
+}
+
+function getWheelSpeeds(state) {
+  return shortToByteArray(state.WheelSpeeds.Fl * 100)
+    .concat(shortToByteArray(state.WheelSpeeds.Fr * 100))
+    .concat(shortToByteArray(state.WheelSpeeds.Rl * 100))
+    .concat(shortToByteArray(state.WheelSpeeds.Rr * 100));
+}
+
+function getFlags(state) {
   var flags = 0x00;
+  var arr = [0, 0, 0];
+
   if (state.LeftBlinker) {
     flags |= 0x01;
   }
@@ -171,27 +254,29 @@ function insertCarStateMessage(entry, logTime, state) {
   if (state.SteeringPressed) {
     flags |= 0x80;
   }
-  arrBuf = arrBuf.concat([flags]);
 
-  let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
-    entry.dbc,
-    logTime,
-    address,
-    arrBuf,
-    entry.options.canStartTime,
-    prevMsgEntry
-  );
+  arr[0] = flags;
+  flags = 0x00;
 
-  // console.log(data, longToByteArray(data * 1000));
+  if (state.Standstill) {
+    flags |= 0x01;
+  }
+  if (state.CruiseState.Enabled) {
+    flags |= 0x02;
+  }
+  if (state.CruiseState.Available) {
+    flags |= 0x04;
+  }
+  if (state.CruiseState.Standstill) {
+    flags |= 0x08;
+  }
+  if (state.GearShifter) {
+    flags |= state.GearShifter << 4;
+  }
 
-  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(function(
-    count,
-    idx
-  ) {
-    return entry.messages[id].byteStateChangeCounts[idx] + count;
-  });
-
-  entry.messages[id].entries.push(msgEntry);
+  arr[1] = flags;
+  arr[2] = state.CruiseState.Speed;
+  return arr;
 }
 
 function insertCanMessage(entry, logTime, msg) {
@@ -244,9 +329,48 @@ function getPrevMsgEntry(messages, prevMsgEntries, id) {
   return prevMsgEntries[id] || null;
 }
 
-function longToByteArray(long) {
-  // we want to represent the input as a 4-bytes array
+function signedShortToByteArray(short) {
   var byteArray = [0, 0];
+  var isNegative = short < 0;
+  if (isNegative) {
+    short += Math.pow(2, 8 * byteArray.length);
+  }
+
+  for (var index = byteArray.length - 1; index >= 0; --index) {
+    var byte = short & 0xff;
+    byteArray[index] = byte;
+    short = short >> 8;
+  }
+
+  return byteArray;
+}
+
+function shortToByteArray(short) {
+  var byteArray = [0, 0];
+
+  for (var index = byteArray.length - 1; index >= 0; --index) {
+    var byte = short & 0xff;
+    byteArray[index] = byte;
+    short = short >> 8;
+  }
+
+  return byteArray;
+}
+
+function longToByteArray(long) {
+  var byteArray = [0, 0, 0, 0];
+
+  for (var index = byteArray.length - 1; index >= 0; --index) {
+    var byte = long & 0xff;
+    byteArray[index] = byte;
+    long = long >> 8;
+  }
+
+  return byteArray;
+}
+
+function signedLongToByteArray(long) {
+  var byteArray = [0, 0, 0, 0];
   var isNegative = long < 0;
   if (isNegative) {
     long += Math.pow(2, 8 * byteArray.length);

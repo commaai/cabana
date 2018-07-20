@@ -552,14 +552,14 @@ export default class DBC {
       return null;
     }
 
-    let rightHandAnd = UINT64((1 << signalSpec.size) - 1);
+    let rightHandAnd = UINT64(Math.pow(2, signalSpec.size) - 1);
     let ival = value
       .shiftr(dataBitPos)
       .and(rightHandAnd)
       .toNumber();
 
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
+    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
+      ival -= Math.pow(2, signalSpec.size);
     }
     ival = ival * signalSpec.factor + signalSpec.offset;
     return ival;
@@ -577,8 +577,8 @@ export default class DBC {
     }
     let ival = Bitarray.extract(bitArr, startBit, signalSpec.size);
 
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
+    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
+      ival -= Math.pow(2, signalSpec.size);
     }
     ival = ival * signalSpec.factor + signalSpec.offset;
     return ival;
