@@ -2,10 +2,14 @@ import { createClassFromSpec } from "react-vega";
 
 export default createClassFromSpec("CanPlot", {
   $schema: "https://vega.github.io/schema/vega/v3.0.json",
-  width: 500,
+  width: 400,
   height: 200,
-  padding: "auto",
-  autosize: { type: "fit", resize: true },
+  padding: {
+    top: 5,
+    left: 30,
+    right: 5,
+    bottom: 10
+  },
   signals: [
     {
       name: "tipTime",

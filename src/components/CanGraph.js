@@ -80,8 +80,8 @@ export default class CanGraph extends Component {
     this.setState({ bounds });
 
     this.view.run();
-    this.view.signal("width", bounds.width);
-    this.view.signal("height", 0.4 * bounds.width); // 5:2 aspect ratio
+    this.view.signal("width", bounds.width - 70);
+    this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
   }
 
