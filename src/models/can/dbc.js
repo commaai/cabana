@@ -77,12 +77,6 @@ export default class DBC {
     if (LogSignals.isLogAddress(address)) {
       return LogSignals.frameForAddress(address);
     }
-    if (
-      this.messages.get(address) &&
-      this.messages.get(address).name === "NEW_MSG_2"
-    ) {
-      debugger;
-    }
     return this.messages.get(address);
   }
 
