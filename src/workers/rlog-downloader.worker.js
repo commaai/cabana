@@ -141,6 +141,49 @@ async function loadData(entry) {
         monoTime,
         partial(getWheelSpeeds, msg.CarState)
       );
+    } else if ("UbloxGnss" in msg) {
+      let monoTime = msg.LogMonoTime / 1000000000;
+      if (msg.UbloxGnss.MeasurementReport) {
+        insertEventData(
+          "UbloxGnss",
+          "MeasurementReport",
+          entry,
+          monoTime,
+          partial(getUbloxGnss, msg.UbloxGnss.MeasurementReport)
+        );
+      }
+    } else if ("Health" in msg) {
+      let monoTime = msg.LogMonoTime / 1000000000;
+      insertEventData(
+        "Health",
+        "Data",
+        entry,
+        monoTime,
+        partial(getHealth, msg.Health)
+      );
+    } else if ("Thermal" in msg) {
+      let monoTime = msg.LogMonoTime / 1000000000;
+      insertEventData(
+        "Thermal",
+        "CPU",
+        entry,
+        monoTime,
+        partial(getThermalCPU, msg.Thermal)
+      );
+      insertEventData(
+        "Thermal",
+        "Data",
+        entry,
+        monoTime,
+        partial(getThermalData, msg.Thermal)
+      );
+      insertEventData(
+        "Thermal",
+        "FreeSpace",
+        entry,
+        monoTime,
+        partial(getThermalFreeSpace, msg.Thermal)
+      );
     } else {
       return;
     }
@@ -153,6 +196,7 @@ function queueBatch(entry) {
     entry.batching = timeout(entry.sendBatch, DEBOUNCE_DELAY);
   }
 }
+
 function insertEventData(src, part, entry, logTime, getData) {
   var id = src + ":" + part;
   var address = addressForName(id);
@@ -164,9 +208,7 @@ function insertEventData(src, part, entry, logTime, getData) {
       id,
       src
     );
-    if (id === "CarState:WheelSpeeds") {
-      debugger;
-    }
+    entry.messages[id].isLogEvent = true;
   }
   let prevMsgEntry = getPrevMsgEntry(
     entry.messages,
@@ -193,6 +235,70 @@ function insertEventData(src, part, entry, logTime, getData) {
   entry.messages[id].entries.push(msgEntry);
 }
 
+function getThermalFlags(state) {
+  var flags = 0x00;
+
+  if (state.UsbOnline) {
+    flags |= 0x01;
+  }
+  if (state.Started) {
+    flags |= 0x02;
+  }
+
+  return flags;
+}
+
+function getThermalFreeSpace(state) {
+  return longToByteArray(state.FreeSpace * 1000000000);
+}
+
+function getThermalData(state) {
+  return shortToByteArray(state.Mem)
+    .concat(shortToByteArray(state.Gpu))
+    .concat(shortToByteArray(state.FanSpeed))
+    .concat(state.BatteryPercent)
+    .concat(getThermalFlags(state));
+}
+
+function getThermalCPU(state) {
+  return shortToByteArray(state.Cpu0)
+    .concat(shortToByteArray(state.Cpu1))
+    .concat(shortToByteArray(state.Cpu2))
+    .concat(shortToByteArray(state.Cpu3));
+}
+
+function getHealth(state) {
+  return signedShortToByteArray(state.Voltage)
+    .concat(state.Current)
+    .concat(getHealthFlags(state));
+}
+
+function getHealthFlags(state) {
+  var flags = 0x00;
+
+  if (state.Started) {
+    flags |= 0x01;
+  }
+  if (state.ControlsAllowed) {
+    flags |= 0x02;
+  }
+  if (state.GasInterceptorDetected) {
+    flags |= 0x04;
+  }
+  if (state.StartedSignalDetected) {
+    flags |= 0x08;
+  }
+
+  return flags;
+}
+
+function getUbloxGnss(state) {
+  return signedLongToByteArray(state.RcvTow / 1000)
+    .concat(signedShortToByteArray(state.GpsWeek))
+    .concat([state.LeapSeconds])
+    .concat([state.NumMeas]);
+}
+
 function getEgoData(state) {
   return signedShortToByteArray(state.VEgo * 1000)
     .concat(signedShortToByteArray(state.AEgo * 1000))
@@ -207,10 +313,10 @@ function getCarStateControls(state) {
 }
 
 function getWheelSpeeds(state) {
-  return shortToByteArray(state.WheelSpeeds.Fl * 100)
-    .concat(shortToByteArray(state.WheelSpeeds.Fr * 100))
-    .concat(shortToByteArray(state.WheelSpeeds.Rl * 100))
-    .concat(shortToByteArray(state.WheelSpeeds.Rr * 100));
+  return signedShortToByteArray(state.WheelSpeeds.Fl * 100)
+    .concat(signedShortToByteArray(state.WheelSpeeds.Fr * 100))
+    .concat(signedShortToByteArray(state.WheelSpeeds.Rl * 100))
+    .concat(signedShortToByteArray(state.WheelSpeeds.Rr * 100));
 }
 
 function getFlags(state) {

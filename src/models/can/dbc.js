@@ -77,6 +77,12 @@ export default class DBC {
     if (LogSignals.isLogAddress(address)) {
       return LogSignals.frameForAddress(address);
     }
+    if (
+      this.messages.get(address) &&
+      this.messages.get(address).name === "NEW_MSG_2"
+    ) {
+      debugger;
+    }
     return this.messages.get(address);
   }
 
@@ -606,7 +612,7 @@ export default class DBC {
     const bits = Bitarray.fromBytes(data);
     const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
 
-    if (!this.messages.has(messageId)) {
+    if (!this.messages.has(messageId) && !LogSignals.isLogAddress(messageId)) {
       return {};
     }
     const { signals } = this.getMessageFrame(messageId);
