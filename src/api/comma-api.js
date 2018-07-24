@@ -1,7 +1,7 @@
 // API gateway for `api.commadotai.com/v1` urls
 import { getCommaAccessToken } from "./comma-auth";
 
-const URL_ROOT = "//api.commadotai.com/v1/";
+const URL_ROOT = "https://api.commadotai.com/v1/";
 const ConfigRequest = require("config-request/instance");
 
 const request = ConfigRequest();
