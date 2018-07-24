@@ -28,8 +28,20 @@ export default class HLS extends Component {
       this.props.onRestart();
     }
 
+    if (!this.videoElement.currentTime) {
+      this.videoElement.currentTime = nextProps.startTime;
+    }
+
+    if (nextProps.source !== this.props.source) {
+      this.loadSource(nextProps.source);
+    }
     if (nextProps.playing) {
-      this.videoElement.play();
+      if (
+        this.videoElement &&
+        (this.videoElement.paused || this.videoElement.currentTime < 0.01)
+      ) {
+        this.videoElement.play();
+      }
     } else {
       this.videoElement.pause();
     }
@@ -57,12 +69,21 @@ export default class HLS extends Component {
 
   componentDidMount() {
     this.player = new Hls();
-    this.player.loadSource(this.props.source);
-    this.player.attachMedia(this.videoElement);
+    this.loadSource();
+  }
 
-    this.props.onVideoElementAvailable(this.videoElement);
-    if (this.props.playing) {
-      this.videoElement.play();
+  loadSource(source = this.props.source) {
+    if (this.videoElement) {
+      this.player.loadSource(source);
+      this.player.attachMedia(this.videoElement);
+      this.props.onVideoElementAvailable(this.videoElement);
+    }
+  }
+
+  componentWillUnmount() {
+    // destroy hls video source
+    if (this.player) {
+      this.player.destroy();
     }
   }
 
@@ -76,6 +97,8 @@ export default class HLS extends Component {
           ref={video => {
             this.videoElement = video;
           }}
+          autoPlay={this.props.playing}
+          muted
           onWaiting={this.props.onLoadStart}
           onPlaying={this.props.onLoadEnd}
           onSeeking={this.onSeeking}
