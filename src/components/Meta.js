@@ -34,20 +34,25 @@ export default class Meta extends Component {
 
   constructor(props) {
     super(props);
-    const { dbcLastSaved } = props;
-    this.state = {
-      filterText: "Filter",
-      lastSaved:
-        dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
-      hoveredMessages: [],
-      orderedMessageKeys: []
-    };
+
     this.onFilterChanged = this.onFilterChanged.bind(this);
     this.onFilterFocus = this.onFilterFocus.bind(this);
     this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
     this.canMsgFilter = this.canMsgFilter.bind(this);
     this.logEventMsgFilter = this.logEventMsgFilter.bind(this);
     this.renderMessageBytes = this.renderMessageBytes.bind(this);
+    this.toggleShowLogEvents = this.toggleShowLogEvents.bind(this);
+
+    const { dbcLastSaved } = props;
+
+    this.state = {
+      filterText: "Filter",
+      lastSaved:
+        dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
+      hoveredMessages: [],
+      orderedMessageKeys: [],
+      showLogEvents: false
+    };
   }
 
   componentWillMount() {
@@ -143,6 +148,12 @@ export default class Meta extends Component {
       .reverse();
 
     return sortedKeys;
+  }
+
+  toggleShowLogEvents() {
+    this.setState({
+      showLogEvents: !this.state.showLogEvents
+    });
   }
 
   onFilterChanged(e) {
@@ -296,21 +307,25 @@ export default class Meta extends Component {
     return (
       <React.Fragment>
         <table cellPadding="5">
-          <thead>
-            <tr>
-              <td colSpan="2">Name</td>
-              <td>Count</td>
-              <td>Bytes</td>
-            </tr>
-          </thead>
-          <tbody>
-            {this.renderLogEventMessages()}
-            <tr>
-              <td colSpan="4">
-                <hr />
-              </td>
-            </tr>
-          </tbody>
+          {this.state.showLogEvents && (
+            <React.Fragment>
+              <thead>
+                <tr>
+                  <td colSpan="2">Name</td>
+                  <td>Count</td>
+                  <td>Bytes</td>
+                </tr>
+              </thead>
+              <tbody>
+                {this.renderLogEventMessages()}
+                <tr>
+                  <td colSpan="4">
+                    <hr />
+                  </td>
+                </tr>
+              </tbody>
+            </React.Fragment>
+          )}
           <thead>
             <tr>
               <td>Name</td>
@@ -394,6 +409,21 @@ export default class Meta extends Component {
         </div>
         <div className="cabana-meta-messages">
           <div className="cabana-meta-messages-header">
+            <div
+              style={{
+                display: "inline-block",
+                float: "right"
+              }}
+            >
+              <h5 className="t-capline">
+                Show log events
+                <input
+                  type="checkbox"
+                  onChange={this.toggleShowLogEvents}
+                  checked={!!this.state.showLogEvents}
+                />
+              </h5>
+            </div>
             <h5 className="t-capline">Available messages</h5>
           </div>
           <div className="cabana-meta-messages-window">
