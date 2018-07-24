@@ -317,7 +317,7 @@ export default class CanExplorer extends Component {
           newMessages[key].byteStateChangeCounts;
       } else {
         messages[key] = newMessages[key];
-        messages[key].frame = this.state.dbc.messages.get(
+        messages[key].frame = this.state.dbc.getMessageFrame(
           messages[key].address
         );
       }
@@ -512,13 +512,13 @@ export default class CanExplorer extends Component {
     const { dbc, dbcFilename } = this.state;
     dbc.setSignals(message.address, { ...signals });
 
-    this.updateMessageFrame(message.id, dbc.messages.get(message.address));
+    this.updateMessageFrame(message.id, dbc.getMessageFrame(message.address));
 
     this.persistDbc({ dbcFilename, dbc });
 
     const messages = {};
     const newMessage = { ...message };
-    const frame = dbc.messages.get(message.address);
+    const frame = dbc.getMessageFrame(message.address);
     newMessage.frame = frame;
 
     messages[message.id] = newMessage;

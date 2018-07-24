@@ -5,6 +5,7 @@ import Signal from "./signal";
 import Frame from "./frame";
 import BoardUnit from "./BoardUnit";
 import DbcUtils from "../../utils/dbc";
+import * as LogSignals from "./logSignals";
 
 const UINT64 = require("cuint").UINT64;
 
@@ -70,6 +71,13 @@ export default class DBC {
       this.dbcText = dbcString;
       this.importDbcString(dbcString);
     }
+  }
+
+  getMessageFrame(address) {
+    if (LogSignals.isLogAddress(address)) {
+      return LogSignals.frameForAddress(address);
+    }
+    return this.messages.get(address);
   }
 
   nextNewFrameName() {
@@ -161,13 +169,13 @@ export default class DBC {
   }
 
   getMessageName(msgId) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg && msg.frame) return msg.frame.name;
     return null;
   }
 
   getSignals(msgId) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg) return msg.signals;
     return {};
   }
@@ -184,7 +192,7 @@ export default class DBC {
   }
 
   setSignals(msgId, signals) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
     if (msg) {
       const newMsg = Object.assign(Object.create(msg), msg);
       newMsg.signals = signals;
@@ -199,7 +207,7 @@ export default class DBC {
   }
 
   addSignal(msgId, signal) {
-    const msg = this.messages.get(msgId);
+    const msg = this.getMessageFrame(msgId);
 
     if (msg) {
       msg.signals[signal.name] = signal;
@@ -552,14 +560,14 @@ export default class DBC {
       return null;
     }
 
-    let rightHandAnd = UINT64((1 << signalSpec.size) - 1);
+    let rightHandAnd = UINT64(Math.pow(2, signalSpec.size) - 1);
     let ival = value
       .shiftr(dataBitPos)
       .and(rightHandAnd)
       .toNumber();
 
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
+    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
+      ival -= Math.pow(2, signalSpec.size);
     }
     ival = ival * signalSpec.factor + signalSpec.offset;
     return ival;
@@ -577,8 +585,8 @@ export default class DBC {
     }
     let ival = Bitarray.extract(bitArr, startBit, signalSpec.size);
 
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
+    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
+      ival -= Math.pow(2, signalSpec.size);
     }
     ival = ival * signalSpec.factor + signalSpec.offset;
     return ival;
@@ -598,10 +606,10 @@ export default class DBC {
     const bits = Bitarray.fromBytes(data);
     const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
 
-    if (!this.messages.has(messageId)) {
+    if (!this.messages.has(messageId) && !LogSignals.isLogAddress(messageId)) {
       return {};
     }
-    const { signals } = this.messages.get(messageId);
+    const { signals } = this.getMessageFrame(messageId);
 
     const signalValuesByName = {};
     Object.values(signals).forEach(signalSpec => {

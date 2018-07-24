@@ -152,7 +152,7 @@ const steerTorqueSignal = new Signal({
 
 test("DBC parses steering control message", () => {
   const dbcParsed = new DBC(DBC_MESSAGE_DEF);
-  const { signals } = dbcParsed.messages.get(228);
+  const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(Object.keys(signals).length).toBe(6);
   expect(signals["STEER_TORQUE"].equals(steerTorqueSignal)).toBe(true);
@@ -160,7 +160,7 @@ test("DBC parses steering control message", () => {
 
 test("DBC parses signal comment", () => {
   const dbcParsed = new DBC(DBC_SIGNAL_WITH_COMMENT);
-  const { signals } = dbcParsed.messages.get(228);
+  const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(signals.STEER_TORQUE.comment).toEqual(
     "steer torque is the amount of torque in Nm applied"
@@ -169,7 +169,7 @@ test("DBC parses signal comment", () => {
 
 test("DBC parses multi-line signal comment", () => {
   const dbcParsed = new DBC(DBC_SIGNAL_WITH_MULTI_LINE_COMMENT);
-  const { signals } = dbcParsed.messages.get(228);
+  const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(signals.STEER_TORQUE.comment).toEqual(
     "steer torque is the\namount of torque in Nm applied"
@@ -178,14 +178,14 @@ test("DBC parses multi-line signal comment", () => {
 
 test("DBC parses message comment", () => {
   const dbcParsed = new DBC(DBC_MESSAGE_WITH_COMMENT);
-  const msg = dbcParsed.messages.get(228);
+  const msg = dbcParsed.getMessageFrame(228);
 
   expect(msg.comment).toEqual("this message contains steer torque information");
 });
 
 test("DBC parses multi-line message comment", () => {
   const dbcParsed = new DBC(DBC_MESSAGE_WITH_MULTI_LINE_COMMENT);
-  const msg = dbcParsed.messages.get(228);
+  const msg = dbcParsed.getMessageFrame(228);
 
   expect(msg.comment).toEqual(
     "this message contains\nsteer torque information"
@@ -210,7 +210,7 @@ test("DBC parses multi-line board unit comments", () => {
 
 test("DBC parses signal value descriptions", () => {
   const dbcParsed = new DBC(DBC_SIGNALS_WITH_VAL);
-  const { signals } = dbcParsed.messages.get(228);
+  const { signals } = dbcParsed.getMessageFrame(228);
 
   const expectedTorqueRequestVals = new Map([
     ["1", "requesting torque"],
@@ -288,7 +288,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 
 test("int32 parsers produces correct value for binary little endian signal", () => {
   const dbc = new DBC(DBC_BINARY_LE_SIGNAL);
-  const signalSpec = dbc.messages.get(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
 
   const hexDataSet = "0000000020000000";
   const hexDataNotSet = "0000000000000000";
@@ -306,7 +306,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 `;
 test("int32 parser produces correct value for 2-bit little endian signal spanning words", () => {
   const dbc = new DBC(DBC_TWO_BIT_LE_SIGNAL);
-  const signalSpec = dbc.messages.get(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
 
   const hexData = "00000001f8000000";
 
@@ -320,7 +320,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 `;
 test("int32 parser produces correct value for 4-bit little endian signal", () => {
   const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL);
-  const signalSpec = dbc.messages.get(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
 
   // this data is symmetric, the data bits are 1111
   const hexDataSymmetric = "f00f000000000000";

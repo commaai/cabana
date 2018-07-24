@@ -34,19 +34,25 @@ export default class Meta extends Component {
 
   constructor(props) {
     super(props);
+
+    this.onFilterChanged = this.onFilterChanged.bind(this);
+    this.onFilterFocus = this.onFilterFocus.bind(this);
+    this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
+    this.canMsgFilter = this.canMsgFilter.bind(this);
+    this.logEventMsgFilter = this.logEventMsgFilter.bind(this);
+    this.renderMessageBytes = this.renderMessageBytes.bind(this);
+    this.toggleShowLogEvents = this.toggleShowLogEvents.bind(this);
+
     const { dbcLastSaved } = props;
+
     this.state = {
       filterText: "Filter",
       lastSaved:
         dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
       hoveredMessages: [],
-      orderedMessageKeys: []
+      orderedMessageKeys: [],
+      showLogEvents: false
     };
-    this.onFilterChanged = this.onFilterChanged.bind(this);
-    this.onFilterFocus = this.onFilterFocus.bind(this);
-    this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
-    this.msgFilter = this.msgFilter.bind(this);
-    this.renderMessageBytes = this.renderMessageBytes.bind(this);
   }
 
   componentWillMount() {
@@ -144,6 +150,12 @@ export default class Meta extends Component {
     return sortedKeys;
   }
 
+  toggleShowLogEvents() {
+    this.setState({
+      showLogEvents: !this.state.showLogEvents
+    });
+  }
+
   onFilterChanged(e) {
     let val = e.target.value;
     if (val.trim() === "Filter") val = "";
@@ -163,7 +175,25 @@ export default class Meta extends Component {
     }
   }
 
-  msgFilter(msg) {
+  canMsgFilter(msg) {
+    if (msg.isLogEvent) {
+      return;
+    }
+    const { filterText } = this.state;
+    const msgName = msg.frame ? msg.frame.name : "";
+
+    return (
+      filterText === "Filter" ||
+      filterText === "" ||
+      msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 ||
+      msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+    );
+  }
+
+  logEventMsgFilter(msg) {
+    if (!msg.isLogEvent) {
+      return;
+    }
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : "";
 
@@ -234,8 +264,14 @@ export default class Meta extends Component {
           this.selectedMessageClass(msg.id)
         )}
       >
-        <td>{msg.frame ? msg.frame.name : "untitled"}</td>
-        <td>{msg.id}</td>
+        {msg.isLogEvent ? (
+          <td colSpan="2">{msg.id}</td>
+        ) : (
+          <React.Fragment>
+            <td>{msg.frame ? msg.frame.name : "untitled"}</td>
+            <td>{msg.id}</td>
+          </React.Fragment>
+        )}
         <td>{msg.entries.length}</td>
         <td>
           <div className="cabana-meta-messages-list-item-bytes">
@@ -251,9 +287,16 @@ export default class Meta extends Component {
       </tr>
     );
   }
-  renderMessages() {
+
+  renderCanMessages() {
     return this.orderedMessages()
-      .filter(this.msgFilter)
+      .filter(this.canMsgFilter)
+      .map(this.renderMessageBytes);
+  }
+
+  renderLogEventMessages() {
+    return this.orderedMessages()
+      .filter(this.logEventMsgFilter)
       .map(this.renderMessageBytes);
   }
 
@@ -262,17 +305,38 @@ export default class Meta extends Component {
       return <p>Loading messages...</p>;
     }
     return (
-      <table cellPadding="5">
-        <thead>
-          <tr>
-            <td>Name</td>
-            <td>ID</td>
-            <td>Count</td>
-            <td>Bytes</td>
-          </tr>
-        </thead>
-        <tbody>{this.renderMessages()}</tbody>
-      </table>
+      <React.Fragment>
+        <table cellPadding="5">
+          {this.state.showLogEvents && (
+            <React.Fragment>
+              <thead>
+                <tr>
+                  <td colSpan="2">Name</td>
+                  <td>Count</td>
+                  <td>Bytes</td>
+                </tr>
+              </thead>
+              <tbody>
+                {this.renderLogEventMessages()}
+                <tr>
+                  <td colSpan="4">
+                    <hr />
+                  </td>
+                </tr>
+              </tbody>
+            </React.Fragment>
+          )}
+          <thead>
+            <tr>
+              <td>Name</td>
+              <td>ID</td>
+              <td>Count</td>
+              <td>Bytes</td>
+            </tr>
+          </thead>
+          <tbody>{this.renderCanMessages()}</tbody>
+        </table>
+      </React.Fragment>
     );
   }
 
@@ -345,6 +409,21 @@ export default class Meta extends Component {
         </div>
         <div className="cabana-meta-messages">
           <div className="cabana-meta-messages-header">
+            <div
+              style={{
+                display: "inline-block",
+                float: "right"
+              }}
+            >
+              <h5 className="t-capline">
+                Show log events
+                <input
+                  type="checkbox"
+                  onChange={this.toggleShowLogEvents}
+                  checked={!!this.state.showLogEvents}
+                />
+              </h5>
+            </div>
             <h5 className="t-capline">Available messages</h5>
           </div>
           <div className="cabana-meta-messages-window">

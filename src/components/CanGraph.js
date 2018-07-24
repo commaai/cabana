@@ -142,7 +142,7 @@ export default class CanGraph extends Component {
   }
 
   updateStyleFromDragPos({ left, top }) {
-    const plotInnerStyle = this.state.plotInnerStyle || {};
+    const plotInnerStyle = { ...this.state.plotInnerStyle };
     plotInnerStyle.left = left;
     plotInnerStyle.top = top;
     this.setState({ plotInnerStyle });

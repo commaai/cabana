@@ -50,7 +50,7 @@ function addCanMessage(
 }
 
 function createMessageSpec(dbc, address, id, bus) {
-  const frame = dbc.messages.get(address);
+  const frame = dbc.getMessageFrame(address);
   const size = frame ? frame.size : 8;
 
   return {
@@ -118,7 +118,7 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
   } else {
     hexData = Buffer.from(data).toString("hex");
   }
-  const msgSpec = dbc.messages.get(address);
+  const msgSpec = dbc.getMessageFrame(address);
   const msgSize = msgSpec ? msgSpec.size : 8;
   const relTime = time - timeStart;
 

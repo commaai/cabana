@@ -438,7 +438,6 @@ export default class Explorer extends Component {
       const userSeekIndex = Entries.findTimeIndex(entries, canTime);
 
       this.props.onUserSeek(time);
-
       this.setState({
         userSeekIndex,
         userSeekTime: time
