@@ -27,12 +27,6 @@ export default class HLS extends Component {
       this.videoElement.currentTime = nextProps.startTime;
       this.props.onRestart();
     }
-
-    if (nextProps.playing) {
-      this.videoElement.play();
-    } else {
-      this.videoElement.pause();
-    }
   }
 
   onSeeking = () => {
@@ -61,9 +55,6 @@ export default class HLS extends Component {
     this.player.attachMedia(this.videoElement);
 
     this.props.onVideoElementAvailable(this.videoElement);
-    if (this.props.playing) {
-      this.videoElement.play();
-    }
   }
 
   render() {
@@ -76,6 +67,7 @@ export default class HLS extends Component {
           ref={video => {
             this.videoElement = video;
           }}
+          autoPlay={this.props.playing}
           onWaiting={this.props.onLoadStart}
           onPlaying={this.props.onLoadEnd}
           onSeeking={this.onSeeking}
