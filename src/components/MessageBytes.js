@@ -96,14 +96,18 @@ export default class MessageBytes extends Component {
     // ctx.clearRect(0, 0, 180, 15);
 
     for (let i = 0; i < message.byteStateChangeCounts.length; ++i) {
-      const hexData = mostRecentMsg.hexData.substr(i * 2, 2) || "00";
+      const hexData = mostRecentMsg.hexData.substr(i * 2, 2);
       ctx.fillStyle = message.byteColors[i];
 
       ctx.fillRect(i * 20, 0, 20, 15);
 
       ctx.font = "12px Courier";
       ctx.fillStyle = "white";
-      ctx.fillText(hexData, i * 20 + 2, 12);
+      if (hexData) {
+        ctx.fillText(hexData, i * 20 + 2, 12);
+      } else {
+        ctx.fillText("-", i * 20 + 7, 12);
+      }
     }
   }
 

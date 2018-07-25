@@ -594,14 +594,15 @@ export default class DBC {
 
   getSignalValues(messageId, data) {
     let buffer = Buffer.from(data);
+    let paddedBuffer = buffer;
     if (data.length % 8 !== 0) {
       // pad data it's 64 bits long
       const paddedDataHex = leftPad(buffer.toString("hex"), 16, "0");
-      buffer = Buffer.from(paddedDataHex);
+      paddedBuffer = Buffer.from(paddedDataHex);
     }
 
     const hexData = buffer.toString("hex");
-    const bufferSwapped = Buffer.from(buffer).swap64();
+    const bufferSwapped = Buffer.from(paddedBuffer).swap64();
 
     const bits = Bitarray.fromBytes(data);
     const bitsSwapped = Bitarray.fromBytes(bufferSwapped);

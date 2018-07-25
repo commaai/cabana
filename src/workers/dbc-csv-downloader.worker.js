@@ -44,7 +44,7 @@ async function fetchAndPostData(
     }
   }
 
-  await prevPart;
+  await Promise.all(promiseBuffer);
   // processing is done!
   self.postMessage({
     progress: 100,
