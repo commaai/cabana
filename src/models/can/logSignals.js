@@ -44,7 +44,7 @@ export const controls = {
     index: 0,
     factor: 0.001
   }),
-  Break: shortSignal({
+  Brake: shortSignal({
     index: 2,
     factor: 0.001
   }),
