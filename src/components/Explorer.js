@@ -10,6 +10,7 @@ import CanLog from "./CanLog";
 import Entries from "../models/can/entries";
 import debounce from "../utils/debounce";
 import PartSelector from "./PartSelector";
+import PlaySpeedSelector from "./PlaySpeedSelector";
 import GraphData from "../models/graph-data";
 
 export default class Explorer extends Component {
@@ -39,7 +40,8 @@ export default class Explorer extends Component {
       userSeekIndex: 0,
       userSeekTime: props.currentParts[0] * 60,
       playing: props.autoplay,
-      signals: {}
+      signals: {},
+      playSpeed: 1
     };
     this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
     this.onSignalUnplotPressed = this.onSignalUnplotPressed.bind(this);
@@ -56,6 +58,7 @@ export default class Explorer extends Component {
     this.mergePlots = this.mergePlots.bind(this);
     this.refreshGraphData = this.refreshGraphData.bind(this);
     this.toggleShouldShowAddSignal = this.toggleShouldShowAddSignal.bind(this);
+    this.changePlaySpeed = this.changePlaySpeed.bind(this);
   }
 
   _onKeyDown(e) {
@@ -234,6 +237,12 @@ export default class Explorer extends Component {
         nextProps.currentParts[0] * 60;
       this.setState({ userSeekTime: nextSeekTime });
     }
+  }
+
+  changePlaySpeed(value) {
+    this.setState({
+      playSpeed: value
+    });
   }
 
   timeWindow() {
@@ -646,6 +655,10 @@ export default class Explorer extends Component {
         <div className="cabana-explorer-visuals">
           {this.props.live === false ? (
             <div>
+              <PlaySpeedSelector
+                playSpeed={this.state.playSpeed}
+                onPlaySpeedChanged={this.changePlaySpeed}
+              />
               <div className="cabana-explorer-visuals-header">
                 {this.timeWindow()}
                 <PartSelector
@@ -669,6 +682,7 @@ export default class Explorer extends Component {
                 onPlay={this.onPlay}
                 onPause={this.onPause}
                 userSeekTime={this.state.userSeekTime}
+                playSpeed={this.state.playSpeed}
               />
             </div>
           ) : null}

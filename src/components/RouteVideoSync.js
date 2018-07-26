@@ -173,7 +173,7 @@ export default class RouteVideoSync extends Component {
           className={css(Styles.hls)}
           source={Video.videoUrlForRouteUrl(this.props.url)}
           startTime={this.props.userSeekTime}
-          playbackSpeed={1}
+          playbackSpeed={this.props.playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
           playing={this.props.playing}
           onClick={this.props.onVideoClick}
