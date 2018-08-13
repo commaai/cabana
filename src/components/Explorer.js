@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 
 import cx from "classnames";
@@ -13,7 +15,9 @@ import PartSelector from "./PartSelector";
 import PlaySpeedSelector from "./PlaySpeedSelector";
 import GraphData from "../models/graph-data";
 
-export default class Explorer extends Component {
+import { seek } from "../actions";
+
+class Explorer extends Component {
   static propTypes = {
     selectedMessage: PropTypes.string,
     url: PropTypes.string,
@@ -38,7 +42,7 @@ export default class Explorer extends Component {
       segmentIndices: [],
       shouldShowAddSignal: true,
       userSeekIndex: 0,
-      userSeekTime: props.currentParts[0] * 60,
+      userSeekTime: this.props.seekTime,
       playing: props.autoplay,
       signals: {},
       playSpeed: 1
@@ -193,8 +197,8 @@ export default class Explorer extends Component {
     }
 
     const partsDidChange =
-      JSON.stringify(nextProps.currentParts) !==
-      JSON.stringify(this.props.currentParts);
+      JSON.stringify(nextProps.selectedParts) !==
+      JSON.stringify(this.props.selectedParts);
 
     if (plottedSignals.length > 0) {
       if (graphData.length !== plottedSignals.length || partsDidChange) {
@@ -233,8 +237,8 @@ export default class Explorer extends Component {
       const { userSeekTime } = this.state;
       const nextSeekTime =
         userSeekTime -
-        this.props.currentParts[0] * 60 +
-        nextProps.currentParts[0] * 60;
+        this.props.selectedParts[0] * 60 +
+        nextProps.selectedParts[0] * 60;
       this.setState({ userSeekTime: nextSeekTime });
     }
   }
@@ -246,11 +250,11 @@ export default class Explorer extends Component {
   }
 
   timeWindow() {
-    const { routeStartTime, currentParts } = this.props;
+    const { routeStartTime, selectedParts } = this.props;
 
     if (routeStartTime) {
-      const partStartOffset = currentParts[0] * 60,
-        partEndOffset = (currentParts[1] + 1) * 60;
+      const partStartOffset = selectedParts[0] * 60,
+        partEndOffset = (selectedParts[1] + 1) * 60;
 
       const windowStartTime = routeStartTime
         .clone()
@@ -408,8 +412,7 @@ export default class Explorer extends Component {
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
     if (!message) {
-      this.props.onUserSeek(time);
-      this.props.onSeek(0, time);
+      this.props.dispatch(seek(time));
       return;
     }
 
@@ -419,9 +422,9 @@ export default class Explorer extends Component {
       const seekTime = entries[userSeekIndex].relTime;
 
       this.setState({ userSeekIndex, userSeekTime: seekTime });
-      this.props.onSeek(userSeekIndex, seekTime);
+      this.props.dispatch(seek(time, userSeekIndex));
     } else {
-      this.props.onUserSeek(time);
+      this.props.dispatch(seek(time));
       this.setState({ userSeekTime: time });
     }
   }
@@ -464,14 +467,14 @@ export default class Explorer extends Component {
     this.setState({ playing: false });
   }
 
-  secondsLoadedRouteRelative(currentParts) {
-    return (currentParts[1] - currentParts[0] + 1) * 60;
+  secondsLoadedRouteRelative(selectedParts) {
+    return (selectedParts[1] - selectedParts[0] + 1) * 60;
   }
 
   secondsLoaded() {
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
-      return this.secondsLoadedRouteRelative(this.props.currentParts);
+      return this.secondsLoadedRouteRelative(this.props.selectedParts);
     }
 
     const { entries } = message;
@@ -485,7 +488,8 @@ export default class Explorer extends Component {
   }
 
   startOffset() {
-    const partOffset = this.props.currentParts[0] * 60;
+    const partOffset = this.props.selectedParts[0] * 60;
+    const seekTime = this.props.seekTime;
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
       return partOffset;
@@ -502,7 +506,7 @@ export default class Explorer extends Component {
 
     if (
       startTime > partOffset &&
-      startTime < (this.props.currentParts[1] + 1) * 60
+      startTime < (this.props.selectedParts[1] + 1) * 60
     ) {
       // startTime is within bounds of currently selected parts
       return startTime;
@@ -661,10 +665,7 @@ export default class Explorer extends Component {
               />
               <div className="cabana-explorer-visuals-header">
                 {this.timeWindow()}
-                <PartSelector
-                  onPartChange={this.props.onPartChange}
-                  partsCount={this.props.partsCount}
-                />
+                <PartSelector partsCount={this.props.partsCount} />
               </div>
               <RouteVideoSync
                 message={this.props.messages[this.props.selectedMessage]}
@@ -713,3 +714,10 @@ export default class Explorer extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({
+  selectedParts: "playback.selectedParts",
+  seekTime: "playback.seekTime"
+});
+
+export default connect(stateToProps)(Explorer);

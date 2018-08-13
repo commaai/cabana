@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import cx from "classnames";
 import PropTypes from "prop-types";
 import Clipboard from "clipboard";
@@ -8,7 +10,7 @@ import MessageBytes from "./MessageBytes";
 import { GITHUB_AUTH_TOKEN_KEY } from "../config";
 const { ckmeans } = require("simple-statistics");
 
-export default class Meta extends Component {
+class Meta extends Component {
   static propTypes = {
     onMessageSelected: PropTypes.func,
     onMessageUnselected: PropTypes.func,
@@ -25,7 +27,7 @@ export default class Meta extends Component {
     showEditMessageModal: PropTypes.func,
     route: PropTypes.object,
     partsLoaded: PropTypes.number,
-    currentParts: PropTypes.array,
+    selectedParts: PropTypes.array,
     seekTime: PropTypes.number,
     loginWithGithub: PropTypes.element,
     isDemo: PropTypes.bool,
@@ -447,3 +449,10 @@ export default class Meta extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({
+  route: "playback.route",
+  seekTime: "playback.seekTime"
+});
+
+export default connect(stateToProps)(Meta);
