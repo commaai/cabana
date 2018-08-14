@@ -45,7 +45,13 @@ export default function playback(state, action) {
       break;
     case ACTION_SEEK:
       // user seek gesture
-      let suggestedPart = getPartForTime(action.time);
+      let suggestedPart = state.selectedParts[0];
+      if (
+        action.time / 60 < state.selectedParts[0] ||
+        Math.floor(action.time / 60) > state.selectedParts[1]
+      ) {
+        suggestedPart = getPartForTime(action.time);
+      }
       if (suggestedPart >= state.maxParts) {
         suggestedPart = state.maxParts - 1;
       }

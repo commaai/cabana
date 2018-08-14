@@ -7,8 +7,7 @@ import {
 } from "./types";
 
 export function seek(time, index) {
-  console.log("Seek happened", time, index);
-  debugger;
+  // console.log("Seek happened", time, index);
   return {
     type: ACTION_SEEK,
     time,
@@ -17,7 +16,7 @@ export function seek(time, index) {
 }
 
 export function autoSeek(time) {
-  console.log("autoSeek happened", time);
+  // console.log("autoSeek happened", time);
   return {
     type: ACTION_AUTO_SEEK,
     time
