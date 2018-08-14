@@ -37,10 +37,11 @@ class PartSelector extends Component {
   }
 
   makePartStyle(maxParts, selectedPart) {
+    maxParts = maxParts + 1;
     console.log("Making styles for", maxParts, selectedPart);
     return {
       left: selectedPart / maxParts * PartSelector.selectorWidth,
-      width: PART_SEGMENT_LENGTH / maxParts * PartSelector.selectorWidth
+      width: (PART_SEGMENT_LENGTH - 1) / maxParts * PartSelector.selectorWidth
     };
   }
 
@@ -60,7 +61,7 @@ class PartSelector extends Component {
   selectPart(part) {
     part = Math.max(
       0,
-      Math.min(this.props.maxParts - PART_SEGMENT_LENGTH, part)
+      Math.min(this.props.maxParts - PART_SEGMENT_LENGTH + 1, part)
     );
     if (part === this.props.selectedParts[0]) {
       return;
@@ -72,7 +73,7 @@ class PartSelector extends Component {
   selectNextPart() {
     let { selectedParts, maxParts } = this.props;
     let selectedPart = selectedParts[0] + 1;
-    if (selectedPart + PART_SEGMENT_LENGTH >= maxParts) {
+    if (selectedPart + PART_SEGMENT_LENGTH > maxParts) {
       return;
     }
 
@@ -121,7 +122,6 @@ class PartSelector extends Component {
     const { selectedPartStyle } = this.state;
     if (this.props.maxParts <= PART_SEGMENT_LENGTH) {
       // all parts are available so no need to render the partselector
-
       return null;
     }
     return (
@@ -148,7 +148,7 @@ class PartSelector extends Component {
 const stateToProps = Obstruction({
   seekTime: "playback.seekTime",
   selectedParts: "playback.selectedParts",
-  maxParts: "playback.maxParts"
+  maxParts: "route.maxParts"
 });
 
 export default connect(stateToProps)(PartSelector);

@@ -4,7 +4,7 @@ import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 import Hls from "hls.js/lib";
 
-import { setLoading, seek } from "../actions";
+import { setLoading, seek, autoSeek, setMaxTime } from "../actions";
 
 class HLS extends Component {
   static propTypes = {
@@ -29,6 +29,7 @@ class HLS extends Component {
 
     this.onLoadStart = this.onLoadStart.bind(this);
     this.onLoadEnd = this.onLoadEnd.bind(this);
+    this.onEnded = this.onEnded.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,6 +59,17 @@ class HLS extends Component {
       }
     } else {
       this.videoElement.pause();
+    }
+
+    if (
+      this.videoElement &&
+      Math.abs(this.videoElement.currentTime - nextProps.seekTime) > 1.0
+    ) {
+      this.videoElement.currentTime = nextProps.seekTime;
+      this.setState({
+        seekingTime: nextProps.seekTime
+      });
+      this.props.dispatch(setLoading(true));
     }
   }
 
@@ -112,18 +124,20 @@ class HLS extends Component {
     this.props.dispatch(setLoading(true));
   }
   onLoadEnd() {
+    if (this.videoElement.duration !== this.props.maxTime) {
+      this.props.dispatch(setMaxTime(this.videoElement.duration));
+    }
     this.props.dispatch(setLoading(false));
     this.setState({
       seekingTime: null
     });
   }
 
+  onEnded() {
+    this.props.dispatch(autoSeek(this.props.maxTime));
+  }
+
   render() {
-    console.log(
-      "rendering video with",
-      this.props.startTime,
-      this.props.seekTime
-    );
     return (
       <div
         className="cabana-explorer-visuals-camera-wrapper"
@@ -140,6 +154,7 @@ class HLS extends Component {
           onPlaying={this.onLoadEnd}
           onSeeking={this.onSeeking}
           onSeeked={this.onSeeked}
+          onEnded={this.onEnded}
         />
       </div>
     );
@@ -148,7 +163,8 @@ class HLS extends Component {
 
 const stateToProps = Obstruction({
   isLoading: "playback.isLoading",
-  seekTime: "playback.seekTime"
+  seekTime: "playback.seekTime",
+  maxTime: "playback.maxTime"
 });
 
 export default connect(stateToProps)(HLS);

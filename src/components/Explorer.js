@@ -26,7 +26,6 @@ class Explorer extends Component {
     onConfirmedSignalChange: PropTypes.func.isRequired,
     canFrameOffset: PropTypes.number,
     firstCanTime: PropTypes.number,
-    onSeek: PropTypes.func.isRequired,
     autoplay: PropTypes.bool.isRequired,
     onPartChange: PropTypes.func.isRequired,
     partsCount: PropTypes.number
@@ -52,8 +51,6 @@ class Explorer extends Component {
     this.onSegmentChanged = this.onSegmentChanged.bind(this);
     this.showAddSignal = this.showAddSignal.bind(this);
     this.onGraphTimeClick = this.onGraphTimeClick.bind(this);
-    this.onUserSeek = this.onUserSeek.bind(this);
-    this.onPlaySeek = this.onPlaySeek.bind(this);
     this.onPlay = this.onPlay.bind(this);
     this.onPause = this.onPause.bind(this);
     this.onVideoClick = this.onVideoClick.bind(this);
@@ -112,6 +109,8 @@ class Explorer extends Component {
     const nextMessage = nextProps.messages[nextProps.selectedMessage];
     const curMessage = this.props.messages[this.props.selectedMessage];
     let { plottedSignals, graphData } = this.state;
+
+    this.checkSeek(nextProps);
 
     if (Object.keys(nextProps.messages).length === 0) {
       this.resetSegment();
@@ -177,9 +176,7 @@ class Explorer extends Component {
 
       this.setState({
         segment,
-        segmentIndices,
-        userSeekIndex: nextProps.seekIndex,
-        userSeekTime: nextSeekTime
+        segmentIndices
       });
     }
 
@@ -253,8 +250,11 @@ class Explorer extends Component {
     const { routeStartTime, selectedParts } = this.props;
 
     if (routeStartTime) {
-      const partStartOffset = selectedParts[0] * 60,
-        partEndOffset = (selectedParts[1] + 1) * 60;
+      const partStartOffset = selectedParts[0] * 60;
+      const partEndOffset = Math.min(
+        this.props.maxTime,
+        (selectedParts[1] + 1) * 60
+      );
 
       const windowStartTime = routeStartTime
         .clone()
@@ -384,11 +384,16 @@ class Explorer extends Component {
     this.setState({ shouldShowAddSignal: !this.state.shouldShowAddSignal });
   }
 
-  indexFromSeekTime(time) {
+  indexFromSeekTime(time, entries) {
     // returns index guaranteed to be in [0, entries.length - 1]
 
-    const { entries } = this.props.messages[this.props.selectedMessage];
-    if (entries.length === 0) return null;
+    if (!entries) {
+      entries = this.props.messages[this.props.selectedMessage].entries;
+    }
+
+    if (entries.length === 0) {
+      return null;
+    }
 
     const { segmentIndices } = this.state;
     if (segmentIndices.length === 2) {
@@ -408,31 +413,33 @@ class Explorer extends Component {
     }
   }
 
-  onUserSeek(time) {
-    this.setState({ userSeekTime: time });
-    const message = this.props.messages[this.props.selectedMessage];
+  checkSeek(newProps) {
+    const message = newProps.messages[newProps.selectedMessage];
     if (!message) {
-      this.props.dispatch(seek(time));
+      // remove seekIndex
+      if (newProps.seekIndex) {
+        this.props.dispatch(seek(newProps.seekTime));
+      }
       return;
     }
 
     const { entries } = message;
-    const userSeekIndex = this.indexFromSeekTime(time);
+    const userSeekIndex = this.indexFromSeekTime(newProps.seekTime, entries);
     if (userSeekIndex) {
       const seekTime = entries[userSeekIndex].relTime;
 
-      this.setState({ userSeekIndex, userSeekTime: seekTime });
-      this.props.dispatch(seek(time, userSeekIndex));
-    } else {
-      this.props.dispatch(seek(time));
-      this.setState({ userSeekTime: time });
+      this.setState({ indexSeekTime: seekTime });
+      if (userSeekIndex !== newProps.seekIndex) {
+        this.props.dispatch(seek(newProps.seekTime, userSeekIndex));
+      }
+    } else if (newProps.seekIndex) {
+      this.props.dispatch(seek(newProps.seekTime));
     }
   }
 
   onPlaySeek(time) {
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
-      this.props.onSeek(0, time);
       return;
     }
 
@@ -678,7 +685,6 @@ class Explorer extends Component {
                 canFrameOffset={this.props.canFrameOffset}
                 firstCanTime={this.props.firstCanTime}
                 onVideoClick={this.onVideoClick}
-                onPlaySeek={this.onPlaySeek}
                 onUserSeek={this.onUserSeek}
                 onPlay={this.onPlay}
                 onPause={this.onPause}
@@ -702,7 +708,6 @@ class Explorer extends Component {
             messages={this.props.messages}
             graphData={this.state.graphData}
             onGraphTimeClick={this.onGraphTimeClick}
-            seekTime={this.props.seekTime}
             onSegmentChanged={this.onSegmentChanged}
             onSignalUnplotPressed={this.onSignalUnplotPressed}
             segment={this.state.segment}
@@ -717,7 +722,9 @@ class Explorer extends Component {
 
 const stateToProps = Obstruction({
   selectedParts: "playback.selectedParts",
-  seekTime: "playback.seekTime"
+  seekTime: "playback.seekTime",
+  seekIndex: "playback.seekIndex",
+  maxTime: "playback.maxTime"
 });
 
 export default connect(stateToProps)(Explorer);

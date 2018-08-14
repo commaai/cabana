@@ -113,13 +113,24 @@ class RouteVideoSync extends Component {
       currentTime = this.props.startOffset;
     }
 
-    const ratio =
-      (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+    let partMaxTime = Math.min(
+      this.props.maxTime,
+      (1 + this.props.selectedParts[1]) * 60
+    );
+    let partDuration = partMaxTime - this.props.startOffset;
+
+    const ratio = (currentTime - this.props.startOffset) / partDuration;
     return Math.max(0, Math.min(1, ratio));
   }
 
   ratioTime(ratio) {
-    return ratio * this.props.secondsLoaded + this.props.startOffset;
+    let partMaxTime = Math.min(
+      this.props.maxTime,
+      (1 + this.props.selectedParts[1]) * 60
+    );
+    let partDuration = partMaxTime - this.props.startOffset;
+
+    return ratio * partDuration + this.props.startOffset;
   }
 
   onVideoElementAvailable(videoElement) {
@@ -183,8 +194,9 @@ class RouteVideoSync extends Component {
 }
 
 const stateToProps = Obstruction({
-  partSelected: "playback.partSelected",
-  seekTime: "playback.seekTime"
+  selectedParts: "playback.selectedParts",
+  seekTime: "playback.seekTime",
+  maxTime: "playback.maxTime"
 });
 
 export default connect(stateToProps)(RouteVideoSync);

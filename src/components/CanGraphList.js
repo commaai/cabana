@@ -1,17 +1,18 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 
 import CanGraph from "./CanGraph";
 
 require("element-closest");
 
-export default class CanGraphList extends Component {
+class CanGraphList extends Component {
   static propTypes = {
     plottedSignals: PropTypes.array.isRequired,
     messages: PropTypes.object.isRequired,
     graphData: PropTypes.array.isRequired,
     onGraphTimeClick: PropTypes.func.isRequired,
-    seekTime: PropTypes.number.isRequired,
     onSegmentChanged: PropTypes.func.isRequired,
     onSignalUnplotPressed: PropTypes.func.isRequired,
     segment: PropTypes.array.isRequired,
@@ -155,7 +156,6 @@ export default class CanGraphList extends Component {
         segment={this.props.segment}
         data={this.props.graphData[index]}
         onRelativeTimeClick={this.props.onGraphTimeClick}
-        currentTime={this.props.seekTime}
         onDragStart={this.onGraphDragStart}
         onDragEnd={this.onGraphDragEnd}
         container={this.plotListRef}
@@ -185,3 +185,7 @@ export default class CanGraphList extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({});
+
+export default connect(stateToProps)(CanGraphList);

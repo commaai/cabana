@@ -32,7 +32,7 @@ import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
 import createStore from "./store";
 
-import { selectRoute, setLoading } from "./actions";
+import { selectRoute, setLoading, loadRoutes } from "./actions";
 
 const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
@@ -58,8 +58,6 @@ class CanExplorer extends Component {
     this.state = {
       messages: {},
       selectedMessages: [],
-      route: null,
-      routes: [],
       canFrameOffset: -1,
       firstCanTime: 0,
       lastBusTime: null,
@@ -148,7 +146,7 @@ class CanExplorer extends Component {
           Object.keys(routes).forEach(route => {
             _routes.push(routes[route]);
           });
-          this.setState({ routes: _routes });
+          this.props.dispatch(loadRoutes(_routes));
           if (!_routes[name]) {
             this.showOnboarding();
           }
@@ -863,8 +861,6 @@ class CanExplorer extends Component {
                 messages={this.state.messages}
                 selectedMessage={this.state.selectedMessage}
                 onConfirmedSignalChange={this.onConfirmedSignalChange}
-                onSeek={this.onSeek}
-                onUserSeek={this.onUserSeek}
                 canFrameOffset={this.state.canFrameOffset}
                 firstCanTime={this.state.firstCanTime}
                 seekTime={this.props.seekTime}
@@ -928,7 +924,8 @@ const stateToProps = Obstruction({
   seekIndex: "playback.seekIndex",
   selectedParts: "playback.selectedParts",
   isLoading: "playback.isLoading",
-  route: "playback.route"
+  route: "route.route",
+  routes: "route.routes"
 });
 
 export default connect(stateToProps)(CanExplorer);

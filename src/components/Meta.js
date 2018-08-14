@@ -277,13 +277,7 @@ class Meta extends Component {
         <td>{msg.entries.length}</td>
         <td>
           <div className="cabana-meta-messages-list-item-bytes">
-            <MessageBytes
-              key={msg.id}
-              message={msg}
-              seekIndex={this.props.seekIndex}
-              seekTime={this.props.seekTime}
-              live={this.props.live}
-            />
+            <MessageBytes key={msg.id} message={msg} live={this.props.live} />
           </div>
         </td>
       </tr>
