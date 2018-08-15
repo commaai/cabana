@@ -153,7 +153,6 @@ class CanGraphList extends Component {
         messageName={msg.frame ? msg.frame.name : null}
         signalSpec={Object.assign(Object.create(signal), signal)}
         onSegmentChanged={this.props.onSegmentChanged}
-        segment={this.props.segment}
         data={this.props.graphData[index]}
         onRelativeTimeClick={this.props.onGraphTimeClick}
         onDragStart={this.onGraphDragStart}
@@ -186,6 +185,8 @@ class CanGraphList extends Component {
   }
 }
 
-const stateToProps = Obstruction({});
+const stateToProps = Obstruction({
+  segment: "segment.segment"
+});
 
 export default connect(stateToProps)(CanGraphList);

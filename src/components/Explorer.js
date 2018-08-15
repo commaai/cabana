@@ -15,7 +15,7 @@ import PartSelector from "./PartSelector";
 import PlaySpeedSelector from "./PlaySpeedSelector";
 import GraphData from "../models/graph-data";
 
-import { seek } from "../actions";
+import { seek, selectSegment } from "../actions";
 
 class Explorer extends Component {
   static propTypes = {
@@ -37,8 +37,6 @@ class Explorer extends Component {
     this.state = {
       plottedSignals: [],
       graphData: [],
-      segment: [],
-      segmentIndices: [],
       shouldShowAddSignal: true,
       userSeekIndex: 0,
       userSeekTime: this.props.seekTime,
@@ -159,8 +157,8 @@ class Explorer extends Component {
       // corresponding to old message segment/seek times.
 
       let { segment, segmentIndices } = this.clipSegment(
-        this.state.segment,
-        this.state.segmentIndices,
+        this.props.segment,
+        this.props.segmentIndices,
         nextMessage
       );
 
@@ -174,10 +172,7 @@ class Explorer extends Component {
         nextSeekTime = nextMessage.entries[0];
       }
 
-      this.setState({
-        segment,
-        segmentIndices
-      });
+      this.props.dispatch(selectSegment(segment, segmentIndices));
     }
 
     if (
@@ -186,11 +181,11 @@ class Explorer extends Component {
       nextMessage.entries.length !== curMessage.entries.length
     ) {
       let { segment, segmentIndices } = this.clipSegment(
-        this.state.segment,
-        this.state.segmentIndices,
+        this.props.segment,
+        this.props.segmentIndices,
         nextMessage
       );
-      this.setState({ segment, segmentIndices });
+      this.props.dispatch(selectSegment(segment, segmentIndices));
     }
 
     const partsDidChange =
@@ -343,11 +338,10 @@ class Explorer extends Component {
     const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
     this.setState({
-      segment,
-      segmentIndices,
       userSeekIndex: segmentIndices[0],
       userSeekTime: segment[0]
     });
+    this.props.dispatch(selectSegment(segment, segmentIndices));
   }, 250);
 
   onSegmentChanged(messageId, segment) {
@@ -357,8 +351,7 @@ class Explorer extends Component {
   }
 
   resetSegment() {
-    const { segment, segmentIndices } = this.state;
-    const { messages, selectedMessage } = this.props;
+    const { segment, segmentIndices, messages, selectedMessage } = this.props;
     if (segment.length > 0 || segmentIndices.length > 0) {
       let userSeekTime = 0;
       if (
@@ -368,11 +361,10 @@ class Explorer extends Component {
         userSeekTime = messages[selectedMessage].entries[0].relTime;
       }
       this.setState({
-        segment: [],
-        segmentIndices: [],
         userSeekIndex: 0,
         userSeekTime
       });
+      this.props.dispatch(selectSegment([], []));
     }
   }
 
@@ -395,7 +387,7 @@ class Explorer extends Component {
       return null;
     }
 
-    const { segmentIndices } = this.state;
+    const { segmentIndices } = this.props;
     if (segmentIndices.length === 2) {
       for (let i = segmentIndices[0]; i <= segmentIndices[1]; i++) {
         if (entries[i].relTime >= time) {
@@ -486,7 +478,7 @@ class Explorer extends Component {
 
     const { entries } = message;
 
-    const { segment } = this.state;
+    const { segment } = this.props;
     if (segment.length === 2) {
       return segment[1] - segment[0];
     } else {
@@ -503,7 +495,7 @@ class Explorer extends Component {
     }
 
     const { entries } = message;
-    const { segment } = this.state;
+    const { segment } = this.props;
     let startTime;
     if (segment.length === 2) {
       startTime = segment[0];
@@ -693,7 +685,7 @@ class Explorer extends Component {
               />
             </div>
           ) : null}
-          {this.state.segment.length > 0 ? (
+          {this.props.segment.length > 0 ? (
             <div
               className={"cabana-explorer-visuals-segmentreset"}
               onClick={() => {
@@ -710,7 +702,6 @@ class Explorer extends Component {
             onGraphTimeClick={this.onGraphTimeClick}
             onSegmentChanged={this.onSegmentChanged}
             onSignalUnplotPressed={this.onSignalUnplotPressed}
-            segment={this.state.segment}
             mergePlots={this.mergePlots}
             live={this.props.live}
           />
@@ -724,7 +715,9 @@ const stateToProps = Obstruction({
   selectedParts: "playback.selectedParts",
   seekTime: "playback.seekTime",
   seekIndex: "playback.seekIndex",
-  maxTime: "playback.maxTime"
+  maxTime: "playback.maxTime",
+  segment: "segment.segment",
+  segmentIndices: "segment.segmentIndices"
 });
 
 export default connect(stateToProps)(Explorer);

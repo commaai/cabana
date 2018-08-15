@@ -253,6 +253,8 @@ class RouteSeeker extends Component {
   }
 }
 
-const stateToProps = Obstruction({});
+const stateToProps = Obstruction({
+  segmentIndices: "segment.segmentIndices"
+});
 
 export default connect(stateToProps)(RouteSeeker);

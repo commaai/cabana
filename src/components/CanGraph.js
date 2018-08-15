@@ -312,6 +312,7 @@ class CanGraph extends Component {
 }
 
 const stateToProps = Obstruction({
+  segment: "segment.segment",
   seekTime: "playback.seekTime"
 });
 

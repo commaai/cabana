@@ -181,7 +181,6 @@ class RouteVideoSync extends Component {
           nearestFrameTime={this.props.userSeekTime}
           segmentProgress={this.segmentProgress}
           secondsLoaded={this.props.secondsLoaded}
-          segmentIndices={this.props.segmentIndices}
           videoElement={this.state.videoElement}
           onPlay={this.props.onPlay}
           onPause={this.props.onPause}

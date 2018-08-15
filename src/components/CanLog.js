@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 import ReactList from "react-list";
 
 import cx from "classnames";
 
-export default class CanLog extends Component {
+class CanLog extends Component {
   static ITEMS_PER_PAGE = 50;
 
   static propTypes = {
@@ -308,3 +310,9 @@ export default class CanLog extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({
+  segmentIndices: "segment.segmentIndices"
+});
+
+export default connect(stateToProps)(CanLog);

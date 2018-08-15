@@ -5,7 +5,8 @@ import {
   ACTION_SET_LOADING,
   ACTION_SELECT_ROUTE,
   ACTION_LOAD_ROUTES,
-  ACTION_SET_MAX_TIME
+  ACTION_SET_MAX_TIME,
+  ACTION_SELECT_SEGMENT
 } from "./types";
 import { PART_SEGMENT_LENGTH } from "../config";
 
@@ -53,6 +54,11 @@ export function autoSeek(time) {
       state.playback.maxTime,
       (1 + state.playback.selectedParts[1]) * 60
     );
+
+    if (state.segment.segment.length) {
+      time = Math.max(state.segment.segment[0], time);
+      maxTime = Math.min(maxTime, state.segment.segment[1]);
+    }
     if (time >= maxTime) {
       time = state.playback.selectedParts[0] * 60;
       dispatch({
@@ -97,6 +103,7 @@ export function selectPart(part) {
       state.playback.seekTime
     );
     seekTime = Math.max(getTimeForPart(selectedPart), seekTime);
+
     dispatch({
       type: ACTION_SELECT_PART,
       selectedParts: [selectedPart, maxPart],
@@ -134,6 +141,15 @@ export function setMaxTime(maxTime) {
   return {
     type: ACTION_SET_MAX_TIME,
     maxTime
+  };
+}
+
+export function selectSegment(segment, segmentIndices) {
+  console.log("Sertting segment to", segment, segmentIndices);
+  return {
+    type: ACTION_SELECT_SEGMENT,
+    segment,
+    segmentIndices
   };
 }
 
