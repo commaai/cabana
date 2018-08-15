@@ -1,4 +1,3 @@
-import { Provider } from "react-redux";
 import Sentry from "./logging/Sentry";
 import React from "react";
 import ReactDOM from "react-dom";

@@ -162,16 +162,6 @@ class Explorer extends Component {
         nextMessage
       );
 
-      const nextSeekMsgEntry = nextMessage.entries[nextProps.seekIndex];
-      let nextSeekTime;
-      if (nextSeekMsgEntry) {
-        nextSeekTime = nextSeekMsgEntry.relTime;
-      } else if (segment.length === 2) {
-        nextSeekTime = segment[0];
-      } else {
-        nextSeekTime = nextMessage.entries[0];
-      }
-
       this.props.dispatch(selectSegment(segment, segmentIndices));
     }
 
@@ -488,7 +478,6 @@ class Explorer extends Component {
 
   startOffset() {
     const partOffset = this.props.selectedParts[0] * 60;
-    const seekTime = this.props.seekTime;
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
       return partOffset;

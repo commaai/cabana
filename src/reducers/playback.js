@@ -3,7 +3,6 @@ import {
   ACTION_SELECT_PART,
   ACTION_AUTO_SEEK,
   ACTION_SET_LOADING,
-  ACTION_SELECT_ROUTE,
   ACTION_SET_MAX_TIME
 } from "../actions/types";
 import { PART_SEGMENT_LENGTH } from "../config";
@@ -39,8 +38,6 @@ export default function playback(state, action) {
       return initialState;
     }
 
-    let maxPart = null;
-
     switch (action.type) {
       case ACTION_SEEK:
         return {
@@ -50,32 +47,29 @@ export default function playback(state, action) {
           selectedParts: action.selectedParts,
           seekIndex: action.index || 0
         };
-        break;
       case ACTION_AUTO_SEEK:
         // auto-seek from video timestamp updates
         return {
           ...state,
           seekTime: action.time
         };
-        break;
       case ACTION_SELECT_PART:
         return {
           ...state,
           seekTime: action.seekTime || state.seekTime,
           selectedParts: action.selectedParts
         };
-        break;
       case ACTION_SET_LOADING:
         return {
           ...state,
           isLoading: action.isLoading
         };
-        break;
       case ACTION_SET_MAX_TIME:
         return {
           ...state,
           maxTime: action.maxTime
         };
+      default:
         break;
     }
 

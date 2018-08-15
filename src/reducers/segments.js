@@ -18,6 +18,7 @@ export default function reducer(state, action) {
         segment: action.segment,
         segmentIndices: action.segmentIndices
       };
+    default:
       break;
   }
 

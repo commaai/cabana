@@ -30,7 +30,6 @@ import OpenDbc from "./api/OpenDbc";
 import UnloggerClient from "./api/unlogger";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
-import createStore from "./store";
 
 import { selectRoute, setLoading, loadRoutes } from "./actions";
 

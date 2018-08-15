@@ -16,13 +16,13 @@ export default function reducer(state, action) {
         ...state,
         routes: action.routes
       };
-      break;
     case ACTION_SELECT_ROUTE:
       return {
         ...state,
         route: action.route,
         maxParts: action.route.proclog
       };
+    default:
       break;
   }
 
