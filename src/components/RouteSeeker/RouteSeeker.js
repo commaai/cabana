@@ -1,14 +1,16 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 import PlayButton from "../PlayButton";
 import debounce from "../../utils/debounce";
 
-export default class RouteSeeker extends Component {
+import { autoSeek, seek } from "../../actions";
+
+class RouteSeeker extends Component {
   static propTypes = {
     secondsLoaded: PropTypes.number.isRequired,
     segmentIndices: PropTypes.arrayOf(PropTypes.number),
-    onUserSeek: PropTypes.func,
-    onPlaySeek: PropTypes.func,
     video: PropTypes.node,
     onPause: PropTypes.func,
     onPlay: PropTypes.func,
@@ -88,7 +90,7 @@ export default class RouteSeeker extends Component {
     return 100 * (x / this.progressBar.offsetWidth);
   }
 
-  updateDraggingSeek = debounce(ratio => this.props.onUserSeek(ratio), 250);
+  updateDraggingSeek = debounce(ratio => this.props.dispatch(seek(ratio)), 250);
 
   onMouseMove(e) {
     const markerOffsetPct = this.mouseEventXOffsetPercent(e);
@@ -111,7 +113,7 @@ export default class RouteSeeker extends Component {
     const ratio = Math.max(0, markerOffsetPct / 100);
     if (this.state.isDragging) {
       this.updateSeekedBar(ratio);
-      this.updateDraggingSeek(ratio);
+      // this.updateDraggingSeek(ratio);
     }
 
     this.setState({
@@ -138,7 +140,16 @@ export default class RouteSeeker extends Component {
     let ratio = this.mouseEventXOffsetPercent(e) / 100;
     ratio = Math.min(1, Math.max(0, ratio));
     this.updateSeekedBar(ratio);
-    this.props.onUserSeek(ratio);
+    this.seek(this.props.ratioTime(ratio));
+  }
+
+  seek(time) {
+    this.isSeeking = true;
+    this.props.dispatch(seek(time));
+    const { videoElement } = this.props;
+    if (videoElement) {
+      videoElement.currentTime = time;
+    }
   }
 
   onPlay() {
@@ -153,12 +164,17 @@ export default class RouteSeeker extends Component {
 
   executePlayTimer() {
     const { videoElement } = this.props;
-    if (videoElement === null) {
+    if (this.isSeeking || !videoElement) {
+      this.isSeeking = false;
       this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
       return;
     }
 
     const { currentTime } = videoElement;
+    if (!currentTime) {
+      this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
+      return;
+    }
     let newRatio = this.props.segmentProgress(currentTime);
 
     if (newRatio === this.state.ratio) {
@@ -168,12 +184,13 @@ export default class RouteSeeker extends Component {
 
     if (newRatio >= 1) {
       newRatio = 0;
-      this.props.onUserSeek(newRatio);
+      // whats this?
+      // this.props.dispatch(seek(newRatio));
     }
 
     if (newRatio >= 0) {
       this.updateSeekedBar(newRatio);
-      this.props.onPlaySeek(currentTime);
+      this.props.dispatch(autoSeek(currentTime));
     }
 
     this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
@@ -235,3 +252,9 @@ export default class RouteSeeker extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({
+  segmentIndices: "segment.segmentIndices"
+});
+
+export default connect(stateToProps)(RouteSeeker);

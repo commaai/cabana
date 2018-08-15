@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 import { StyleSheet, css } from "aphrodite/no-important";
 
@@ -6,6 +8,8 @@ import HLS from "./HLS";
 import { cameraPath } from "../api/routes";
 import Video from "../api/video";
 import RouteSeeker from "./RouteSeeker/RouteSeeker";
+
+import { seek } from "../actions";
 
 const Styles = StyleSheet.create({
   loadingOverlay: {
@@ -44,7 +48,7 @@ const Styles = StyleSheet.create({
   }
 });
 
-export default class RouteVideoSync extends Component {
+class RouteVideoSync extends Component {
   static propTypes = {
     userSeekIndex: PropTypes.number.isRequired,
     secondsLoaded: PropTypes.number.isRequired,
@@ -54,8 +58,6 @@ export default class RouteVideoSync extends Component {
     canFrameOffset: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
     playing: PropTypes.bool.isRequired,
-    onPlaySeek: PropTypes.func.isRequired,
-    onUserSeek: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
     onPause: PropTypes.func.isRequired,
     userSeekTime: PropTypes.number.isRequired
@@ -64,14 +66,10 @@ export default class RouteVideoSync extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      shouldShowJpeg: true,
-      isLoading: true,
       videoElement: null,
       shouldRestartHls: false
     };
 
-    this.onLoadStart = this.onLoadStart.bind(this);
-    this.onLoadEnd = this.onLoadEnd.bind(this);
     this.segmentProgress = this.segmentProgress.bind(this);
     this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
     this.onUserSeek = this.onUserSeek.bind(this);
@@ -93,7 +91,7 @@ export default class RouteVideoSync extends Component {
 
   nearestFrameUrl() {
     const { url } = this.props;
-    const sec = Math.round(this.props.userSeekTime);
+    const sec = Math.round(this.props.seekTime);
     return cameraPath(url, sec);
   }
 
@@ -109,34 +107,30 @@ export default class RouteVideoSync extends Component {
     );
   }
 
-  onLoadStart() {
-    this.setState({
-      shouldShowJpeg: true,
-      isLoading: true
-    });
-  }
-
-  onLoadEnd() {
-    this.setState({
-      shouldShowJpeg: false,
-      isLoading: false
-    });
-  }
-
   segmentProgress(currentTime) {
     // returns progress as number in [0,1]
-
     if (currentTime < this.props.startOffset) {
       currentTime = this.props.startOffset;
     }
 
-    const ratio =
-      (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+    let partMaxTime = Math.min(
+      this.props.maxTime,
+      (1 + this.props.selectedParts[1]) * 60
+    );
+    let partDuration = partMaxTime - this.props.startOffset;
+
+    const ratio = (currentTime - this.props.startOffset) / partDuration;
     return Math.max(0, Math.min(1, ratio));
   }
 
   ratioTime(ratio) {
-    return ratio * this.props.secondsLoaded + this.props.startOffset;
+    let partMaxTime = Math.min(
+      this.props.maxTime,
+      (1 + this.props.selectedParts[1]) * 60
+    );
+    let partDuration = partMaxTime - this.props.startOffset;
+
+    return ratio * partDuration + this.props.startOffset;
   }
 
   onVideoElementAvailable(videoElement) {
@@ -146,7 +140,8 @@ export default class RouteVideoSync extends Component {
   onUserSeek(ratio) {
     /* ratio in [0,1] */
 
-    const funcSeekToRatio = () => this.props.onUserSeek(this.ratioTime(ratio));
+    const funcSeekToRatio = () =>
+      this.props.dispatch(seek(this.ratioTime(ratio)));
     if (ratio === 0) {
       this.setState({ shouldRestartHls: true }, funcSeekToRatio);
     } else {
@@ -161,8 +156,8 @@ export default class RouteVideoSync extends Component {
   render() {
     return (
       <div className="cabana-explorer-visuals-camera">
-        {this.state.isLoading ? this.loadingOverlay() : null}
-        {this.state.shouldShowJpeg ? (
+        {this.props.isLoading ? this.loadingOverlay() : null}
+        {this.props.isLoading ? (
           <img
             src={this.nearestFrameUrl()}
             className={css(Styles.img)}
@@ -177,10 +172,6 @@ export default class RouteVideoSync extends Component {
           onVideoElementAvailable={this.onVideoElementAvailable}
           playing={this.props.playing}
           onClick={this.props.onVideoClick}
-          onLoadStart={this.onLoadStart}
-          onLoadEnd={this.onLoadEnd}
-          onUserSeek={this.onUserSeek}
-          onPlaySeek={this.props.onPlaySeek}
           segmentProgress={this.segmentProgress}
           shouldRestart={this.state.shouldRestartHls}
           onRestart={this.onHlsRestart}
@@ -190,9 +181,6 @@ export default class RouteVideoSync extends Component {
           nearestFrameTime={this.props.userSeekTime}
           segmentProgress={this.segmentProgress}
           secondsLoaded={this.props.secondsLoaded}
-          segmentIndices={this.props.segmentIndices}
-          onUserSeek={this.onUserSeek}
-          onPlaySeek={this.props.onPlaySeek}
           videoElement={this.state.videoElement}
           onPlay={this.props.onPlay}
           onPause={this.props.onPause}
@@ -203,3 +191,11 @@ export default class RouteVideoSync extends Component {
     );
   }
 }
+
+const stateToProps = Obstruction({
+  selectedParts: "playback.selectedParts",
+  seekTime: "playback.seekTime",
+  maxTime: "playback.maxTime"
+});
+
+export default connect(stateToProps)(RouteVideoSync);

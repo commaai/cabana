@@ -10,13 +10,20 @@ import {
   fetchPersistedGithubAuthToken,
   persistGithubAuthToken
 } from "./api/localstorage";
+import createStore from "./store";
+
 import "./index.css";
 
+const store = createStore();
 Sentry.init();
 
 const routeFullName = getUrlParameter("route");
 let isDemo = !routeFullName;
-let props = { autoplay: true, isDemo };
+let props = {
+  autoplay: true,
+  isDemo,
+  store
+};
 let persistedDbc = null;
 
 if (routeFullName) {
