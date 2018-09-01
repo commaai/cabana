@@ -1,8 +1,4 @@
-import Bitarray from "../bitarray";
-
 import DbcUtils from "../../utils/dbc";
-
-const UINT64 = require("cuint").UINT64;
 
 export default class Signal {
   constructor({
