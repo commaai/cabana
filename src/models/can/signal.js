@@ -153,58 +153,6 @@ export default class Signal {
     return this.offset + rawMax * this.factor;
   }
 
-  valueForInt32Signal(signalSpec, bits, bitsSwapped) {
-    let startBit, bitArr;
-
-    if (signalSpec.isLittleEndian) {
-      bitArr = bitsSwapped;
-      startBit = signalSpec.startBit;
-    } else {
-      bitArr = bits;
-      startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
-    }
-    let ival = Bitarray.extract(bitArr, startBit, signalSpec.size);
-
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
-    }
-    ival = ival * signalSpec.factor + signalSpec.offset;
-    return ival;
-  }
-
-  valueForInt64Signal(signalSpec, hexData) {
-    const blen = hexData.length * 4;
-    let value, startBit, dataBitPos;
-
-    if (signalSpec.isLittleEndian) {
-      // TODO use buffer swap
-      // value = UINT64(swapOrder(hexData, 16, 2), 16);
-      startBit = signalSpec.startBit;
-      dataBitPos = UINT64.fromNumber(startBit);
-    } else {
-      // big endian
-      value = UINT64(hexData, 16);
-
-      startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
-      dataBitPos = UINT64(blen - (startBit + signalSpec.size));
-    }
-    if (dataBitPos < 0) {
-      return null;
-    }
-
-    let rightHandAnd = UINT64((1 << signalSpec.size) - 1);
-    let ival = value
-      .shiftr(dataBitPos)
-      .and(rightHandAnd)
-      .toNumber();
-
-    if (signalSpec.isSigned && ival & (1 << (signalSpec.size - 1))) {
-      ival -= 1 << signalSpec.size;
-    }
-    ival = ival * signalSpec.factor + signalSpec.offset;
-    return ival;
-  }
-
   generateColors() {
     let colors = Array(3);
     for (let i = 0; i < 3; i++) {
