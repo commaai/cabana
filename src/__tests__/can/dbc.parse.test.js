@@ -271,12 +271,27 @@ test("int64 parser produces correct value for steer torque signal", () => {
   expect(value).toBe(-7466);
 });
 
-function dbcInt32SignalValue(dbc, signalSpec, hex) {
+// for debugging contents of a Bitarray
+// let ba = Bitarray;
+// let str = '';
+// for (let i = 0; i < Bitarray.bitLength(bitsSwapped); i++) {
+//   str += Bitarray.extract(bitsSwapped, i, 1).toString();
+// }
+
+function dbcInt32SignalValue(dbc, signalSpec, hex, frameSizeBytes) {
+  // expects hex string to represent 8 bytes, left-padded with zeroes if frame size is smaller
   const buffer = Buffer.from(hex, "hex");
   const bufferSwapped = Buffer.from(buffer).swap64();
 
-  const bits = Bitarray.fromBytes(buffer);
-  const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
+  const bits = Bitarray.bitSlice(
+    Bitarray.fromBytes(buffer),
+    64 - frameSizeBytes * 8
+  );
+  const bitsSwapped = Bitarray.bitSlice(
+    Bitarray.fromBytes(bufferSwapped),
+    0,
+    frameSizeBytes * 8
+  );
 
   return dbc.valueForInt32Signal(signalSpec, bits, bitsSwapped);
 }
@@ -293,8 +308,8 @@ test("int32 parsers produces correct value for binary little endian signal", () 
   const hexDataSet = "0000000020000000";
   const hexDataNotSet = "0000000000000000";
 
-  const setValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSet);
-  const notSetValue = dbcInt32SignalValue(dbc, signalSpec, hexDataNotSet);
+  const setValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSet, 8);
+  const notSetValue = dbcInt32SignalValue(dbc, signalSpec, hexDataNotSet, 8);
 
   expect(setValue).toEqual(1);
   expect(notSetValue).toEqual(0);
@@ -310,7 +325,7 @@ test("int32 parser produces correct value for 2-bit little endian signal spannin
 
   const hexData = "00000001f8000000";
 
-  const value = dbcInt32SignalValue(dbc, signalSpec, hexData);
+  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, 8);
   expect(value).toEqual(3);
 });
 
@@ -324,13 +339,38 @@ test("int32 parser produces correct value for 4-bit little endian signal", () =>
 
   // this data is symmetric, the data bits are 1111
   const hexDataSymmetric = "f00f000000000000";
-  const symValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSymmetric);
+  const symValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSymmetric, 8);
   expect(symValue).toEqual(15);
 
   // this data is asymmetric, the data bits are 1101
   const hexDataAsymmetric = "f002000000000000";
-  const aSymValue = dbcInt32SignalValue(dbc, signalSpec, hexDataAsymmetric);
+  const aSymValue = dbcInt32SignalValue(dbc, signalSpec, hexDataAsymmetric, 8);
   expect(aSymValue).toEqual(11);
+});
+
+const DBC_FOUR_BIT_LE_SIGNAL_FOUR_BYTE_MESSAGE = `
+BO_ 1265 CLU11: 4 CLU
+ SG_ CF_Clu_CruiseSwState : 0|3@1+ (1.0,0.0) [0.0|7.0] ""  EMS,LDWS_LKAS,SCC
+ SG_ CF_Clu_CruiseSwMain : 3|1@1+ (1.0,0.0) [0.0|1.0] ""  EMS,LDWS_LKAS,SCC
+ SG_ CF_Clu_SldMainSW : 4|1@1+ (1.0,0.0) [0.0|1.0] ""  EMS
+ SG_ CF_Clu_ParityBit1 : 5|1@1+ (1.0,0.0) [0.0|1.0] "pulse count"  EMS
+ SG_ CF_Clu_VanzDecimal : 6|2@1+ (0.125,0.0) [0.0|0.375] ""  EMS
+ SG_ CF_Clu_Vanz : 8|9@1+ (0.5,0.0) [0.0|255.5] "km/h or MPH"  BCM,CUBIS,EMS,IBOX,LDWS_LKAS,MDPS,SCC
+ SG_ CF_Clu_SPEED_UNIT : 17|1@1+ (1.0,0.0) [0.0|1.0] ""  BCM,CUBIS,EMS,IBOX,LDWS_LKAS,MDPS,SCC
+ SG_ CF_Clu_DetentOut : 18|1@1+ (1.0,0.0) [0.0|1.0] ""  AVM,BCM,LCA,PGS,SPAS
+ SG_ CF_Clu_RheostatLevel : 19|5@1+ (1.0,0.0) [0.0|31.0] ""  AVM,BCM,LCA,PGS,SPAS
+ SG_ CF_Clu_CluInfo : 24|1@1+ (1.0,0.0) [0.0|1.0] ""  BCM
+ SG_ CF_Clu_AmpInfo : 25|1@1+ (1.0,0.0) [0.0|1.0] ""  BCM
+ SG_ CF_Clu_AliveCnt1 : 28|4@1+ (1.0,0.0) [0.0|15.0] ""  AHLS,EMS,EPB,LDWS_LKAS,MDPS,SCC
+`;
+test("int32 parser produces correct value for 4-bit little endian signal within a 4-byte message", () => {
+  const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL_FOUR_BYTE_MESSAGE);
+  const frame = dbc.getMessageFrame(1265);
+  const signalSpec = frame.signals["CF_Clu_AliveCnt1"];
+
+  const hexData = "0000000020006620";
+  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
+  expect(value).toEqual(2);
 });
 
 const DBC_CHFFR_METRIC_COMMENT = `

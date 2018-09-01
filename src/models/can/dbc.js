@@ -578,7 +578,8 @@ export default class DBC {
 
     if (signalSpec.isLittleEndian) {
       bitArr = bitsSwapped;
-      startBit = 64 - signalSpec.startBit - signalSpec.size;
+      startBit =
+        Bitarray.bitLength(bitArr) - signalSpec.startBit - signalSpec.size;
     } else {
       bitArr = bits;
       startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
@@ -593,27 +594,31 @@ export default class DBC {
   }
 
   getSignalValues(messageId, data) {
-    let buffer = Buffer.from(data);
-    let paddedBuffer = buffer;
-    if (data.length % 8 !== 0) {
-      // pad data it's 64 bits long
-      const paddedDataHex = leftPad(buffer.toString("hex"), 16, "0");
-      paddedBuffer = Buffer.from(paddedDataHex);
-    }
-
-    const hexData = buffer.toString("hex");
-    const bufferSwapped = Buffer.from(paddedBuffer).swap64();
-
-    const bits = Bitarray.fromBytes(data);
-    const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
-
     if (!this.messages.has(messageId) && !LogSignals.isLogAddress(messageId)) {
       return {};
     }
-    const { signals } = this.getMessageFrame(messageId);
+    const frame = this.getMessageFrame(messageId);
+
+    let buffer = Buffer.from(data);
+    let paddedBuffer = buffer;
+    if (buffer.length % 8 !== 0) {
+      // pad data it's 64 bits long
+      const paddedDataHex = leftPad(buffer.toString("hex"), 16, "0");
+      paddedBuffer = Buffer.from(paddedDataHex, "hex");
+    }
+
+    const hexData = paddedBuffer.toString("hex");
+    const bufferSwapped = Buffer.from(paddedBuffer).swap64();
+
+    const bits = Bitarray.fromBytes(data);
+    const bitsSwapped = Bitarray.bitSlice(
+      Bitarray.fromBytes(bufferSwapped),
+      0,
+      frame.size * 8
+    );
 
     const signalValuesByName = {};
-    Object.values(signals).forEach(signalSpec => {
+    Object.values(frame.signals).forEach(signalSpec => {
       let value;
       if (signalSpec.size > 32) {
         value = this.valueForInt64Signal(signalSpec, hexData);
