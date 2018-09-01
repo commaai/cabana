@@ -137,7 +137,7 @@ class CanExplorer extends Component {
         start_time: startTime
       };
       this.props.dispatch(selectRoute(route));
-      this.initCanData();
+      setTimeout(this.initCanData, 0);
     } else if (auth.isAuthenticated() && !name) {
       Routes.fetchRoutes()
         .then(routes => {
