@@ -1,32 +1,23 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import Obstruction from "obstruction";
 import PropTypes from "prop-types";
-
-import { selectPart } from "../actions";
 
 import { PART_SEGMENT_LENGTH } from "../config";
 
-class PartSelector extends Component {
+export default class PartSelector extends Component {
   static selectorWidth = 150;
   static propTypes = {
-    maxParts: PropTypes.number.isRequired,
-    selectedParts: PropTypes.array,
-    seekTime: PropTypes.number
+    onPartChange: PropTypes.func.isRequired,
+    partsCount: PropTypes.number.isRequired
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedPartStyle: this.makePartStyle(
-        props.maxParts,
-        props.selectedParts[0]
-      ),
+      selectedPartStyle: this.makePartStyle(props.partsCount, 0),
+      selectedPart: 0,
       isDragging: false
     };
-
-    console.log("Constructing");
 
     this.selectNextPart = this.selectNextPart.bind(this);
     this.selectPrevPart = this.selectPrevPart.bind(this);
@@ -36,23 +27,18 @@ class PartSelector extends Component {
     this.onClick = this.onClick.bind(this);
   }
 
-  makePartStyle(maxParts, selectedPart) {
-    maxParts = maxParts + 1;
-    console.log("Making styles for", maxParts, selectedPart);
+  makePartStyle(partsCount, selectedPart) {
     return {
-      left: selectedPart / maxParts * PartSelector.selectorWidth,
-      width: (PART_SEGMENT_LENGTH - 1) / maxParts * PartSelector.selectorWidth
+      left: selectedPart / partsCount * PartSelector.selectorWidth,
+      width: PART_SEGMENT_LENGTH / partsCount * PartSelector.selectorWidth
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.maxParts !== this.props.maxParts ||
-      nextProps.selectedParts[0] !== this.props.selectedParts[0]
-    ) {
+    if (nextProps.partsCount !== this.props.partsCount) {
       const selectedPartStyle = this.makePartStyle(
-        nextProps.maxParts,
-        nextProps.selectedParts[0]
+        nextProps.partsCount,
+        this.state.selectedPart
       );
       this.setState({ selectedPartStyle });
     }
@@ -61,19 +47,23 @@ class PartSelector extends Component {
   selectPart(part) {
     part = Math.max(
       0,
-      Math.min(this.props.maxParts - PART_SEGMENT_LENGTH + 1, part)
+      Math.min(this.props.partsCount - PART_SEGMENT_LENGTH, part)
     );
-    if (part === this.props.selectedParts[0]) {
+    if (part === this.state.selectedPart) {
       return;
     }
 
-    this.props.dispatch(selectPart(part));
+    this.props.onPartChange(part);
+    this.setState({
+      selectedPart: part,
+      selectedPartStyle: this.makePartStyle(this.props.partsCount, part)
+    });
   }
 
   selectNextPart() {
-    let { selectedParts, maxParts } = this.props;
-    let selectedPart = selectedParts[0] + 1;
-    if (selectedPart + PART_SEGMENT_LENGTH > maxParts) {
+    let { selectedPart } = this.state;
+    selectedPart++;
+    if (selectedPart + PART_SEGMENT_LENGTH >= this.props.partsCount) {
       return;
     }
 
@@ -81,8 +71,8 @@ class PartSelector extends Component {
   }
 
   selectPrevPart() {
-    let { selectedParts } = this.props;
-    let selectedPart = selectedParts[0] - 1;
+    let { selectedPart } = this.state;
+    selectedPart--;
     if (selectedPart < 0) {
       return;
     }
@@ -93,7 +83,7 @@ class PartSelector extends Component {
   partAtClientX(clientX) {
     const rect = this.selectorRect.getBoundingClientRect();
     const x = clientX - rect.left;
-    return Math.floor(x * this.props.maxParts / PartSelector.selectorWidth);
+    return Math.floor(x * this.props.partsCount / PartSelector.selectorWidth);
   }
 
   onSelectedPartDragStart(e) {
@@ -120,8 +110,9 @@ class PartSelector extends Component {
 
   render() {
     const { selectedPartStyle } = this.state;
-    if (this.props.maxParts <= PART_SEGMENT_LENGTH) {
+    if (this.props.partsCount <= PART_SEGMENT_LENGTH) {
       // all parts are available so no need to render the partselector
+
       return null;
     }
     return (
@@ -144,11 +135,3 @@ class PartSelector extends Component {
     );
   }
 }
-
-const stateToProps = Obstruction({
-  seekTime: "playback.seekTime",
-  selectedParts: "playback.selectedParts",
-  maxParts: "route.maxParts"
-});
-
-export default connect(stateToProps)(PartSelector);

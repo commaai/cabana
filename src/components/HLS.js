@@ -1,12 +1,8 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 import Hls from "hls.js/lib";
 
-import { setLoading, seek, autoSeek, setMaxTime } from "../actions";
-
-class HLS extends Component {
+export default class HLS extends Component {
   static propTypes = {
     source: PropTypes.string.isRequired,
     startTime: PropTypes.number.isRequired,
@@ -14,23 +10,13 @@ class HLS extends Component {
     playing: PropTypes.bool.isRequired,
     onVideoElementAvailable: PropTypes.func,
     onClick: PropTypes.func,
+    onLoadStart: PropTypes.func,
+    onLoadEnd: PropTypes.func,
     onPlaySeek: PropTypes.func,
     segmentProgress: PropTypes.func,
     shouldRestart: PropTypes.bool,
     onRestart: PropTypes.func
   };
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      seekingTime: null
-    };
-
-    this.onLoadStart = this.onLoadStart.bind(this);
-    this.onLoadEnd = this.onLoadEnd.bind(this);
-    this.onEnded = this.onEnded.bind(this);
-  }
 
   componentWillReceiveProps(nextProps) {
     if (
@@ -60,23 +46,12 @@ class HLS extends Component {
     } else {
       this.videoElement.pause();
     }
-
-    if (
-      this.videoElement &&
-      Math.abs(this.videoElement.currentTime - nextProps.seekTime) > 1.0
-    ) {
-      this.videoElement.currentTime = nextProps.seekTime;
-      this.setState({
-        seekingTime: nextProps.seekTime
-      });
-      this.props.dispatch(setLoading(true));
-    }
   }
 
   onSeeking = () => {
     if (!this.props.playing) {
-      this.onLoadStart();
-      this.props.dispatch(seek(this.videoElement.currentTime));
+      this.props.onLoadStart();
+      this.props.onPlaySeek(this.videoElement.currentTime);
     }
   };
 
@@ -86,10 +61,10 @@ class HLS extends Component {
   onSeeked = () => {
     if (!this.props.playing) {
       if (this.shouldInitVideoTime) {
-        // this.videoElement.currentTime = this.props.startTime;
+        this.videoElement.currentTime = this.props.startTime;
         this.shouldInitVideoTime = false;
       }
-      this.onLoadEnd();
+      this.props.onLoadEnd();
     }
   };
 
@@ -110,31 +85,7 @@ class HLS extends Component {
     // destroy hls video source
     if (this.player) {
       this.player.destroy();
-      this.player = null;
     }
-  }
-
-  onLoadStart() {
-    if (!this.state.seekingTime) {
-      this.videoElement.currentTime = this.props.seekTime;
-      this.setState({
-        seekingTime: this.props.seekTime
-      });
-    }
-    this.props.dispatch(setLoading(true));
-  }
-  onLoadEnd() {
-    if (this.videoElement.duration !== this.props.maxTime) {
-      this.props.dispatch(setMaxTime(this.videoElement.duration));
-    }
-    this.props.dispatch(setLoading(false));
-    this.setState({
-      seekingTime: null
-    });
-  }
-
-  onEnded() {
-    this.props.dispatch(autoSeek(this.props.maxTime));
   }
 
   render() {
@@ -147,24 +98,14 @@ class HLS extends Component {
           ref={video => {
             this.videoElement = video;
           }}
-          seek={this.props.seekTime}
           autoPlay={this.props.playing}
           muted
-          onWaiting={this.onLoadStart}
-          onPlaying={this.onLoadEnd}
+          onWaiting={this.props.onLoadStart}
+          onPlaying={this.props.onLoadEnd}
           onSeeking={this.onSeeking}
           onSeeked={this.onSeeked}
-          onEnded={this.onEnded}
         />
       </div>
     );
   }
 }
-
-const stateToProps = Obstruction({
-  isLoading: "playback.isLoading",
-  seekTime: "playback.seekTime",
-  maxTime: "playback.maxTime"
-});
-
-export default connect(stateToProps)(HLS);

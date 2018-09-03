@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import Obstruction from "obstruction";
 import Measure from "react-measure";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -14,7 +12,7 @@ const DefaultPlotInnerStyle = {
   left: 0
 };
 
-class CanGraph extends Component {
+export default class CanGraph extends Component {
   static emptyTable = [];
 
   static propTypes = {
@@ -26,7 +24,7 @@ class CanGraph extends Component {
     segment: PropTypes.array,
     unplot: PropTypes.func,
     onRelativeTimeClick: PropTypes.func,
-    seekTime: PropTypes.number,
+    currentTime: PropTypes.number,
     onSegmentChanged: PropTypes.func,
     onDragStart: PropTypes.func,
     onDragEnd: PropTypes.func,
@@ -102,8 +100,8 @@ class CanGraph extends Component {
         segmentChanged = true;
       }
 
-      if (!nextProps.live && nextProps.seekTime !== this.props.seekTime) {
-        this.view.signal("videoTime", nextProps.seekTime);
+      if (!nextProps.live && nextProps.currentTime !== this.props.currentTime) {
+        this.view.signal("videoTime", nextProps.currentTime);
         segmentChanged = true;
       }
 
@@ -310,10 +308,3 @@ class CanGraph extends Component {
     );
   }
 }
-
-const stateToProps = Obstruction({
-  segment: "segment.segment",
-  seekTime: "playback.seekTime"
-});
-
-export default connect(stateToProps)(CanGraph);

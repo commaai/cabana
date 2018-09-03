@@ -1,9 +1,7 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import Obstruction from "obstruction";
 import PropTypes from "prop-types";
 
-class MessageBytes extends Component {
+export default class MessageBytes extends Component {
   static propTypes = {
     seekTime: PropTypes.number.isRequired,
     message: PropTypes.object.isRequired,
@@ -16,7 +14,7 @@ class MessageBytes extends Component {
     this.state = {
       isVisible: true,
       lastMessageIndex: 0,
-      lastSeekTime: props.seekTime
+      lastSeekTime: 0
     };
 
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
@@ -138,10 +136,3 @@ class MessageBytes extends Component {
     );
   }
 }
-
-const stateToProps = Obstruction({
-  seekTime: "playback.seekTime",
-  seekItem: "playback.seekItem"
-});
-
-export default connect(stateToProps)(MessageBytes);
