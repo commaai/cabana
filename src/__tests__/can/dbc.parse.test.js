@@ -373,6 +373,24 @@ test("int32 parser produces correct value for 4-bit little endian signal within 
   expect(value).toEqual(2);
 });
 
+const DBC_MESSAGE_WITH_LE_SIGNED_SIGNAL = `
+BO_ 688 SAS11: 5 MDPS
+ SG_ SAS_Angle : 0|16@1- (0.1,0.0) [-3276.8|3276.7] "Deg"  _4WD,ACU,AFLS,AVM,CLU,ECS,EMS,ESC,IBOX,LCA,LDWS_LKAS,PGS,PSB,SCC,SPAS,TCU,_4WD,ACU,AFLS,AVM,BCM,CLU,ECS,EMS,ESC,IBOX,LCA,LDWS_LKAS,PGS,PSB,SCC,SPAS,TCU
+ SG_ SAS_Speed : 16|8@1+ (4.0,0.0) [0.0|1016.0] ""  AFLS,ECS,ESC,IBOX,LDWS_LKAS,SCC,SPAS,TCU,AFLS,ECS,ESC,IBOX,LDWS_LKAS,SCC,SPAS,TCU
+ SG_ SAS_Stat : 24|8@1+ (1.0,0.0) [0.0|255.0] ""  ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,TCU,ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,TCU
+ SG_ MsgCount : 32|4@1+ (1.0,0.0) [0.0|15.0] ""  ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS
+ SG_ CheckSum : 36|4@1+ (1.0,0.0) [0.0|15.0] ""  ECS,EMS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,ECS,EMS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS
+ `;
+test("int32 parser produces correct value for 2-byte signed little endian signal within a 5-byte message", () => {
+  const dbc = new DBC(DBC_MESSAGE_WITH_LE_SIGNED_SIGNAL);
+  const frame = dbc.getMessageFrame(688);
+  const signalSpec = frame.signals["SAS_Angle"];
+
+  const hexData = "000000fafe000700";
+  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
+  expect(value).toEqual(-26.200000000000003);
+});
+
 const DBC_CHFFR_METRIC_COMMENT = `
 BO_ 37 STEERING_CONTROL: 8 XXX
   SG_ STEER_ANGLE : 6|4@1+ (1,0) [0|15] "" XXX
