@@ -136,6 +136,15 @@ VAL_TABLE_ DI_state 4 "DI_STATE_ENABLE" 3 "DI_STATE_FAULT" 2 "DI_STATE_CLEAR_FAU
 VAL_TABLE_ DI_speedUnits 1 "DI_SPEED_KPH" 0 "DI_SPEED_MPH" ;
 `;
 
+const DBC_WHEEL_SPEEDS = `
+BO_ 464 WHEEL_SPEEDS: 8 VSA
+ SG_ WHEEL_SPEED_FL : 7|15@0+ (0.01,0) [0|250] "kph" EON
+ SG_ WHEEL_SPEED_FR : 8|15@0+ (0.01,0) [0|250] "kph" EON
+ SG_ WHEEL_SPEED_RL : 25|15@0+ (0.01,0) [0|250] "kph" EON
+ SG_ WHEEL_SPEED_RR : 42|15@0+ (0.01,0) [0|250] "kph" EON
+ SG_ CHECKSUM : 59|4@0+ (1,0) [0|3] "" EON
+`;
+
 const steerTorqueSignal = new Signal({
   name: "STEER_TORQUE",
   startBit: 7,
@@ -149,6 +158,20 @@ const steerTorqueSignal = new Signal({
   receiver: ["EPS"],
   unit: ""
 });
+
+// for debugging contents of a Bitarray
+// let ba = Bitarray;
+// let str = '';
+// for (let i = 0; i < ba.bitLength(bitsSwapped); i++) {
+//   str += ba.extract(bitsSwapped, i, 1).toString();
+// }
+
+function dbcInt32SignalValue(dbc, signalSpec, hex) {
+  // expects hex string to represent 8 bytes, left-justified with zeroes if frame size is smaller
+  const buffer = Buffer.from(hex, "hex");
+
+  return dbc.valueForInt32Signal(signalSpec, buffer);
+}
 
 test("DBC parses steering control message", () => {
   const dbcParsed = new DBC(DBC_MESSAGE_DEF);
@@ -252,12 +275,11 @@ test("int32 parser produces correct value for steer torque signal", () => {
   const dbc = new DBC(DBC_MESSAGE_DEF);
 
   const hex = "e2d62a0bd0d3b5e5";
-  const buffer = Buffer.from(hex, "hex");
-  const bufferSwapped = Buffer.from(buffer).swap64();
-
-  const bitArr = Bitarray.fromBytes(buffer);
-  const bitsSwapped = Bitarray.fromBytes(bufferSwapped);
-  const value = dbc.valueForInt32Signal(steerTorqueSignal, bitArr, bitsSwapped);
+  const value = dbcInt32SignalValue(
+    dbc,
+    dbc.getMessageFrame(228).signals["STEER_TORQUE"],
+    hex
+  );
 
   expect(value).toBe(-7466);
 });
@@ -271,30 +293,38 @@ test("int64 parser produces correct value for steer torque signal", () => {
   expect(value).toBe(-7466);
 });
 
-// for debugging contents of a Bitarray
-// let ba = Bitarray;
-// let str = '';
-// for (let i = 0; i < Bitarray.bitLength(bitsSwapped); i++) {
-//   str += Bitarray.extract(bitsSwapped, i, 1).toString();
-// }
+test("int32 parser produces correct value for wheel speeds", () => {
+  const dbc = new DBC(DBC_WHEEL_SPEEDS);
 
-function dbcInt32SignalValue(dbc, signalSpec, hex, frameSizeBytes) {
-  // expects hex string to represent 8 bytes, left-padded with zeroes if frame size is smaller
-  const buffer = Buffer.from(hex, "hex");
-  const bufferSwapped = Buffer.from(buffer).swap64();
-
-  const bits = Bitarray.bitSlice(
-    Bitarray.fromBytes(buffer),
-    64 - frameSizeBytes * 8
+  const hex = "36806cd8d8f1b0b7";
+  const rearRight = dbcInt32SignalValue(
+    dbc,
+    dbc.getMessageFrame(464).signals["WHEEL_SPEED_RR"],
+    hex
   );
-  const bitsSwapped = Bitarray.bitSlice(
-    Bitarray.fromBytes(bufferSwapped),
-    0,
-    frameSizeBytes * 8
-  );
+  expect(rearRight).toBe(69.23);
 
-  return dbc.valueForInt32Signal(signalSpec, bits, bitsSwapped);
-}
+  const rearLeft = dbcInt32SignalValue(
+    dbc,
+    dbc.getMessageFrame(464).signals["WHEEL_SPEED_RL"],
+    hex
+  );
+  expect(rearLeft).toBe(69.42);
+
+  const frontLeft = dbcInt32SignalValue(
+    dbc,
+    dbc.getMessageFrame(464).signals["WHEEL_SPEED_FL"],
+    hex
+  );
+  expect(frontLeft).toBe(69.76);
+
+  const frontRight = dbcInt32SignalValue(
+    dbc,
+    dbc.getMessageFrame(464).signals["WHEEL_SPEED_FR"],
+    hex
+  );
+  expect(frontRight).toBe(69.66);
+});
 
 const DBC_BINARY_LE_SIGNAL = `
 BO_ 768 NEW_MSG_1: 8 XXX
@@ -368,7 +398,7 @@ test("int32 parser produces correct value for 4-bit little endian signal within 
   const frame = dbc.getMessageFrame(1265);
   const signalSpec = frame.signals["CF_Clu_AliveCnt1"];
 
-  const hexData = "0000000020006620";
+  const hexData = "2000662000000000";
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
   expect(value).toEqual(2);
 });
@@ -388,7 +418,11 @@ test("int32 parser produces correct value for 2-byte signed little endian signal
 
   const hexData = "000000fafe000700";
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
-  expect(value).toEqual(-26.200000000000003);
+  expect(value).toEqual(0.0);
+
+  const hexData2 = "0b000907d8b30000";
+  const value2 = dbcInt32SignalValue(dbc, signalSpec, hexData2, frame.size);
+  expect(value2).toEqual(1.1);
 });
 
 const DBC_CHFFR_METRIC_COMMENT = `

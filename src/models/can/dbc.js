@@ -1,5 +1,5 @@
 import Bitarray from "../bitarray";
-import leftPad from "left-pad";
+import rightPad from "right-pad";
 import CloudLog from "../../logging/CloudLog";
 import Signal from "./signal";
 import Frame from "./frame";
@@ -573,24 +573,35 @@ export default class DBC {
     return ival;
   }
 
-  valueForInt32Signal(signalSpec, bits, bitsSwapped) {
-    let startBit, bitArr;
-
+  valueForInt32Signal(signalSpec, buf) {
+    var startBit;
     if (signalSpec.isLittleEndian) {
-      bitArr = bitsSwapped;
-      startBit =
-        Bitarray.bitLength(bitArr) - signalSpec.startBit - signalSpec.size;
+      startBit = 64 - signalSpec.startBit - signalSpec.size;
     } else {
-      bitArr = bits;
-      startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
-    }
-    let ival = Bitarray.extract(bitArr, startBit, signalSpec.size);
+      var bitPos = (-signalSpec.startBit - 1) % 8;
+      if (bitPos < 0) {
+        bitPos += 8; // mimic python modulo behavior
+      }
 
-    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
-      ival -= Math.pow(2, signalSpec.size);
+      startBit = Math.floor(signalSpec.startBit / 8) * 8 + bitPos;
     }
-    ival = ival * signalSpec.factor + signalSpec.offset;
-    return ival;
+
+    var shiftAmount, signalValue;
+    let byteOffset = Math.min(4, Math.floor(signalSpec.startBit / 8));
+    if (signalSpec.isLittleEndian) {
+      signalValue = buf.readUInt32LE(byteOffset);
+      shiftAmount = signalSpec.startBit - 8 * byteOffset;
+    } else {
+      signalValue = buf.readUInt32BE(byteOffset);
+      shiftAmount = 32 - (startBit - 8 * byteOffset + signalSpec.size);
+    }
+
+    signalValue = (signalValue >>> shiftAmount) & ((1 << signalSpec.size) - 1);
+    if (signalSpec.isSigned && signalValue >>> (signalSpec.size - 1)) {
+      signalValue -= 1 << signalSpec.size;
+    }
+
+    return signalValue * signalSpec.factor + signalSpec.offset;
   }
 
   getSignalValues(messageId, data) {
@@ -601,21 +612,12 @@ export default class DBC {
 
     let buffer = Buffer.from(data);
     let paddedBuffer = buffer;
-    if (buffer.length % 8 !== 0) {
+    if (buffer.length !== 8) {
       // pad data it's 64 bits long
-      const paddedDataHex = leftPad(buffer.toString("hex"), 16, "0");
+      const paddedDataHex = rightPad(buffer.toString("hex"), 16, "0");
       paddedBuffer = Buffer.from(paddedDataHex, "hex");
     }
-
     const hexData = paddedBuffer.toString("hex");
-    const bufferSwapped = Buffer.from(paddedBuffer).swap64();
-
-    const bits = Bitarray.fromBytes(data);
-    const bitsSwapped = Bitarray.bitSlice(
-      Bitarray.fromBytes(bufferSwapped),
-      0,
-      frame.size * 8
-    );
 
     const signalValuesByName = {};
     Object.values(frame.signals).forEach(signalSpec => {
@@ -623,7 +625,7 @@ export default class DBC {
       if (signalSpec.size > 32) {
         value = this.valueForInt64Signal(signalSpec, hexData);
       } else {
-        value = this.valueForInt32Signal(signalSpec, bits, bitsSwapped);
+        value = this.valueForInt32Signal(signalSpec, paddedBuffer);
       }
       signalValuesByName[signalSpec.name] = value;
     });
