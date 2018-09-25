@@ -1,7 +1,6 @@
 global.__JEST__ = 1;
 import DBC, { swapOrder } from "../../models/can/dbc";
 import Signal from "../../models/can/signal";
-import Bitarray from "../../models/bitarray";
 
 const DBC_MESSAGE_DEF = `BO_ 228 STEERING_CONTROL: 5 ADAS
  SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
@@ -158,13 +157,6 @@ const steerTorqueSignal = new Signal({
   receiver: ["EPS"],
   unit: ""
 });
-
-// for debugging contents of a Bitarray
-// let ba = Bitarray;
-// let str = '';
-// for (let i = 0; i < ba.bitLength(bitsSwapped); i++) {
-//   str += ba.extract(bitsSwapped, i, 1).toString();
-// }
 
 function dbcInt32SignalValue(dbc, signalSpec, hex) {
   // expects hex string to represent 8 bytes, left-justified with zeroes if frame size is smaller

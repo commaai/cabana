@@ -1,4 +1,3 @@
-import Bitarray from "../bitarray";
 import rightPad from "right-pad";
 import CloudLog from "../../logging/CloudLog";
 import Signal from "./signal";
