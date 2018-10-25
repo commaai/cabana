@@ -1,5 +1,5 @@
 function videoUrl(dongleId, hashedRouteName) {
-  return `https://video.comma.ai/hls/${dongleId}/${hashedRouteName}/index.m3u8`;
+  return `https://comma-video.azureedge.net/hls/${dongleId}/${hashedRouteName}/index.m3u8`;
 }
 
 function videoUrlForRouteUrl(routeUrlString) {
