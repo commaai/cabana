@@ -1,5 +1,7 @@
 function videoUrl(dongleId, hashedRouteName) {
-  return `https://comma-video.azureedge.net/hls/${dongleId}/${hashedRouteName}/index.m3u8`;
+  return `${
+    process.env.REACT_APP_VIDEO_CDN
+  }/hls/${dongleId}/${hashedRouteName}/index.m3u8`;
 }
 
 function videoUrlForRouteUrl(routeUrlString) {
