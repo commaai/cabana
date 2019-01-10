@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
+    "@commaai/hls.js": "^0.12.2",
     "@commaai/log_reader": "^0.3.1",
     "@commaai/pandajs": "^0.3.4",
     "ap": "^0.2.0",
@@ -26,7 +27,6 @@
     "github-api": "^3.0.0",
     "global": "^4.3.2",
     "hls": "0.0.1",
-    "hls.js": "^0.7.9",
     "husky": "^0.14.3",
     "int64-buffer": "^0.1.9",
     "js-cookie": "^2.1.4",

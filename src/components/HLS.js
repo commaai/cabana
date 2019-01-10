@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Hls from "hls.js/lib";
+import Hls from "@commaai/hls.js";
 
 export default class HLS extends Component {
   static propTypes = {
@@ -69,7 +69,7 @@ export default class HLS extends Component {
   };
 
   componentDidMount() {
-    this.player = new Hls();
+    this.player = new Hls({ disablePtsDtsCorrectionInMp4Remux: true });
     this.loadSource();
   }
 
