@@ -1,4 +1,4 @@
-const STREAM_VERSION = 1;
+const STREAM_VERSION = 2;
 
 function videoUrl(dongleId, hashedRouteName) {
   return `${
