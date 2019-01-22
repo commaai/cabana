@@ -48,5 +48,5 @@ export function isAuthenticated() {
 export function authUrl() {
   Cookies.set(COMMA_OAUTH_REDIRECT_COOKIE, window.location.href);
 
-  return "https://community.comma.ai/ucp.php?mode=login&login=external&oauth_service=google";
+  return "https://community.comma.ai/forum/ucp.php?mode=login&login=external&oauth_service=google";
 }
