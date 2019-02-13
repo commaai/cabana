@@ -55,7 +55,7 @@ export default class CanExplorer extends Component {
       route: null,
       routes: [],
       canFrameOffset: -1,
-      firstCanTime: 0,
+      firstCanTime: null,
       lastBusTime: null,
       selectedMessage: null,
       currentParts: [0, 0],
@@ -192,11 +192,15 @@ export default class CanExplorer extends Component {
     });
 
     offsetFinder.onmessage = e => {
-      const { canFrameOffset, firstCanTime } = e.data;
-
-      this.setState({ canFrameOffset, firstCanTime }, () => {
+      if ("error" in e.data) {
         this.spawnWorker(this.state.currentParts);
-      });
+      } else {
+        const { canFrameOffset, firstCanTime } = e.data;
+
+        this.setState({ canFrameOffset, firstCanTime }, () => {
+          this.spawnWorker(this.state.currentParts);
+        });
+      }
     };
   }
 
@@ -426,7 +430,7 @@ export default class CanExplorer extends Component {
       dbcText: dbc.text(),
       route: route.fullname,
       part: part,
-      canStartTime: firstCanTime - canFrameOffset,
+      canStartTime: firstCanTime != null ? firstCanTime - canFrameOffset : null,
       prevMsgEntries,
       maxByteStateChangeCount
     });

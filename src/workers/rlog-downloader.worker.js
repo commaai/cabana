@@ -108,7 +108,12 @@ async function loadData(entry) {
     if (entry.ended) {
       console.log("You can get msgs after end", msg);
     }
-    if ("Can" in msg) {
+    if ("InitData" in msg) {
+      let monoTime = msg.LogMonoTime / 1e9;
+      if (entry.options.canStartTime == null) {
+        entry.options.canStartTime = monoTime;
+      }
+    } else if ("Can" in msg) {
       let monoTime = msg.LogMonoTime / 1000000000;
       msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
     } else if ("CarState" in msg) {

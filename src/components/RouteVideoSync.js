@@ -50,7 +50,6 @@ export default class RouteVideoSync extends Component {
     secondsLoaded: PropTypes.number.isRequired,
     startOffset: PropTypes.number.isRequired,
     message: PropTypes.object,
-    firstCanTime: PropTypes.number.isRequired,
     canFrameOffset: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
     playing: PropTypes.bool.isRequired,
