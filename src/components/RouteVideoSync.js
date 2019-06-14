@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { StyleSheet, css } from "aphrodite/no-important";
+import { derived as RouteApi, video as VideoApi } from "@commaai/comma-api";
 
 import HLS from "./HLS";
-import { cameraPath } from "../api/routes";
-import Video from "../api/video";
 import RouteSeeker from "./RouteSeeker/RouteSeeker";
 
 const Styles = StyleSheet.create({
@@ -93,7 +92,7 @@ export default class RouteVideoSync extends Component {
   nearestFrameUrl() {
     const { url } = this.props;
     const sec = Math.round(this.props.userSeekTime);
-    return cameraPath(url, sec);
+    return RouteApi(url).getJpegUrl(sec);
   }
 
   loadingOverlay() {
@@ -170,7 +169,7 @@ export default class RouteVideoSync extends Component {
         ) : null}
         <HLS
           className={css(Styles.hls)}
-          source={Video.videoUrlForRouteUrl(this.props.url)}
+          source={VideoApi(this.props.url).getRearCameraStreamIndexUrl()}
           startTime={this.props.userSeekTime}
           playbackSpeed={this.props.playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}

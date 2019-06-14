@@ -1,13 +1,27 @@
-import * as CommaAPI from "./comma-api";
+import { raw as RawDataApi, request as Request } from "@commaai/comma-api";
+import CommaAuth from "@commaai/my-comma-auth";
 import request from "simple-get";
 
 const urlStore = {};
+
+var initPromise;
+function ensureInit() {
+  if (!initPromise) {
+    initPromise = CommaAuth.init().then(function(token) {
+      Request.configure(token);
+      return Promise.resolve();
+    });
+  }
+  return initPromise;
+}
 
 export async function getLogURLList(routeName) {
   if (urlStore[routeName]) {
     return urlStore[routeName];
   }
-  var data = await CommaAPI.get("route/" + routeName + "/log_urls");
+  await ensureInit();
+
+  var data = await RawDataApi.getLogUrls(routeName);
 
   urlStore[routeName] = data;
 

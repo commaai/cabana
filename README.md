@@ -5,7 +5,7 @@
 * sudo apt-get install -y libusb-dev libudev-dev ruby-sass
 * yarn install
 
-## Developemnt
+## Development
 
 * yarn run sass
 * yarn start
@@ -15,7 +15,7 @@
 * npm version patch
 * git push # push version patch
 * yarn build
-* scripts/deploy.sh
+* CONTAINER=cabana scripts/deploy.sh
 
 # Create React App documentation
 

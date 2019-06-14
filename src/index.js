@@ -1,6 +1,8 @@
 import Sentry from "./logging/Sentry";
 import React from "react";
 import ReactDOM from "react-dom";
+import CommaAuth from "@commaai/my-comma-auth";
+import { request as Request } from "@commaai/comma-api";
 import CanExplorer from "./CanExplorer";
 import AcuraDbc from "./acura-dbc";
 import { getUrlParameter, modifyQueryParameters } from "./utils/url";
@@ -28,11 +30,13 @@ if (routeFullName) {
 
   let max = getUrlParameter("max"),
     url = getUrlParameter("url");
-  if (max && url) {
+  if (max) {
     props.max = max;
-    props.url = url;
-    props.isShare = true;
   }
+  if (url) {
+    props.url = url;
+  }
+  props.isShare = max && url;
 } else if (getUrlParameter("demo")) {
   props.max = 12;
   props.url =
@@ -78,8 +82,16 @@ if (authTokenQueryParam !== null) {
   props.githubAuthToken = fetchPersistedGithubAuthToken();
 }
 
-if (routeFullName || isDemo) {
+async function init() {
+  const token = await CommaAuth.init();
+  if (token) {
+    Request.configure(token);
+  }
   ReactDOM.render(<CanExplorer {...props} />, document.getElementById("root"));
+}
+
+if (routeFullName || isDemo) {
+  init();
 } else {
   const img = document.createElement("img");
   img.src = process.env.PUBLIC_URL + "/img/cabana.jpg";

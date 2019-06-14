@@ -4,15 +4,14 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import { createWriteStream } from "streamsaver";
 import Panda from "@commaai/pandajs";
-
+import CommaAuth from "@commaai/my-comma-auth";
+import { raw as RawDataApi, drives as DrivesApi } from "@commaai/comma-api";
 import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
 import * as GithubAuth from "./api/github-auth";
 
-import * as auth from "./api/comma-auth";
 import DBC from "./models/can/dbc";
 import Meta from "./components/Meta";
 import Explorer from "./components/Explorer";
-import * as Routes from "./api/routes";
 import OnboardingModal from "./components/Modals/OnboardingModal";
 import SaveDbcModal from "./components/SaveDbcModal";
 import LoadDbcModal from "./components/LoadDbcModal";
@@ -53,7 +52,6 @@ export default class CanExplorer extends Component {
       messages: {},
       selectedMessages: [],
       route: null,
-      routes: [],
       canFrameOffset: -1,
       firstCanTime: null,
       lastBusTime: null,
@@ -123,10 +121,13 @@ export default class CanExplorer extends Component {
 
   componentWillMount() {
     const { dongleId, name } = this.props;
-    if (this.props.max && this.props.url) {
+    if (CommaAuth.isAuthenticated() && !name) {
+      // TODO link to explorer
+      this.showOnboarding();
+    } else if (this.props.max && this.props.url) {
       // probably the demo!
       const { max, url } = this.props;
-      const { startTime } = Routes.parseRouteName(name);
+      const startTime = Moment(name, "YYYY-MM-DD--H-m-s");
 
       const route = {
         fullname: dongleId + "|" + name,
@@ -141,40 +142,35 @@ export default class CanExplorer extends Component {
         },
         this.initCanData
       );
-    } else if (auth.isAuthenticated() && !name) {
-      Routes.fetchRoutes()
-        .then(routes => {
-          const _routes = [];
-          Object.keys(routes).forEach(route => {
-            _routes.push(routes[route]);
-          });
-          this.setState({ routes: _routes });
-          if (!_routes[name]) {
-            this.showOnboarding();
-          }
-        })
-        .catch(err => {
-          this.showOnboarding();
-        });
     } else if (dongleId && name) {
-      Routes.fetchRoutes(dongleId)
-        .then(routes => {
-          if (routes && routes[name]) {
-            // this makes fullname = dongleId + '|' + name
-            const route = routes[name];
-            const newState = {
-              route,
-              currentParts: [
-                0,
-                Math.min(route.proclog, PART_SEGMENT_LENGTH - 1)
-              ]
-            };
-            this.setState(newState, this.initCanData);
-          } else {
-            this.showOnboarding();
-          }
+      const routeName = dongleId + "|" + name;
+      let urlPromise;
+      if (this.props.url) {
+        urlPromise = Promise.resolve(this.props.url);
+      } else {
+        urlPromise = DrivesApi.getRouteInfo(routeName).then(function(route) {
+          return route.url;
+        });
+      }
+      Promise.all([urlPromise, RawDataApi.getLogUrls(routeName)])
+        .then(initData => {
+          let [url, logUrls] = initData;
+          const newState = {
+            route: {
+              fullname: routeName,
+              proclog: logUrls.length - 1,
+              start_time: Moment(name, "YYYY-MM-DD--H-m-s"),
+              url
+            },
+            currentParts: [
+              0,
+              Math.min(logUrls.length - 1, PART_SEGMENT_LENGTH - 1)
+            ]
+          };
+          this.setState(newState, this.initCanData);
         })
         .catch(err => {
+          console.error(err);
           this.showOnboarding();
         });
     } else {

@@ -28,5 +28,8 @@ export const CAN_GRAPH_MAX_POINTS = 10000;
 
 export const STREAMING_WINDOW = 60;
 
-export const COMMA_ACCESS_TOKEN_COOKIE = "comma_access_token";
-export const COMMA_OAUTH_REDIRECT_COOKIE = "wiki_login_redirect";
+const ENV_EXPLORER_URL = {
+  debug: "http://127.0.0.1:3000/",
+  prod: "https://my.comma.ai/"
+};
+export const EXPLORER_URL = ENV_EXPLORER_URL[ENV];
