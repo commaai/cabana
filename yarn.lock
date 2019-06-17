@@ -17,6 +17,16 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@commaai/comma-api@^1.0.0":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.0.12.tgz#aa2be678dd0cdcf5102602e011051eda354853d6"
+  integrity sha512-AWwKaQzgQt6oyOP0lvMqy5/7rMQbKIVwTYX5MJnBFOVOgHrGmzxhPk8Bsi+5GpSA1qSFbnzoMvQ95QFC5teJhw==
+  dependencies:
+    babel-runtime "^6.26.0"
+    config-request "^0.5.1"
+    joi-browser "^13.4.0"
+    querystringify "^2.1.1"
+
 "@commaai/comma-api@^1.0.7":
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.0.9.tgz#f5627c47392107c600cbb4f419ad65b89a6ccf35"
@@ -49,13 +59,13 @@
     geval "^2.2.0"
     stream-selector "^0.4.0"
 
-"@commaai/my-comma-auth@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@commaai/my-comma-auth/-/my-comma-auth-1.0.3.tgz#030e95aa2ef8775824e453f67519544ef61f6bf0"
-  integrity sha512-S4cSV0l5WV4vUQ3N+3wRS2oWX7Bk9PnoXU3sV9IDTGIotsjxeJOw9SRsknqYEGnOc3UwPg73OIyQAyH3qmuWvA==
+"@commaai/my-comma-auth@^1.1.0":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@commaai/my-comma-auth/-/my-comma-auth-1.1.2.tgz#2508d12e2b161b4ff120c0ebd3bcf28b8508d076"
+  integrity sha512-PjoY6fQQAf1cowT4voEtzCwXX97rcMQvkqYN8MOaZsPD+ux+LfNZzdUqKSa2MYGNNmyJFL8+gHL8K6CEwE0NkA==
   dependencies:
+    "@commaai/comma-api" "^1.0.0"
     babel-runtime "^6.26.0"
-    comma-api "https://github.com/commaai/comma-api.git#full-spec"
     config-request "^0.5.1"
     global "^4.4.0"
     localforage "^1.7.3"
@@ -1998,15 +2008,6 @@ combined-stream@1.0.6, combined-stream@^1.0.5, combined-stream@~1.0.5:
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.6.tgz#723e7df6e801ac5613113a7e445a9b69cb632818"
   dependencies:
     delayed-stream "~1.0.0"
-
-"comma-api@https://github.com/commaai/comma-api.git#full-spec":
-  version "1.0.7"
-  resolved "https://github.com/commaai/comma-api.git#6dc346876c16aa4ac48884c1261b2bb29720cbb0"
-  dependencies:
-    babel-runtime "^6.26.0"
-    config-request "^0.5.1"
-    joi-browser "^13.4.0"
-    querystringify "^2.1.1"
 
 commander@2, commander@2.15.x, commander@^2.11.0, commander@^2.15.1, commander@^2.9.0, commander@~2.15.0:
   version "2.15.1"
