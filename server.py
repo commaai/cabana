@@ -3,7 +3,7 @@ import requests
 import json
 
 CLIENT_ID = 'f1e42d14f45491f9ca34'
-CLIENT_SECRET = 'f50f7a6dd6b0364b0761f35367f0be7027e7caa1'
+CLIENT_SECRET = ''
 
 OAUTH_STATES = []
 app = Flask(__name__)
