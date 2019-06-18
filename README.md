@@ -1,5 +1,7 @@
 # Cabana
 
+<img src="https://my.comma.ai/cabana/img/cabana.jpg" width="640" height="267" />
+
 ## Setup
 
 * sudo apt-get install -y libusb-dev libudev-dev ruby-sass
