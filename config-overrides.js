@@ -27,8 +27,7 @@ module.exports = function override(config, env) {
         new SentryPlugin({
           organisation: "commaai",
           project: "cabana",
-          apiKey:
-            "7a932ab144984dd3979993cf61dbdd2a1489ac77af4d4f46b85d64598b9a4ca6",
+          apiKey: process.env.SENTRY_API_KEY,
           release: function(hash) {
             return COMMIT + ";" + hash; // webpack build hash
           }
