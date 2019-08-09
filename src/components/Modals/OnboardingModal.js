@@ -203,8 +203,7 @@ export default class OnboardingModal extends Component {
           </a>{" "}
         </span>
         <span>
-          or{" "}
-          <a href="https://community.comma.ai/cabana/?demo=1">try the demo</a>.
+          or <a href={`${window.location.href}?demo=1`}>try the demo</a>.
         </span>
       </p>
     );
