@@ -169,7 +169,10 @@ export default class RouteVideoSync extends Component {
         ) : null}
         <HLS
           className={css(Styles.hls)}
-          source={VideoApi(this.props.url).getRearCameraStreamIndexUrl()}
+          source={VideoApi(
+            this.props.url,
+            process.env.REACT_APP_VIDEO_CDN
+          ).getRearCameraStreamIndexUrl()}
           startTime={this.props.userSeekTime}
           playbackSpeed={this.props.playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
