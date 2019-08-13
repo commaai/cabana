@@ -27,10 +27,10 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/comma-api@^1.0.7":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.0.9.tgz#f5627c47392107c600cbb4f419ad65b89a6ccf35"
-  integrity sha512-NJPL2dRK9c+ipfOlS3mr9+DFZSUyYAxcbHZysagH5ChPKHXtSbggQKS/KValLA7bxdXVBhNalh21ufmqoQIejg==
+"@commaai/comma-api@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.2.tgz#2abf967b708f2d650c8e9cb0eecd5044a3a39da2"
+  integrity sha512-Pp19FnHSimzkBlbJCgPObklZc2VZvtYrHVQoCcfbsZMYZaOEFolHek4lZ0l2XkCNB8n71QleBbK6xGY56/jb+Q==
   dependencies:
     babel-runtime "^6.26.0"
     config-request "^0.5.1"

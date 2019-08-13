@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
-    "@commaai/comma-api": "^1.0.7",
+    "@commaai/comma-api": "^1.1.2",
     "@commaai/hls.js": "^0.12.2",
     "@commaai/log_reader": "^0.3.1",
     "@commaai/my-comma-auth": "^1.1.0",
@@ -73,7 +73,7 @@
     "xtend": "^4.0.1"
   },
   "scripts": {
-    "start": "PORT=3001 react-app-rewired start",
+    "start": "PORT=3001 env-cmd .env.development react-app-rewired start",
     "build": "react-app-rewired build",
     "build:staging": "env-cmd .env.staging react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
