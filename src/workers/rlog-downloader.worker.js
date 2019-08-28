@@ -6,7 +6,6 @@ import { getLogPart, getLogURLList } from "../api/rlog";
 import DbcUtils from "../utils/dbc";
 import DBC from "../models/can/dbc";
 import { addressForName } from "../models/can/logSignals";
-import { loadCanPart } from "./can-fetcher";
 
 const DEBOUNCE_DELAY = 100;
 
@@ -74,18 +73,9 @@ async function loadData(entry) {
     url = (await getLogURLList(entry.route))[entry.part];
   }
   if (!url || url.indexOf(".7z") !== -1) {
-    // this is a shit log we can't read...
-    var data = await loadCanPart(
-      entry.dbc,
-      entry.options.base,
-      entry.options.num,
-      entry.options.canStartTime,
-      entry.options.prevMsgEntries,
-      entry.options.maxByteStateChangeCount
-    );
-    data.isFinished = true;
-
-    return self.postMessage(data);
+    return self.postMessage({
+      error: "Invalid or missing log files"
+    });
   }
   var res = await getLogPart(entry.route, entry.part);
   var logReader = new LogStream(res);
