@@ -31,7 +31,6 @@ import { hash } from "./utils/string";
 const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
 const MessageParser = require("./workers/message-parser.worker.js");
-const CanOffsetFinder = require("./workers/can-offset-finder.worker.js");
 const CanStreamerWorker = require("./workers/CanStreamerWorker.worker.js");
 
 export default class CanExplorer extends Component {
@@ -181,21 +180,7 @@ export default class CanExplorer extends Component {
   initCanData() {
     const { route } = this.state;
 
-    const offsetFinder = new CanOffsetFinder();
-    offsetFinder.postMessage({
-      partCount: route.proclog,
-      base: route.url
-    });
-
     this.spawnWorker(this.state.currentParts);
-
-    offsetFinder.onmessage = e => {
-      if (!("error" in e.data)) {
-        const { canFrameOffset, firstCanTime } = e.data;
-
-        this.setState({ canFrameOffset, firstCanTime });
-      }
-    };
   }
 
   onDbcSelected(dbcFilename, dbc) {
