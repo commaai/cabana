@@ -8,6 +8,7 @@ export async function fetchCanTimes(base, part) {
   return canData.data;
 }
 
+// only used by logs that we can't read, missing ones and .7z ones (no js support)
 export async function fetchCanPart(base, part) {
   var urls = [
     base + "/Log/" + part + "/can/t",

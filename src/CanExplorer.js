@@ -52,7 +52,7 @@ export default class CanExplorer extends Component {
       messages: {},
       selectedMessages: [],
       route: null,
-      canFrameOffset: -1,
+      canFrameOffset: 0,
       firstCanTime: null,
       lastBusTime: null,
       selectedMessage: null,
@@ -187,15 +187,13 @@ export default class CanExplorer extends Component {
       base: route.url
     });
 
+    this.spawnWorker(this.state.currentParts);
+
     offsetFinder.onmessage = e => {
-      if ("error" in e.data) {
-        this.spawnWorker(this.state.currentParts);
-      } else {
+      if (!("error" in e.data)) {
         const { canFrameOffset, firstCanTime } = e.data;
 
-        this.setState({ canFrameOffset, firstCanTime }, () => {
-          this.spawnWorker(this.state.currentParts);
-        });
+        this.setState({ canFrameOffset, firstCanTime });
       }
     };
   }
