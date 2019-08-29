@@ -56,6 +56,7 @@ export default class CanExplorer extends Component {
       lastBusTime: null,
       selectedMessage: null,
       currentParts: [0, 0],
+      currentWorkers: [],
       showOnboarding: false,
       showLoadDbc: false,
       showSaveDbc: false,
@@ -517,6 +518,7 @@ export default class CanExplorer extends Component {
   }, 500);
 
   onPartChange(part) {
+    console.log("Part change!");
     let { currentParts, canFrameOffset, route, messages } = this.state;
     if (canFrameOffset === -1 || part + PART_SEGMENT_LENGTH > route.proclog) {
       return;
@@ -541,10 +543,7 @@ export default class CanExplorer extends Component {
     messages = ObjectUtils.fromArray(messagesKvPairs);
 
     // update state then load new parts
-    this.setState(
-      { currentParts, messages, seekTime: part * 60 },
-      this.partChangeDebounced
-    );
+    this.setState({ currentParts, messages }, this.partChangeDebounced);
   }
 
   showEditMessageModal(msgKey) {
@@ -580,6 +579,14 @@ export default class CanExplorer extends Component {
 
   onSeek(seekIndex, seekTime) {
     this.setState({ seekIndex, seekTime });
+
+    let { currentParts } = this.state;
+    let currentPart = currentParts[0];
+    let part = Math.max(0, ~~(seekTime / 60) - 1);
+    console.log("Some shit? on seek yo, i think im in part", part);
+    if (part !== currentPart) {
+      this.onPartChange(part);
+    }
   }
 
   onUserSeek(seekTime) {
@@ -598,7 +605,7 @@ export default class CanExplorer extends Component {
       seekIndex = 0;
     }
 
-    this.setState({ seekIndex, seekTime });
+    this.onSeek(seekIndex, seekTime);
   }
 
   onMessageSelected(msgKey) {
