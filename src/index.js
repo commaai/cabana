@@ -31,7 +31,7 @@ if (routeFullName) {
   let max = getUrlParameter("max"),
     url = getUrlParameter("url");
   if (max) {
-    props.max = max;
+    props.max = Number(max);
   }
   if (url) {
     props.url = url;
