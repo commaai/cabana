@@ -64,6 +64,7 @@
     "detect-port": "1.1.0",
     "dotenv": "2.0.0",
     "env-cmd": "^8.0.2",
+    "gh-pages": "^2.1.1",
     "http-proxy-middleware": "0.17.3",
     "json-loader": "0.5.4",
     "url-toolkit": "^2.1.1",
@@ -80,7 +81,8 @@
     "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass":
       "scss src/index.scss:src/index.css; sass --watch src/index.scss:src/index.css",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "deploy": "npm run build && gh-pages -d build"
   },
   "lint-staged": {
     "*.{js,jsx}": ["prettier --parser flow --write", "git add"],
