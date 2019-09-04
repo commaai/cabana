@@ -469,22 +469,11 @@ export default class Explorer extends Component {
   }
 
   secondsLoaded() {
-    const message = this.props.messages[this.props.selectedMessage];
-    if (!message || message.entries.length === 0) {
-      return this.secondsLoadedRouteRelative(this.props.currentParts);
-    }
-
-    const { entries } = message;
-
-    const { segment } = this.state;
-    if (segment.length === 2) {
-      return segment[1] - segment[0];
-    } else {
-      return entries[entries.length - 1].time - entries[0].time;
-    }
+    return this.props.partsCount * 60;
   }
 
   startOffset() {
+    return 0;
     const partOffset = this.props.currentParts[0] * 60;
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
@@ -663,6 +652,7 @@ export default class Explorer extends Component {
                 {this.timeWindow()}
                 <PartSelector
                   onPartChange={this.props.onPartChange}
+                  selectedPart={this.props.selectedPart}
                   partsCount={this.props.partsCount}
                 />
               </div>

@@ -7,7 +7,8 @@ export default class PartSelector extends Component {
   static selectorWidth = 150;
   static propTypes = {
     onPartChange: PropTypes.func.isRequired,
-    partsCount: PropTypes.number.isRequired
+    partsCount: PropTypes.number.isRequired,
+    selectedPart: PropTypes.number.isRequired
   };
 
   constructor(props) {
@@ -15,7 +16,6 @@ export default class PartSelector extends Component {
 
     this.state = {
       selectedPartStyle: this.makePartStyle(props.partsCount, 0),
-      selectedPart: 0,
       isDragging: false
     };
 
@@ -34,11 +34,12 @@ export default class PartSelector extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.partsCount !== this.props.partsCount) {
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.selectedPart !== this.props.selectedPart) {
+      console.log("updating styles for part picker");
       const selectedPartStyle = this.makePartStyle(
         nextProps.partsCount,
-        this.state.selectedPart
+        nextProps.selectedPart
       );
       this.setState({ selectedPartStyle });
     }
@@ -49,19 +50,15 @@ export default class PartSelector extends Component {
       0,
       Math.min(this.props.partsCount - PART_SEGMENT_LENGTH, part)
     );
-    if (part === this.state.selectedPart) {
+    if (part === this.props.selectedPart) {
       return;
     }
 
     this.props.onPartChange(part);
-    this.setState({
-      selectedPart: part,
-      selectedPartStyle: this.makePartStyle(this.props.partsCount, part)
-    });
   }
 
   selectNextPart() {
-    let { selectedPart } = this.state;
+    let { selectedPart } = this.props;
     selectedPart++;
     if (selectedPart + PART_SEGMENT_LENGTH >= this.props.partsCount) {
       return;
@@ -71,7 +68,7 @@ export default class PartSelector extends Component {
   }
 
   selectPrevPart() {
-    let { selectedPart } = this.state;
+    let { selectedPart } = this.props;
     selectedPart--;
     if (selectedPart < 0) {
       return;
