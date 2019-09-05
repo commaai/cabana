@@ -405,7 +405,7 @@ export default class CanExplorer extends Component {
     for (let partOffset = 0; partOffset <= maxPart - minPart; ++partOffset) {
       let tempPart = currentPart + partOffset;
       if (tempPart > maxPart) {
-        tempPart = minPart + ((tempPart - minPart) % maxPart - minPart);
+        tempPart = minPart + (tempPart - minPart) % (maxPart - minPart + 1);
       }
       console.log("Checking part", tempPart, allWorkerParts);
       if (allWorkerParts.indexOf(tempPart) === -1) {
@@ -423,9 +423,6 @@ export default class CanExplorer extends Component {
     options = options || {};
     let prevMsgEntries = options.prevMsgEntries;
     let prepend = false;
-
-    // filter out old messages that are no longer inside the message window
-    ///@TODO
 
     const {
       dbc,
@@ -638,35 +635,40 @@ export default class CanExplorer extends Component {
 
   onPartChange(part) {
     console.log("Part change!");
-    let {
-      currentParts,
-      currentPart,
-      canFrameOffset,
-      route,
-      messages
-    } = this.state;
-    if (canFrameOffset === -1 || part + PART_SEGMENT_LENGTH > route.proclog) {
+    let { currentParts, currentPart, canFrameOffset, route } = this.state;
+    if (canFrameOffset === -1 || part === currentPart) {
       return;
     }
 
+    let messages = { ...this.state.messages };
+
     // determine new parts to load, whether to prepend or append
+    let maxPart = Math.min(route.proclog, part + 1);
+    let minPart = Math.max(0, maxPart - PART_SEGMENT_LENGTH + 1);
+    console.log("min/max for part", part, "is", minPart, maxPart);
     const currentPartSpan = currentParts[1] - currentParts[0] + 1;
 
     // update current parts
-    currentParts = [part, part + currentPartSpan - 1];
+    currentParts = [minPart, maxPart];
     currentPart = part;
 
     // update messages to only preserve entries in new part range
-    const messagesKvPairs = Object.entries(messages).map(
-      ([messageId, message]) => [
-        messageId,
-        {
-          ...message,
-          entries: []
-        }
-      ]
-    );
-    messages = ObjectUtils.fromArray(messagesKvPairs);
+    let minTime = minPart * 60;
+    let maxTime = maxPart * 60;
+    Object.keys(messages).forEach(key => {
+      let entries = messages[key].entries;
+      let minIndex = 0;
+      let maxIndex = entries.length - 1;
+      while (minIndex < entries.length && entries[minIndex].relTime < minTime) {
+        minIndex++;
+      }
+      while (maxIndex > minIndex && entries[maxIndex].relTime > maxTime) {
+        maxIndex--;
+      }
+      if (minIndex > 0 || maxIndex < entries.length - 1) {
+        messages[key].entries = entries.slice(minIndex, maxIndex + 1);
+      }
+    });
 
     // update state then load new parts
     this.setState(
@@ -709,10 +711,8 @@ export default class CanExplorer extends Component {
   onSeek(seekIndex, seekTime) {
     this.setState({ seekIndex, seekTime });
 
-    let { currentParts } = this.state;
-    let currentPart = currentParts[0];
-    let part = Math.max(0, ~~(seekTime / 60) - 1);
-    // console.log("Some shit? on seek yo, i think im in part", seekTime, part);
+    let { currentPart } = this.state;
+    let part = ~~(seekTime / 60);
     if (part !== currentPart) {
       this.onPartChange(part);
     }
