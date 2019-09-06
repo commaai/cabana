@@ -146,10 +146,7 @@ export default class RouteVideoSync extends Component {
 
     let { videoElement } = this.state;
     let seekTime = videoElement.duration * ratio;
-    console.log(videoElement.currentTime, seekTime, ratio);
-
     videoElement.currentTime = seekTime;
-    console.log("onUserSeek(ratio) {", seekTime);
 
     const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
     if (ratio === 0) {
