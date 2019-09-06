@@ -361,7 +361,7 @@ export default class CanExplorer extends Component {
     let loadedParts = this.state.loadedParts.filter(p => p !== part);
     delete currentWorkers[workerHash];
 
-    console.log("Stoping worker", part);
+    console.log("Stoping worker", workerHash, "for part", part);
     worker.terminate();
 
     this.setState({
@@ -407,7 +407,6 @@ export default class CanExplorer extends Component {
       if (tempPart > maxPart) {
         tempPart = minPart + (tempPart - minPart) % (maxPart - minPart + 1);
       }
-      console.log("Checking part", tempPart, allWorkerParts);
       if (allWorkerParts.indexOf(tempPart) === -1) {
         part = tempPart;
         break;
@@ -459,7 +458,6 @@ export default class CanExplorer extends Component {
       currentWorkers,
       loadingParts
     });
-    console.log("Saving new current worker", currentWorkers);
 
     worker.onmessage = e => {
       if (this.state.currentWorkers[spawnWorkerHash] === undefined) {
@@ -630,28 +628,8 @@ export default class CanExplorer extends Component {
   }
 
   partChangeDebounced = debounce(() => {
-    this.spawnWorker();
-  }, 500);
-
-  onPartChange(part) {
-    console.log("Part change!");
-    let { currentParts, currentPart, canFrameOffset, route } = this.state;
-    if (canFrameOffset === -1 || part === currentPart) {
-      return;
-    }
-
+    let [minPart, maxPart] = this.state.currentParts;
     let messages = { ...this.state.messages };
-
-    // determine new parts to load, whether to prepend or append
-    let maxPart = Math.min(route.proclog, part + 1);
-    let minPart = Math.max(0, maxPart - PART_SEGMENT_LENGTH + 1);
-    console.log("min/max for part", part, "is", minPart, maxPart);
-    const currentPartSpan = currentParts[1] - currentParts[0] + 1;
-
-    // update current parts
-    currentParts = [minPart, maxPart];
-    currentPart = part;
-
     // update messages to only preserve entries in new part range
     let minTime = minPart * 60;
     let maxTime = maxPart * 60 + 60;
@@ -670,11 +648,33 @@ export default class CanExplorer extends Component {
       }
     });
 
+    this.setState({
+      messages
+    });
+
+    this.spawnWorker();
+  }, 500);
+
+  onPartChange(part) {
+    let { currentParts, currentPart, canFrameOffset, route } = this.state;
+    if (canFrameOffset === -1 || part === currentPart) {
+      return;
+    }
+
+    // determine new parts to load, whether to prepend or append
+    let maxPart = Math.min(route.proclog, part + 1);
+    let minPart = Math.max(0, maxPart - PART_SEGMENT_LENGTH + 1);
+    if (minPart === 0) {
+      maxPart = Math.min(route.proclog, 2);
+    }
+    const currentPartSpan = currentParts[1] - currentParts[0] + 1;
+
+    // update current parts
+    currentParts = [minPart, maxPart];
+    currentPart = part;
+
     // update state then load new parts
-    this.setState(
-      { currentParts, currentPart, messages },
-      this.partChangeDebounced
-    );
+    this.setState({ currentParts, currentPart }, this.partChangeDebounced);
   }
 
   showEditMessageModal(msgKey) {

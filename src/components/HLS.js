@@ -19,9 +19,6 @@ export default class HLS extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (!this.videoElement.currentTime) {
-      this.videoElement.currentTime = nextProps.startTime;
-    }
     this.videoElement.playbackRate = nextProps.playbackSpeed;
 
     if (nextProps.source !== this.props.source) {
