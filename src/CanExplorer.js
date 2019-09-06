@@ -654,7 +654,7 @@ export default class CanExplorer extends Component {
 
     // update messages to only preserve entries in new part range
     let minTime = minPart * 60;
-    let maxTime = maxPart * 60;
+    let maxTime = maxPart * 60 + 60;
     Object.keys(messages).forEach(key => {
       let entries = messages[key].entries;
       let minIndex = 0;
