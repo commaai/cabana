@@ -409,7 +409,6 @@ export default class Explorer extends Component {
     const message = this.props.messages[this.props.selectedMessage];
     if (!message) {
       this.props.onUserSeek(time);
-      this.props.onSeek(0, time);
       return;
     }
 
@@ -648,14 +647,8 @@ export default class Explorer extends Component {
                 playSpeed={this.state.playSpeed}
                 onPlaySpeedChanged={this.changePlaySpeed}
               />
-              <div className="cabana-explorer-visuals-header">
-                {this.timeWindow()}
-                <PartSelector
-                  onPartChange={this.props.onPartChange}
-                  selectedPart={this.props.selectedPart}
-                  partsCount={this.props.partsCount}
-                />
-              </div>
+              <div className="cabana-explorer-visuals-header g-row" />
+              <br />
               <RouteVideoSync
                 message={this.props.messages[this.props.selectedMessage]}
                 secondsLoaded={this.secondsLoaded()}
