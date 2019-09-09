@@ -409,7 +409,6 @@ export default class Explorer extends Component {
     const message = this.props.messages[this.props.selectedMessage];
     if (!message) {
       this.props.onUserSeek(time);
-      this.props.onSeek(0, time);
       return;
     }
 
@@ -469,22 +468,11 @@ export default class Explorer extends Component {
   }
 
   secondsLoaded() {
-    const message = this.props.messages[this.props.selectedMessage];
-    if (!message || message.entries.length === 0) {
-      return this.secondsLoadedRouteRelative(this.props.currentParts);
-    }
-
-    const { entries } = message;
-
-    const { segment } = this.state;
-    if (segment.length === 2) {
-      return segment[1] - segment[0];
-    } else {
-      return entries[entries.length - 1].time - entries[0].time;
-    }
+    return this.props.partsCount * 60;
   }
 
   startOffset() {
+    return 0;
     const partOffset = this.props.currentParts[0] * 60;
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
@@ -659,13 +647,8 @@ export default class Explorer extends Component {
                 playSpeed={this.state.playSpeed}
                 onPlaySpeedChanged={this.changePlaySpeed}
               />
-              <div className="cabana-explorer-visuals-header">
-                {this.timeWindow()}
-                <PartSelector
-                  onPartChange={this.props.onPartChange}
-                  partsCount={this.props.partsCount}
-                />
-              </div>
+              <div className="cabana-explorer-visuals-header g-row" />
+              <br />
               <RouteVideoSync
                 message={this.props.messages[this.props.selectedMessage]}
                 secondsLoaded={this.secondsLoaded()}

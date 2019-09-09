@@ -158,8 +158,8 @@ export default class RouteSeeker extends Component {
       return;
     }
 
-    const { currentTime } = videoElement;
-    let newRatio = this.props.segmentProgress(currentTime);
+    let { currentTime, duration } = videoElement;
+    let newRatio = currentTime / duration;
 
     if (newRatio === this.state.ratio) {
       this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
@@ -168,6 +168,7 @@ export default class RouteSeeker extends Component {
 
     if (newRatio >= 1) {
       newRatio = 0;
+      currentTime = 0;
       this.props.onUserSeek(newRatio);
     }
 
