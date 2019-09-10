@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 
 import Signal from "../models/can/signal";
+import GraphData from "../models/graph-data";
 import CanPlot from "../vega/CanPlot";
 
 const DefaultPlotInnerStyle = {
@@ -16,7 +17,7 @@ export default class CanGraph extends Component {
   static emptyTable = [];
 
   static propTypes = {
-    data: PropTypes.object,
+    plottedSignal: PropTypes.string,
     messages: PropTypes.object,
     messageId: PropTypes.string,
     messageName: PropTypes.string,
@@ -43,7 +44,8 @@ export default class CanGraph extends Component {
       shiftX: 0,
       shiftY: 0,
       bounds: null,
-      isDataInserted: false
+      isDataInserted: false,
+      data: this.getGraphData(props)
     };
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -52,20 +54,46 @@ export default class CanGraph extends Component {
     this.onDragAnchorMouseUp = this.onDragAnchorMouseUp.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onPlotResize = this.onPlotResize.bind(this);
+    this.insertData = this.insertData.bind(this);
+  }
+
+  getGraphData(props) {
+    let firstRelTime = -1;
+    let lastRelTime = -1;
+    let series = props.plottedSignals
+      .map(signals => {
+        const { messageId, signalUid } = signals;
+        let entries = props.messages[messageId].entries;
+        if (entries.length) {
+          let messageRelTime = entries[0].relTime;
+          if (firstRelTime === -1) {
+            firstRelTime = messageRelTime;
+          } else {
+            firstRelTime = Math.min(firstRelTime, messageRelTime);
+          }
+          messageRelTime = entries[entries.length - 1].relTime;
+          lastRelTime = Math.max(lastRelTime, messageRelTime);
+        }
+        return GraphData._calcGraphData(
+          props.messages[messageId],
+          signalUid,
+          0
+        );
+      })
+      .reduce((m, v) => m.concat(v), []);
+
+    return {
+      updated: Date.now(),
+      series,
+      firstRelTime,
+      lastRelTime
+    };
   }
 
   segmentIsNew(newSegment) {
     return (
       newSegment.length !== this.props.segment.length ||
       !newSegment.every((val, idx) => this.props.segment[idx] === val)
-    );
-  }
-
-  dataChanged(prevProps, nextProps) {
-    return (
-      nextProps.data.series.length !== prevProps.data.series.length ||
-      !prevProps.signalSpec.equals(nextProps.signalSpec) ||
-      nextProps.data.updated !== this.props.data.updated
     );
   }
 
@@ -110,24 +138,32 @@ export default class CanGraph extends Component {
       }
     }
 
-    const dataChanged = this.dataChanged(this.props, nextProps);
-
-    return (
-      dataChanged ||
-      JSON.stringify(this.state) !== JSON.stringify(nextState) ||
-      this.visualChanged(this.props, nextProps)
-    );
+    return false;
   }
 
   insertData() {
-    this.view.remove("table", () => true).run();
-    this.view.insert("table", this.props.data.series).run();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.dataChanged(prevProps, this.props)) {
-      this.insertData();
-    }
+    let { firstRelTime, lastRelTime, series } = this.state.data;
+    console.log(
+      "Inserting new data into the view!",
+      series.length,
+      firstRelTime,
+      lastRelTime
+    );
+    let currentLastRelTime = -1;
+    let removed = 0;
+    this.view
+      .remove("table", v => {
+        if (v.relTime < firstRelTime || v.relTime > lastRelTime) {
+          removed++;
+          return true;
+        }
+        currentLastRelTime = Math.max(currentLastRelTime, v.relTime);
+        return false;
+      })
+      .run();
+    series = series.filter(v => v.relTime > currentLastRelTime);
+    console.log("Removing", removed, "and adding", series.length);
+    this.view.insert("table", series).run();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -138,6 +174,13 @@ export default class CanGraph extends Component {
       this.updateStyleFromDragPos(nextProps.dragPos);
     } else if (!nextProps.dragPos && this.state.plotInnerStyle !== null) {
       this.setState({ plotInnerStyle: null });
+    }
+    if (
+      this.props.messages !== nextProps.messages ||
+      this.props.plottedSignal !== nextProps.plottedSignal
+    ) {
+      let data = this.getGraphData(nextProps);
+      this.setState({ data }, this.insertData);
     }
   }
 
@@ -292,8 +335,8 @@ export default class CanGraph extends Component {
                   className="cabana-explorer-visuals-plot-container"
                 >
                   <CanPlot
-                    logLevel={0}
-                    data={{ table: CanGraph.emptyTable }}
+                    logLevel={1}
+                    data={{ table: this.state.data.series }}
                     onNewView={this.onNewView}
                     onSignalClickTime={this.onSignalClickTime}
                     onSignalSegment={this.onSignalSegment}

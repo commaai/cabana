@@ -128,16 +128,16 @@ export default class Explorer extends Component {
             Object.keys(nextProps.messages).indexOf(messageId) !== -1;
           let signalExists = true;
           if (!messageExists) {
-            graphData.splice(index, 1);
+            // graphData.splice(index, 1);
           } else {
             signalExists = Object.values(
               nextProps.messages[messageId].frame.signals
             ).some(signal => signal.uid === signalUid);
 
             if (!signalExists) {
-              graphData[index].series = graphData[index].series.filter(
-                entry => entry.signalUid !== signalUid
-              );
+              // graphData[index].series = graphData[index].series.filter(
+              //   entry => entry.signalUid !== signalUid
+              // );
             }
           }
 
@@ -145,7 +145,7 @@ export default class Explorer extends Component {
         })
       )
       .filter(plot => plot.length > 0);
-    this.setState({ plottedSignals, graphData });
+    this.setState({ plottedSignals });
 
     if (
       nextProps.selectedMessage &&
@@ -387,8 +387,13 @@ export default class Explorer extends Component {
     if (entries.length === 0) return null;
 
     const { segmentIndices } = this.state;
-    if (segmentIndices.length === 2) {
-      for (let i = segmentIndices[0]; i <= segmentIndices[1]; i++) {
+    if (segmentIndices.length === 2 && segmentIndices[0] >= 0) {
+      for (
+        let i = segmentIndices[0],
+          l = Math.min(entries.length - 1, segmentIndices[1]);
+        i <= l;
+        i++
+      ) {
         if (entries[i].relTime >= time) {
           return i;
         }
@@ -682,7 +687,6 @@ export default class Explorer extends Component {
           <CanGraphList
             plottedSignals={this.state.plottedSignals}
             messages={this.props.messages}
-            graphData={this.state.graphData}
             onGraphTimeClick={this.onGraphTimeClick}
             seekTime={this.props.seekTime}
             onSegmentChanged={this.onSegmentChanged}
