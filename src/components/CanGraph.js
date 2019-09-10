@@ -107,7 +107,6 @@ export default class CanGraph extends Component {
   onPlotResize({ bounds }) {
     this.setState({ bounds });
 
-    this.view.run();
     this.view.signal("width", bounds.width - 70);
     this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
@@ -132,38 +131,23 @@ export default class CanGraph extends Component {
         this.view.signal("videoTime", nextProps.currentTime);
         segmentChanged = true;
       }
-
-      if (segmentChanged) {
-        this.view.run();
-      }
+      return segmentChanged;
     }
 
-    return false;
+    return true;
   }
 
   insertData() {
-    let { firstRelTime, lastRelTime, series } = this.state.data;
-    console.log(
-      "Inserting new data into the view!",
-      series.length,
-      firstRelTime,
-      lastRelTime
-    );
-    let currentLastRelTime = -1;
-    let removed = 0;
-    this.view
-      .remove("table", v => {
-        if (v.relTime < firstRelTime || v.relTime > lastRelTime) {
-          removed++;
-          return true;
-        }
-        currentLastRelTime = Math.max(currentLastRelTime, v.relTime);
-        return false;
-      })
-      .run();
-    series = series.filter(v => v.relTime > currentLastRelTime);
-    console.log("Removing", removed, "and adding", series.length);
-    this.view.insert("table", series).run();
+    let { series } = this.state.data;
+
+    // adding plot points by diff isn't faster since it basically has to be n^2
+    // out-of-order events make it so that you can't just check the bounds
+    let changeset = this.view
+      .changeset()
+      .remove(v => true)
+      .insert(series);
+    this.view.change("table", changeset);
+    this.view.runAsync();
   }
 
   componentWillReceiveProps(nextProps) {
