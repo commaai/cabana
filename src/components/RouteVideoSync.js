@@ -46,8 +46,7 @@ const Styles = StyleSheet.create({
 export default class RouteVideoSync extends Component {
   static propTypes = {
     userSeekIndex: PropTypes.number.isRequired,
-    secondsLoaded: PropTypes.number.isRequired,
-    startOffset: PropTypes.number.isRequired,
+    segment: PropTypes.array.isRequired,
     message: PropTypes.object,
     canFrameOffset: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
@@ -56,7 +55,8 @@ export default class RouteVideoSync extends Component {
     onUserSeek: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
     onPause: PropTypes.func.isRequired,
-    userSeekTime: PropTypes.number.isRequired
+    userSeekTime: PropTypes.number.isRequired,
+    playSpeed: PropTypes.number.isRequired
   };
 
   constructor(props) {
@@ -86,6 +86,14 @@ export default class RouteVideoSync extends Component {
         this.props.message.entries.length !== nextProps.message.entries.length)
     ) {
       this.setState({ shouldRestartHls: true });
+    }
+    if (
+      nextProps.userSeekTime &&
+      this.props.userSeekTime !== nextProps.userSeekTime
+    ) {
+      if (this.state.videoElement) {
+        this.state.videoElement.currentTime = nextProps.userSeekTime;
+      }
     }
   }
 
@@ -121,20 +129,40 @@ export default class RouteVideoSync extends Component {
     });
   }
 
-  segmentProgress(currentTime) {
-    // returns progress as number in [0,1]
-
-    if (currentTime < this.props.startOffset) {
-      currentTime = this.props.startOffset;
+  videoLength() {
+    if (this.props.segment.length) {
+      return this.props.segment[1] - this.props.segment[0];
     }
 
-    const ratio =
-      (currentTime - this.props.startOffset) / this.props.secondsLoaded;
+    if (this.state.videoElement) {
+      return this.state.videoElement.duration;
+    }
+
+    return 0;
+  }
+
+  startTime() {
+    if (this.props.segment.length) {
+      return this.props.segment[0];
+    }
+
+    return 0;
+  }
+
+  segmentProgress(currentTime) {
+    // returns progress as number in [0,1]
+    let startTime = this.startTime();
+
+    if (currentTime < startTime) {
+      currentTime = startTime;
+    }
+
+    const ratio = (currentTime - startTime) / this.videoLength();
     return Math.max(0, Math.min(1, ratio));
   }
 
   ratioTime(ratio) {
-    return ratio * this.props.secondsLoaded + this.props.startOffset;
+    return ratio * this.videoLength() + this.startTime();
   }
 
   onVideoElementAvailable(videoElement) {
@@ -145,7 +173,11 @@ export default class RouteVideoSync extends Component {
     /* ratio in [0,1] */
 
     let { videoElement } = this.state;
-    let seekTime = videoElement.duration * ratio;
+    if (isNaN(videoElement.duration)) {
+      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
+      return;
+    }
+    let seekTime = this.ratioTime(ratio);
     videoElement.currentTime = seekTime;
 
     const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
@@ -177,7 +209,8 @@ export default class RouteVideoSync extends Component {
             this.props.url,
             process.env.REACT_APP_VIDEO_CDN
           ).getRearCameraStreamIndexUrl()}
-          startTime={this.props.userSeekTime}
+          startTime={this.startTime()}
+          videoLength={this.videoLength()}
           playbackSpeed={this.props.playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
           playing={this.props.playing}
@@ -194,7 +227,8 @@ export default class RouteVideoSync extends Component {
           className={css(Styles.seekBar)}
           nearestFrameTime={this.props.userSeekTime}
           segmentProgress={this.segmentProgress}
-          secondsLoaded={this.props.secondsLoaded}
+          startTime={this.startTime()}
+          videoLength={this.videoLength()}
           segmentIndices={this.props.segmentIndices}
           onUserSeek={this.onUserSeek}
           onPlaySeek={this.props.onPlaySeek}

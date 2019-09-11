@@ -23,6 +23,7 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
     // Always include last message entry, which faciliates graphData comparison
     samples.push(msg.entries[msg.entries.length - 1]);
   }
+  // sorting these doesn't fix the phantom lines
   return samples
     .filter(e => e.signals[signal.name] !== undefined)
     .map(entry => {

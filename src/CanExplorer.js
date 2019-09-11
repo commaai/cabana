@@ -673,8 +673,14 @@ export default class CanExplorer extends Component {
     currentParts = [minPart, maxPart];
     currentPart = part;
 
-    // update state then load new parts
-    this.setState({ currentParts, currentPart }, this.partChangeDebounced);
+    if (
+      currentPart !== this.state.currentPart ||
+      currentParts[0] !== this.state.currentParts[0] ||
+      currentParts[1] !== this.state.currentParts[1]
+    ) {
+      // update state then load new parts
+      this.setState({ currentParts, currentPart }, this.partChangeDebounced);
+    }
   }
 
   showEditMessageModal(msgKey) {

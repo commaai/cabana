@@ -6,7 +6,7 @@ import { shallow, mount, render } from "enzyme";
 
 test("PartSelector successfully mounts with minimal default props", () => {
   const component = shallow(
-    <PartSelector onPartChange={() => {}} partsCount={0} />
+    <PartSelector onPartChange={() => {}} partsCount={0} selectedPart={0} />
   );
   expect(component.exists()).toBe(true);
 });

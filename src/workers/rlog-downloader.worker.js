@@ -56,15 +56,16 @@ function sendBatch(entry) {
     );
   });
 
-  if (entry.ended) {
-    console.log("Sending finished");
-  }
-
   self.postMessage({
     newMessages: messages,
     maxByteStateChangeCount,
     isFinished: entry.ended
   });
+
+  if (entry.ended) {
+    console.log("Sending finished");
+    close();
+  }
 }
 
 async function loadData(entry) {

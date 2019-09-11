@@ -5,7 +5,7 @@ import debounce from "../../utils/debounce";
 
 export default class RouteSeeker extends Component {
   static propTypes = {
-    secondsLoaded: PropTypes.number.isRequired,
+    videoLength: PropTypes.number.isRequired,
     segmentIndices: PropTypes.arrayOf(PropTypes.number),
     onUserSeek: PropTypes.func,
     onPlaySeek: PropTypes.func,
@@ -58,10 +58,10 @@ export default class RouteSeeker extends Component {
         markerStyle: RouteSeeker.hiddenMarkerStyle,
         ratio: 0
       });
-    } else if (nextProps.secondsLoaded !== this.props.secondsLoaded) {
-      // adjust ratio in line with new secondsLoaded
-      const secondsSeeked = ratio * this.props.secondsLoaded;
-      const newRatio = secondsSeeked / nextProps.secondsLoaded;
+    } else if (nextProps.videoLength !== this.props.videoLength) {
+      // adjust ratio in line with new videoLength
+      const secondsSeeked = ratio * this.props.videoLength;
+      const newRatio = secondsSeeked / nextProps.videoLength;
       this.updateSeekedBar(newRatio);
     }
 
@@ -158,17 +158,24 @@ export default class RouteSeeker extends Component {
       return;
     }
 
+    let { videoLength, startTime } = this.props;
     let { currentTime, duration } = videoElement;
-    let newRatio = currentTime / duration;
+
+    currentTime = roundTime(currentTime);
+    startTime = roundTime(startTime);
+    videoLength = roundTime(videoLength);
+    duration = roundTime(duration);
+
+    let newRatio = (currentTime - startTime) / videoLength;
 
     if (newRatio === this.state.ratio) {
       this.playTimer = window.requestAnimationFrame(this.executePlayTimer);
       return;
     }
 
-    if (newRatio >= 1) {
+    if (newRatio >= 1 || newRatio < 0) {
       newRatio = 0;
-      currentTime = 0;
+      currentTime = startTime;
       this.props.onUserSeek(newRatio);
     }
 
@@ -235,4 +242,8 @@ export default class RouteSeeker extends Component {
       </div>
     );
   }
+}
+
+function roundTime(time) {
+  return Math.round(time * 1000) / 1000;
 }

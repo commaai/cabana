@@ -38,7 +38,7 @@ export default class Explorer extends Component {
       segmentIndices: [],
       shouldShowAddSignal: true,
       userSeekIndex: 0,
-      userSeekTime: props.currentParts[0] * 60,
+      userSeekTime: 0,
       playing: props.autoplay,
       signals: {},
       playSpeed: 1
@@ -124,28 +124,20 @@ export default class Explorer extends Component {
     plottedSignals = plottedSignals
       .map(plot =>
         plot.filter(({ messageId, signalUid }, index) => {
-          const messageExists =
-            Object.keys(nextProps.messages).indexOf(messageId) !== -1;
+          const messageExists = !!nextProps.messages[messageId];
           let signalExists = true;
-          if (!messageExists) {
-            graphData.splice(index, 1);
-          } else {
+          if (messageExists) {
             signalExists = Object.values(
               nextProps.messages[messageId].frame.signals
             ).some(signal => signal.uid === signalUid);
-
-            if (!signalExists) {
-              graphData[index].series = graphData[index].series.filter(
-                entry => entry.signalUid !== signalUid
-              );
-            }
           }
 
           return messageExists && signalExists;
         })
       )
       .filter(plot => plot.length > 0);
-    this.setState({ plottedSignals, graphData });
+
+    this.setState({ plottedSignals });
 
     if (
       nextProps.selectedMessage &&
@@ -227,15 +219,6 @@ export default class Explorer extends Component {
           this.setState({ graphData });
         }
       }
-    }
-
-    if (partsDidChange) {
-      const { userSeekTime } = this.state;
-      const nextSeekTime =
-        userSeekTime -
-        this.props.currentParts[0] * 60 +
-        nextProps.currentParts[0] * 60;
-      this.setState({ userSeekTime: nextSeekTime });
     }
   }
 
@@ -356,18 +339,10 @@ export default class Explorer extends Component {
     const { segment, segmentIndices } = this.state;
     const { messages, selectedMessage } = this.props;
     if (segment.length > 0 || segmentIndices.length > 0) {
-      let userSeekTime = 0;
-      if (
-        messages[selectedMessage] &&
-        messages[selectedMessage].entries.length > 0
-      ) {
-        userSeekTime = messages[selectedMessage].entries[0].relTime;
-      }
       this.setState({
         segment: [],
         segmentIndices: [],
-        userSeekIndex: 0,
-        userSeekTime
+        userSeekIndex: 0
       });
     }
   }
@@ -387,8 +362,13 @@ export default class Explorer extends Component {
     if (entries.length === 0) return null;
 
     const { segmentIndices } = this.state;
-    if (segmentIndices.length === 2) {
-      for (let i = segmentIndices[0]; i <= segmentIndices[1]; i++) {
+    if (segmentIndices.length === 2 && segmentIndices[0] >= 0) {
+      for (
+        let i = segmentIndices[0],
+          l = Math.min(entries.length - 1, segmentIndices[1]);
+        i <= l;
+        i++
+      ) {
         if (entries[i].relTime >= time) {
           return i;
         }
@@ -407,22 +387,9 @@ export default class Explorer extends Component {
   onUserSeek(time) {
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
-    if (!message) {
-      this.props.onUserSeek(time);
-      return;
-    }
 
-    const { entries } = message;
-    const userSeekIndex = this.indexFromSeekTime(time);
-    if (userSeekIndex) {
-      const seekTime = entries[userSeekIndex].relTime;
-
-      this.setState({ userSeekIndex, userSeekTime: seekTime });
-      this.props.onSeek(userSeekIndex, seekTime);
-    } else {
-      this.props.onUserSeek(time);
-      this.setState({ userSeekTime: time });
-    }
+    this.props.onUserSeek(time);
+    this.setState({ userSeekTime: time });
   }
 
   onPlaySeek(time) {
@@ -439,20 +406,7 @@ export default class Explorer extends Component {
   }
 
   onGraphTimeClick(messageId, time) {
-    const canTime = time + this.props.firstCanTime;
-
-    const { entries } = this.props.messages[messageId];
-    if (entries.length) {
-      const userSeekIndex = Entries.findTimeIndex(entries, canTime);
-
-      this.props.onUserSeek(time);
-      this.setState({
-        userSeekIndex,
-        userSeekTime: time
-      });
-    } else {
-      this.setState({ userSeekTime: time });
-    }
+    this.onUserSeek(time);
   }
 
   onPlay() {
@@ -469,34 +423,6 @@ export default class Explorer extends Component {
 
   secondsLoaded() {
     return this.props.partsCount * 60;
-  }
-
-  startOffset() {
-    return 0;
-    const partOffset = this.props.currentParts[0] * 60;
-    const message = this.props.messages[this.props.selectedMessage];
-    if (!message || message.entries.length === 0) {
-      return partOffset;
-    }
-
-    const { entries } = message;
-    const { segment } = this.state;
-    let startTime;
-    if (segment.length === 2) {
-      startTime = segment[0];
-    } else {
-      startTime = entries[0].relTime;
-    }
-
-    if (
-      startTime > partOffset &&
-      startTime < (this.props.currentParts[1] + 1) * 60
-    ) {
-      // startTime is within bounds of currently selected parts
-      return startTime;
-    } else {
-      return partOffset;
-    }
   }
 
   onVideoClick() {
@@ -651,8 +577,7 @@ export default class Explorer extends Component {
               <br />
               <RouteVideoSync
                 message={this.props.messages[this.props.selectedMessage]}
-                secondsLoaded={this.secondsLoaded()}
-                startOffset={this.startOffset()}
+                segment={this.state.segment}
                 seekIndex={this.props.seekIndex}
                 userSeekIndex={this.state.userSeekIndex}
                 playing={this.state.playing}
@@ -682,7 +607,6 @@ export default class Explorer extends Component {
           <CanGraphList
             plottedSignals={this.state.plottedSignals}
             messages={this.props.messages}
-            graphData={this.state.graphData}
             onGraphTimeClick={this.onGraphTimeClick}
             seekTime={this.props.seekTime}
             onSegmentChanged={this.onSegmentChanged}

@@ -9,7 +9,7 @@ test("RouteSeeker successfully mounts with minimal default props", () => {
     <RouteSeeker
       nearestFrameTime={0}
       segmentProgress={() => {}}
-      secondsLoaded={0}
+      videoLength={0}
       segmentIndices={[]}
       onUserSeek={() => {}}
       onPlaySeek={() => {}}

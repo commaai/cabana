@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 
 import Signal from "../models/can/signal";
+import GraphData from "../models/graph-data";
 import CanPlot from "../vega/CanPlot";
+import debounce from "../utils/debounce";
 
 const DefaultPlotInnerStyle = {
   position: "absolute",
@@ -16,7 +18,7 @@ export default class CanGraph extends Component {
   static emptyTable = [];
 
   static propTypes = {
-    data: PropTypes.object,
+    plottedSignal: PropTypes.string,
     messages: PropTypes.object,
     messageId: PropTypes.string,
     messageName: PropTypes.string,
@@ -43,7 +45,8 @@ export default class CanGraph extends Component {
       shiftX: 0,
       shiftY: 0,
       bounds: null,
-      isDataInserted: false
+      isDataInserted: false,
+      data: this.getGraphData(props)
     };
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -52,20 +55,46 @@ export default class CanGraph extends Component {
     this.onDragAnchorMouseUp = this.onDragAnchorMouseUp.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
     this.onPlotResize = this.onPlotResize.bind(this);
+    this.insertData = this.insertData.bind(this);
+  }
+
+  getGraphData(props) {
+    let firstRelTime = -1;
+    let lastRelTime = -1;
+    let series = props.plottedSignals
+      .map(signals => {
+        const { messageId, signalUid } = signals;
+        let entries = props.messages[messageId].entries;
+        if (entries.length) {
+          let messageRelTime = entries[0].relTime;
+          if (firstRelTime === -1) {
+            firstRelTime = messageRelTime;
+          } else {
+            firstRelTime = Math.min(firstRelTime, messageRelTime);
+          }
+          messageRelTime = entries[entries.length - 1].relTime;
+          lastRelTime = Math.max(lastRelTime, messageRelTime);
+        }
+        return GraphData._calcGraphData(
+          props.messages[messageId],
+          signalUid,
+          0
+        );
+      })
+      .reduce((m, v) => m.concat(v), []);
+
+    return {
+      updated: Date.now(),
+      series,
+      firstRelTime,
+      lastRelTime
+    };
   }
 
   segmentIsNew(newSegment) {
     return (
       newSegment.length !== this.props.segment.length ||
       !newSegment.every((val, idx) => this.props.segment[idx] === val)
-    );
-  }
-
-  dataChanged(prevProps, nextProps) {
-    return (
-      nextProps.data.series.length !== prevProps.data.series.length ||
-      !prevProps.signalSpec.equals(nextProps.signalSpec) ||
-      nextProps.data.updated !== this.props.data.updated
     );
   }
 
@@ -79,7 +108,6 @@ export default class CanGraph extends Component {
   onPlotResize({ bounds }) {
     this.setState({ bounds });
 
-    this.view.run();
     this.view.signal("width", bounds.width - 70);
     this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
@@ -87,48 +115,51 @@ export default class CanGraph extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (this.view) {
-      // only update if segment is new
-      let segmentChanged = false;
-      if (this.segmentIsNew(nextProps.segment)) {
-        if (nextProps.segment.length > 0) {
-          // Set segmented domain
-          this.view.signal("segment", nextProps.segment);
-        } else {
-          // Reset segment to full domain
-          this.view.signal("segment", 0);
+      this.view.runAfter(() => {
+        // only update if segment is new
+        let segmentChanged = false;
+        if (this.segmentIsNew(nextProps.segment)) {
+          if (nextProps.segment.length > 0) {
+            // Set segmented domain
+            this.view.signal("segment", nextProps.segment);
+          } else {
+            // Reset segment to full domain
+            this.view.signal("segment", 0);
+          }
+          segmentChanged = true;
         }
-        segmentChanged = true;
-      }
 
-      if (!nextProps.live && nextProps.currentTime !== this.props.currentTime) {
-        this.view.signal("videoTime", nextProps.currentTime);
-        segmentChanged = true;
-      }
+        if (
+          !nextProps.live &&
+          nextProps.currentTime !== this.props.currentTime
+        ) {
+          this.view.signal("videoTime", nextProps.currentTime);
+          segmentChanged = true;
+        }
 
-      if (segmentChanged) {
-        this.view.run();
-      }
+        if (segmentChanged) {
+          this.view.runAsync();
+        }
+      });
+
+      return false;
     }
 
-    const dataChanged = this.dataChanged(this.props, nextProps);
-
-    return (
-      dataChanged ||
-      JSON.stringify(this.state) !== JSON.stringify(nextState) ||
-      this.visualChanged(this.props, nextProps)
-    );
+    return true;
   }
 
-  insertData() {
-    this.view.remove("table", () => true).run();
-    this.view.insert("table", this.props.data.series).run();
-  }
+  insertData = debounce(() => {
+    let { series } = this.state.data;
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.dataChanged(prevProps, this.props)) {
-      this.insertData();
-    }
-  }
+    // adding plot points by diff isn't faster since it basically has to be n^2
+    // out-of-order events make it so that you can't just check the bounds
+    let changeset = this.view
+      .changeset()
+      .remove(v => true)
+      .insert(series);
+    this.view.change("table", changeset);
+    this.view.run();
+  }, 250);
 
   componentWillReceiveProps(nextProps) {
     if (
@@ -138,6 +169,21 @@ export default class CanGraph extends Component {
       this.updateStyleFromDragPos(nextProps.dragPos);
     } else if (!nextProps.dragPos && this.state.plotInnerStyle !== null) {
       this.setState({ plotInnerStyle: null });
+    }
+    if (
+      this.props.messages !== nextProps.messages ||
+      this.props.plottedSignal !== nextProps.plottedSignal
+    ) {
+      let data = this.getGraphData(nextProps);
+      if (
+        data.series.length === this.state.data.series.length &&
+        data.firstRelTime === this.state.data.firstRelTime &&
+        data.lastRelTime === this.state.data.lastRelTime
+      ) {
+        // do nothing, the data didn't *actually* change
+      } else {
+        this.setState({ data }, this.insertData);
+      }
     }
   }
 
@@ -177,9 +223,8 @@ export default class CanGraph extends Component {
     this.view.runAfter(() => {
       const state = this.view.getState();
       state.subcontext[0].signals.brush = 0;
-      this.view.setState(state).runAfter(() => {
-        this.insertData();
-      });
+      this.view.setState(state);
+      this.insertData();
     });
   }
 
@@ -292,8 +337,7 @@ export default class CanGraph extends Component {
                   className="cabana-explorer-visuals-plot-container"
                 >
                   <CanPlot
-                    logLevel={0}
-                    data={{ table: CanGraph.emptyTable }}
+                    logLevel={1}
                     onNewView={this.onNewView}
                     onSignalClickTime={this.onSignalClickTime}
                     onSignalSegment={this.onSignalSegment}

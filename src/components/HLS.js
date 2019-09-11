@@ -66,6 +66,7 @@ export default class HLS extends Component {
       this.player.loadSource(source);
       this.player.attachMedia(this.videoElement);
       this.props.onVideoElementAvailable(this.videoElement);
+      this.videoElement.currentTime = this.props.startTime;
     }
   }
 

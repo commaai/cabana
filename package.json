@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
-    "@commaai/comma-api": "^1.1.2",
+    "@commaai/comma-api": "^1.1.4",
     "@commaai/hls.js": "^0.12.2",
     "@commaai/log_reader": "^0.3.1",
     "@commaai/my-comma-auth": "^1.1.0",
@@ -90,5 +90,10 @@
     "*.{graphql,gql}": ["prettier --parser graphql --write", "git add"],
     "*.{md,markdown}": ["prettier --parser markdown --write", "git add"],
     "*.scss": ["prettier --parser postcss --write", "git add"]
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@commaai/(.*)$": "<rootDir>/node_modules/@commaai/$1/dist/index.js"
+    }
   }
 }
