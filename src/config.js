@@ -24,7 +24,7 @@ export const LOGENTRIES_TOKEN = "4bc98019-8277-4fe0-867c-ed21ea843cc5";
 
 export const PART_SEGMENT_LENGTH = 3;
 
-export const CAN_GRAPH_MAX_POINTS = 10000;
+export const CAN_GRAPH_MAX_POINTS = 5000;
 
 export const STREAMING_WINDOW = 60;
 

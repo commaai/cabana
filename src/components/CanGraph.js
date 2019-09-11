@@ -114,24 +114,34 @@ export default class CanGraph extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (this.view) {
-      // only update if segment is new
-      let segmentChanged = false;
-      if (this.segmentIsNew(nextProps.segment)) {
-        if (nextProps.segment.length > 0) {
-          // Set segmented domain
-          this.view.signal("segment", nextProps.segment);
-        } else {
-          // Reset segment to full domain
-          this.view.signal("segment", 0);
+      this.view.runAfter(() => {
+        // only update if segment is new
+        let segmentChanged = false;
+        if (this.segmentIsNew(nextProps.segment)) {
+          if (nextProps.segment.length > 0) {
+            // Set segmented domain
+            this.view.signal("segment", nextProps.segment);
+          } else {
+            // Reset segment to full domain
+            this.view.signal("segment", 0);
+          }
+          segmentChanged = true;
         }
-        segmentChanged = true;
-      }
 
-      if (!nextProps.live && nextProps.currentTime !== this.props.currentTime) {
-        this.view.signal("videoTime", nextProps.currentTime);
-        segmentChanged = true;
-      }
-      return segmentChanged;
+        if (
+          !nextProps.live &&
+          nextProps.currentTime !== this.props.currentTime
+        ) {
+          this.view.signal("videoTime", nextProps.currentTime);
+          segmentChanged = true;
+        }
+
+        if (segmentChanged) {
+          this.view.runAsync();
+        }
+      });
+
+      return false;
     }
 
     return true;
@@ -140,6 +150,8 @@ export default class CanGraph extends Component {
   insertData() {
     let { series } = this.state.data;
 
+    console.log("Resetting data in graph");
+
     // adding plot points by diff isn't faster since it basically has to be n^2
     // out-of-order events make it so that you can't just check the bounds
     let changeset = this.view
@@ -147,7 +159,7 @@ export default class CanGraph extends Component {
       .remove(v => true)
       .insert(series);
     this.view.change("table", changeset);
-    this.view.runAsync();
+    this.view.run();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -164,7 +176,15 @@ export default class CanGraph extends Component {
       this.props.plottedSignal !== nextProps.plottedSignal
     ) {
       let data = this.getGraphData(nextProps);
-      this.setState({ data }, this.insertData);
+      if (
+        data.series.length === this.state.data.series.length &&
+        data.firstRelTime === this.state.data.firstRelTime &&
+        data.lastRelTime === this.state.data.lastRelTime
+      ) {
+        // do nothing, the data didn't *actually* change
+      } else {
+        this.setState({ data }, this.insertData);
+      }
     }
   }
 
@@ -201,12 +221,13 @@ export default class CanGraph extends Component {
 
     this.props.onSegmentChanged(this.props.messageId, segment);
 
+    console.log("onSignalSegment(signal, segment) {", signal, segment);
+
     this.view.runAfter(() => {
       const state = this.view.getState();
       state.subcontext[0].signals.brush = 0;
-      this.view.setState(state).runAfter(() => {
-        this.insertData();
-      });
+      this.view.setState(state);
+      this.insertData();
     });
   }
 
@@ -320,7 +341,6 @@ export default class CanGraph extends Component {
                 >
                   <CanPlot
                     logLevel={1}
-                    data={{ table: this.state.data.series }}
                     onNewView={this.onNewView}
                     onSignalClickTime={this.onSignalClickTime}
                     onSignalSegment={this.onSignalSegment}

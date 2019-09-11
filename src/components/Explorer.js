@@ -124,27 +124,19 @@ export default class Explorer extends Component {
     plottedSignals = plottedSignals
       .map(plot =>
         plot.filter(({ messageId, signalUid }, index) => {
-          const messageExists =
-            Object.keys(nextProps.messages).indexOf(messageId) !== -1;
+          const messageExists = !!nextProps.messages[messageId];
           let signalExists = true;
-          if (!messageExists) {
-            // graphData.splice(index, 1);
-          } else {
+          if (messageExists) {
             signalExists = Object.values(
               nextProps.messages[messageId].frame.signals
             ).some(signal => signal.uid === signalUid);
-
-            if (!signalExists) {
-              // graphData[index].series = graphData[index].series.filter(
-              //   entry => entry.signalUid !== signalUid
-              // );
-            }
           }
 
           return messageExists && signalExists;
         })
       )
       .filter(plot => plot.length > 0);
+
     this.setState({ plottedSignals });
 
     if (
@@ -338,6 +330,8 @@ export default class Explorer extends Component {
     const { entries } = this.props.messages[this.props.selectedMessage];
     const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
+    console.log("segmentIndices", segmentIndices);
+
     this.setState({
       segment,
       segmentIndices,
@@ -410,6 +404,7 @@ export default class Explorer extends Component {
   }
 
   onUserSeek(time) {
+    console.log("User seek", time);
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
     if (!message) {
@@ -431,6 +426,7 @@ export default class Explorer extends Component {
   }
 
   onPlaySeek(time) {
+    // console.log('Play seek', time);
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
       this.props.onSeek(0, time);
@@ -474,34 +470,6 @@ export default class Explorer extends Component {
 
   secondsLoaded() {
     return this.props.partsCount * 60;
-  }
-
-  startOffset() {
-    return 0;
-    const partOffset = this.props.currentParts[0] * 60;
-    const message = this.props.messages[this.props.selectedMessage];
-    if (!message || message.entries.length === 0) {
-      return partOffset;
-    }
-
-    const { entries } = message;
-    const { segment } = this.state;
-    let startTime;
-    if (segment.length === 2) {
-      startTime = segment[0];
-    } else {
-      startTime = entries[0].relTime;
-    }
-
-    if (
-      startTime > partOffset &&
-      startTime < (this.props.currentParts[1] + 1) * 60
-    ) {
-      // startTime is within bounds of currently selected parts
-      return startTime;
-    } else {
-      return partOffset;
-    }
   }
 
   onVideoClick() {
@@ -656,8 +624,7 @@ export default class Explorer extends Component {
               <br />
               <RouteVideoSync
                 message={this.props.messages[this.props.selectedMessage]}
-                secondsLoaded={this.secondsLoaded()}
-                startOffset={this.startOffset()}
+                segment={this.state.segment}
                 seekIndex={this.props.seekIndex}
                 userSeekIndex={this.state.userSeekIndex}
                 playing={this.state.playing}
