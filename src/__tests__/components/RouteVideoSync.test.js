@@ -1,5 +1,6 @@
 global.__JEST__ = 1;
 
+import API from "@commaai/comma-api";
 import RouteVideoSync from "../../components/RouteVideoSync";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
@@ -20,9 +21,11 @@ test("RouteVideoSync successfully mounts with minimal default props", () => {
       message={null}
       secondsLoaded={0}
       startOffset={0}
+      segment={[]}
       seekIndex={0}
       userSeekIndex={0}
       playing={false}
+      playSpeed={1}
       url={"http://comma.ai"}
       canFrameOffset={0}
       firstCanTime={0}

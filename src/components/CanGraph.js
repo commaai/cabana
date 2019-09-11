@@ -6,6 +6,7 @@ import cx from "classnames";
 import Signal from "../models/can/signal";
 import GraphData from "../models/graph-data";
 import CanPlot from "../vega/CanPlot";
+import debounce from "../utils/debounce";
 
 const DefaultPlotInnerStyle = {
   position: "absolute",
@@ -147,7 +148,7 @@ export default class CanGraph extends Component {
     return true;
   }
 
-  insertData() {
+  insertData = debounce(() => {
     let { series } = this.state.data;
 
     console.log("Resetting data in graph");
@@ -160,7 +161,7 @@ export default class CanGraph extends Component {
       .insert(series);
     this.view.change("table", changeset);
     this.view.run();
-  }
+  }, 250);
 
   componentWillReceiveProps(nextProps) {
     if (
@@ -183,6 +184,12 @@ export default class CanGraph extends Component {
       ) {
         // do nothing, the data didn't *actually* change
       } else {
+        console.log(
+          "Setting the thing to",
+          data.series.length,
+          data.firstRelTime,
+          data.lastRelTime
+        );
         this.setState({ data }, this.insertData);
       }
     }
@@ -210,6 +217,7 @@ export default class CanGraph extends Component {
 
   onSignalClickTime(signal, clickTime) {
     if (clickTime !== undefined) {
+      console.log("Got a click event!", clickTime);
       this.props.onRelativeTimeClick(this.props.messageId, clickTime);
     }
   }

@@ -7,10 +7,23 @@
         "targets": {
           "browsers": ["last 2 versions", "safari >= 7"]
         },
-        useBuiltIns: "usage"
+        "useBuiltIns": "usage"
       }
     ],
     "stage-0"
   ],
-  "plugins": ["emotion"]
+  "plugins": ["emotion"],
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "env",
+          {
+            "modules": false
+          }
+        ],
+        "stage-0"
+      ]
+    }
+  }
 }

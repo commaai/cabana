@@ -55,7 +55,8 @@ export default class RouteVideoSync extends Component {
     onUserSeek: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
     onPause: PropTypes.func.isRequired,
-    userSeekTime: PropTypes.number.isRequired
+    userSeekTime: PropTypes.number.isRequired,
+    playSpeed: PropTypes.number.isRequired
   };
 
   constructor(props) {
@@ -85,6 +86,15 @@ export default class RouteVideoSync extends Component {
         this.props.message.entries.length !== nextProps.message.entries.length)
     ) {
       this.setState({ shouldRestartHls: true });
+    }
+    if (
+      nextProps.userSeekTime &&
+      this.props.userSeekTime !== nextProps.userSeekTime
+    ) {
+      if (this.state.videoElement) {
+        console.log("Seeking to", nextProps.userSeekTime);
+        this.state.videoElement.currentTime = nextProps.userSeekTime;
+      }
     }
   }
 

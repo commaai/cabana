@@ -38,7 +38,7 @@ export default class Explorer extends Component {
       segmentIndices: [],
       shouldShowAddSignal: true,
       userSeekIndex: 0,
-      userSeekTime: props.currentParts[0] * 60,
+      userSeekTime: 0,
       playing: props.autoplay,
       signals: {},
       playSpeed: 1
@@ -163,6 +163,10 @@ export default class Explorer extends Component {
         nextSeekTime = nextMessage.entries[0];
       }
 
+      console.log(
+        "componentWillReceiveProps Setting userSeekTime",
+        nextSeekTime
+      );
       this.setState({
         segment,
         segmentIndices,
@@ -219,15 +223,6 @@ export default class Explorer extends Component {
           this.setState({ graphData });
         }
       }
-    }
-
-    if (partsDidChange) {
-      const { userSeekTime } = this.state;
-      const nextSeekTime =
-        userSeekTime -
-        this.props.currentParts[0] * 60 +
-        nextProps.currentParts[0] * 60;
-      this.setState({ userSeekTime: nextSeekTime });
     }
   }
 
@@ -330,7 +325,7 @@ export default class Explorer extends Component {
     const { entries } = this.props.messages[this.props.selectedMessage];
     const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
-    console.log("segmentIndices", segmentIndices);
+    console.log("segmentIndices", segmentIndices, segment[0]);
 
     this.setState({
       segment,
@@ -350,18 +345,10 @@ export default class Explorer extends Component {
     const { segment, segmentIndices } = this.state;
     const { messages, selectedMessage } = this.props;
     if (segment.length > 0 || segmentIndices.length > 0) {
-      let userSeekTime = 0;
-      if (
-        messages[selectedMessage] &&
-        messages[selectedMessage].entries.length > 0
-      ) {
-        userSeekTime = messages[selectedMessage].entries[0].relTime;
-      }
       this.setState({
         segment: [],
         segmentIndices: [],
-        userSeekIndex: 0,
-        userSeekTime
+        userSeekIndex: 0
       });
     }
   }
@@ -404,24 +391,12 @@ export default class Explorer extends Component {
   }
 
   onUserSeek(time) {
+    console.log("User seek", time);
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
-    if (!message) {
-      this.props.onUserSeek(time);
-      return;
-    }
 
-    const { entries } = message;
-    const userSeekIndex = this.indexFromSeekTime(time);
-    if (userSeekIndex) {
-      const seekTime = entries[userSeekIndex].relTime;
-
-      this.setState({ userSeekIndex, userSeekTime: seekTime });
-      this.props.onSeek(userSeekIndex, seekTime);
-    } else {
-      this.props.onUserSeek(time);
-      this.setState({ userSeekTime: time });
-    }
+    this.props.onUserSeek(time);
+    this.setState({ userSeekTime: time });
   }
 
   onPlaySeek(time) {
@@ -439,20 +414,7 @@ export default class Explorer extends Component {
   }
 
   onGraphTimeClick(messageId, time) {
-    const canTime = time + this.props.firstCanTime;
-
-    const { entries } = this.props.messages[messageId];
-    if (entries.length) {
-      const userSeekIndex = Entries.findTimeIndex(entries, canTime);
-
-      this.props.onUserSeek(time);
-      this.setState({
-        userSeekIndex,
-        userSeekTime: time
-      });
-    } else {
-      this.setState({ userSeekTime: time });
-    }
+    this.onUserSeek(time);
   }
 
   onPlay() {
