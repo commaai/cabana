@@ -404,7 +404,6 @@ export default class Explorer extends Component {
   }
 
   onUserSeek(time) {
-    console.log("User seek", time);
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
     if (!message) {
