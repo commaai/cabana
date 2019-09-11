@@ -151,8 +151,6 @@ export default class CanGraph extends Component {
   insertData = debounce(() => {
     let { series } = this.state.data;
 
-    console.log("Resetting data in graph");
-
     // adding plot points by diff isn't faster since it basically has to be n^2
     // out-of-order events make it so that you can't just check the bounds
     let changeset = this.view
@@ -184,12 +182,6 @@ export default class CanGraph extends Component {
       ) {
         // do nothing, the data didn't *actually* change
       } else {
-        console.log(
-          "Setting the thing to",
-          data.series.length,
-          data.firstRelTime,
-          data.lastRelTime
-        );
         this.setState({ data }, this.insertData);
       }
     }
@@ -217,7 +209,6 @@ export default class CanGraph extends Component {
 
   onSignalClickTime(signal, clickTime) {
     if (clickTime !== undefined) {
-      console.log("Got a click event!", clickTime);
       this.props.onRelativeTimeClick(this.props.messageId, clickTime);
     }
   }
@@ -228,8 +219,6 @@ export default class CanGraph extends Component {
     }
 
     this.props.onSegmentChanged(this.props.messageId, segment);
-
-    console.log("onSignalSegment(signal, segment) {", signal, segment);
 
     this.view.runAfter(() => {
       const state = this.view.getState();

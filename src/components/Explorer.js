@@ -163,10 +163,6 @@ export default class Explorer extends Component {
         nextSeekTime = nextMessage.entries[0];
       }
 
-      console.log(
-        "componentWillReceiveProps Setting userSeekTime",
-        nextSeekTime
-      );
       this.setState({
         segment,
         segmentIndices,
@@ -325,8 +321,6 @@ export default class Explorer extends Component {
     const { entries } = this.props.messages[this.props.selectedMessage];
     const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
-    console.log("segmentIndices", segmentIndices, segment[0]);
-
     this.setState({
       segment,
       segmentIndices,
@@ -391,7 +385,6 @@ export default class Explorer extends Component {
   }
 
   onUserSeek(time) {
-    console.log("User seek", time);
     this.setState({ userSeekTime: time });
     const message = this.props.messages[this.props.selectedMessage];
 
@@ -400,7 +393,6 @@ export default class Explorer extends Component {
   }
 
   onPlaySeek(time) {
-    // console.log('Play seek', time);
     const message = this.props.messages[this.props.selectedMessage];
     if (!message || message.entries.length === 0) {
       this.props.onSeek(0, time);

@@ -92,7 +92,6 @@ export default class RouteVideoSync extends Component {
       this.props.userSeekTime !== nextProps.userSeekTime
     ) {
       if (this.state.videoElement) {
-        console.log("Seeking to", nextProps.userSeekTime);
         this.state.videoElement.currentTime = nextProps.userSeekTime;
       }
     }
