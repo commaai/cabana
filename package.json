@@ -93,10 +93,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^@commaai/comma-api$":
-        "<rootDir>/node_modules/@commaai/comma-api/dist/index.js",
-      "^@commaai/my-comma-auth$":
-        "<rootDir>/node_modules/@commaai/my-comma-auth/dist/index.js"
+      "^@commaai/(.*)$": "<rootDir>/node_modules/@commaai/$1/dist/index.js"
     }
   }
 }
