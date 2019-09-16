@@ -17,20 +17,20 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@commaai/comma-api@^1.0.0":
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.0.12.tgz#aa2be678dd0cdcf5102602e011051eda354853d6"
-  integrity sha512-AWwKaQzgQt6oyOP0lvMqy5/7rMQbKIVwTYX5MJnBFOVOgHrGmzxhPk8Bsi+5GpSA1qSFbnzoMvQ95QFC5teJhw==
+"@commaai/comma-api@1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.6.tgz#be486443a8d8843c74a811cdd406b85694b5d526"
+  integrity sha512-LWglx5+GiQN4uhdBUjTJ3hsHxy0/tFVwZrIFKLSwwFyclQWizriHOE4IxKkGLudyQ/KgOL+bLljA+z/huEXW4w==
   dependencies:
     babel-runtime "^6.26.0"
     config-request "^0.5.1"
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/comma-api@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.4.tgz#75f727bfa43f6f446a341d1f9154f15334cfb79e"
-  integrity sha512-S25QY2OwO1aO5HKtvJQUnCwDsfBhgj7+SANZG99kHvxfFxOwWzT/GcV7G/xEtEJ06OsJ+Ih8XoUFm7IxNc1bwA==
+"@commaai/comma-api@^1.0.0":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.0.12.tgz#aa2be678dd0cdcf5102602e011051eda354853d6"
+  integrity sha512-AWwKaQzgQt6oyOP0lvMqy5/7rMQbKIVwTYX5MJnBFOVOgHrGmzxhPk8Bsi+5GpSA1qSFbnzoMvQ95QFC5teJhw==
   dependencies:
     babel-runtime "^6.26.0"
     config-request "^0.5.1"

@@ -3,9 +3,7 @@ import cx from "classnames";
 import PropTypes from "prop-types";
 import Clipboard from "clipboard";
 
-import { modifyQueryParameters } from "../utils/url";
 import MessageBytes from "./MessageBytes";
-import { GITHUB_AUTH_TOKEN_KEY } from "../config";
 const { ckmeans } = require("simple-statistics");
 
 export default class Meta extends Component {
@@ -340,17 +338,6 @@ export default class Meta extends Component {
     );
   }
 
-  shareUrl() {
-    const add = {
-      max: this.props.route.proclog,
-      url: this.props.route.url
-    };
-    const remove = [GITHUB_AUTH_TOKEN_KEY]; // don't share github access
-    const shareUrl = modifyQueryParameters({ add, remove });
-
-    return shareUrl;
-  }
-
   saveable() {
     try {
       // eslint-disable-next-line
@@ -386,16 +373,16 @@ export default class Meta extends Component {
                 <button onClick={this.props.saveLog}>Save Log</button>
               </div>
             )}
-            {this.props.route ? (
+            {this.props.shareUrl ? (
               <div
                 className="cabana-meta-header-action special-wide"
-                data-clipboard-text={this.shareUrl()}
+                data-clipboard-text={this.props.shareUrl}
                 data-clipboard-action="copy"
                 ref={ref => (ref ? new Clipboard(ref) : null)}
               >
                 <a
                   className="button"
-                  href={this.shareUrl()}
+                  href={this.props.shareUrl}
                   onClick={e => e.preventDefault()}
                 >
                   Copy Share Link

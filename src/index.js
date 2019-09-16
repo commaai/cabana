@@ -29,14 +29,24 @@ if (routeFullName) {
   persistedDbc = fetchPersistedDbc(routeFullName);
 
   let max = getUrlParameter("max"),
-    url = getUrlParameter("url");
+    url = getUrlParameter("url"),
+    exp = getUrlParameter("exp"),
+    sig = getUrlParameter("sig");
+
   if (max) {
     props.max = Number(max);
   }
   if (url) {
     props.url = url;
   }
-  props.isShare = max && url;
+  if (exp) {
+    props.exp = exp;
+  }
+  if (sig) {
+    props.sig = sig;
+  }
+  props.isLegacyShare = max && url && !exp && !sig;
+  props.isShare = max && url && exp && sig;
 } else if (getUrlParameter("demo")) {
   props.max = 12;
   props.url =

@@ -2,7 +2,7 @@ import LogStream from "@commaai/log_reader";
 import { timeout } from "thyming";
 import { partial } from "ap";
 
-import { getLogPart, getLogURLList } from "../api/rlog";
+import { getLogPart } from "../api/rlog";
 import DbcUtils from "../utils/dbc";
 import DBC from "../models/can/dbc";
 import { addressForName } from "../models/can/logSignals";
@@ -24,12 +24,13 @@ function CacheEntry(options) {
   options = options || {};
   this.options = options;
 
-  let { route, part, dbc } = options;
+  let { route, part, dbc, logUrls } = options;
 
   this.messages = {};
   this.route = route;
   this.part = part;
   this.dbc = dbc;
+  this.logUrls = logUrls;
   this.sendBatch = partial(sendBatch, this);
 
   // load in the data!
@@ -71,9 +72,10 @@ function sendBatch(entry) {
 async function loadData(entry) {
   var url = null;
 
-  if (!entry.options.isDemo && !entry.options.isShare) {
-    url = (await getLogURLList(entry.route))[entry.part];
+  if (!entry.options.isDemo && !entry.options.isLegacyShare) {
+    url = entry.logUrls[entry.part];
   }
+
   if (!url || url.indexOf(".7z") !== -1) {
     // this is a shit log we can't read...
     var data = await loadCanPart(
@@ -88,7 +90,7 @@ async function loadData(entry) {
 
     return self.postMessage(data);
   }
-  var res = await getLogPart(entry.route, entry.part);
+  var res = await getLogPart(entry.logUrls[entry.part]);
   var logReader = new LogStream(res);
 
   entry.ended = false;
