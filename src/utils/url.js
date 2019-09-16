@@ -16,7 +16,7 @@ export function getUrlParameter(name) {
     : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-export function modifyQueryParameters({ add, remove }) {
+export function modifyQueryParameters({ add, remove = [] }) {
   var regex = new RegExp("[\\?&]([^&#]+)=([^&#]*)");
   var results = regex.exec(location.search);
 

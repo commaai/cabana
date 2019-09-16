@@ -6,7 +6,12 @@ import { createWriteStream } from "streamsaver";
 import Panda from "@commaai/pandajs";
 import CommaAuth from "@commaai/my-comma-auth";
 import { raw as RawDataApi, drives as DrivesApi } from "@commaai/comma-api";
-import { USE_UNLOGGER, PART_SEGMENT_LENGTH, STREAMING_WINDOW } from "./config";
+import {
+  USE_UNLOGGER,
+  PART_SEGMENT_LENGTH,
+  STREAMING_WINDOW,
+  GITHUB_AUTH_TOKEN_KEY
+} from "./config";
 import * as GithubAuth from "./api/github-auth";
 
 import DBC from "./models/can/dbc";
@@ -27,6 +32,7 @@ import OpenDbc from "./api/OpenDbc";
 import UnloggerClient from "./api/unlogger";
 import * as ObjectUtils from "./utils/object";
 import { hash } from "./utils/string";
+import { modifyQueryParameters } from "./utils/url";
 
 const RLogDownloader = require("./workers/rlog-downloader.worker.js");
 const LogCSVDownloader = require("./workers/dbc-csv-downloader.worker.js");
@@ -80,7 +86,9 @@ export default class CanExplorer extends Component {
       pandaNoDeviceSelected: false,
       live: false,
       isGithubAuthenticated:
-        props.githubAuthToken !== null && props.githubAuthToken !== undefined
+        props.githubAuthToken !== null && props.githubAuthToken !== undefined,
+      shareUrl: null,
+      logUrls: null
     };
 
     this.openDbcClient = new OpenDbc(props.githubAuthToken);
@@ -126,9 +134,13 @@ export default class CanExplorer extends Component {
   componentWillMount() {
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
-      // TODO link to explorer
       this.showOnboarding();
-    } else if (this.props.max && this.props.url) {
+    } else if (
+      this.props.max &&
+      this.props.url &&
+      !this.props.exp &&
+      !this.props.sig
+    ) {
       // probably the demo!
       const { max, url } = this.props;
       const startTime = Moment(name, "YYYY-MM-DD--H-m-s");
@@ -148,7 +160,8 @@ export default class CanExplorer extends Component {
       );
     } else if (dongleId && name) {
       const routeName = dongleId + "|" + name;
-      let urlPromise;
+      let urlPromise, logUrlsPromise;
+
       if (this.props.url) {
         urlPromise = Promise.resolve(this.props.url);
       } else {
@@ -156,7 +169,16 @@ export default class CanExplorer extends Component {
           return route.url;
         });
       }
-      Promise.all([urlPromise, RawDataApi.getLogUrls(routeName)])
+
+      if (this.props.sig && this.props.exp) {
+        logUrlsPromise = RawDataApi.getLogUrls(routeName, {
+          sig: this.props.sig,
+          exp: this.props.exp
+        });
+      } else {
+        logUrlsPromise = RawDataApi.getLogUrls(routeName);
+      }
+      Promise.all([urlPromise, logUrlsPromise])
         .then(initData => {
           let [url, logUrls] = initData;
           const newState = {
@@ -169,9 +191,24 @@ export default class CanExplorer extends Component {
             currentParts: [
               0,
               Math.min(logUrls.length - 1, PART_SEGMENT_LENGTH - 1)
-            ]
+            ],
+            logUrls
           };
           this.setState(newState, this.initCanData);
+
+          DrivesApi.getShareSignature(routeName).then(shareSignature =>
+            this.setState({
+              shareUrl: modifyQueryParameters({
+                add: {
+                  exp: shareSignature.exp,
+                  sig: shareSignature.sig,
+                  max: logUrls.length - 1,
+                  url
+                },
+                remove: [GITHUB_AUTH_TOKEN_KEY]
+              })
+            })
+          );
         })
         .catch(err => {
           console.error(err);
@@ -519,7 +556,8 @@ export default class CanExplorer extends Component {
 
       // so that we don't try to read metadata about it...
       isDemo: this.props.isDemo,
-      isShare: this.props.isShare,
+      isLegacyShare: this.props.isLegacyShare,
+      logUrls: this.state.logUrls,
 
       // data that is used
       dbcText: dbc.text(),
@@ -974,6 +1012,7 @@ export default class CanExplorer extends Component {
             route={this.state.route}
             seekTime={this.state.seekTime}
             seekIndex={this.state.seekIndex}
+            shareUrl={this.state.shareUrl}
             maxByteStateChangeCount={this.state.maxByteStateChangeCount}
             isDemo={this.props.isDemo}
             live={this.state.live}

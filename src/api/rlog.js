@@ -15,28 +15,9 @@ function ensureInit() {
   return initPromise;
 }
 
-export async function getLogURLList(routeName) {
-  if (urlStore[routeName]) {
-    return urlStore[routeName];
-  }
-  await ensureInit();
-
-  var data = await RawDataApi.getLogUrls(routeName);
-
-  urlStore[routeName] = data;
-
-  setTimeout(function() {
-    delete urlStore[routeName];
-  }, 1000 * 60 * 45); // expires in 1h, lets reset in 45m
-
-  return urlStore[routeName];
-}
-
-export async function getLogPart(routeName, part) {
+export async function getLogPart(logUrl) {
   return new Promise(async function(resolve, reject) {
-    var logUrls = await getLogURLList(routeName);
-
-    request(logUrls[part], function(err, res) {
+    request(logUrl, function(err, res) {
       if (err) {
         return reject(err);
       }
