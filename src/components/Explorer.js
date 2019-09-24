@@ -11,7 +11,6 @@ import Entries from "../models/can/entries";
 import debounce from "../utils/debounce";
 import PartSelector from "./PartSelector";
 import PlaySpeedSelector from "./PlaySpeedSelector";
-import GraphData from "../models/graph-data";
 
 export default class Explorer extends Component {
   static propTypes = {
@@ -33,7 +32,6 @@ export default class Explorer extends Component {
 
     this.state = {
       plottedSignals: [],
-      graphData: [],
       segment: [],
       segmentIndices: [],
       shouldShowAddSignal: true,
@@ -56,7 +54,6 @@ export default class Explorer extends Component {
     this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
     this._onKeyDown = this._onKeyDown.bind(this);
     this.mergePlots = this.mergePlots.bind(this);
-    this.refreshGraphData = this.refreshGraphData.bind(this);
     this.toggleShouldShowAddSignal = this.toggleShouldShowAddSignal.bind(this);
     this.changePlaySpeed = this.changePlaySpeed.bind(this);
   }
@@ -107,7 +104,7 @@ export default class Explorer extends Component {
   componentWillReceiveProps(nextProps) {
     const nextMessage = nextProps.messages[nextProps.selectedMessage];
     const curMessage = this.props.messages[this.props.selectedMessage];
-    let { plottedSignals, graphData } = this.state;
+    let { plottedSignals } = this.state;
 
     if (Object.keys(nextProps.messages).length === 0) {
       this.resetSegment();
@@ -183,43 +180,6 @@ export default class Explorer extends Component {
       );
       this.setState({ segment, segmentIndices });
     }
-
-    const partsDidChange =
-      JSON.stringify(nextProps.currentParts) !==
-      JSON.stringify(this.props.currentParts);
-
-    if (plottedSignals.length > 0) {
-      if (graphData.length !== plottedSignals.length || partsDidChange) {
-        this.refreshGraphData(nextProps.messages, plottedSignals);
-      } else if (graphData.length === plottedSignals.length) {
-        if (
-          plottedSignals.some(plot =>
-            plot.some(({ messageId, signalUid }) => {
-              /* const signalName = Object.values(
-               *   this.props.messages[messageId].frame.signals
-               * ).find(s => s.uid === signalUid);
-               */
-              return (
-                nextProps.messages[messageId].entries.length > 0 &&
-                this.props.messages[messageId].entries.length > 0 &&
-                nextProps.messages[messageId].entries[0].updated !==
-                  this.props.messages[messageId].entries[0].updated
-              );
-            })
-          )
-        ) {
-          this.refreshGraphData(nextProps.messages, plottedSignals);
-        } else {
-          graphData = GraphData.appendNewGraphData(
-            plottedSignals,
-            graphData,
-            nextProps.messages,
-            nextProps.firstCanTime
-          );
-          this.setState({ graphData });
-        }
-      }
-    }
   }
 
   changePlaySpeed(value) {
@@ -248,56 +208,12 @@ export default class Explorer extends Component {
     } else return "";
   }
 
-  sortGraphData(graphData) {
-    return graphData.sort((entry1, entry2) => {
-      if (entry1.relTime < entry2.relTime) {
-        return -1;
-      } else if (entry1.relTime > entry2.relTime) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-  }
-
-  calcGraphData(plottedSignals, messages) {
-    const { firstCanTime } = this.props;
-    if (typeof messages === "undefined") {
-      messages = this.props.messages;
-    }
-
-    const series = this.sortGraphData(
-      plottedSignals
-        .map(({ messageId, signalUid }) =>
-          GraphData._calcGraphData(messages[messageId], signalUid, firstCanTime)
-        )
-        .reduce((combined, signalData) => combined.concat(signalData), [])
-    );
-
-    return { series, updated: Date.now() };
-  }
-
   onSignalPlotPressed(messageId, signalUid) {
-    let { plottedSignals, graphData } = this.state;
+    let { plottedSignals } = this.state;
 
-    graphData = [this.calcGraphData([{ messageId, signalUid }]), ...graphData];
     plottedSignals = [[{ messageId, signalUid }], ...plottedSignals];
 
-    this.setState({ plottedSignals, graphData });
-  }
-
-  refreshGraphData(messages, plottedSignals) {
-    if (typeof messages === "undefined") {
-      messages = this.props.messages;
-    }
-    if (typeof plottedSignals === "undefined") {
-      plottedSignals = this.state.plottedSignals;
-    }
-    let graphData = plottedSignals.map((plotSignals, index) =>
-      this.calcGraphData(plotSignals, messages)
-    );
-
-    this.setState({ graphData });
+    this.setState({ plottedSignals });
   }
 
   onSignalUnplotPressed(messageId, signalUid) {
@@ -311,10 +227,7 @@ export default class Explorer extends Component {
       )
       .filter(plot => plot.length > 0);
 
-    this.setState(
-      { plottedSignals: newPlottedSignals },
-      this.refreshGraphData(this.props.messages, newPlottedSignals)
-    );
+    this.setState({ plottedSignals: newPlottedSignals });
   }
 
   updateSegment = debounce((messageId, segment) => {
@@ -526,9 +439,9 @@ export default class Explorer extends Component {
   }
 
   mergePlots({ fromPlot, toPlot }) {
-    let { plottedSignals, graphData } = this.state;
+    let { plottedSignals } = this.state;
 
-    // remove fromPlot from plottedSignals, graphData
+    // remove fromPlot from plottedSignals
     const fromPlotIdx = plottedSignals.findIndex(plot =>
       plot.some(
         signal =>
@@ -537,10 +450,6 @@ export default class Explorer extends Component {
       )
     );
     plottedSignals.splice(fromPlotIdx, 1);
-    graphData.splice(fromPlotIdx, 1);
-
-    // calc new graph data
-    const newGraphData = this.calcGraphData([fromPlot, toPlot]);
 
     const toPlotIdx = plottedSignals.findIndex(plot =>
       plot.some(
@@ -549,10 +458,9 @@ export default class Explorer extends Component {
           signal.messageId === toPlot.messageId
       )
     );
-    graphData[toPlotIdx] = newGraphData;
     plottedSignals[toPlotIdx] = [fromPlot, toPlot];
 
-    this.setState({ graphData, plottedSignals });
+    this.setState({ plottedSignals });
   }
 
   render() {
