@@ -362,6 +362,7 @@ export default class CanGraph extends Component {
                     }}
                     renderer={"canvas"}
                     spec={CanPlotSpec}
+                    actions={false}
                     data={{
                       values: this.state.data.series
                     }}
