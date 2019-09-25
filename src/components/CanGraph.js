@@ -2,10 +2,11 @@ import React, { Component } from "react";
 import Measure from "react-measure";
 import PropTypes from "prop-types";
 import cx from "classnames";
+import { Vega } from "react-vega";
 
 import Signal from "../models/can/signal";
 import GraphData from "../models/graph-data";
-import CanPlot from "../vega/CanPlot";
+import CanPlotSpec from "../vega/CanPlot";
 import debounce from "../utils/debounce";
 
 const DefaultPlotInnerStyle = {
@@ -106,19 +107,27 @@ export default class CanGraph extends Component {
   }
 
   onPlotResize({ bounds }) {
-    this.setState({ bounds });
+    if (bounds) {
+      this.setState({ bounds });
+    } else {
+      bounds = this.state.bounds;
+    }
 
+    if (!this.view) {
+      console.log("Cannot bounds");
+      return;
+    }
     this.view.signal("width", bounds.width - 70);
     this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  componentWillUpdate(nextProps, nextState) {
     if (this.view) {
+      let segmentChanged = this.segmentIsNew(nextProps.segment);
       this.view.runAfter(() => {
         // only update if segment is new
-        let segmentChanged = false;
-        if (this.segmentIsNew(nextProps.segment)) {
+        if (segmentChanged) {
           if (nextProps.segment.length > 0) {
             // Set segmented domain
             this.view.signal("segment", nextProps.segment);
@@ -141,14 +150,17 @@ export default class CanGraph extends Component {
           this.view.runAsync();
         }
       });
-
-      return false;
     }
 
     return true;
   }
 
   insertData = debounce(() => {
+    if (!this.view) {
+      console.log("Cannot insertData");
+      return;
+    }
+
     let { series } = this.state.data;
 
     // adding plot points by diff isn't faster since it basically has to be n^2
@@ -198,7 +210,7 @@ export default class CanGraph extends Component {
     this.view = view;
 
     if (this.state.bounds) {
-      this.onPlotResize({ bounds: this.state.bounds });
+      this.onPlotResize();
     }
     if (this.props.segment.length > 0) {
       view.signal("segment", this.props.segment);
@@ -219,6 +231,11 @@ export default class CanGraph extends Component {
     }
 
     this.props.onSegmentChanged(this.props.messageId, segment);
+
+    if (!this.view) {
+      console.log("Cannot insertData");
+      return;
+    }
 
     this.view.runAfter(() => {
       const state = this.view.getState();
@@ -336,12 +353,19 @@ export default class CanGraph extends Component {
                   ref={measureRef}
                   className="cabana-explorer-visuals-plot-container"
                 >
-                  <CanPlot
-                    logLevel={1}
+                  <Vega
                     onNewView={this.onNewView}
-                    onSignalClickTime={this.onSignalClickTime}
-                    onSignalSegment={this.onSignalSegment}
+                    logLevel={1}
+                    signalListeners={{
+                      clickTime: this.onSignalClickTime,
+                      segment: this.onSignalSegment
+                    }}
                     renderer={"canvas"}
+                    spec={CanPlotSpec}
+                    actions={false}
+                    data={{
+                      values: this.state.data.series
+                    }}
                   />
                 </div>
               );

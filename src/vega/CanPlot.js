@@ -1,6 +1,4 @@
-import { createClassFromSpec } from "react-vega";
-
-export default createClassFromSpec("CanPlot", {
+export default {
   $schema: "https://vega.github.io/schema/vega/v3.0.json",
   width: 400,
   height: 200,
@@ -335,4 +333,4 @@ export default createClassFromSpec("CanPlot", {
       ]
     }
   ]
-});
+};
