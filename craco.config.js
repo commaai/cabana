@@ -12,7 +12,7 @@ module.exports = function({ env }) {
         plugin: {
           overrideWebpackConfig: ({ webpackConfig, context: { env } }) => {
             const workerLoader = {
-              test: /worker\.js/,
+              test: /\.worker\.js/,
               use: [
                 {
                   loader: "worker-loader",
@@ -31,13 +31,6 @@ module.exports = function({ env }) {
             return webpackConfig;
           }
         }
-      },
-      {
-        plugin: BabelLoader,
-        options: {
-          includes: [/demuxer-worker.js/] //put things you want to include in array here
-          // excludes: [/node_modules/] //things you want to exclude here
-        }
       }
     ],
 
@@ -48,11 +41,5 @@ module.exports = function({ env }) {
         }
       }
     }
-    // babel: {
-    //     presets: [],
-    //     plugins: [],
-    //     loaderOptions: {},
-    //     loaderOptions: (babelLoaderOptions, { env, paths }) => { return babelLoaderOptions; }
-    // },
   };
 };

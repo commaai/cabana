@@ -26,15 +26,22 @@ yarn run test
 ```bash
 npm version patch
 git push origin master --tags # push version patch
-yarn deploy # builds and deploys to github pages
+yarn run deploy # builds and deploys to github pages
 ```
 
 ### errors building libusb modules?
 
 You can safely ignore those errors even though it returns 1. If you'd like them to go away just because they're annoying, install libusb-dev...
 
-- sudo apt-get install -y libusb-dev libudev-dev ruby-sass
-- brew install libusb
+```bash
+sudo apt-get install -y libusb-dev libudev-dev ruby-sass
+```
+
+or
+
+```bash
+brew install libusb
+```
 
 # Create React App documentation
 
