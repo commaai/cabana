@@ -34,7 +34,7 @@ yarn run deploy # builds and deploys to github pages
 You can safely ignore those errors even though it returns 1. If you'd like them to go away just because they're annoying, install libusb-dev...
 
 ```bash
-sudo apt-get install -y libusb-dev libudev-dev ruby-sass
+sudo apt-get install -y libusb-dev libudev-dev
 ```
 
 or
