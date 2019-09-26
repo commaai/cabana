@@ -4,22 +4,30 @@
 
 ## Setup
 
-- yarn
-- yarn run sass
+```bash
+yarn
+yarn run sass
+```
 
 ## Development
 
-- yarn start
+```bash
+yarn start
+```
 
 ## Contributing
 
-- yaarn run test
+```bash
+yarn run test
+```
 
 ## Deploy to Production
 
-- npm version patch
-- git push origin master --tags # push version patch
-- yarn deploy # builds and deploys to github pages
+```bash
+npm version patch
+git push origin master --tags # push version patch
+yarn deploy # builds and deploys to github pages
+```
 
 ### errors building libusb modules?
 
