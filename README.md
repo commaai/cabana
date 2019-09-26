@@ -49,6 +49,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 You can read the create react app [documentation here](https://create-react-app.dev/docs/)
 
+We use craco to easily add [worker-loader](https://npm.im/worker-loader) and to [use .babelrc](https://npm.im/craco-use-babelrc).
+
 ## License
 
 [MIT](/LICENSE)
