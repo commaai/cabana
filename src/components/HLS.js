@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Hls from "@commaai/hls.js";
+import Hls from "hls.js";
 
 export default class HLS extends Component {
   static propTypes = {

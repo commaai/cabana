@@ -1,29 +1,10 @@
 {
   "presets": [
-    "react-app",
-    [
-      "env",
-      {
-        "targets": {
-          "browsers": ["last 2 versions", "safari >= 7"]
-        },
-        "useBuiltIns": "usage"
-      }
-    ],
-    "stage-0"
+    "@babel/preset-env",
+    "@babel/preset-react",
   ],
-  "plugins": ["emotion"],
-  "env": {
-    "test": {
-      "presets": [
-        [
-          "env",
-          {
-            "modules": false
-          }
-        ],
-        "stage-0"
-      ]
-    }
-  }
+  "plugins": [
+    "@babel/plugin-proposal-class-properties",
+    "emotion"
+  ]
 }
