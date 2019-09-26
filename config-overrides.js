@@ -11,10 +11,15 @@ module.exports = function override(config, env) {
 
   config.module.rules.push({
     test: /\.(js|jsx)$/,
-    include: path.resolve(
-      fs.realpathSync(process.cwd()),
-      "node_modules/streamsaver"
-    ),
+    include: [
+      path.resolve("node_modules/streamsaver"),
+      path.resolve("node_modules/vega-lite"),
+      path.resolve("node_modules/vega"),
+      path.resolve("node_modules/d3-scale"),
+      path.resolve("node_modules/d3-delaunay"),
+      path.resolve("node_modules/d3-force"),
+      path.resolve("node_modules/delaunator")
+    ],
     use: { loader: "babel-loader" }
   });
 
