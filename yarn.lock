@@ -931,14 +931,6 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/hls.js@^0.12.2":
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.2.tgz#694433f0de5e454a1b116daf83f9f6d4b6f285ab"
-  integrity sha512-YhQ1RT94L//eL6Zc3q2hS0ecVoHYlgho4JJWlP/TqaJ3iBYzl21jyKIpTEGsjyBLMwEiobH4rIOFQ5Gjk2VXJw==
-  dependencies:
-    eventemitter3 "3.1.0"
-    url-toolkit "^2.1.6"
-
 "@commaai/log_reader@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.3.1.tgz#0e2b47b621ac9b852ccf5137787e17952a34170c"
