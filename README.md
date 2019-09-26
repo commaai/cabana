@@ -21,7 +21,7 @@
 - git push origin master --tags # push version patch
 - yarn deploy # builds and deploys to github pages
 
-## Fix errors building libusb modules
+### errors building libusb modules?
 
 You can safely ignore those errors even though it returns 1. If you'd like them to go away just because they're annoying, install libusb-dev...
 
@@ -33,3 +33,7 @@ You can safely ignore those errors even though it returns 1. If you'd like them 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) v1.x, then upgraded to `react-scripts` v3.x and use [craco](http://npm.im/craco) to customize it.
 
 You can read the create react app [documentation here](https://create-react-app.dev/docs/)
+
+## License
+
+[MIT](/LICENSE)
