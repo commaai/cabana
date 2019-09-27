@@ -1,3 +1,5 @@
+/* eslint-env worker */
+/* eslint-disable no-restricted-globals */
 import LogStream from "@commaai/log_reader";
 import { timeout } from "thyming";
 import { partial } from "ap";

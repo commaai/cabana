@@ -1,12 +1,12 @@
 {
-"extends": "react-app",
-"rules":{
-"no-undef": 1 
-},
-"env": {
-"browser": true},
-"globals":{
-"window": false
-}
-
+  "extends": "react-app",
+  "rules": {
+    "no-undef": 1
+  },
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "window": false
+  }
 }

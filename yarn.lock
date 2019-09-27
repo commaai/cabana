@@ -983,16 +983,7 @@
   resolved "https://registry.yarnpkg.com/@commaai/unbzip2-stream/-/unbzip2-stream-2.0.0.tgz#93821dc5e72f04ec5eedef5ed4e6ff57412019e0"
   integrity sha512-Dqzzmos7r2OsvpJ9YtID1n50GpVwB4dw7ft41XJZM2V7bJ0L68ygeK4WktaT1ZslgWz5NzqHEn0t9nWFuopixg==
 
-"@craco/craco@^3.2.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-3.6.0.tgz#4b4ce7dacda8ac64731c18b1542f70127cd3eb8e"
-  integrity sha512-01hBd0kefkDmfOsiXq5lAnSISVPgLqT1Qrr8Y062XRboeIlz9GQvOjJxhIxoqgVFYdeKURW6xza2qOEj5Til4w==
-  dependencies:
-    cross-spawn "6.0.5"
-    lodash.mergewith "4.6.1"
-    webpack-merge "4.1.4"
-
-"@craco/craco@^5.0.0", "@craco/craco@^5.5.0":
+"@craco/craco@^5.5.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.5.0.tgz#081b25522d866fbc14b80fe61517f2f10e3e4499"
   integrity sha512-VN4pkBku4OmB8DHT/COGfmk4DKIyBDqM8KeGX6jGqsqxhxIf8OI1ULKNtenwvdKTx3XrYMEr0ya4n3VBu8CXew==
@@ -1042,13 +1033,6 @@
   integrity sha512-aVWQTOI9wBD6zawmOr6f+tdEIxQC8JXfQVLTjgGe8YEStAWGn/GNNVTobKJhbWKveQj2RyYF3oYbO9SC8/eOCA==
   dependencies:
     "@hapi/hoek" "8.x.x"
-
-"@jackwilsdon/craco-use-babelrc@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@jackwilsdon/craco-use-babelrc/-/craco-use-babelrc-1.0.0.tgz#a8e99704ca869b4388f9463533629630e4032013"
-  integrity sha512-q8Y3o7bBiAw+mlLZnoIJUm5Yzh8wIKxpM4qkuXDxFdeWM/Rio06j/zRBmBXcKJLFiCZABSWao/ymZPBRqK0o3Q==
-  dependencies:
-    "@craco/craco" "^3.2.0"
 
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
   version "24.9.0"
@@ -3358,13 +3342,6 @@ cosmiconfig@^5.0.0, cosmiconfig@^5.2.0, cosmiconfig@^5.2.1:
     is-directory "^0.3.1"
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
-
-craco-babel-loader@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/craco-babel-loader/-/craco-babel-loader-0.1.4.tgz#4b84ada5c1b223d0032e8b937d50459a57ad8586"
-  integrity sha512-2wl5yEdPYI0dsWlHoEbl602lFCdsopPs/aPqHDp3QjRKkKZFg82+ybkfhY3oGXjAOVxTvkyJLc3g/pxpN5RwEA==
-  dependencies:
-    "@craco/craco" "^5.0.0"
 
 create-ecdh@^4.0.0:
   version "4.0.3"
@@ -7786,11 +7763,6 @@ lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
-
-lodash.mergewith@4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/lodash.mergewith/-/lodash.mergewith-4.6.1.tgz#639057e726c3afbdb3e7d42741caa8d6e4335927"
-  integrity sha512-eWw5r+PYICtEBgrBE5hhlT6aAa75f411bgDz/ZL2KZqYV03USvucsxcHUIlGTDTECs1eunpI7HOV7U+WLDvNdQ==
 
 lodash.mergewith@^4.6.2:
   version "4.6.2"
@@ -13301,13 +13273,6 @@ webpack-manifest-plugin@2.0.4:
     fs-extra "^7.0.0"
     lodash ">=3.5 <5"
     tapable "^1.0.0"
-
-webpack-merge@4.1.4:
-  version "4.1.4"
-  resolved "https://registry.yarnpkg.com/webpack-merge/-/webpack-merge-4.1.4.tgz#0fde38eabf2d5fd85251c24a5a8c48f8a3f4eb7b"
-  integrity sha512-TmSe1HZKeOPey3oy1Ov2iS3guIZjWvMT2BBJDzzT5jScHTjVC3mpjJofgueEzaEd6ibhxRDD6MIblDr8tzh8iQ==
-  dependencies:
-    lodash "^4.17.5"
 
 webpack-merge@^4.2.1:
   version "4.2.2"

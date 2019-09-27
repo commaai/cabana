@@ -21,7 +21,7 @@ async function fetchAndPostData(
   console.log("starting fetchAndPostData process");
 
   var partList = [];
-  var minPart = currentPart;
+  minPart = currentPart;
   var prevPart = Promise.resolve();
   var promiseBuffer = [];
   var totalParts = maxPart - minPart;
