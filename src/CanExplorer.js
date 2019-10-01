@@ -399,7 +399,9 @@ export default class CanExplorer extends Component {
     delete currentWorkers[workerHash];
 
     console.log("Stoping worker", workerHash, "for part", part);
-    worker.terminate();
+    worker.postMessage({
+      action: "terminate"
+    });
 
     this.setState({
       currentWorkers,
@@ -442,7 +444,7 @@ export default class CanExplorer extends Component {
     for (let partOffset = 0; partOffset <= maxPart - minPart; ++partOffset) {
       let tempPart = currentPart + partOffset;
       if (tempPart > maxPart) {
-        tempPart = minPart + (tempPart - minPart) % (maxPart - minPart + 1);
+        tempPart = minPart + ((tempPart - minPart) % (maxPart - minPart + 1));
       }
       if (allWorkerParts.indexOf(tempPart) === -1) {
         part = tempPart;
@@ -914,7 +916,7 @@ export default class CanExplorer extends Component {
       selectedMessages.length > 0 &&
       messages[selectedMessages[0]] !== undefined
     ) {
-      seekIndex = messages[selectedMessages[0]].entries.length - 1;
+      seekIndex = Math.max(0, messages[selectedMessages[0]].entries.length - 1);
     }
     this.setState({
       messages,

@@ -23,10 +23,19 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
     // Always include last message entry, which faciliates graphData comparison
     samples.push(msg.entries[msg.entries.length - 1]);
   }
+  if (!samples.length) {
+    return [];
+  }
   // sorting these doesn't fix the phantom lines
+  let lastEntry = samples[0].relTime;
   return samples
     .filter(e => e.signals[signal.name] !== undefined)
     .map(entry => {
+      if (entry.relTime - lastEntry > 2) {
+        signalUid = Math.random().toString(36);
+      }
+      lastEntry = entry.relTime;
+      // console.log(entry.relTime - lastEntry);
       return {
         x: entry.time,
         relTime: entry.relTime,

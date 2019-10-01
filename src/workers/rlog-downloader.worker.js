@@ -17,6 +17,11 @@ self.onmessage = handleMessage;
 function handleMessage(msg) {
   const options = msg.data;
 
+  if (options.action === "terminate") {
+    console.log("Closing this thing!");
+    close();
+  }
+
   options.dbc = new DBC(options.dbcText);
 
   var entry = new CacheEntry(options);
