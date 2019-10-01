@@ -206,7 +206,7 @@ export default class CanGraph extends Component {
         this.view.signal("segment", 0);
       }
     }
-    this.view.run();
+    this.view.runAsync();
     return false;
   }
   componentDidUpdate(oldProps, oldState) {
@@ -219,7 +219,7 @@ export default class CanGraph extends Component {
         this.view.signal("segment", 0);
       }
       this.view.signal("videoTime", this.props.currentTime);
-      this.view.run();
+      this.view.runAsync();
     }
   }
 
