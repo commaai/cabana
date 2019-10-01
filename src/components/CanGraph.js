@@ -47,7 +47,8 @@ export default class CanGraph extends Component {
       shiftY: 0,
       bounds: null,
       isDataInserted: false,
-      data: this.getGraphData(props)
+      data: this.getGraphData(props),
+      spec: this.getGraphSpec(props)
     };
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
@@ -92,6 +93,20 @@ export default class CanGraph extends Component {
     };
   }
 
+  getGraphSpec(props) {
+    return {
+      ...CanPlotSpec,
+      scales: [
+        {
+          ...CanPlotSpec.scales[0],
+          domainMin: props.segment[0],
+          domainMax: props.segment[1]
+        },
+        ...CanPlotSpec.scales.slice(1)
+      ]
+    };
+  }
+
   segmentIsNew(newSegment) {
     return (
       newSegment.length !== this.props.segment.length ||
@@ -106,54 +121,27 @@ export default class CanGraph extends Component {
     );
   }
 
-  onPlotResize({ bounds }) {
-    if (bounds) {
-      this.setState({ bounds });
+  onPlotResize(options) {
+    if (!this.view) {
+      return;
+    }
+
+    let bounds = null;
+    if (options && options.bounds) {
+      this.setState({ bounds: options.bounds });
+      bounds = options.bounds;
     } else {
       bounds = this.state.bounds;
     }
 
-    if (!this.view) {
-      console.log("Cannot bounds");
-      return;
-    }
-    this.view.signal("width", bounds.width - 70);
-    this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
+    this.view.runAfter(this.updateBounds);
+  }
+
+  updateBounds = debounce(() => {
+    this.view.signal("width", this.state.bounds.width - 70);
+    this.view.signal("height", 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.view) {
-      let segmentChanged = this.segmentIsNew(nextProps.segment);
-      this.view.runAfter(() => {
-        // only update if segment is new
-        if (segmentChanged) {
-          if (nextProps.segment.length > 0) {
-            // Set segmented domain
-            this.view.signal("segment", nextProps.segment);
-          } else {
-            // Reset segment to full domain
-            this.view.signal("segment", 0);
-          }
-          segmentChanged = true;
-        }
-
-        if (
-          !nextProps.live &&
-          nextProps.currentTime !== this.props.currentTime
-        ) {
-          this.view.signal("videoTime", nextProps.currentTime);
-          segmentChanged = true;
-        }
-
-        if (segmentChanged) {
-          this.view.runAsync();
-        }
-      });
-    }
-
-    return true;
-  }
+  }, 100);
 
   insertData = debounce(() => {
     if (!this.view) {
@@ -161,10 +149,9 @@ export default class CanGraph extends Component {
       return;
     }
 
-    let { series } = this.state.data;
-
     // adding plot points by diff isn't faster since it basically has to be n^2
     // out-of-order events make it so that you can't just check the bounds
+    let { series } = this.state.data;
     let changeset = this.view
       .changeset()
       .remove(v => true)
@@ -194,8 +181,49 @@ export default class CanGraph extends Component {
       ) {
         // do nothing, the data didn't *actually* change
       } else {
-        this.setState({ data }, this.insertData);
+        this.setState({ data });
       }
+    }
+    if (this.segmentIsNew(nextProps.segment)) {
+      this.setState({ spec: this.getGraphSpec(nextProps) });
+    }
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!this.view) {
+      return true;
+    }
+    if (this.state.spec !== nextState.spec) {
+      return true;
+    }
+    if (this.state.data !== nextState.data) {
+      this.insertData();
+    }
+    if (this.props.currentTime !== nextProps.currentTime) {
+      this.view.signal("videoTime", nextProps.currentTime);
+    }
+    if (this.segmentIsNew(nextProps.segment)) {
+      if (nextProps.segment.length > 0) {
+        // Set segmented domain
+        this.view.signal("segment", nextProps.segment);
+      } else {
+        // Reset segment to full domain
+        this.view.signal("segment", 0);
+      }
+    }
+    this.view.runAsync();
+    return false;
+  }
+  componentDidUpdate(oldProps, oldState) {
+    if (this.view) {
+      if (this.props.segment.length > 0) {
+        // Set segmented domain
+        this.view.signal("segment", this.props.segment);
+      } else {
+        // Reset segment to full domain
+        this.view.signal("segment", 0);
+      }
+      this.view.signal("videoTime", this.props.currentTime);
+      this.view.runAsync();
     }
   }
 
@@ -215,17 +243,20 @@ export default class CanGraph extends Component {
     if (this.props.segment.length > 0) {
       view.signal("segment", this.props.segment);
     }
+    view.signal("videoTime", this.props.currentTime);
 
     this.insertData();
   }
 
   onSignalClickTime(signal, clickTime) {
+    // console.log('onSignalClickTime', signal, clickTime);
     if (clickTime !== undefined) {
       this.props.onRelativeTimeClick(this.props.messageId, clickTime);
     }
   }
 
   onSignalSegment(signal, segment) {
+    // console.log('onSignalSegment', signal, segment);
     if (!Array.isArray(segment)) {
       return;
     }
@@ -233,7 +264,6 @@ export default class CanGraph extends Component {
     this.props.onSegmentChanged(this.props.messageId, segment);
 
     if (!this.view) {
-      console.log("Cannot insertData");
       return;
     }
 
@@ -361,10 +391,10 @@ export default class CanGraph extends Component {
                       segment: this.onSignalSegment
                     }}
                     renderer={"canvas"}
-                    spec={CanPlotSpec}
+                    spec={this.state.spec}
                     actions={false}
                     data={{
-                      values: this.state.data.series
+                      table: this.state.data.series
                     }}
                   />
                 </div>

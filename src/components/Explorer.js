@@ -159,7 +159,7 @@ export default class Explorer extends Component {
       } else {
         nextSeekTime = nextMessage.entries[0];
       }
-
+      // console.log(this.state.segment, '->', segment, segmentIndices, nextSeekTime);
       this.setState({
         segment,
         segmentIndices,
@@ -178,6 +178,7 @@ export default class Explorer extends Component {
         this.state.segmentIndices,
         nextMessage
       );
+      // console.log(this.state.segment, '->', segment, segmentIndices);
       this.setState({ segment, segmentIndices });
     }
   }
@@ -232,13 +233,21 @@ export default class Explorer extends Component {
 
   updateSegment = debounce((messageId, segment) => {
     const { entries } = this.props.messages[this.props.selectedMessage];
-    const segmentIndices = Entries.findSegmentIndices(entries, segment, true);
+    let segmentIndices = Entries.findSegmentIndices(entries, segment, true);
 
+    // console.log(this.state.segment, '->', segment, segmentIndices);
+    if (
+      segment[0] === this.props.currentParts[0] * 60 &&
+      segment[1] === (this.props.currentParts[1] + 1) * 60
+    ) {
+      segment = [];
+      segmentIndices = [];
+    }
     this.setState({
       segment,
       segmentIndices,
       userSeekIndex: segmentIndices[0],
-      userSeekTime: segment[0]
+      userSeekTime: segment[0] || 0
     });
   }, 250);
 
@@ -252,6 +261,7 @@ export default class Explorer extends Component {
     const { segment, segmentIndices } = this.state;
     const { messages, selectedMessage } = this.props;
     if (segment.length > 0 || segmentIndices.length > 0) {
+      // console.log(this.state.segment, '->', segment, segmentIndices);
       this.setState({
         segment: [],
         segmentIndices: [],
@@ -314,7 +324,6 @@ export default class Explorer extends Component {
 
     const seekIndex = this.indexFromSeekTime(time);
     const seekTime = time;
-
     this.props.onSeek(seekIndex, seekTime);
   }
 
@@ -467,6 +476,15 @@ export default class Explorer extends Component {
     const signalsExpandedClass = this.state.shouldShowAddSignal
       ? "is-expanded"
       : null;
+
+    let graphSegment = this.state.segment;
+    if (!graphSegment.length && this.props.currentParts) {
+      graphSegment = [
+        this.props.currentParts[0] * 60,
+        (this.props.currentParts[1] + 1) * 60
+      ];
+    }
+
     return (
       <div className="cabana-explorer">
         <div className={cx("cabana-explorer-signals", signalsExpandedClass)}>
@@ -519,7 +537,7 @@ export default class Explorer extends Component {
             seekTime={this.props.seekTime}
             onSegmentChanged={this.onSegmentChanged}
             onSignalUnplotPressed={this.onSignalUnplotPressed}
-            segment={this.state.segment}
+            segment={graphSegment}
             mergePlots={this.mergePlots}
             live={this.props.live}
           />

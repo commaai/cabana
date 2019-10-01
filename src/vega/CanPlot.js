@@ -1,5 +1,5 @@
 export default {
-  $schema: "https://vega.github.io/schema/vega/v3.0.json",
+  $schema: "https://vega.github.io/schema/vega/v5.6.json",
   width: 400,
   height: 200,
   padding: {
@@ -22,7 +22,7 @@ export default {
       name: "clickTime",
       on: [
         {
-          events: "mouseup",
+          events: "click",
           update: "invert('xrelscale', x())"
         }
       ]
@@ -36,6 +36,9 @@ export default {
   data: [
     {
       name: "table"
+    },
+    {
+      name: "segment"
     },
     {
       name: "tooltip",
@@ -146,6 +149,11 @@ export default {
           on: [{ events: "@brush:mousedown", update: "x()" }]
         },
         {
+          name: "xup",
+          value: 0,
+          on: [{ events: "@brush:mouseup", update: "x()" }]
+        },
+        {
           name: "delta",
           value: 0,
           on: [
@@ -175,7 +183,7 @@ export default {
             facet: {
               name: "series",
               data: "table",
-              groupby: "color"
+              groupby: "signalUid"
             }
           },
           marks: {

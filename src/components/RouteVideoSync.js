@@ -100,6 +100,9 @@ export default class RouteVideoSync extends Component {
   nearestFrameUrl() {
     const { url } = this.props;
     const sec = Math.round(this.props.userSeekTime);
+    if (isNaN(sec)) {
+      debugger;
+    }
     return RouteApi(url).getJpegUrl(sec);
   }
 

@@ -23,7 +23,7 @@ function findSegmentIndices(
   let timeIndexFunc =
     isRelative === true ? findRelativeTimeIndex : findTimeIndex;
 
-  const segmentIdxLow = timeIndexFunc(entries, segmentTimeLow);
+  const segmentIdxLow = Math.max(0, timeIndexFunc(entries, segmentTimeLow));
 
   const upperSegments = entries.slice(segmentIdxLow);
   let upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
@@ -32,7 +32,10 @@ function findSegmentIndices(
       ? upperSegmentIdxHi + segmentIdxLow + 1
       : entries.length - 1;
 
-  return [segmentIdxLow, Math.min(segmentIdxHi, entries.length - 1)];
+  return [
+    segmentIdxLow,
+    Math.max(0, Math.min(segmentIdxHi, entries.length - 1))
+  ];
 }
 
 export default { findTimeIndex, findRelativeTimeIndex, findSegmentIndices };
