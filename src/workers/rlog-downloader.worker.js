@@ -20,6 +20,7 @@ function handleMessage(msg) {
   if (options.action === "terminate") {
     console.log("Closing this thing!");
     close();
+    return;
   }
 
   options.dbc = new DBC(options.dbcText);
