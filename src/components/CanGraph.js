@@ -134,10 +134,15 @@ export default class CanGraph extends Component {
       console.log("Cannot bounds");
       return;
     }
-    this.view.signal("width", bounds.width - 70);
-    this.view.signal("height", 0.4 * (bounds.width - 70)); // 5:2 aspect ratio
-    this.view.run();
+    this.view.runAfter(this.updateBounds);
   }
+
+  updateBounds = debounce(() => {
+    console.log("Changing bounds", this.state.bounds);
+    this.view.signal("width", this.state.bounds.width - 70);
+    this.view.signal("height", 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
+    this.view.run();
+  }, 100);
 
   insertData = debounce(() => {
     if (!this.view) {
@@ -233,6 +238,7 @@ export default class CanGraph extends Component {
   onNewView(view) {
     this.view = view;
 
+    console.log("New view! considering bounds...", this.state.bounds);
     if (this.state.bounds) {
       this.onPlotResize();
     }
