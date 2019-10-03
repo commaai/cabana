@@ -3,7 +3,6 @@
 // import Sentry from '../logging/Sentry';
 
 import NumpyLoader from "../utils/loadnpy";
-import * as CanApi from "../api/can";
 
 const MAX_CONNECTIONS = 8;
 
