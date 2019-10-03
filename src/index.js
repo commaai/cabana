@@ -34,7 +34,7 @@ if (routeFullName) {
     sig = getUrlParameter("sig");
 
   if (max) {
-    props.max = Number(max);
+    props.max = max;
   }
   if (url) {
     props.url = url;
