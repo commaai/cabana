@@ -1,9 +1,5 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "81d2f35b6d3bebb21f0a433662c62753",
-    "url": "/cabana/2464c3ee509aca09191d.worker.js"
-  },
-  {
     "revision": "44673e06a7cada8047c343064225453e",
     "url": "/cabana/5f65f42d446e84a5a6bf.worker.js"
   },
@@ -16,15 +12,19 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/cabana/9bd0af2c9ba4d028a9ad.worker.js"
   },
   {
+    "revision": "71ba81de26d44e94877c5b9f18448d0d",
+    "url": "/cabana/cc2c10be0f5440706486.worker.js"
+  },
+  {
     "revision": "4424a5259c3af2e2a0cba4cd57069fe2",
     "url": "/cabana/d32516387821fe8f3ce5.worker.js"
   },
   {
-    "revision": "ce9d619ab2a48ba74f50bcaf3fda074b",
+    "revision": "fba6bb9ae09232faa56c9ec059f38d5a",
     "url": "/cabana/index.html"
   },
   {
-    "revision": "beb14944fb5b2d79fddf",
+    "revision": "8efd9b6653702790ce19",
     "url": "/cabana/static/css/main.2c6dfffe.chunk.css"
   },
   {
@@ -32,8 +32,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/cabana/static/js/2.4e582ffb.chunk.js"
   },
   {
-    "revision": "beb14944fb5b2d79fddf",
-    "url": "/cabana/static/js/main.541caf9f.chunk.js"
+    "revision": "8efd9b6653702790ce19",
+    "url": "/cabana/static/js/main.d35da55b.chunk.js"
   },
   {
     "revision": "464daa7ef48376165289",
