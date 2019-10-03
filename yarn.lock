@@ -3343,6 +3343,13 @@ cosmiconfig@^5.0.0, cosmiconfig@^5.2.0, cosmiconfig@^5.2.1:
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
 
+craco-worker-loader@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/craco-worker-loader/-/craco-worker-loader-1.0.0.tgz#359fb231643fdf10daa36b3a59a7b2232f373277"
+  integrity sha512-jNdUmDO5bgdMMrJfPIFhiYnwwE+IObvsAqKS7xOiNKIWMzLOgm2cP73PaE1OmaN5cmOZkN3VAC5431jg3G2kEw==
+  dependencies:
+    worker-loader "^2.0.0"
+
 create-ecdh@^4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.3.tgz#c9111b6f33045c4697f144787f9254cdc77c45ff"
