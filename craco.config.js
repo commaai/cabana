@@ -1,4 +1,4 @@
-const WorkerLoaderPlugin = require("./craco/worker-loader");
+const WorkerLoaderPlugin = require("craco-worker-loader");
 
 module.exports = function({ env }) {
   return {
