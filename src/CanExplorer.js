@@ -305,17 +305,7 @@ export default class CanExplorer extends Component {
     }
   }
   downloadRawLogAsCSV(handler) {
-    // Trigger file processing and dowload in worker
-    const { firstCanTime, canFrameOffset, route } = this.state;
-    const worker = new LogCSVDownloader();
-
-    worker.onmessage = handler;
-
-    worker.postMessage({
-      base: route.url,
-      parts: [0, route.proclog],
-      canStartTime: firstCanTime - canFrameOffset
-    });
+    return this.downloadLiveLogAsCSV(handler);
   }
 
   downloadLiveLogAsCSV(handler) {

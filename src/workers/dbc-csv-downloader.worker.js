@@ -113,6 +113,9 @@ function transformAndSend(rawData) {
   console.log("Time span from", minTime, maxTime);
   var curIndexes = {};
   rawData.forEach(function(sourceData) {
+    if (!sourceData.entries.length) {
+      return;
+    }
     var sourceId = sourceData.id;
     if (minTime === 0 || sourceData.entries[0].relTime > minTime) {
       curIndexes[sourceId] = 0;
@@ -234,6 +237,9 @@ function findFirstEntryIndex(entries, minTime, start, length) {
 }
 
 function getLastTimeFromEntries(entries) {
+  if (!entries.length) {
+    return 0;
+  }
   return entries[entries.length - 1].relTime;
 }
 
