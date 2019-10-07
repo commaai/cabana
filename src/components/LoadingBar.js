@@ -1,4 +1,4 @@
-import styled, { keyframes } from "react-emotion";
+import styled, { keyframes } from 'react-emotion';
 
 const frames = keyframes`
   0% {
@@ -8,10 +8,10 @@ const frames = keyframes`
     transform: translateX(-400px)
   }
 `;
-const animationColor1 = "rgba(74, 242, 161, 1.00)";
-const animationColor2 = "rgba(140, 169, 197, 1.00)";
+const animationColor1 = 'rgba(74, 242, 161, 1.00)';
+const animationColor2 = 'rgba(140, 169, 197, 1.00)';
 
-export default styled("div")`
+export default styled('div')`
   display: block;
   animation-name: ${frames};
   animation-duration: 2s;

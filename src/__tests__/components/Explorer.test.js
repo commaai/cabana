@@ -1,11 +1,11 @@
-import React from "react";
-import Moment from "moment";
-import { shallow, mount, render } from "enzyme";
-import Explorer from "../../components/Explorer";
+import React from 'react';
+import Moment from 'moment';
+import { shallow, mount, render } from 'enzyme';
+import Explorer from '../../components/Explorer';
 
 global.__JEST__ = 1;
 
-test("Explorer successfully mounts with minimal default props", () => {
+test('Explorer successfully mounts with minimal default props', () => {
   const component = shallow(
     <Explorer
       url={null}

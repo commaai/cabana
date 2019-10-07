@@ -2,13 +2,13 @@
 /* eslint-disable no-restricted-globals */
 // import Sentry from '../logging/Sentry';
 
-import NumpyLoader from "../utils/loadnpy";
+import NumpyLoader from '../utils/loadnpy';
 
 const MAX_CONNECTIONS = 8;
 
 const window = self;
 
-const { Int64LE } = require("int64-buffer");
+const { Int64LE } = require('int64-buffer');
 
 function transformAndSend(rawData) {
   let totalSize = 0;
@@ -27,9 +27,9 @@ function transformAndSend(rawData) {
   }, 0);
 
   const minTime = Math.max(0, maxTime - 30);
-  console.log("Time span from", minTime, maxTime);
+  console.log('Time span from', minTime, maxTime);
   const curIndexes = {};
-  rawData.forEach(sourceData => {
+  rawData.forEach((sourceData) => {
     if (!sourceData.entries.length) {
       return;
     }
@@ -79,7 +79,7 @@ function transformAndSend(rawData) {
     if (entryBuffer.length > 5000) {
       self.postMessage({
         progress: 100 * (totalEntries / totalSize),
-        logData: entryBuffer.join("\n"),
+        logData: entryBuffer.join('\n'),
         shouldClose: false
       });
       entryBuffer = [];
@@ -88,13 +88,13 @@ function transformAndSend(rawData) {
   if (entryBuffer.length > 0) {
     self.postMessage({
       progress: 99,
-      logData: entryBuffer.join("\n"),
+      logData: entryBuffer.join('\n'),
       shouldClose: false
     });
     entryBuffer = [];
   }
 
-  console.log("Wrote", totalEntries, "lines of CSV");
+  console.log('Wrote', totalEntries, 'lines of CSV');
   self.postMessage({
     progress: 100,
     shouldClose: true
@@ -102,8 +102,7 @@ function transformAndSend(rawData) {
 
   function isAtEnd() {
     return rawData.reduce(
-      (memo, sourceData) =>
-        memo && curIndexes[sourceData.id] >= sourceData.entries.length
+      (memo, sourceData) => memo && curIndexes[sourceData.id] >= sourceData.entries.length
     );
   }
 }
@@ -114,7 +113,7 @@ function makeEntry(nextSource) {
     nextSource.address,
     nextSource.bus,
     nextSource.entry.hexData
-  ].join(",");
+  ].join(',');
 }
 
 function findFirstEntryIndex(entries, minTime, start, length) {
@@ -160,11 +159,11 @@ function getLastTimeFromEntries(entries) {
   return entries[entries.length - 1].relTime;
 }
 
-self.onmessage = function(e) {
-  console.log("onmessage worker");
+self.onmessage = function (e) {
+  console.log('onmessage worker');
   self.postMessage({
     progress: 0,
-    logData: "time,addr,bus,data",
+    logData: 'time,addr,bus,data',
     shouldClose: false
   });
   const {
@@ -180,7 +179,7 @@ self.onmessage = function(e) {
   // saveDBC(dbc, base, num, canStartTime);
   if (data) {
     // has raw data from live mode, process this instead
-    console.log("Using raw data from memory", canStartTime);
+    console.log('Using raw data from memory', canStartTime);
     transformAndSend(data, canStartTime);
   } else {
     self.postMessage({

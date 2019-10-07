@@ -1,5 +1,5 @@
-import Frame from "./frame";
-import Signal from "./signal";
+import Frame from './frame';
+import Signal from './signal';
 
 export const wheelSpeeds = {
   FrontLeftWheel: shortSignal({
@@ -82,13 +82,13 @@ export const flags = {
   Standstill: boolSignal({
     index: 8
   }),
-  "CruiseState.Enabled": boolSignal({
+  'CruiseState.Enabled': boolSignal({
     index: 9
   }),
-  "CruiseState.Available": boolSignal({
+  'CruiseState.Available': boolSignal({
     index: 10
   }),
-  "CruiseState.Standstill": boolSignal({
+  'CruiseState.Standstill': boolSignal({
     index: 11
   }),
   GearShifter: {
@@ -96,7 +96,7 @@ export const flags = {
     size: 4,
     unsigned: true
   },
-  "CruiseState.Speed": charSignal({
+  'CruiseState.Speed': charSignal({
     index: 2
   })
 };
@@ -192,21 +192,21 @@ export const thermalFreeSpace = {
 };
 
 export const signalMap = {
-  "CarState:WheelSpeeds": wheelSpeeds,
-  "CarState:Ego": ego,
-  "CarState:Controls": controls,
-  "CarState:Flags": flags,
-  "UbloxGnss:MeasurementReport": ubloxGnss,
-  "Health:Data": health,
-  "Thermal:CPU": thermalCPU,
-  "Thermal:Data": thermalData,
-  "Thermal:FreeSpace": thermalFreeSpace
+  'CarState:WheelSpeeds': wheelSpeeds,
+  'CarState:Ego': ego,
+  'CarState:Controls': controls,
+  'CarState:Flags': flags,
+  'UbloxGnss:MeasurementReport': ubloxGnss,
+  'Health:Data': health,
+  'Thermal:CPU': thermalCPU,
+  'Thermal:Data': thermalData,
+  'Thermal:FreeSpace': thermalFreeSpace
 };
 
 const ADDRESS_LIST = [];
 
-Object.keys(signalMap).forEach(name => {
-  Object.keys(signalMap[name]).forEach(signal => {
+Object.keys(signalMap).forEach((name) => {
+  Object.keys(signalMap[name]).forEach((signal) => {
     signalMap[name][signal] = createSignalEntry({
       name: signal,
       ...signalMap[name][signal]
@@ -224,7 +224,7 @@ function createSignalEntry(options) {
     isSigned: !options.unsigned,
     factor: options.factor || 1,
     offset: options.offset || 0,
-    unit: options.unit || ""
+    unit: options.unit || ''
   });
 }
 

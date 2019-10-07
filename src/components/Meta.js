@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import cx from "classnames";
-import PropTypes from "prop-types";
-import Clipboard from "clipboard";
+import React, { Component } from 'react';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+import Clipboard from 'clipboard';
 
-import MessageBytes from "./MessageBytes";
+import MessageBytes from './MessageBytes';
 
-const { ckmeans } = require("simple-statistics");
+const { ckmeans } = require('simple-statistics');
 
 export default class Meta extends Component {
   static propTypes = {
@@ -45,7 +45,7 @@ export default class Meta extends Component {
     const { dbcLastSaved } = props;
 
     this.state = {
-      filterText: "Filter",
+      filterText: 'Filter',
       lastSaved:
         dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
       hoveredMessages: [],
@@ -68,25 +68,25 @@ export default class Meta extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      nextProps.lastSaved !== this.props.lastSaved &&
-      typeof nextProps === "object"
+      nextProps.lastSaved !== this.props.lastSaved
+      && typeof nextProps === 'object'
     ) {
       this.setState({ lastSaved: nextProps.dbcLastSaved.fromNow() });
     }
 
     const nextMsgKeys = Object.keys(nextProps.messages);
     if (
-      JSON.stringify(nextMsgKeys) !==
-      JSON.stringify(Object.keys(this.props.messages))
+      JSON.stringify(nextMsgKeys)
+      !== JSON.stringify(Object.keys(this.props.messages))
     ) {
       const orderedMessageKeys = this.sortMessages(nextProps.messages);
       this.setState({ hoveredMessages: [], orderedMessageKeys });
     } else if (
-      this.state.orderedMessageKeys.length === 0 ||
-      (!this.props.live &&
-        this.props.messages &&
-        nextProps.messages &&
-        this.byteCountsDidUpdate(this.props.messages, nextProps.messages))
+      this.state.orderedMessageKeys.length === 0
+      || (!this.props.live
+        && this.props.messages
+        && nextProps.messages
+        && this.byteCountsDidUpdate(this.props.messages, nextProps.messages))
     ) {
       const orderedMessageKeys = this.sortMessages(nextProps.messages);
       this.setState({ orderedMessageKeys });
@@ -95,9 +95,8 @@ export default class Meta extends Component {
 
   byteCountsDidUpdate(prevMessages, nextMessages) {
     return Object.entries(nextMessages).some(
-      ([msgId, msg]) =>
-        JSON.stringify(msg.byteStateChangeCounts) !==
-        JSON.stringify(prevMessages[msgId].byteStateChangeCounts)
+      ([msgId, msg]) => JSON.stringify(msg.byteStateChangeCounts)
+        !== JSON.stringify(prevMessages[msgId].byteStateChangeCounts)
     );
   }
 
@@ -122,26 +121,22 @@ export default class Meta extends Component {
       {}
     );
 
-    const entryCounts = Object.keys(messagesByEntryCount).map(count =>
-      parseInt(count, 10)
-    );
+    const entryCounts = Object.keys(messagesByEntryCount).map((count) => parseInt(count, 10));
     const binnedEntryCounts = ckmeans(
       entryCounts,
       Math.min(entryCounts.length, 10)
     );
     const sortedKeys = binnedEntryCounts
-      .map(bin =>
-        bin
-          .map(entryCount => messagesByEntryCount[entryCount.toString()])
-          .reduce((messages, partial) => messages.concat(partial), [])
-          .sort((msg1, msg2) => {
-            if (msg1.address < msg2.address) {
-              return 1;
-            }
-            return -1;
-          })
-          .map(msg => msg.id)
-      )
+      .map((bin) => bin
+        .map((entryCount) => messagesByEntryCount[entryCount.toString()])
+        .reduce((messages, partial) => messages.concat(partial), [])
+        .sort((msg1, msg2) => {
+          if (msg1.address < msg2.address) {
+            return 1;
+          }
+          return -1;
+        })
+        .map((msg) => msg.id))
       .reduce((keys, bin) => keys.concat(bin), [])
       .reverse();
 
@@ -156,20 +151,20 @@ export default class Meta extends Component {
 
   onFilterChanged(e) {
     let val = e.target.value;
-    if (val.trim() === "Filter") val = "";
+    if (val.trim() === 'Filter') val = '';
 
     this.setState({ filterText: val });
   }
 
   onFilterFocus(e) {
-    if (this.state.filterText.trim() === "Filter") {
-      this.setState({ filterText: "" });
+    if (this.state.filterText.trim() === 'Filter') {
+      this.setState({ filterText: '' });
     }
   }
 
   onFilterUnfocus(e) {
-    if (this.state.filterText.trim() === "") {
-      this.setState({ filterText: "Filter" });
+    if (this.state.filterText.trim() === '') {
+      this.setState({ filterText: 'Filter' });
     }
   }
 
@@ -178,13 +173,13 @@ export default class Meta extends Component {
       return;
     }
     const { filterText } = this.state;
-    const msgName = msg.frame ? msg.frame.name : "";
+    const msgName = msg.frame ? msg.frame.name : '';
 
     return (
-      filterText === "Filter" ||
-      filterText === "" ||
-      msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 ||
-      msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+      filterText === 'Filter'
+      || filterText === ''
+      || msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+      || msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
     );
   }
 
@@ -193,13 +188,13 @@ export default class Meta extends Component {
       return;
     }
     const { filterText } = this.state;
-    const msgName = msg.frame ? msg.frame.name : "";
+    const msgName = msg.frame ? msg.frame.name : '';
 
     return (
-      filterText === "Filter" ||
-      filterText === "" ||
-      msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 ||
-      msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+      filterText === 'Filter'
+      || filterText === ''
+      || msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+      || msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
     );
   }
 
@@ -218,13 +213,13 @@ export default class Meta extends Component {
 
   onMessageHoverEnd(key) {
     let { hoveredMessages } = this.state;
-    hoveredMessages = hoveredMessages.filter(m => m !== key);
+    hoveredMessages = hoveredMessages.filter((m) => m !== key);
     this.setState({ hoveredMessages });
   }
 
   onMsgRemoveClick(key) {
     let { selectedMessages } = this.state;
-    selectedMessages = selectedMessages.filter(m => m !== key);
+    selectedMessages = selectedMessages.filter((m) => m !== key);
     this.props.onMessageUnselected(key);
     this.setState({ selectedMessages });
   }
@@ -241,12 +236,12 @@ export default class Meta extends Component {
   orderedMessages() {
     const { orderedMessageKeys } = this.state;
     const { messages } = this.props;
-    return orderedMessageKeys.map(key => messages[key]);
+    return orderedMessageKeys.map((key) => messages[key]);
   }
 
   selectedMessageClass(messageId) {
     return this.props.selectedMessages.includes(messageId)
-      ? "is-selected"
+      ? 'is-selected'
       : null;
   }
 
@@ -258,7 +253,7 @@ export default class Meta extends Component {
         }}
         key={msg.id}
         className={cx(
-          "cabana-meta-messages-list-item",
+          'cabana-meta-messages-list-item',
           this.selectedMessageClass(msg.id)
         )}
       >
@@ -266,7 +261,7 @@ export default class Meta extends Component {
           <td colSpan="2">{msg.id}</td>
         ) : (
           <>
-            <td>{msg.frame ? msg.frame.name : "untitled"}</td>
+            <td>{msg.frame ? msg.frame.name : 'untitled'}</td>
             <td>{msg.id}</td>
           </>
         )}
@@ -342,9 +337,9 @@ export default class Meta extends Component {
     try {
       // eslint-disable-next-line
       "serviceWorker" in navigator &&
-        !!new ReadableStream() &&
-        !!new WritableStream(); // eslint-disable-line no-undef
-      return "saveable";
+        !!new ReadableStream()
+        && !!new WritableStream(); // eslint-disable-line no-undef
+      return 'saveable';
     } catch (e) {
       return false;
     }
@@ -382,12 +377,12 @@ export default class Meta extends Component {
                 className="cabana-meta-header-action special-wide"
                 data-clipboard-text={this.props.shareUrl}
                 data-clipboard-action="copy"
-                ref={ref => (ref ? new Clipboard(ref) : null)}
+                ref={(ref) => (ref ? new Clipboard(ref) : null)}
               >
                 <a
                   className="button"
                   href={this.props.shareUrl}
-                  onClick={e => e.preventDefault()}
+                  onClick={(e) => e.preventDefault()}
                 >
                   Copy Share Link
                 </a>
@@ -402,8 +397,8 @@ export default class Meta extends Component {
           <div className="cabana-meta-messages-header">
             <div
               style={{
-                display: "inline-block",
-                float: "right"
+                display: 'inline-block',
+                float: 'right'
               }}
             >
               <h5 className="t-capline">

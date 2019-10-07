@@ -1,13 +1,13 @@
 /* eslint-env worker */
 /* eslint-disable no-restricted-globals */
-import LogStream from "@commaai/log_reader";
-import { timeout } from "thyming";
-import { partial } from "ap";
+import LogStream from '@commaai/log_reader';
+import { timeout } from 'thyming';
+import { partial } from 'ap';
 
-import { getLogPart } from "../api/rlog";
-import DbcUtils from "../utils/dbc";
-import DBC from "../models/can/dbc";
-import { addressForName } from "../models/can/logSignals";
+import { getLogPart } from '../api/rlog';
+import DbcUtils from '../utils/dbc';
+import DBC from '../models/can/dbc';
+import { addressForName } from '../models/can/logSignals';
 
 const DEBOUNCE_DELAY = 100;
 
@@ -16,7 +16,7 @@ self.onmessage = handleMessage;
 function handleMessage(msg) {
   const options = msg.data;
 
-  if (options.action === "terminate") {
+  if (options.action === 'terminate') {
     close();
     return;
   }
@@ -30,7 +30,9 @@ function CacheEntry(options) {
   options = options || {};
   this.options = options;
 
-  const { route, part, dbc, logUrls } = options;
+  const {
+    route, part, dbc, logUrls
+  } = options;
 
   this.messages = {};
   this.route = route;
@@ -56,7 +58,7 @@ function sendBatch(entry) {
     maxByteStateChangeCount = newMaxByteStateChangeCount;
   }
 
-  Object.keys(messages).forEach(key => {
+  Object.keys(messages).forEach((key) => {
     messages[key] = DbcUtils.setMessageByteColors(
       messages[key],
       maxByteStateChangeCount
@@ -70,7 +72,7 @@ function sendBatch(entry) {
   });
 
   if (entry.ended) {
-    console.log("Sending finished");
+    console.log('Sending finished');
     close();
   }
 }
@@ -82,9 +84,9 @@ async function loadData(entry) {
     url = entry.logUrls[entry.part];
   }
 
-  if (!url || url.indexOf(".7z") !== -1) {
+  if (!url || url.indexOf('.7z') !== -1) {
     return self.postMessage({
-      error: "Invalid or missing log files"
+      error: 'Invalid or missing log files'
     });
   }
   const res = await getLogPart(entry.logUrls[entry.part]);
@@ -92,8 +94,8 @@ async function loadData(entry) {
 
   entry.ended = false;
 
-  res.on("end", () => {
-    console.log("Stream ended");
+  res.on('end', () => {
+    console.log('Stream ended');
     setTimeout(() => {
       entry.ended = true;
       queueBatch(entry);
@@ -104,87 +106,87 @@ async function loadData(entry) {
   const startTime = Date.now();
   const i = 0;
 
-  logReader(msg => {
+  logReader((msg) => {
     if (entry.ended) {
-      console.log("You can get msgs after end", msg);
+      console.log('You can get msgs after end', msg);
     }
-    if ("InitData" in msg) {
+    if ('InitData' in msg) {
       const monoTime = msg.LogMonoTime / 1e9;
       if (entry.options.canStartTime == null) {
         entry.options.canStartTime = monoTime;
       }
-    } else if ("Can" in msg) {
+    } else if ('Can' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
-    } else if ("CarState" in msg) {
+    } else if ('CarState' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "CarState",
-        "Ego",
+        'CarState',
+        'Ego',
         entry,
         monoTime,
         partial(getEgoData, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "Controls",
+        'CarState',
+        'Controls',
         entry,
         monoTime,
         partial(getCarStateControls, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "Flags",
+        'CarState',
+        'Flags',
         entry,
         monoTime,
         partial(getFlags, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "WheelSpeeds",
+        'CarState',
+        'WheelSpeeds',
         entry,
         monoTime,
         partial(getWheelSpeeds, msg.CarState)
       );
-    } else if ("UbloxGnss" in msg) {
+    } else if ('UbloxGnss' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       if (msg.UbloxGnss.MeasurementReport) {
         insertEventData(
-          "UbloxGnss",
-          "MeasurementReport",
+          'UbloxGnss',
+          'MeasurementReport',
           entry,
           monoTime,
           partial(getUbloxGnss, msg.UbloxGnss.MeasurementReport)
         );
       }
-    } else if ("Health" in msg) {
+    } else if ('Health' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "Health",
-        "Data",
+        'Health',
+        'Data',
         entry,
         monoTime,
         partial(getHealth, msg.Health)
       );
-    } else if ("Thermal" in msg) {
+    } else if ('Thermal' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "Thermal",
-        "CPU",
+        'Thermal',
+        'CPU',
         entry,
         monoTime,
         partial(getThermalCPU, msg.Thermal)
       );
       insertEventData(
-        "Thermal",
-        "Data",
+        'Thermal',
+        'Data',
         entry,
         monoTime,
         partial(getThermalData, msg.Thermal)
       );
       insertEventData(
-        "Thermal",
-        "FreeSpace",
+        'Thermal',
+        'FreeSpace',
         entry,
         monoTime,
         partial(getThermalFreeSpace, msg.Thermal)

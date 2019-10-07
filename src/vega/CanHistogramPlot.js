@@ -1,43 +1,43 @@
-import { createClassFromSpec } from "react-vega";
+import { createClassFromSpec } from 'react-vega';
 
 const canHistogramSpec = {
-  $schema: "https://vega.github.io/schema/vega/v3.0.json",
+  $schema: 'https://vega.github.io/schema/vega/v3.0.json',
   width: 1000,
   height: 100,
   padding: 5,
 
   signals: [
     {
-      name: "segment"
+      name: 'segment'
     }
   ],
   data: [
     {
-      name: "binned"
+      name: 'binned'
     }
   ],
 
   scales: [
     {
-      name: "xscale",
-      type: "linear",
+      name: 'xscale',
+      type: 'linear',
       zero: false,
-      range: "width",
-      domain: { data: "binned", field: "startTime" }
+      range: 'width',
+      domain: { data: 'binned', field: 'startTime' }
     },
     {
-      name: "xrelscale",
-      type: "linear",
+      name: 'xrelscale',
+      type: 'linear',
       zero: false,
-      range: "width",
-      domain: { data: "binned", field: "relStartTime" }
+      range: 'width',
+      domain: { data: 'binned', field: 'relStartTime' }
     },
     {
-      name: "yscale",
-      type: "linear",
-      range: "height",
+      name: 'yscale',
+      type: 'linear',
+      range: 'height',
       round: true,
-      domain: { data: "binned", field: "count" },
+      domain: { data: 'binned', field: 'count' },
       zero: true,
       nice: true
     }
@@ -45,14 +45,14 @@ const canHistogramSpec = {
 
   axes: [
     {
-      orient: "bottom",
-      scale: "xrelscale",
+      orient: 'bottom',
+      scale: 'xrelscale',
       zindex: 1,
       tickCount: 10
     },
     {
-      orient: "left",
-      scale: "yscale",
+      orient: 'left',
+      scale: 'yscale',
       tickCount: 5,
       zindex: 1
     }
@@ -60,62 +60,62 @@ const canHistogramSpec = {
 
   marks: [
     {
-      type: "group",
-      name: "histogram",
+      type: 'group',
+      name: 'histogram',
       interactive: true,
       encode: {
         enter: {
           height: { value: 75 },
           width: { value: 1000 },
-          fill: { value: "transparent" }
+          fill: { value: 'transparent' }
         }
       },
       signals: [
         {
-          name: "brush",
+          name: 'brush',
           value: 0,
           on: [
             {
-              events: "@bins:mousedown",
-              update: "[x(), x()]"
+              events: '@bins:mousedown',
+              update: '[x(), x()]'
             },
             {
-              events: "[@bins:mousedown, window:mouseup] > window:mousemove!",
-              update: "[brush[0], clamp(x(), 0, width)]"
+              events: '[@bins:mousedown, window:mouseup] > window:mousemove!',
+              update: '[brush[0], clamp(x(), 0, width)]'
             },
             {
-              events: { signal: "delta" },
+              events: { signal: 'delta' },
               update:
-                "clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)"
+                'clampRange([anchor[0] + delta, anchor[1] + delta], 0, width)'
             }
           ]
         },
         {
-          name: "anchor",
+          name: 'anchor',
           value: null,
-          on: [{ events: "@brush:mousedown", update: "slice(brush)" }]
+          on: [{ events: '@brush:mousedown', update: 'slice(brush)' }]
         },
         {
-          name: "xdown",
+          name: 'xdown',
           value: 0,
-          on: [{ events: "@brush:mousedown", update: "x()" }]
+          on: [{ events: '@brush:mousedown', update: 'x()' }]
         },
         {
-          name: "delta",
+          name: 'delta',
           value: 0,
           on: [
             {
-              events: "[@brush:mousedown, window:mouseup] > window:mousemove!",
-              update: "x() - xdown"
+              events: '[@brush:mousedown, window:mouseup] > window:mousemove!',
+              update: 'x() - xdown'
             }
           ]
         },
         {
-          name: "segment",
-          push: "outer",
+          name: 'segment',
+          push: 'outer',
           on: [
             {
-              events: { signal: "brush" },
+              events: { signal: 'brush' },
               update: "span(brush) ? invert('xscale', brush) : null"
             }
           ]
@@ -123,72 +123,72 @@ const canHistogramSpec = {
       ],
       marks: [
         {
-          type: "rect",
+          type: 'rect',
           interactive: true,
-          from: { data: "binned" },
-          name: "bins",
+          from: { data: 'binned' },
+          name: 'bins',
           encode: {
             update: {
-              x: { scale: "xscale", field: "startTime" },
+              x: { scale: 'xscale', field: 'startTime' },
               x2: {
-                scale: "xscale",
-                field: "endTime",
+                scale: 'xscale',
+                field: 'endTime',
                 offset: 0
               },
-              y: { scale: "yscale", field: "count" },
-              y2: { scale: "yscale", value: 0 },
-              fill: { value: "steelblue" }
+              y: { scale: 'yscale', field: 'count' },
+              y2: { scale: 'yscale', value: 0 },
+              fill: { value: 'steelblue' }
             },
             hover: {
-              fill: { value: "goldenrod" },
-              cursor: { value: "ew-resize" }
+              fill: { value: 'goldenrod' },
+              cursor: { value: 'ew-resize' }
             }
           }
         },
         {
-          type: "rect",
+          type: 'rect',
           interactive: true,
-          name: "brush",
+          name: 'brush',
           encode: {
             enter: {
               y: { value: 0 },
               height: { value: 100 },
-              fill: { value: "#333" },
+              fill: { value: '#333' },
               fillOpacity: { value: 0.2 }
             },
             update: {
-              x: { signal: "brush[0]" },
-              x2: { signal: "brush[1]" }
+              x: { signal: 'brush[0]' },
+              x2: { signal: 'brush[1]' }
             }
           }
         },
         {
-          type: "rect",
+          type: 'rect',
           interactive: false,
           encode: {
             enter: {
               y: { value: 0 },
               height: { value: 100 },
               width: { value: 2 },
-              fill: { value: "firebrick" }
+              fill: { value: 'firebrick' }
             },
             update: {
-              x: { signal: "brush[0]" }
+              x: { signal: 'brush[0]' }
             }
           }
         },
         {
-          type: "rect",
+          type: 'rect',
           interactive: false,
           encode: {
             enter: {
               y: { value: 0 },
               height: { value: 100 },
               width: { value: 2 },
-              fill: { value: "firebrick" }
+              fill: { value: 'firebrick' }
             },
             update: {
-              x: { signal: "brush[1]" }
+              x: { signal: 'brush[1]' }
             }
           }
         }

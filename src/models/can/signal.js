@@ -1,4 +1,4 @@
-import DbcUtils from "../../utils/dbc";
+import DbcUtils from '../../utils/dbc';
 
 export default class Signal {
   constructor({
@@ -10,8 +10,8 @@ export default class Signal {
     isFloat = false,
     factor = 1,
     offset = 0,
-    unit = "",
-    receiver = ["XXX"],
+    unit = '',
+    receiver = ['XXX'],
     comment = null,
     multiplex = null,
     min = null,
@@ -54,16 +54,16 @@ export default class Signal {
   }
 
   text() {
-    const multiplex = this.multiplex ? ` ${this.multiplex}` : "";
+    const multiplex = this.multiplex ? ` ${this.multiplex}` : '';
     const byteOrder = this.isLittleEndian ? 1 : 0;
-    const signedChar = this.isSigned ? "-" : "+";
+    const signedChar = this.isSigned ? '-' : '+';
 
     return (
-      `SG_ ${this.name}${multiplex} : ` +
-      `${this.startBit}|${this.size}@${byteOrder}${signedChar}` +
-      ` (${this.factor},${this.offset})` +
-      ` [${this.min}|${this.max}]` +
-      ` "${this.unit}" ${this.receiver}`
+      `SG_ ${this.name}${multiplex} : `
+      + `${this.startBit}|${this.size}@${byteOrder}${signedChar}`
+      + ` (${this.factor},${this.offset})`
+      + ` [${this.min}|${this.max}]`
+      + ` "${this.unit}" ${this.receiver}`
     );
   }
 
@@ -71,7 +71,7 @@ export default class Signal {
     const entryPairs = Array.from(this.valueDescriptions.entries());
     const values = entryPairs.reduce(
       (str, [value, desc]) => `${str + value} "${desc}" `,
-      ""
+      ''
     );
     return `VAL_ ${msgId} ${this.name} ${values};`;
   }
@@ -166,19 +166,19 @@ export default class Signal {
 
   equals(otherSignal) {
     return (
-      otherSignal.name === this.name &&
-      otherSignal.startBit === this.startBit &&
-      otherSignal.size === this.size &&
-      otherSignal.isLittleEndian === this.isLittleEndian &&
-      otherSignal.isSigned === this.isSigned &&
-      otherSignal.isFloat === this.isFloat &&
-      otherSignal.factor === this.factor &&
-      otherSignal.offset === this.offset &&
-      otherSignal.unit === this.unit &&
-      otherSignal.receiver.length === this.receiver.length &&
-      otherSignal.receiver.every((v, i) => v === this.receiver[i]) &&
-      otherSignal.comment === this.comment &&
-      otherSignal.multiplex === this.multiplex
+      otherSignal.name === this.name
+      && otherSignal.startBit === this.startBit
+      && otherSignal.size === this.size
+      && otherSignal.isLittleEndian === this.isLittleEndian
+      && otherSignal.isSigned === this.isSigned
+      && otherSignal.isFloat === this.isFloat
+      && otherSignal.factor === this.factor
+      && otherSignal.offset === this.offset
+      && otherSignal.unit === this.unit
+      && otherSignal.receiver.length === this.receiver.length
+      && otherSignal.receiver.every((v, i) => v === this.receiver[i])
+      && otherSignal.comment === this.comment
+      && otherSignal.multiplex === this.multiplex
     );
   }
 }

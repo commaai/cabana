@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import cx from "classnames";
-import Measure from "react-measure";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
+import Measure from 'react-measure';
 
 export default class Modal extends Component {
   static propTypes = {
@@ -37,7 +37,7 @@ export default class Modal extends Component {
       const { variations } = this.props;
       const classes = variations.reduce(
         (classes, variation) => `${classes}cabana-modal--${variation} `,
-        ""
+        ''
       );
       return classes;
     }
@@ -54,14 +54,14 @@ export default class Modal extends Component {
   render() {
     return (
       <div
-        className={cx("cabana-modal", this.readVariationClasses(), {
-          "cabana-modal--not-closable": this.checkClosability(),
-          "cabana-modal--scrollable-y": this.checkYScrollability()
+        className={cx('cabana-modal', this.readVariationClasses(), {
+          'cabana-modal--not-closable': this.checkClosability(),
+          'cabana-modal--scrollable-y': this.checkYScrollability()
         })}
       >
         <Measure
           bounds
-          onResize={contentRect => {
+          onResize={(contentRect) => {
             this.updateHeights(contentRect);
           }}
         >

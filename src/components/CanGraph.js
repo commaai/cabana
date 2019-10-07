@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import Measure from "react-measure";
-import PropTypes from "prop-types";
-import cx from "classnames";
-import { Vega } from "react-vega";
+import React, { Component } from 'react';
+import Measure from 'react-measure';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
+import { Vega } from 'react-vega';
 
-import Signal from "../models/can/signal";
-import GraphData from "../models/graph-data";
-import CanPlotSpec from "../vega/CanPlot";
-import debounce from "../utils/debounce";
+import Signal from '../models/can/signal';
+import GraphData from '../models/graph-data';
+import CanPlotSpec from '../vega/CanPlot';
+import debounce from '../utils/debounce';
 
 const DefaultPlotInnerStyle = {
-  position: "absolute",
+  position: 'absolute',
   top: 0,
   left: 0
 };
@@ -64,7 +64,7 @@ export default class CanGraph extends Component {
     let firstRelTime = -1;
     let lastRelTime = -1;
     const series = props.plottedSignals
-      .map(signals => {
+      .map((signals) => {
         const { messageId, signalUid } = signals;
         const { entries } = props.messages[messageId];
         if (entries.length) {
@@ -109,15 +109,15 @@ export default class CanGraph extends Component {
 
   segmentIsNew(newSegment) {
     return (
-      newSegment.length !== this.props.segment.length ||
-      !newSegment.every((val, idx) => this.props.segment[idx] === val)
+      newSegment.length !== this.props.segment.length
+      || !newSegment.every((val, idx) => this.props.segment[idx] === val)
     );
   }
 
   visualChanged(prevProps, nextProps) {
     return (
-      prevProps.canReceiveGraphDrop !== nextProps.canReceiveGraphDrop ||
-      JSON.stringify(prevProps.dragPos) !== JSON.stringify(nextProps.dragPos)
+      prevProps.canReceiveGraphDrop !== nextProps.canReceiveGraphDrop
+      || JSON.stringify(prevProps.dragPos) !== JSON.stringify(nextProps.dragPos)
     );
   }
 
@@ -138,14 +138,14 @@ export default class CanGraph extends Component {
   }
 
   updateBounds = debounce(() => {
-    this.view.signal("width", this.state.bounds.width - 70);
-    this.view.signal("height", 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
+    this.view.signal('width', this.state.bounds.width - 70);
+    this.view.signal('height', 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
     this.view.run();
   }, 100);
 
   insertData = debounce(() => {
     if (!this.view) {
-      console.log("Cannot insertData");
+      console.log('Cannot insertData');
       return;
     }
 
@@ -154,30 +154,30 @@ export default class CanGraph extends Component {
     const { series } = this.state.data;
     const changeset = this.view
       .changeset()
-      .remove(v => true)
+      .remove((v) => true)
       .insert(series);
-    this.view.change("table", changeset);
+    this.view.change('table', changeset);
     this.view.run();
   }, 250);
 
   componentWillReceiveProps(nextProps) {
     if (
-      nextProps.dragPos &&
-      JSON.stringify(nextProps.dragPos) !== JSON.stringify(this.props.dragPos)
+      nextProps.dragPos
+      && JSON.stringify(nextProps.dragPos) !== JSON.stringify(this.props.dragPos)
     ) {
       this.updateStyleFromDragPos(nextProps.dragPos);
     } else if (!nextProps.dragPos && this.state.plotInnerStyle !== null) {
       this.setState({ plotInnerStyle: null });
     }
     if (
-      this.props.messages !== nextProps.messages ||
-      this.props.plottedSignal !== nextProps.plottedSignal
+      this.props.messages !== nextProps.messages
+      || this.props.plottedSignal !== nextProps.plottedSignal
     ) {
       const data = this.getGraphData(nextProps);
       if (
-        data.series.length === this.state.data.series.length &&
-        data.firstRelTime === this.state.data.firstRelTime &&
-        data.lastRelTime === this.state.data.lastRelTime
+        data.series.length === this.state.data.series.length
+        && data.firstRelTime === this.state.data.firstRelTime
+        && data.lastRelTime === this.state.data.lastRelTime
       ) {
         // do nothing, the data didn't *actually* change
       } else {
@@ -200,15 +200,15 @@ export default class CanGraph extends Component {
       this.insertData();
     }
     if (this.props.currentTime !== nextProps.currentTime) {
-      this.view.signal("videoTime", nextProps.currentTime);
+      this.view.signal('videoTime', nextProps.currentTime);
     }
     if (this.segmentIsNew(nextProps.segment)) {
       if (nextProps.segment.length > 0) {
         // Set segmented domain
-        this.view.signal("segment", nextProps.segment);
+        this.view.signal('segment', nextProps.segment);
       } else {
         // Reset segment to full domain
-        this.view.signal("segment", 0);
+        this.view.signal('segment', 0);
       }
     }
     this.view.runAsync();
@@ -219,12 +219,12 @@ export default class CanGraph extends Component {
     if (this.view) {
       if (this.props.segment.length > 0) {
         // Set segmented domain
-        this.view.signal("segment", this.props.segment);
+        this.view.signal('segment', this.props.segment);
       } else {
         // Reset segment to full domain
-        this.view.signal("segment", 0);
+        this.view.signal('segment', 0);
       }
-      this.view.signal("videoTime", this.props.currentTime);
+      this.view.signal('videoTime', this.props.currentTime);
       this.view.runAsync();
     }
   }
@@ -243,9 +243,9 @@ export default class CanGraph extends Component {
       this.onPlotResize();
     }
     if (this.props.segment.length > 0) {
-      view.signal("segment", this.props.segment);
+      view.signal('segment', this.props.segment);
     }
-    view.signal("videoTime", this.props.currentTime);
+    view.signal('videoTime', this.props.currentTime);
 
     this.insertData();
   }
@@ -321,7 +321,7 @@ export default class CanGraph extends Component {
   render() {
     const { plotInnerStyle } = this.state;
     const canReceiveDropClass = this.props.canReceiveGraphDrop
-      ? "is-droppable"
+      ? 'is-droppable'
       : null;
 
     return (
@@ -331,7 +331,7 @@ export default class CanGraph extends Component {
       >
         <div
           className={cx(
-            "cabana-explorer-visuals-plot-inner",
+            'cabana-explorer-visuals-plot-inner',
             canReceiveDropClass
           )}
           style={plotInnerStyle || null}
@@ -346,7 +346,7 @@ export default class CanGraph extends Component {
             ({ messageId, signalUid, messageName }) => {
               const signal = Object.values(
                 this.props.messages[messageId].frame.signals
-              ).find(s => s.uid === signalUid);
+              ).find((s) => s.uid === signalUid);
               const { colors } = signal;
 
               return (

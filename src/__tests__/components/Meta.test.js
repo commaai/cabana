@@ -1,10 +1,10 @@
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-import Meta from "../../components/Meta";
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import Meta from '../../components/Meta';
 
 global.__JEST__ = 1;
 
-test("Meta successfully mounts with minimal default props", () => {
+test('Meta successfully mounts with minimal default props', () => {
   const component = shallow(
     <Meta
       url={null}

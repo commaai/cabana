@@ -1,8 +1,8 @@
-import API from "@commaai/comma-api";
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-import { StyleSheetTestUtils } from "aphrodite";
-import RouteVideoSync from "../../components/RouteVideoSync";
+import API from '@commaai/comma-api';
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import { StyleSheetTestUtils } from 'aphrodite';
+import RouteVideoSync from '../../components/RouteVideoSync';
 
 global.__JEST__ = 1;
 
@@ -15,7 +15,7 @@ afterEach(() => {
   StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
 });
 
-test("RouteVideoSync successfully mounts with minimal default props", () => {
+test('RouteVideoSync successfully mounts with minimal default props', () => {
   const component = shallow(
     <RouteVideoSync
       message={null}

@@ -1,8 +1,8 @@
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-import HLS from "../../components/HLS";
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import HLS from '../../components/HLS';
 
-test("HLS successfully mounts with minimal default props", () => {
+test('HLS successfully mounts with minimal default props', () => {
   const component = shallow(
     <HLS
       source="http://comma.ai"

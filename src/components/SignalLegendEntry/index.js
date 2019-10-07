@@ -1,13 +1,13 @@
 // SignalLegendEntry.js
 
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import cx from "classnames";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
 
-import Signal from "../../models/can/signal";
-import SignalForm from "./SignalForm";
-import ColorBar from "./ColorBar";
-import FIELDS from "./FIELDS";
+import Signal from '../../models/can/signal';
+import SignalForm from './SignalForm';
+import ColorBar from './ColorBar';
+import FIELDS from './FIELDS';
 
 export default class SignalLegendEntry extends Component {
   static propTypes = {
@@ -25,7 +25,7 @@ export default class SignalLegendEntry extends Component {
     isExpanded: PropTypes.bool
   };
 
-  static fieldSpecForName = name => FIELDS.find(field => field.field === name);
+  static fieldSpecForName = (name) => FIELDS.find((field) => field.field === name);
 
   constructor(props) {
     super(props);
@@ -64,7 +64,7 @@ export default class SignalLegendEntry extends Component {
     this.props.onSignalChange(signalCopy, signal);
   };
 
-  toggleEditing = e => {
+  toggleEditing = (e) => {
     if (this.props.isLogEvent) {
       return;
     }
@@ -79,9 +79,9 @@ export default class SignalLegendEntry extends Component {
         const fieldSpec = SignalLegendEntry.fieldSpecForName(field);
 
         if (
-          fieldSpec &&
-          fieldSpec.type === "number" &&
-          isNaN(parseInt(value, 10))
+          fieldSpec
+          && fieldSpec.type === 'number'
+          && isNaN(parseInt(value, 10))
         ) {
           value = 0;
         }
@@ -101,21 +101,23 @@ export default class SignalLegendEntry extends Component {
     e.stopPropagation();
   };
 
-  toggleSignalPlot = e => {
+  toggleSignalPlot = (e) => {
     const { signal, isPlotted } = this.props;
     e.preventDefault();
     this.props.onSignalPlotChange(!isPlotted, signal.uid);
   };
 
-  getSignalEdited = field => this.state.signalEdited[field];
+  getSignalEdited = (field) => this.state.signalEdited[field];
 
   render() {
-    const { signal, isHighlighted, color, isPlotted, isExpanded } = this.props;
-    const expandedEntryClass = isExpanded ? "is-expanded" : null;
-    const plottedButtonClass = isPlotted ? "button" : "button--alpha";
+    const {
+      signal, isHighlighted, color, isPlotted, isExpanded
+    } = this.props;
+    const expandedEntryClass = isExpanded ? 'is-expanded' : null;
+    const plottedButtonClass = isPlotted ? 'button' : 'button--alpha';
     return (
       <div
-        className={cx("signals-legend-entry", expandedEntryClass)}
+        className={cx('signals-legend-entry', expandedEntryClass)}
         onMouseEnter={() => this.props.onSignalHover(signal)}
         onMouseLeave={() => this.props.onSignalHoverEnd(signal)}
       >
@@ -131,8 +133,8 @@ export default class SignalLegendEntry extends Component {
             className="signals-legend-entry-header-action"
             onClick={this.toggleSignalPlot}
           >
-            <button className={cx("button--tiny", plottedButtonClass)}>
-              {isPlotted ? "Hide Plot" : "Show Plot"}
+            <button className={cx('button--tiny', plottedButtonClass)}>
+              {isPlotted ? 'Hide Plot' : 'Show Plot'}
             </button>
           </div>
         </div>

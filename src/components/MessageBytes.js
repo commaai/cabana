@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export default class MessageBytes extends Component {
   static propTypes = {
@@ -23,8 +23,7 @@ export default class MessageBytes extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.live) {
-      const nextLastEntry =
-        nextProps.message.entries[nextProps.message.entries.length - 1];
+      const nextLastEntry = nextProps.message.entries[nextProps.message.entries.length - 1];
       const curLastEntry = this.props.message.entries[
         this.props.message.entries.length - 1
       ];
@@ -36,8 +35,8 @@ export default class MessageBytes extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      this.props.seekIndex !== nextProps.seekIndex ||
-      frameForTime(this.props.seekTime) !== frameForTime(nextProps.seekTime)
+      this.props.seekIndex !== nextProps.seekIndex
+      || frameForTime(this.props.seekTime) !== frameForTime(nextProps.seekTime)
     ) {
       this.updateCanvas(nextProps);
     }
@@ -65,7 +64,7 @@ export default class MessageBytes extends Component {
       // TODO this can be faster with binary search, not currently a bottleneck though.
 
       mostRecentMessageIndex = message.entries.findIndex(
-        e => e.relTime >= seekTime
+        (e) => e.relTime >= seekTime
       );
     }
 
@@ -91,7 +90,7 @@ export default class MessageBytes extends Component {
       }
     }
 
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext('2d');
     // ctx.clearRect(0, 0, 180, 15);
 
     for (let i = 0; i < message.byteStateChangeCounts.length; ++i) {
@@ -100,12 +99,12 @@ export default class MessageBytes extends Component {
 
       ctx.fillRect(i * 20, 0, 20, 15);
 
-      ctx.font = "12px Courier";
-      ctx.fillStyle = "white";
+      ctx.font = '12px Courier';
+      ctx.fillStyle = 'white';
       if (hexData) {
         ctx.fillText(hexData, i * 20 + 2, 12);
       } else {
-        ctx.fillText("-", i * 20 + 7, 12);
+        ctx.fillText('-', i * 20 + 7, 12);
       }
     }
   }
@@ -122,7 +121,7 @@ export default class MessageBytes extends Component {
     this.canvas = ref;
     this.canvas.width = 160 * window.devicePixelRatio;
     this.canvas.height = 15 * window.devicePixelRatio;
-    const ctx = this.canvas.getContext("2d");
+    const ctx = this.canvas.getContext('2d');
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   }
 

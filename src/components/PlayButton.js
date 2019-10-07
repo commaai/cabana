@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export default class PlayButton extends Component {
   static propTypes = {
@@ -45,7 +45,7 @@ export default class PlayButton extends Component {
     return (
       <img
         src={this.imageSource()}
-        alt={this.props.isPlaying ? "Pause" : "Play"}
+        alt={this.props.isPlaying ? 'Pause' : 'Play'}
         className={this.props.className}
         onClick={this.onClick}
         onMouseOver={() => this.setState({ hover: true })}

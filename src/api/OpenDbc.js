@@ -1,12 +1,12 @@
-import GitHub from "github-api";
+import GitHub from 'github-api';
 
-import { OPENDBC_SOURCE_REPO } from "../config";
+import { OPENDBC_SOURCE_REPO } from '../config';
 
 export default class OpenDBC {
   constructor(token) {
     this.token = token;
     this.github = new GitHub({ token });
-    this.sourceRepo = this.github.getRepo("commaai", "opendbc");
+    this.sourceRepo = this.github.getRepo('commaai', 'opendbc');
     this.githubUsername = null;
   }
 
@@ -49,13 +49,13 @@ export default class OpenDBC {
     if (repoFullName === undefined) {
       repo = this.sourceRepo;
     } else {
-      const [username, repoName] = repoFullName.split("/");
+      const [username, repoName] = repoFullName.split('/');
       repo = this.github.getRepo(username, repoName);
     }
     try {
-      const response = await repo.getContents("master", "");
+      const response = await repo.getContents('master', '');
 
-      return response.data.map(content => content.path);
+      return response.data.map((content) => content.path);
     } catch (e) {
       return [];
     }
@@ -66,15 +66,15 @@ export default class OpenDBC {
     if (repoFullName === undefined) {
       repo = this.sourceRepo;
     } else {
-      const [username, repoName] = repoFullName.split("/");
+      const [username, repoName] = repoFullName.split('/');
       repo = this.github.getRepo(username, repoName);
     }
 
-    const fileContents = await repo.getContents("master", dbcPath);
+    const fileContents = await repo.getContents('master', dbcPath);
 
     const rawContentsUrl = fileContents.data.download_url;
 
-    const resp = await fetch(rawContentsUrl, { cache: "no-cache" });
+    const resp = await fetch(rawContentsUrl, { cache: 'no-cache' });
 
     return resp.text();
   }
@@ -89,7 +89,7 @@ export default class OpenDBC {
     const githubUsername = await this.getGithubUsername();
     if (!githubUsername) return null;
 
-    const openDbcFork = this.github.getRepo(githubUsername, "opendbc");
+    const openDbcFork = this.github.getRepo(githubUsername, 'opendbc');
     const repoDetailResp = await openDbcFork.getDetails();
     const repoDetails = repoDetailResp.data;
 
@@ -112,11 +112,11 @@ export default class OpenDBC {
       repo is of format username/reponame
       authenciated user must have write access to repo
       */
-    const [user, repoName] = repoFullName.split("/");
+    const [user, repoName] = repoFullName.split('/');
     const repo = this.github.getRepo(user, repoName);
 
     // get HEAD reference
-    const refResp = await repo.getRef("heads/master");
+    const refResp = await repo.getRef('heads/master');
     const ref = refResp.data;
 
     // get HEAD commit sha
@@ -130,9 +130,9 @@ export default class OpenDBC {
     // create new tree
     const tree = [
       {
-        mode: "100644",
+        mode: '100644',
         path,
-        type: "blob",
+        type: 'blob',
         content: contents
       }
     ];
@@ -144,13 +144,13 @@ export default class OpenDBC {
     const commitResp = await repo.commit(
       headCommit.sha,
       createdTree.sha,
-      commitMessage || "OpenDBC updates"
+      commitMessage || 'OpenDBC updates'
     );
     const commit = commitResp.data;
 
     // update HEAD
     const updateHeadResp = await repo.updateHead(
-      "heads/master",
+      'heads/master',
       commit.sha,
       false
     );

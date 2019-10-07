@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import Hls from "hls.js";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Hls from 'hls.js';
 
 export default class HLS extends Component {
   static propTypes = {
@@ -26,8 +26,8 @@ export default class HLS extends Component {
     }
     if (nextProps.playing) {
       if (
-        this.videoElement &&
-        (this.videoElement.paused || this.videoElement.currentTime < 0.01)
+        this.videoElement
+        && (this.videoElement.paused || this.videoElement.currentTime < 0.01)
       ) {
         this.videoElement.play();
       }
@@ -85,7 +85,7 @@ export default class HLS extends Component {
         onClick={this.props.onClick}
       >
         <video
-          ref={video => {
+          ref={(video) => {
             this.videoElement = video;
           }}
           autoPlay={this.props.playing}

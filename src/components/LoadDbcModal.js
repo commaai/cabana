@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import cx from "classnames";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import cx from 'classnames';
 
-import DBC from "../models/can/dbc";
-import OpenDbc from "../api/OpenDbc";
-import Modal from "./Modals/baseModal";
-import GithubDbcList from "./GithubDbcList";
-import DbcUpload from "./DbcUpload";
+import DBC from '../models/can/dbc';
+import OpenDbc from '../api/OpenDbc';
+import Modal from './Modals/baseModal';
+import GithubDbcList from './GithubDbcList';
+import DbcUpload from './DbcUpload';
 
 export default class LoadDbcModal extends Component {
   static propTypes = {
@@ -19,8 +19,8 @@ export default class LoadDbcModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tab: "OpenDBC",
-      tabs: ["OpenDBC", "GitHub", "Upload"],
+      tab: 'OpenDBC',
+      tabs: ['OpenDBC', 'GitHub', 'Upload'],
       dbc: null,
       dbcSource: null,
       userOpenDbcRepo: null
@@ -34,7 +34,7 @@ export default class LoadDbcModal extends Component {
   }
 
   componentWillMount() {
-    this.props.openDbcClient.getUserOpenDbcFork().then(userOpenDbcRepo => {
+    this.props.openDbcClient.getUserOpenDbcFork().then((userOpenDbcRepo) => {
       this.setState({ userOpenDbcRepo });
     });
   }
@@ -54,9 +54,9 @@ export default class LoadDbcModal extends Component {
   renderTabNavigation() {
     return (
       <div className="cabana-tabs-navigation">
-        {this.state.tabs.map(tab => (
+        {this.state.tabs.map((tab) => (
           <a
-            className={cx({ "is-active": this.state.tab === tab })}
+            className={cx({ 'is-active': this.state.tab === tab })}
             onClick={() => {
               this.setState({ tab });
             }}
@@ -71,7 +71,7 @@ export default class LoadDbcModal extends Component {
 
   renderTabContent() {
     const { tab } = this.state;
-    if (tab === "OpenDBC") {
+    if (tab === 'OpenDBC') {
       return (
         <GithubDbcList
           onDbcLoaded={this.onDbcLoaded}
@@ -80,7 +80,7 @@ export default class LoadDbcModal extends Component {
         />
       );
     }
-    if (tab === "GitHub") {
+    if (tab === 'GitHub') {
       if (!this.props.openDbcClient.hasAuth()) {
         return this.props.loginWithGithub;
       }
@@ -95,7 +95,7 @@ export default class LoadDbcModal extends Component {
         />
       );
     }
-    if (tab === "Upload") {
+    if (tab === 'Upload') {
       return <DbcUpload onDbcLoaded={this.onDbcLoaded} />;
     }
   }

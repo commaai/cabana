@@ -1,4 +1,4 @@
-import DBC from "../models/can/dbc";
+import DBC from '../models/can/dbc';
 
 export function fetchPersistedDbc(routeName) {
   const maybeDbc = window.localStorage.getItem(routeName);
@@ -19,7 +19,7 @@ export function persistDbc(routeName, { dbcFilename, dbc }) {
   window.localStorage.setItem(routeName, dbcJson);
 }
 
-const GITHUB_AUTH_TOKEN_LOCALSTORAGE_KEY = "gh_auth_token";
+const GITHUB_AUTH_TOKEN_LOCALSTORAGE_KEY = 'gh_auth_token';
 export function fetchPersistedGithubAuthToken() {
   return window.localStorage.getItem(GITHUB_AUTH_TOKEN_LOCALSTORAGE_KEY);
 }

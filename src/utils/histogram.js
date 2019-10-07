@@ -1,19 +1,19 @@
 const binTimeIntervals = [
   {
     seconds: 1,
-    title: "second"
+    title: 'second'
   },
   {
     seconds: 60,
-    title: "minute"
+    title: 'minute'
   },
   {
     seconds: 300,
-    title: "5 minutes"
+    title: '5 minutes'
   },
   {
     seconds: 3600,
-    title: "hour"
+    title: 'hour'
   }
 ];
 

@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import FIELDS from "./FIELDS";
-import NumberField from "./NumberField";
-import StringField from "./StringField";
-import OptionField from "./OptionField";
+import FIELDS from './FIELDS';
+import NumberField from './NumberField';
+import StringField from './StringField';
+import OptionField from './OptionField';
 
 const FieldMap = {
   number: NumberField,
@@ -19,7 +19,7 @@ export default ({
   update
 }) => (
   <div className="signals-legend-entry-form">
-    {FIELDS.map(field => {
+    {FIELDS.map((field) => {
       const Node = FieldMap[field.type];
       return (
         <div className="signals-legend-entry-form-field" key={field.field}>

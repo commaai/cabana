@@ -1,4 +1,4 @@
-const { Uint64BE } = require("int64-buffer");
+const { Uint64BE } = require('int64-buffer');
 
 export function formatForMsg(msg) {
   return { bstart: 0, bend: 15 };
@@ -23,7 +23,7 @@ export function int64BufferToPrettyHexStr(buffer) {
   if (hex.length === 1) hex = `0${hex}`;
   const hexParts = hex.match(/.{1,2}/g);
 
-  return hexParts.join(" ");
+  return hexParts.join(' ');
 }
 
 export function formatMsgHex(msg) {
@@ -32,5 +32,5 @@ export function formatMsgHex(msg) {
   if (hex.length === 1) hex = `0${hex}`;
   const hexParts = hex.match(/.{1,2}/g);
 
-  return [msg[0], hexParts.join(" ")];
+  return [msg[0], hexParts.join(' ')];
 }

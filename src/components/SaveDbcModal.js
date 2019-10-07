@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import cx from "classnames";
-import PropTypes from "prop-types";
-import FileSaver from "file-saver";
+import React, { Component } from 'react';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+import FileSaver from 'file-saver';
 
-import OpenDbc from "../api/OpenDbc";
-import DBC from "../models/can/dbc";
-import Modal from "./Modals/baseModal";
+import OpenDbc from '../api/OpenDbc';
+import DBC from '../models/can/dbc';
+import Modal from './Modals/baseModal';
 // import TabStyles from '../styles/modal-tabs';
 
 export default class SaveDbcModal extends Component {
@@ -22,11 +22,11 @@ export default class SaveDbcModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tab: "GitHub",
+      tab: 'GitHub',
       openDbcFork: null,
       dbcFilename: this.props.sourceDbcFilename,
-      tabs: ["GitHub", "Download"],
-      commitMessage: "OpenDBC updates"
+      tabs: ['GitHub', 'Download'],
+      commitMessage: 'OpenDBC updates'
     };
 
     this.commitToGitHub = this.commitToGitHub.bind(this);
@@ -44,7 +44,7 @@ export default class SaveDbcModal extends Component {
 
   async commitToGitHub() {
     const { openDbcFork, dbcFilename } = this.state;
-    const filename = `${dbcFilename.replace(/\.dbc/g, "")}.dbc`;
+    const filename = `${dbcFilename.replace(/\.dbc/g, '')}.dbc`;
     const success = await this.props.openDbcClient.commitFile(
       openDbcFork,
       filename,
@@ -58,9 +58,9 @@ export default class SaveDbcModal extends Component {
 
   async downloadDbcFile() {
     const blob = new Blob([this.props.dbc.text()], {
-      type: "text/plain;charset=utf-8"
+      type: 'text/plain;charset=utf-8'
     });
-    const filename = `${this.state.dbcFilename.replace(/\.dbc/g, "")}.dbc`;
+    const filename = `${this.state.dbcFilename.replace(/\.dbc/g, '')}.dbc`;
     FileSaver.saveAs(blob, filename, true);
   }
 
@@ -74,7 +74,7 @@ export default class SaveDbcModal extends Component {
 
       const interval = window.setInterval(() => {
         if (!isTimedOut) {
-          this.props.openDbcClient.getUserOpenDbcFork().then(openDbcFork => {
+          this.props.openDbcClient.getUserOpenDbcFork().then((openDbcFork) => {
             if (openDbcFork !== null) {
               this.setState({ openDbcFork });
               window.clearInterval(interval);
@@ -92,12 +92,12 @@ export default class SaveDbcModal extends Component {
 
   primaryActionDisabled() {
     const { tab } = this.state;
-    if (tab === "GitHub") {
+    if (tab === 'GitHub') {
       return (
         this.state.openDbcFork != null && this.state.dbcFilename.length > 0
       );
     }
-    if (tab === "Download") {
+    if (tab === 'Download') {
       return true;
     }
   }
@@ -119,7 +119,7 @@ export default class SaveDbcModal extends Component {
         <button disabled>
           <i className="fa fa-code-fork" />
           <span>
-            {" "}
+            {' '}
             Forked:
             {openDbcFork}
           </span>
@@ -149,9 +149,9 @@ export default class SaveDbcModal extends Component {
         <input
           type="text"
           id="filename"
-          value={this.state.dbcFilename.replace(/\.dbc/g, "")}
+          value={this.state.dbcFilename.replace(/\.dbc/g, '')}
           size={this.state.dbcFilename.length + 2}
-          onChange={e => this.setState({ dbcFilename: e.target.value })}
+          onChange={(e) => this.setState({ dbcFilename: e.target.value })}
         />
       </div>
     );
@@ -160,9 +160,9 @@ export default class SaveDbcModal extends Component {
   renderTabNavigation() {
     return (
       <div className="cabana-tabs-navigation">
-        {this.state.tabs.map(tab => (
+        {this.state.tabs.map((tab) => (
           <a
-            className={cx({ "is-active": this.state.tab === tab })}
+            className={cx({ 'is-active': this.state.tab === tab })}
             onClick={() => {
               this.setState({ tab });
             }}
@@ -186,7 +186,7 @@ export default class SaveDbcModal extends Component {
           type="text"
           id="commit-message"
           value={this.state.commitMessage}
-          onChange={e => this.setState({ commitMessage: e.target.value })}
+          onChange={(e) => this.setState({ commitMessage: e.target.value })}
         />
       </div>
     );
@@ -194,7 +194,7 @@ export default class SaveDbcModal extends Component {
 
   renderTabContent() {
     const { tab } = this.state;
-    if (tab === "GitHub") {
+    if (tab === 'GitHub') {
       return (
         <div>
           {this.renderForkStep()}
@@ -203,14 +203,14 @@ export default class SaveDbcModal extends Component {
         </div>
       );
     }
-    if (tab === "Download") {
+    if (tab === 'Download') {
       return <div>{this.renderFilenameField()}</div>;
     }
   }
 
   renderActions() {
     const { tab } = this.state;
-    if (tab === "GitHub") {
+    if (tab === 'GitHub') {
       return (
         <div>
           <button className="button--inverted" onClick={this.props.handleClose}>
@@ -222,7 +222,7 @@ export default class SaveDbcModal extends Component {
         </div>
       );
     }
-    if (tab === "Download") {
+    if (tab === 'Download') {
       return (
         <div>
           <button className="button--inverted" onClick={this.props.handleClose}>

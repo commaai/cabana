@@ -16,8 +16,8 @@ const NumpyLoader = (function NumpyLoader() {
   function fromArrayBuffer(buf) {
     // Check the magic number
     const magic = asciiDecode(buf.slice(0, 6));
-    if (magic !== "\x93NUMPY") {
-      throw new Error("Bad magic number");
+    if (magic !== '\x93NUMPY') {
+      throw new Error('Bad magic number');
     }
 
     const version = new Uint8Array(buf.slice(6, 8));
@@ -30,43 +30,43 @@ const NumpyLoader = (function NumpyLoader() {
     const info = JSON.parse(
       headerStr
         .toLowerCase()
-        .replace("(", "[")
-        .replace("),", "]")
+        .replace('(', '[')
+        .replace('),', ']')
         .replace(/'/g, '"')
-        .replace(",]", "]")
+        .replace(',]', ']')
     );
 
     // Intepret the bytes according to the specified dtype
     let data;
-    if (info.descr === "|u1") {
+    if (info.descr === '|u1') {
       data = new Uint8Array(buf, offsetBytes);
-    } else if (info.descr === "|i1") {
+    } else if (info.descr === '|i1') {
       data = new Int8Array(buf, offsetBytes);
-    } else if (info.descr === "<u2") {
+    } else if (info.descr === '<u2') {
       data = new Uint16Array(buf, offsetBytes);
-    } else if (info.descr === "<i2") {
+    } else if (info.descr === '<i2') {
       data = new Int16Array(buf, offsetBytes);
-    } else if (info.descr === "<u4") {
+    } else if (info.descr === '<u4') {
       data = new Uint32Array(buf, offsetBytes);
-    } else if (info.descr === "<i4") {
+    } else if (info.descr === '<i4') {
       data = new Int32Array(buf, offsetBytes);
-    } else if (info.descr === "<f4") {
+    } else if (info.descr === '<f4') {
       data = new Float32Array(buf, offsetBytes);
-    } else if (info.descr === "<f8") {
+    } else if (info.descr === '<f8') {
       data = new Float64Array(buf, offsetBytes);
-    } else if (info.descr === "<u8") {
+    } else if (info.descr === '<u8') {
       // 8 byte uint64s
       data = new Uint8Array(buf, offsetBytes);
-    } else if (info.descr === "<i8") {
+    } else if (info.descr === '<i8') {
       // 8 byte int64s
       data = new Uint8Array(buf, offsetBytes);
-    } else if (info.descr === "|s5") {
+    } else if (info.descr === '|s5') {
       // 5 byte string
       data = new Uint8Array(buf, offsetBytes);
-    } else if (info.descr === "|s8") {
+    } else if (info.descr === '|s8') {
       // 8 byte strings
       data = new Uint8Array(buf, offsetBytes);
-    } else if (info.descr === "|s15") {
+    } else if (info.descr === '|s15') {
       // 15 byte strings?
       data = new Uint8Array(buf, offsetBytes);
     } else {
@@ -82,7 +82,7 @@ const NumpyLoader = (function NumpyLoader() {
 
   function open(file, callback) {
     const reader = new FileReader();
-    reader.onload = function() {
+    reader.onload = function () {
       // the file contents have been read as an array buffer
       const buf = reader.result;
       const ndarray = fromArrayBuffer(buf);
@@ -95,7 +95,7 @@ const NumpyLoader = (function NumpyLoader() {
     return new Promise((resolve, reject) => {
       // Do the usual XHR stuff
       const req = new XMLHttpRequest();
-      req.onload = function() {
+      req.onload = function () {
         // This is called even on 404 etc
         // so check the status
         if (req.status == 200) {
@@ -103,7 +103,7 @@ const NumpyLoader = (function NumpyLoader() {
           const ndarray = fromArrayBuffer(buf);
           resolve(ndarray);
         } else if (req.status == 404) {
-          console.log("yup");
+          console.log('yup');
           reject({ is404: true });
         } else {
           // Otherwise reject with the status text
@@ -113,13 +113,13 @@ const NumpyLoader = (function NumpyLoader() {
       };
 
       // Handle network errors
-      req.onerror = function() {
-        reject(Error("Network Error"));
+      req.onerror = function () {
+        reject(Error('Network Error'));
       };
 
       // Make the request
-      req.open("GET", url, true);
-      req.responseType = "arraybuffer";
+      req.open('GET', url, true);
+      req.responseType = 'arraybuffer';
       req.send(null);
     });
   }
@@ -129,6 +129,6 @@ const NumpyLoader = (function NumpyLoader() {
     promise,
     fromArrayBuffer
   };
-})();
+}());
 
 module.exports = NumpyLoader;

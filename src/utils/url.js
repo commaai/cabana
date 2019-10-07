@@ -1,23 +1,23 @@
 /* eslint-disable no-restricted-globals */
 export function objToQuery(obj) {
   return Object.keys(obj)
-    .map(k => `${k}=${encodeURIComponent(decodeURIComponent(obj[k]))}`)
-    .join("&");
+    .map((k) => `${k}=${encodeURIComponent(decodeURIComponent(obj[k]))}`)
+    .join('&');
 }
 
 export function getUrlParameter(name) {
   const { location } = window;
-  name = name.replace(/[[]/, "\\[").replace(/[\]]/, "\\]");
+  name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
   const regex = new RegExp(`[\\?&]${name}=([^&#]*)`);
   const results = regex.exec(location.search);
 
   return results === null
     ? null
-    : decodeURIComponent(results[1].replace(/\+/g, " "));
+    : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
 export function modifyQueryParameters({ add, remove = [] }) {
-  const regex = new RegExp("[\\?&]([^&#]+)=([^&#]*)");
+  const regex = new RegExp('[\\?&]([^&#]+)=([^&#]*)');
   const results = regex.exec(location.search);
 
   let params = {};

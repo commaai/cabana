@@ -38,15 +38,15 @@ export default class Frame {
 
   header() {
     return (
-      `BO_ ${this.id} ${this.name}: ${this.size} ` +
-      `${this.transmitters[0] || "XXX"}`
+      `BO_ ${this.id} ${this.name}: ${this.size} `
+      + `${this.transmitters[0] || 'XXX'}`
     );
   }
 
   text() {
     const signals = Object.values(this.signals)
-      .map(signal => ` ${signal.text()}`) // indent
-      .join("\n");
+      .map((signal) => ` ${signal.text()}`) // indent
+      .join('\n');
 
     if (signals.length > 0) {
       return `${this.header()}\n${signals}`;

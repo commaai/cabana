@@ -1,5 +1,5 @@
-import DBC, { swapOrder } from "../../models/can/dbc";
-import Signal from "../../models/can/signal";
+import DBC, { swapOrder } from '../../models/can/dbc';
+import Signal from '../../models/can/signal';
 
 global.__JEST__ = 1;
 
@@ -146,7 +146,7 @@ BO_ 464 WHEEL_SPEEDS: 8 VSA
 `;
 
 const steerTorqueSignal = new Signal({
-  name: "STEER_TORQUE",
+  name: 'STEER_TORQUE',
   startBit: 7,
   size: 16,
   isLittleEndian: false,
@@ -155,18 +155,18 @@ const steerTorqueSignal = new Signal({
   offset: 0,
   min: -3840,
   max: 3840,
-  receiver: ["EPS"],
-  unit: ""
+  receiver: ['EPS'],
+  unit: ''
 });
 
 function dbcInt32SignalValue(dbc, signalSpec, hex) {
   // expects hex string to represent 8 bytes, left-justified with zeroes if frame size is smaller
-  const buffer = Buffer.from(hex, "hex");
+  const buffer = Buffer.from(hex, 'hex');
 
   return dbc.valueForInt32Signal(signalSpec, buffer);
 }
 
-test("DBC parses steering control message", () => {
+test('DBC parses steering control message', () => {
   const dbcParsed = new DBC(DBC_MESSAGE_DEF);
   const { signals } = dbcParsed.getMessageFrame(228);
 
@@ -174,100 +174,100 @@ test("DBC parses steering control message", () => {
   expect(signals.STEER_TORQUE.equals(steerTorqueSignal)).toBe(true);
 });
 
-test("DBC parses signal comment", () => {
+test('DBC parses signal comment', () => {
   const dbcParsed = new DBC(DBC_SIGNAL_WITH_COMMENT);
   const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(signals.STEER_TORQUE.comment).toEqual(
-    "steer torque is the amount of torque in Nm applied"
+    'steer torque is the amount of torque in Nm applied'
   );
 });
 
-test("DBC parses multi-line signal comment", () => {
+test('DBC parses multi-line signal comment', () => {
   const dbcParsed = new DBC(DBC_SIGNAL_WITH_MULTI_LINE_COMMENT);
   const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(signals.STEER_TORQUE.comment).toEqual(
-    "steer torque is the\namount of torque in Nm applied"
+    'steer torque is the\namount of torque in Nm applied'
   );
 });
 
-test("DBC parses message comment", () => {
+test('DBC parses message comment', () => {
   const dbcParsed = new DBC(DBC_MESSAGE_WITH_COMMENT);
   const msg = dbcParsed.getMessageFrame(228);
 
-  expect(msg.comment).toEqual("this message contains steer torque information");
+  expect(msg.comment).toEqual('this message contains steer torque information');
 });
 
-test("DBC parses multi-line message comment", () => {
+test('DBC parses multi-line message comment', () => {
   const dbcParsed = new DBC(DBC_MESSAGE_WITH_MULTI_LINE_COMMENT);
   const msg = dbcParsed.getMessageFrame(228);
 
   expect(msg.comment).toEqual(
-    "this message contains\nsteer torque information"
+    'this message contains\nsteer torque information'
   );
 });
 
-test("DBC parses board unit names", () => {
+test('DBC parses board unit names', () => {
   const dbcParsed = new DBC(DBC_BOARD_UNITS);
-  expect(dbcParsed.boardUnits[0].name).toEqual("first_board_unit");
-  expect(dbcParsed.boardUnits[1].name).toEqual("second_board_unit");
+  expect(dbcParsed.boardUnits[0].name).toEqual('first_board_unit');
+  expect(dbcParsed.boardUnits[1].name).toEqual('second_board_unit');
 });
 
-test("DBC parses board unit comments", () => {
+test('DBC parses board unit comments', () => {
   const dbcParsed = new DBC(DBC_BOARD_UNITS_WITH_COMMENT);
-  expect(dbcParsed.boardUnits[0].comment).toEqual("first board unit comment");
+  expect(dbcParsed.boardUnits[0].comment).toEqual('first board unit comment');
 });
 
-test("DBC parses multi-line board unit comments", () => {
+test('DBC parses multi-line board unit comments', () => {
   const dbcParsed = new DBC(DBC_BOARD_UNITS_WITH_COMMENT_LINES);
-  expect(dbcParsed.boardUnits[0].comment).toEqual("first board unit\ncomment");
+  expect(dbcParsed.boardUnits[0].comment).toEqual('first board unit\ncomment');
 });
 
-test("DBC parses signal value descriptions", () => {
+test('DBC parses signal value descriptions', () => {
   const dbcParsed = new DBC(DBC_SIGNALS_WITH_VAL);
   const { signals } = dbcParsed.getMessageFrame(228);
 
   const expectedTorqueRequestVals = new Map([
-    ["1", "requesting torque"],
-    ["0", "not requesting torque"]
+    ['1', 'requesting torque'],
+    ['0', 'not requesting torque']
   ]);
   expect(signals.STEER_TORQUE_REQUEST.valueDescriptions).toEqual(
     expectedTorqueRequestVals
   );
 });
 
-test("DBC parses value tables", () => {
+test('DBC parses value tables', () => {
   const dbcParsed = new DBC(DBC_VALUE_TABLE);
   const stateTableEntries = [
-    ["4", "DI_STATE_ENABLE"],
-    ["3", "DI_STATE_FAULT"],
-    ["2", "DI_STATE_CLEAR_FAULT"],
-    ["1", "DI_STATE_STANDBY"],
-    ["0", "DI_STATE_PREAUTH"]
+    ['4', 'DI_STATE_ENABLE'],
+    ['3', 'DI_STATE_FAULT'],
+    ['2', 'DI_STATE_CLEAR_FAULT'],
+    ['1', 'DI_STATE_STANDBY'],
+    ['0', 'DI_STATE_PREAUTH']
   ];
   const stateTable = new Map(stateTableEntries);
-  const speedUnitsEntries = [["1", "DI_SPEED_KPH"], ["0", "DI_SPEED_MPH"]];
+  const speedUnitsEntries = [['1', 'DI_SPEED_KPH'], ['0', 'DI_SPEED_MPH']];
   const speedUnitsTable = new Map(speedUnitsEntries);
 
   const valueTableEntries = Array.from(dbcParsed.valueTables.entries());
-  expect(valueTableEntries[0]).toEqual(["DI_state", stateTable]);
-  expect(valueTableEntries[1]).toEqual(["DI_speedUnits", speedUnitsTable]);
+  expect(valueTableEntries[0]).toEqual(['DI_state', stateTable]);
+  expect(valueTableEntries[1]).toEqual(['DI_speedUnits', speedUnitsTable]);
 });
 
-test("swapOrder properly converts little endian to big endian", () => {
-  const littleEndianHex = "e2d62a0bd0d3b5e5";
-  const bigEndianHex = "e5b5d3d00b2ad6e2";
+test('swapOrder properly converts little endian to big endian', () => {
+  const littleEndianHex = 'e2d62a0bd0d3b5e5';
+  const bigEndianHex = 'e5b5d3d00b2ad6e2';
 
   const littleEndianHexSwapped = swapOrder(littleEndianHex, 16, 2);
 
   expect(littleEndianHexSwapped == bigEndianHex).toBe(true);
 });
 
-test("int32 parser produces correct value for steer torque signal", () => {
+test('int32 parser produces correct value for steer torque signal', () => {
   const dbc = new DBC(DBC_MESSAGE_DEF);
 
-  const hex = "e2d62a0bd0d3b5e5";
+  const hex = 'e2d62a0bd0d3b5e5';
   const value = dbcInt32SignalValue(
     dbc,
     dbc.getMessageFrame(228).signals.STEER_TORQUE,
@@ -277,19 +277,19 @@ test("int32 parser produces correct value for steer torque signal", () => {
   expect(value).toBe(-7466);
 });
 
-test("int64 parser produces correct value for steer torque signal", () => {
+test('int64 parser produces correct value for steer torque signal', () => {
   const dbc = new DBC(DBC_MESSAGE_DEF);
 
-  const hex = "e2d62a0bd0d3b5e5";
+  const hex = 'e2d62a0bd0d3b5e5';
   const value = dbc.valueForInt64Signal(steerTorqueSignal, hex);
 
   expect(value).toBe(-7466);
 });
 
-test("int32 parser produces correct value for wheel speeds", () => {
+test('int32 parser produces correct value for wheel speeds', () => {
   const dbc = new DBC(DBC_WHEEL_SPEEDS);
 
-  const hex = "36806cd8d8f1b0b7";
+  const hex = '36806cd8d8f1b0b7';
   const rearRight = dbcInt32SignalValue(
     dbc,
     dbc.getMessageFrame(464).signals.WHEEL_SPEED_RR,
@@ -324,12 +324,12 @@ BO_ 768 NEW_MSG_1: 8 XXX
  SG_ NEW_SIGNAL_1 : 37|1@1+ (1,0) [0|1] "" XXX
 `;
 
-test("int32 parsers produces correct value for binary little endian signal", () => {
+test('int32 parsers produces correct value for binary little endian signal', () => {
   const dbc = new DBC(DBC_BINARY_LE_SIGNAL);
   const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
-  const hexDataSet = "0000000020000000";
-  const hexDataNotSet = "0000000000000000";
+  const hexDataSet = '0000000020000000';
+  const hexDataNotSet = '0000000000000000';
 
   const setValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSet, 8);
   const notSetValue = dbcInt32SignalValue(dbc, signalSpec, hexDataNotSet, 8);
@@ -342,11 +342,11 @@ const DBC_TWO_BIT_LE_SIGNAL = `
 BO_ 768 NEW_MSG_1: 8 XXX
  SG_ NEW_SIGNAL_1 : 35|2@1+ (1,0) [0|3] "" XXX
 `;
-test("int32 parser produces correct value for 2-bit little endian signal spanning words", () => {
+test('int32 parser produces correct value for 2-bit little endian signal spanning words', () => {
   const dbc = new DBC(DBC_TWO_BIT_LE_SIGNAL);
   const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
-  const hexData = "00000001f8000000";
+  const hexData = '00000001f8000000';
 
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, 8);
   expect(value).toEqual(3);
@@ -356,17 +356,17 @@ const DBC_FOUR_BIT_LE_SIGNAL = `
 BO_ 768 NEW_MSG_1: 8 XXX
  SG_ NEW_SIGNAL_1 : 6|4@1+ (1,0) [0|15] "" XXX
 `;
-test("int32 parser produces correct value for 4-bit little endian signal", () => {
+test('int32 parser produces correct value for 4-bit little endian signal', () => {
   const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL);
   const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
   // this data is symmetric, the data bits are 1111
-  const hexDataSymmetric = "f00f000000000000";
+  const hexDataSymmetric = 'f00f000000000000';
   const symValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSymmetric, 8);
   expect(symValue).toEqual(15);
 
   // this data is asymmetric, the data bits are 1101
-  const hexDataAsymmetric = "f002000000000000";
+  const hexDataAsymmetric = 'f002000000000000';
   const aSymValue = dbcInt32SignalValue(dbc, signalSpec, hexDataAsymmetric, 8);
   expect(aSymValue).toEqual(11);
 });
@@ -386,12 +386,12 @@ BO_ 1265 CLU11: 4 CLU
  SG_ CF_Clu_AmpInfo : 25|1@1+ (1.0,0.0) [0.0|1.0] ""  BCM
  SG_ CF_Clu_AliveCnt1 : 28|4@1+ (1.0,0.0) [0.0|15.0] ""  AHLS,EMS,EPB,LDWS_LKAS,MDPS,SCC
 `;
-test("int32 parser produces correct value for 4-bit little endian signal within a 4-byte message", () => {
+test('int32 parser produces correct value for 4-bit little endian signal within a 4-byte message', () => {
   const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL_FOUR_BYTE_MESSAGE);
   const frame = dbc.getMessageFrame(1265);
   const signalSpec = frame.signals.CF_Clu_AliveCnt1;
 
-  const hexData = "2000662000000000";
+  const hexData = '2000662000000000';
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
   expect(value).toEqual(2);
 });
@@ -404,16 +404,16 @@ BO_ 688 SAS11: 5 MDPS
  SG_ MsgCount : 32|4@1+ (1.0,0.0) [0.0|15.0] ""  ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,ECS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS
  SG_ CheckSum : 36|4@1+ (1.0,0.0) [0.0|15.0] ""  ECS,EMS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS,ECS,EMS,ESC,IBOX,LDWS_LKAS,PSB,SCC,SPAS
  `;
-test("int32 parser produces correct value for 2-byte signed little endian signal within a 5-byte message", () => {
+test('int32 parser produces correct value for 2-byte signed little endian signal within a 5-byte message', () => {
   const dbc = new DBC(DBC_MESSAGE_WITH_LE_SIGNED_SIGNAL);
   const frame = dbc.getMessageFrame(688);
   const signalSpec = frame.signals.SAS_Angle;
 
-  const hexData = "000000fafe000700";
+  const hexData = '000000fafe000700';
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
   expect(value).toEqual(0.0);
 
-  const hexData2 = "0b000907d8b30000";
+  const hexData2 = '0b000907d8b30000';
   const value2 = dbcInt32SignalValue(dbc, signalSpec, hexData2, frame.size);
   expect(value2).toEqual(1.1);
 });
@@ -425,12 +425,12 @@ BO_ 37 STEERING_CONTROL: 8 XXX
 CM_ "CHFFR_METRIC 37 STEER_ANGLE STEER_ANGLE 0.36 180";
 `;
 
-test("dbc parser parses top-level comment with chffr metric", () => {
+test('dbc parser parses top-level comment with chffr metric', () => {
   const dbc = new DBC(DBC_CHFFR_METRIC_COMMENT);
   const { comments } = dbc;
 
   expect(comments.length).toEqual(1);
   expect(comments[0]).toEqual(
-    "CHFFR_METRIC 37 STEER_ANGLE STEER_ANGLE 0.36 180"
+    'CHFFR_METRIC 37 STEER_ANGLE STEER_ANGLE 0.36 180'
   );
 });

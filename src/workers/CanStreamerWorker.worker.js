@@ -1,8 +1,8 @@
 /* eslint-env worker */
 /* eslint-disable no-restricted-globals */
-import extend from "xtend";
-import DBC from "../models/can/dbc";
-import DbcUtils from "../utils/dbc";
+import extend from 'xtend';
+import DBC from '../models/can/dbc';
+import DbcUtils from '../utils/dbc';
 
 function processStreamedCanMessages(
   newCanMessages,
@@ -31,7 +31,9 @@ function processStreamedCanMessages(
     let busTimeSum = 0;
 
     for (let i = 0; i < canMessages.length; i++) {
-      const { address, busTime, data, bus } = canMessages[i];
+      const {
+        address, busTime, data, bus
+      } = canMessages[i];
 
       let prevBusTime;
       if (i === 0) {
@@ -78,7 +80,7 @@ function processStreamedCanMessages(
       maxByteStateChangeCount = newMaxByteStateChangeCount;
     }
 
-    Object.keys(messages).forEach(key => {
+    Object.keys(messages).forEach((key) => {
       messages[key] = DbcUtils.setMessageByteColors(
         messages[key],
         maxByteStateChangeCount
@@ -95,7 +97,7 @@ function processStreamedCanMessages(
   });
 }
 
-self.onmessage = function(e) {
+self.onmessage = function (e) {
   const {
     newCanMessages,
     prevMsgEntries,
