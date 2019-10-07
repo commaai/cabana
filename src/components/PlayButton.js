@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export default class PlayButton extends Component {
   static propTypes = {
@@ -21,29 +21,18 @@ export default class PlayButton extends Component {
     const { isPlaying } = this.props;
     if (isPlaying) {
       if (hover) {
-        return (
-          process.env.PUBLIC_URL + "/img/ic_pause_circle_filled_white_24px.svg"
-        );
-      } else {
-        return (
-          process.env.PUBLIC_URL + "/img/ic_pause_circle_outline_white_24px.svg"
-        );
+        return `${process.env.PUBLIC_URL}/img/ic_pause_circle_filled_white_24px.svg`;
       }
-    } else {
-      if (hover) {
-        return (
-          process.env.PUBLIC_URL + "/img/ic_play_circle_filled_white_24px.svg"
-        );
-      } else {
-        return (
-          process.env.PUBLIC_URL + "/img/ic_play_circle_outline_white_24px.svg"
-        );
-      }
+      return `${process.env.PUBLIC_URL}/img/ic_pause_circle_outline_white_24px.svg`;
     }
+    if (hover) {
+      return `${process.env.PUBLIC_URL}/img/ic_play_circle_filled_white_24px.svg`;
+    }
+    return `${process.env.PUBLIC_URL}/img/ic_play_circle_outline_white_24px.svg`;
   }
 
   onClick(e) {
-    let { isPlaying } = this.props;
+    const { isPlaying } = this.props;
 
     if (!isPlaying) {
       this.props.onPlay();
@@ -56,7 +45,7 @@ export default class PlayButton extends Component {
     return (
       <img
         src={this.imageSource()}
-        alt={this.props.isPlaying ? "Pause" : "Play"}
+        alt={this.props.isPlaying ? 'Pause' : 'Play'}
         className={this.props.className}
         onClick={this.onClick}
         onMouseOver={() => this.setState({ hover: true })}

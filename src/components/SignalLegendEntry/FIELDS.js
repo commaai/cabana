@@ -1,44 +1,41 @@
-import DbcUtils from "../../utils/dbc";
+import DbcUtils from '../../utils/dbc';
 
-const unsignedTransformation = field => {
-  return (value, signal) => {
-    if (value !== "") {
-      value = Number(value) || 0;
+const unsignedTransformation = (field) => (value, signal) => {
+  if (value !== '') {
+    value = Number(value) || 0;
 
-      if (value < 0) {
-        value = 0;
-      }
+    if (value < 0) {
+      value = 0;
     }
-    signal[field] = value;
-    return signal;
-  };
+  }
+  signal[field] = value;
+  return signal;
 };
 
 export default [
   {
-    field: "name",
-    title: "Name",
-    type: "string"
+    field: 'name',
+    title: 'Name',
+    type: 'string'
   },
   {
-    field: "size",
-    title: "Size",
-    type: "number",
-    transform: unsignedTransformation("size")
+    field: 'size',
+    title: 'Size',
+    type: 'number',
+    transform: unsignedTransformation('size')
   },
   {
-    field: "startBit",
-    title: signal =>
-      signal.isLittleEndian ? "Least significant bit" : "Most significant bit",
-    type: "number",
-    transform: unsignedTransformation("startBit")
+    field: 'startBit',
+    title: (signal) => (signal.isLittleEndian ? 'Least significant bit' : 'Most significant bit'),
+    type: 'number',
+    transform: unsignedTransformation('startBit')
   },
   {
-    field: "isLittleEndian",
-    title: "Endianness",
-    type: "option",
+    field: 'isLittleEndian',
+    title: 'Endianness',
+    type: 'option',
     options: {
-      options: ["Little", "Big"],
+      options: ['Little', 'Big'],
       optionValues: { Little: true, Big: false }
     },
     transform: (isLittleEndian, signal) => {
@@ -47,8 +44,8 @@ export default [
 
         if (isLittleEndian) {
           // big endian -> little endian
-          const startByte = Math.floor(signal.startBit / 8),
-            endByte = Math.floor((signal.startBit - signal.size + 1) / 8);
+          const startByte = Math.floor(signal.startBit / 8);
+          const endByte = Math.floor((signal.startBit - signal.size + 1) / 8);
 
           if (startByte === endByte) {
             signal.startBit = signal.startBit - signal.size + 1;
@@ -57,8 +54,8 @@ export default [
           }
         } else {
           // little endian -> big endian
-          const startByte = Math.floor(signal.startBit / 8),
-            endByte = Math.floor((signal.startBit + signal.size - 1) / 8);
+          const startByte = Math.floor(signal.startBit / 8);
+          const endByte = Math.floor((signal.startBit + signal.size - 1) / 8);
 
           if (startByte === endByte) {
             signal.startBit = signal.startBit + signal.size - 1;
@@ -72,42 +69,42 @@ export default [
     }
   },
   {
-    field: "isSigned",
-    title: "Sign",
-    type: "option",
+    field: 'isSigned',
+    title: 'Sign',
+    type: 'option',
     options: {
-      options: ["Signed", "Unsigned"],
+      options: ['Signed', 'Unsigned'],
       optionValues: { Signed: true, Unsigned: false }
     }
   },
   {
-    field: "factor",
-    title: "Factor",
-    type: "number"
+    field: 'factor',
+    title: 'Factor',
+    type: 'number'
   },
   {
-    field: "offset",
-    title: "Offset",
-    type: "number"
+    field: 'offset',
+    title: 'Offset',
+    type: 'number'
   },
   {
-    field: "unit",
-    title: "Unit",
-    type: "string"
+    field: 'unit',
+    title: 'Unit',
+    type: 'string'
   },
   {
-    field: "comment",
-    title: "Comment",
-    type: "string"
+    field: 'comment',
+    title: 'Comment',
+    type: 'string'
   },
   {
-    field: "min",
-    title: "Minimum value",
-    type: "number"
+    field: 'min',
+    title: 'Minimum value',
+    type: 'number'
   },
   {
-    field: "max",
-    title: "Maximum value",
-    type: "number"
+    field: 'max',
+    title: 'Maximum value',
+    type: 'number'
   }
 ];

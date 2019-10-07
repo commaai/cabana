@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import PlayButton from "../PlayButton";
-import debounce from "../../utils/debounce";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import PlayButton from '../PlayButton';
+import debounce from '../../utils/debounce';
 
 export default class RouteSeeker extends Component {
   static propTypes = {
@@ -18,10 +18,14 @@ export default class RouteSeeker extends Component {
     nearestFrameTime: PropTypes.number
   };
 
-  static hiddenMarkerStyle = { display: "none", left: 0 };
+  static hiddenMarkerStyle = { display: 'none', left: 0 };
+
   static zeroSeekedBarStyle = { width: 0 };
-  static hiddenTooltipStyle = { display: "none", left: 0 };
+
+  static hiddenTooltipStyle = { display: 'none', left: 0 };
+
   static markerWidth = 20;
+
   static tooltipWidth = 50;
 
   constructor(props) {
@@ -31,7 +35,7 @@ export default class RouteSeeker extends Component {
       markerStyle: RouteSeeker.hiddenMarkerStyle,
       tooltipStyle: RouteSeeker.hiddenTooltipStyle,
       ratio: 0,
-      tooltipTime: "0:00",
+      tooltipTime: '0:00',
       isPlaying: false,
       isDragging: false
     };
@@ -50,8 +54,8 @@ export default class RouteSeeker extends Component {
     const { ratio } = this.state;
 
     if (
-      JSON.stringify(this.props.segmentIndices) !==
-      JSON.stringify(nextProps.segmentIndices)
+      JSON.stringify(this.props.segmentIndices)
+      !== JSON.stringify(nextProps.segmentIndices)
     ) {
       this.setState({
         seekedBarStyle: RouteSeeker.zeroSeekedBarStyle,
@@ -88,7 +92,7 @@ export default class RouteSeeker extends Component {
     return 100 * (x / this.progressBar.offsetWidth);
   }
 
-  updateDraggingSeek = debounce(ratio => this.props.onUserSeek(ratio), 250);
+  updateDraggingSeek = debounce((ratio) => this.props.onUserSeek(ratio), 250);
 
   onMouseMove(e) {
     const markerOffsetPct = this.mouseEventXOffsetPercent(e);
@@ -96,18 +100,18 @@ export default class RouteSeeker extends Component {
       this.onMouseLeave();
       return;
     }
-    const markerWidth = RouteSeeker.markerWidth;
+    const { markerWidth } = RouteSeeker;
 
-    const markerLeft = `calc(${markerOffsetPct + "%"} - ${markerWidth / 2}px)`;
+    const markerLeft = `calc(${`${markerOffsetPct}%`} - ${markerWidth / 2}px)`;
     const markerStyle = {
-      display: "",
+      display: '',
       left: markerLeft
     };
-    const tooltipWidth = RouteSeeker.tooltipWidth;
-    const tooltipLeft = `calc(${markerOffsetPct + "%"} - ${tooltipWidth /
-      2}px)`;
+    const { tooltipWidth } = RouteSeeker;
+    const tooltipLeft = `calc(${`${markerOffsetPct}%`} - ${tooltipWidth
+      / 2}px)`;
 
-    const tooltipStyle = { display: "flex", left: tooltipLeft };
+    const tooltipStyle = { display: 'flex', left: tooltipLeft };
     const ratio = Math.max(0, markerOffsetPct / 100);
     if (this.state.isDragging) {
       this.updateSeekedBar(ratio);
@@ -130,7 +134,7 @@ export default class RouteSeeker extends Component {
   }
 
   updateSeekedBar(ratio) {
-    const seekedBarStyle = { width: 100 * ratio + "%" };
+    const seekedBarStyle = { width: `${100 * ratio}%` };
     this.setState({ seekedBarStyle, ratio });
   }
 
@@ -210,32 +214,32 @@ export default class RouteSeeker extends Component {
     return (
       <div className="cabana-explorer-visuals-camera-seeker">
         <PlayButton
-          className={"cabana-explorer-visuals-camera-seeker-playbutton"}
+          className="cabana-explorer-visuals-camera-seeker-playbutton"
           onPlay={this.onPlay}
           onPause={this.onPause}
           isPlaying={this.state.isPlaying}
         />
         <div
-          className={"cabana-explorer-visuals-camera-seeker-progress"}
+          className="cabana-explorer-visuals-camera-seeker-progress"
           onMouseMove={this.onMouseMove}
           onMouseLeave={this.onMouseLeave}
           onMouseDown={this.onMouseDown}
           onMouseUp={this.onMouseUp}
           onClick={this.onClick}
-          ref={ref => (this.progressBar = ref)}
+          ref={(ref) => (this.progressBar = ref)}
         >
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-tooltip"}
+            className="cabana-explorer-visuals-camera-seeker-progress-tooltip"
             style={tooltipStyle}
           >
             {this.state.tooltipTime}
           </div>
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-marker"}
+            className="cabana-explorer-visuals-camera-seeker-progress-marker"
             style={markerStyle}
           />
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-inner"}
+            className="cabana-explorer-visuals-camera-seeker-progress-inner"
             style={seekedBarStyle}
           />
         </div>

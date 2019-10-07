@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import cx from "classnames";
+import cx from 'classnames';
 
-import AddSignals from "./AddSignals";
-import CanGraphList from "./CanGraphList";
-import RouteVideoSync from "./RouteVideoSync";
-import CanLog from "./CanLog";
-import Entries from "../models/can/entries";
-import debounce from "../utils/debounce";
-import PartSelector from "./PartSelector";
-import PlaySpeedSelector from "./PlaySpeedSelector";
+import AddSignals from './AddSignals';
+import CanGraphList from './CanGraphList';
+import RouteVideoSync from './RouteVideoSync';
+import CanLog from './CanLog';
+import Entries from '../models/can/entries';
+import debounce from '../utils/debounce';
+import PartSelector from './PartSelector';
+import PlaySpeedSelector from './PlaySpeedSelector';
 
 export default class Explorer extends Component {
   static propTypes = {
@@ -66,20 +66,20 @@ export default class Explorer extends Component {
   }
 
   componentWillMount() {
-    document.addEventListener("keydown", this._onKeyDown);
+    document.addEventListener('keydown', this._onKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this._onKeyDown);
+    document.removeEventListener('keydown', this._onKeyDown);
   }
 
   clipSegment(segment, segmentIndices, nextMessage) {
     if (segment.length === 2) {
       const segmentStartIdx = nextMessage.entries.findIndex(
-        e => e.relTime >= segment[0]
+        (e) => e.relTime >= segment[0]
       );
       let segmentEndIdx = nextMessage.entries.findIndex(
-        e => e.relTime >= segment[1]
+        (e) => e.relTime >= segment[1]
       );
       if (segmentStartIdx !== -1) {
         if (segmentEndIdx === -1) {
@@ -119,32 +119,30 @@ export default class Explorer extends Component {
 
     // remove plottedSignals that no longer exist
     plottedSignals = plottedSignals
-      .map(plot =>
-        plot.filter(({ messageId, signalUid }, index) => {
-          const messageExists = !!nextProps.messages[messageId];
-          let signalExists = true;
-          if (messageExists) {
-            signalExists = Object.values(
-              nextProps.messages[messageId].frame.signals
-            ).some(signal => signal.uid === signalUid);
-          }
+      .map((plot) => plot.filter(({ messageId, signalUid }, index) => {
+        const messageExists = !!nextProps.messages[messageId];
+        let signalExists = true;
+        if (messageExists) {
+          signalExists = Object.values(
+            nextProps.messages[messageId].frame.signals
+          ).some((signal) => signal.uid === signalUid);
+        }
 
-          return messageExists && signalExists;
-        })
-      )
-      .filter(plot => plot.length > 0);
+        return messageExists && signalExists;
+      }))
+      .filter((plot) => plot.length > 0);
 
     this.setState({ plottedSignals });
 
     if (
-      nextProps.selectedMessage &&
-      nextProps.selectedMessage !== this.props.selectedMessage
+      nextProps.selectedMessage
+      && nextProps.selectedMessage !== this.props.selectedMessage
     ) {
       // Update segment and seek state
       // by finding a entry indices
       // corresponding to old message segment/seek times.
 
-      let { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = this.clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -169,11 +167,11 @@ export default class Explorer extends Component {
     }
 
     if (
-      nextMessage &&
-      curMessage &&
-      nextMessage.entries.length !== curMessage.entries.length
+      nextMessage
+      && curMessage
+      && nextMessage.entries.length !== curMessage.entries.length
     ) {
-      let { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = this.clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -193,20 +191,21 @@ export default class Explorer extends Component {
     const { routeStartTime, currentParts } = this.props;
 
     if (routeStartTime) {
-      const partStartOffset = currentParts[0] * 60,
-        partEndOffset = (currentParts[1] + 1) * 60;
+      const partStartOffset = currentParts[0] * 60;
+      const partEndOffset = (currentParts[1] + 1) * 60;
 
       const windowStartTime = routeStartTime
         .clone()
-        .add(partStartOffset, "s")
-        .format("HH:mm:ss");
+        .add(partStartOffset, 's')
+        .format('HH:mm:ss');
       const windowEndTime = routeStartTime
         .clone()
-        .add(partEndOffset, "s")
-        .format("HH:mm:ss");
+        .add(partEndOffset, 's')
+        .format('HH:mm:ss');
 
       return `${windowStartTime} - ${windowEndTime}`;
-    } else return "";
+    }
+    return '';
   }
 
   onSignalPlotPressed(messageId, signalUid) {
@@ -220,13 +219,10 @@ export default class Explorer extends Component {
   onSignalUnplotPressed(messageId, signalUid) {
     const { plottedSignals } = this.state;
     const newPlottedSignals = plottedSignals
-      .map(plot =>
-        plot.filter(
-          signal =>
-            !(signal.messageId === messageId && signal.signalUid === signalUid)
-        )
-      )
-      .filter(plot => plot.length > 0);
+      .map((plot) => plot.filter(
+        (signal) => !(signal.messageId === messageId && signal.signalUid === signalUid)
+      ))
+      .filter((plot) => plot.length > 0);
 
     this.setState({ plottedSignals: newPlottedSignals });
   }
@@ -237,8 +233,8 @@ export default class Explorer extends Component {
 
     // console.log(this.state.segment, '->', segment, segmentIndices);
     if (
-      segment[0] === this.props.currentParts[0] * 60 &&
-      segment[1] === (this.props.currentParts[1] + 1) * 60
+      segment[0] === this.props.currentParts[0] * 60
+      && segment[1] === (this.props.currentParts[1] + 1) * 60
     ) {
       segment = [];
       segmentIndices = [];
@@ -297,14 +293,13 @@ export default class Explorer extends Component {
         }
       }
       return segmentIndices[1];
-    } else {
-      for (let i = 0; i < entries.length; i++) {
-        if (entries[i].relTime >= time) {
-          return i;
-        }
-      }
-      return entries.length - 1;
     }
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].relTime >= time) {
+        return i;
+      }
+    }
+    return entries.length - 1;
   }
 
   onUserSeek(time) {
@@ -377,24 +372,20 @@ export default class Explorer extends Component {
   selectedMessagePlottedSignalUids() {
     const { plottedSignals } = this.state;
     return plottedSignals
-      .map(plot =>
-        plot
-          .filter(
-            ({ messageId, signalUid }) =>
-              messageId === this.props.selectedMessage
-          )
-          .map(({ signalUid }) => signalUid)
-      )
+      .map((plot) => plot
+        .filter(
+          ({ messageId, signalUid }) => messageId === this.props.selectedMessage
+        )
+        .map(({ signalUid }) => signalUid))
       .reduce((arr, signalUid) => arr.concat(signalUid), []);
   }
 
   renderExplorerSignals() {
     const selectedMessageKey = this.props.selectedMessage;
     const selectedMessage = this.props.messages[selectedMessageKey];
-    const selectedMessageName =
-      selectedMessage.frame !== undefined
-        ? selectedMessage.frame.name
-        : "undefined";
+    const selectedMessageName = selectedMessage.frame !== undefined
+      ? selectedMessage.frame.name
+      : 'undefined';
     return (
       <div className="cabana-explorer-signals-wrapper">
         <div className="cabana-explorer-signals-header">
@@ -405,9 +396,7 @@ export default class Explorer extends Component {
           <div className="cabana-explorer-signals-header-action">
             <button
               className="button--small"
-              onClick={() =>
-                this.props.showEditMessageModal(selectedMessageKey)
-              }
+              onClick={() => this.props.showEditMessageModal(selectedMessageKey)}
             >
               Edit
             </button>
@@ -448,25 +437,19 @@ export default class Explorer extends Component {
   }
 
   mergePlots({ fromPlot, toPlot }) {
-    let { plottedSignals } = this.state;
+    const { plottedSignals } = this.state;
 
     // remove fromPlot from plottedSignals
-    const fromPlotIdx = plottedSignals.findIndex(plot =>
-      plot.some(
-        signal =>
-          signal.signalUid === fromPlot.signalUid &&
-          signal.messageId === fromPlot.messageId
-      )
-    );
+    const fromPlotIdx = plottedSignals.findIndex((plot) => plot.some(
+      (signal) => signal.signalUid === fromPlot.signalUid
+          && signal.messageId === fromPlot.messageId
+    ));
     plottedSignals.splice(fromPlotIdx, 1);
 
-    const toPlotIdx = plottedSignals.findIndex(plot =>
-      plot.some(
-        signal =>
-          signal.signalUid === toPlot.signalUid &&
-          signal.messageId === toPlot.messageId
-      )
-    );
+    const toPlotIdx = plottedSignals.findIndex((plot) => plot.some(
+      (signal) => signal.signalUid === toPlot.signalUid
+          && signal.messageId === toPlot.messageId
+    ));
     plottedSignals[toPlotIdx] = [fromPlot, toPlot];
 
     this.setState({ plottedSignals });
@@ -474,7 +457,7 @@ export default class Explorer extends Component {
 
   render() {
     const signalsExpandedClass = this.state.shouldShowAddSignal
-      ? "is-expanded"
+      ? 'is-expanded'
       : null;
 
     let graphSegment = this.state.segment;
@@ -487,7 +470,7 @@ export default class Explorer extends Component {
 
     return (
       <div className="cabana-explorer">
-        <div className={cx("cabana-explorer-signals", signalsExpandedClass)}>
+        <div className={cx('cabana-explorer-signals', signalsExpandedClass)}>
           {this.props.messages[this.props.selectedMessage]
             ? this.renderExplorerSignals()
             : this.renderSelectMessagePrompt()}
@@ -522,7 +505,7 @@ export default class Explorer extends Component {
           ) : null}
           {this.state.segment.length > 0 ? (
             <div
-              className={"cabana-explorer-visuals-segmentreset"}
+              className="cabana-explorer-visuals-segmentreset"
               onClick={() => {
                 this.resetSegment();
               }}

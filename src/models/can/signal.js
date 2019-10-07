@@ -1,4 +1,4 @@
-import DbcUtils from "../../utils/dbc";
+import DbcUtils from '../../utils/dbc';
 
 export default class Signal {
   constructor({
@@ -10,8 +10,8 @@ export default class Signal {
     isFloat = false,
     factor = 1,
     offset = 0,
-    unit = "",
-    receiver = ["XXX"],
+    unit = '',
+    receiver = ['XXX'],
     comment = null,
     multiplex = null,
     min = null,
@@ -45,28 +45,33 @@ export default class Signal {
 
     const colors = this.generateColors();
 
-    Object.assign(this, { min, max, uid, colors });
+    Object.assign(this, {
+      min,
+      max,
+      uid,
+      colors
+    });
   }
 
   text() {
-    const multiplex = this.multiplex ? " " + this.multiplex : "";
+    const multiplex = this.multiplex ? ` ${this.multiplex}` : '';
     const byteOrder = this.isLittleEndian ? 1 : 0;
-    const signedChar = this.isSigned ? "-" : "+";
+    const signedChar = this.isSigned ? '-' : '+';
 
     return (
-      `SG_ ${this.name}${multiplex} : ` +
-      `${this.startBit}|${this.size}@${byteOrder}${signedChar}` +
-      ` (${this.factor},${this.offset})` +
-      ` [${this.min}|${this.max}]` +
-      ` "${this.unit}" ${this.receiver}`
+      `SG_ ${this.name}${multiplex} : `
+      + `${this.startBit}|${this.size}@${byteOrder}${signedChar}`
+      + ` (${this.factor},${this.offset})`
+      + ` [${this.min}|${this.max}]`
+      + ` "${this.unit}" ${this.receiver}`
     );
   }
 
   valueDescriptionText(msgId) {
     const entryPairs = Array.from(this.valueDescriptions.entries());
     const values = entryPairs.reduce(
-      (str, [value, desc]) => str + value + ` "${desc}" `,
-      ""
+      (str, [value, desc]) => `${str + value} "${desc}" `,
+      ''
     );
     return `VAL_ ${msgId} ${this.name} ${values};`;
   }
@@ -76,11 +81,10 @@ export default class Signal {
 
     if (this.isLittleEndian) {
       return this.startBit;
-    } else {
-      const lsbBitNumber = this.lsbBitNumber();
-
-      return DbcUtils.matrixBitNumber(lsbBitNumber);
     }
+    const lsbBitNumber = this.lsbBitNumber();
+
+    return DbcUtils.matrixBitNumber(lsbBitNumber);
   }
 
   lsbBitNumber() {
@@ -92,21 +96,19 @@ export default class Signal {
   msbBitIndex() {
     if (this.isLittleEndian) {
       return this.startBit + this.size - 1;
-    } else {
-      return this.startBit;
     }
+    return this.startBit;
   }
 
   littleEndianBitDescription(bitIndex) {
     const bitRange = [this.startBit, this.startBit + this.size - 1];
     if (bitIndex < bitRange[0] || bitIndex > bitRange[1]) {
       return null;
-    } else {
-      const bitNumber = bitIndex - bitRange[0];
-      const isLsb = bitIndex === bitRange[0];
-      const isMsb = bitIndex === bitRange[1];
-      return { bitNumber, isLsb, isMsb };
     }
+    const bitNumber = bitIndex - bitRange[0];
+    const isLsb = bitIndex === bitRange[0];
+    const isMsb = bitIndex === bitRange[1];
+    return { bitNumber, isLsb, isMsb };
   }
 
   bigEndianBitDescription(bitIndex) {
@@ -120,15 +122,19 @@ export default class Signal {
 
     const isLsb = bitNumber === range[1];
     const isMsb = bitIndex === this.startBit;
-    return { bitNumber, isLsb, isMsb, range };
+    return {
+      bitNumber,
+      isLsb,
+      isMsb,
+      range
+    };
   }
 
   bitDescription(bitIndex) {
     if (this.isLittleEndian) {
       return this.littleEndianBitDescription(bitIndex);
-    } else {
-      return this.bigEndianBitDescription(bitIndex);
     }
+    return this.bigEndianBitDescription(bitIndex);
   }
 
   calculateRawRange() {
@@ -150,7 +156,7 @@ export default class Signal {
   }
 
   generateColors() {
-    let colors = Array(3);
+    const colors = Array(3);
     for (let i = 0; i < 3; i++) {
       colors[i] = Math.floor(Math.random() * 211);
     }
@@ -160,19 +166,19 @@ export default class Signal {
 
   equals(otherSignal) {
     return (
-      otherSignal.name === this.name &&
-      otherSignal.startBit === this.startBit &&
-      otherSignal.size === this.size &&
-      otherSignal.isLittleEndian === this.isLittleEndian &&
-      otherSignal.isSigned === this.isSigned &&
-      otherSignal.isFloat === this.isFloat &&
-      otherSignal.factor === this.factor &&
-      otherSignal.offset === this.offset &&
-      otherSignal.unit === this.unit &&
-      otherSignal.receiver.length === this.receiver.length &&
-      otherSignal.receiver.every((v, i) => v === this.receiver[i]) &&
-      otherSignal.comment === this.comment &&
-      otherSignal.multiplex === this.multiplex
+      otherSignal.name === this.name
+      && otherSignal.startBit === this.startBit
+      && otherSignal.size === this.size
+      && otherSignal.isLittleEndian === this.isLittleEndian
+      && otherSignal.isSigned === this.isSigned
+      && otherSignal.isFloat === this.isFloat
+      && otherSignal.factor === this.factor
+      && otherSignal.offset === this.offset
+      && otherSignal.unit === this.unit
+      && otherSignal.receiver.length === this.receiver.length
+      && otherSignal.receiver.every((v, i) => v === this.receiver[i])
+      && otherSignal.comment === this.comment
+      && otherSignal.multiplex === this.multiplex
     );
   }
 }

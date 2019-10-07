@@ -1,10 +1,10 @@
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import RouteSeeker from '../../components/RouteSeeker';
+
 global.__JEST__ = 1;
 
-import RouteSeeker from "../../components/RouteSeeker";
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-
-test("RouteSeeker successfully mounts with minimal default props", () => {
+test('RouteSeeker successfully mounts with minimal default props', () => {
   const component = shallow(
     <RouteSeeker
       nearestFrameTime={0}

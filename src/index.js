@@ -1,37 +1,37 @@
-import Sentry from "./logging/Sentry";
-import React from "react";
-import ReactDOM from "react-dom";
-import CommaAuth from "@commaai/my-comma-auth";
-import { request as Request } from "@commaai/comma-api";
-import CanExplorer from "./CanExplorer";
-import AcuraDbc from "./acura-dbc";
-import { getUrlParameter, modifyQueryParameters } from "./utils/url";
-import { GITHUB_AUTH_TOKEN_KEY } from "./config";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import CommaAuth from '@commaai/my-comma-auth';
+import { request as Request } from '@commaai/comma-api';
+import Sentry from './logging/Sentry';
+import CanExplorer from './CanExplorer';
+import AcuraDbc from './acura-dbc';
+import { getUrlParameter, modifyQueryParameters } from './utils/url';
+import { GITHUB_AUTH_TOKEN_KEY } from './config';
 import {
   fetchPersistedDbc,
   fetchPersistedGithubAuthToken,
   persistGithubAuthToken
-} from "./api/localstorage";
-import "./index.css";
+} from './api/localstorage';
+import './index.css';
 
 Sentry.init();
 
-const routeFullName = getUrlParameter("route");
-let isDemo = !routeFullName;
-let props = { autoplay: true, isDemo };
+const routeFullName = getUrlParameter('route');
+const isDemo = !routeFullName;
+const props = { autoplay: true, isDemo };
 let persistedDbc = null;
 
 if (routeFullName) {
-  const [dongleId, route] = routeFullName.split("|");
+  const [dongleId, route] = routeFullName.split('|');
   props.dongleId = dongleId;
   props.name = route;
 
   persistedDbc = fetchPersistedDbc(routeFullName);
 
-  let max = getUrlParameter("max"),
-    url = getUrlParameter("url"),
-    exp = getUrlParameter("exp"),
-    sig = getUrlParameter("sig");
+  const max = getUrlParameter('max');
+  const url = getUrlParameter('url');
+  const exp = getUrlParameter('exp');
+  const sig = getUrlParameter('sig');
 
   if (max) {
     props.max = max;
@@ -47,15 +47,14 @@ if (routeFullName) {
   }
   props.isLegacyShare = max && url && !exp && !sig;
   props.isShare = max && url && exp && sig;
-} else if (getUrlParameter("demo")) {
+} else if (getUrlParameter('demo')) {
   props.max = 12;
-  props.url =
-    "https://chffrprivate.blob.core.windows.net/chffrprivate3-permanent/v2/cb38263377b873ee/78392b99580c5920227cc5b43dff8a70_2017-06-12--18-51-47";
-  props.name = "2017-06-12--18-51-47";
-  props.dongleId = "cb38263377b873ee";
+  props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3-permanent/v2/cb38263377b873ee/78392b99580c5920227cc5b43dff8a70_2017-06-12--18-51-47';
+  props.name = '2017-06-12--18-51-47';
+  props.dongleId = 'cb38263377b873ee';
   props.dbc = AcuraDbc;
   props.isDemo = true;
-  props.dbcFilename = "acura_ilx_2016_can.dbc";
+  props.dbcFilename = 'acura_ilx_2016_can.dbc';
 
   // lots of 404s on this one
   // props.max = 752;
@@ -97,17 +96,17 @@ async function init() {
   if (token) {
     Request.configure(token);
   }
-  ReactDOM.render(<CanExplorer {...props} />, document.getElementById("root"));
+  ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root'));
 }
 
 if (routeFullName || isDemo) {
   init();
 } else {
-  const img = document.createElement("img");
-  img.src = process.env.PUBLIC_URL + "/img/cabana.jpg";
-  img.style.width = "100%";
-  const comment = document.createComment("7/6/17");
+  const img = document.createElement('img');
+  img.src = `${process.env.PUBLIC_URL}/img/cabana.jpg`;
+  img.style.width = '100%';
+  const comment = document.createComment('7/6/17');
 
-  document.getElementById("root").appendChild(img);
-  document.getElementById("root").appendChild(comment);
+  document.getElementById('root').appendChild(img);
+  document.getElementById('root').appendChild(comment);
 }

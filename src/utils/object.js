@@ -1,5 +1,5 @@
 export function swapKeysAndValues(obj, f) {
-  return Object.keys(obj).reduce(function(acc, k) {
+  return Object.keys(obj).reduce((acc, k) => {
     acc[obj[k]] = k;
     return acc;
   }, {});
@@ -12,7 +12,6 @@ export function fromArray(arr) {
   const pairs = arr.map(([k, v]) => ({ [k]: v }));
   if (pairs.length > 0) {
     return Object.assign(...pairs);
-  } else {
-    return {};
   }
+  return {};
 }

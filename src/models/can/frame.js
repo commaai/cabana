@@ -20,10 +20,10 @@ export default class Frame {
   }
 
   nextNewTransmitterName() {
-    let txNum = 1,
-      txName;
+    let txNum = 1;
+    let txName;
     do {
-      txName = "NEW_TRANSMITTER_" + txNum;
+      txName = `NEW_TRANSMITTER_${txNum}`;
       txNum++;
     } while (this.transmitters.indexOf(txName) !== -1);
 
@@ -38,21 +38,20 @@ export default class Frame {
 
   header() {
     return (
-      `BO_ ${this.id} ${this.name}: ${this.size} ` +
-      `${this.transmitters[0] || "XXX"}`
+      `BO_ ${this.id} ${this.name}: ${this.size} `
+      + `${this.transmitters[0] || 'XXX'}`
     );
   }
 
   text() {
     const signals = Object.values(this.signals)
-      .map(signal => " " + signal.text()) // indent
-      .join("\n");
+      .map((signal) => ` ${signal.text()}`) // indent
+      .join('\n');
 
     if (signals.length > 0) {
-      return this.header() + "\n" + signals;
-    } else {
-      return this.header();
+      return `${this.header()}\n${signals}`;
     }
+    return this.header();
   }
 
   copy() {

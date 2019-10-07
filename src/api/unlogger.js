@@ -1,5 +1,5 @@
-import SocketIO from "socket.io-client";
-import { UNLOGGER_HOST } from "../config";
+import SocketIO from 'socket.io-client';
+import { UNLOGGER_HOST } from '../config';
 
 export default class UnloggerClient {
   constructor() {
@@ -7,6 +7,6 @@ export default class UnloggerClient {
   }
 
   seek(dongleId, baseTime, seekSeconds) {
-    this.socket.emit("seek", dongleId, baseTime, seekSeconds);
+    this.socket.emit('seek', dongleId, baseTime, seekSeconds);
   }
 }

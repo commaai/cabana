@@ -1,5 +1,5 @@
-import React from "react";
-import Field from "./Field";
+import React from 'react';
+import Field from './Field';
 
 export default ({
   fieldSpec,
@@ -16,8 +16,8 @@ export default ({
       <input
         id={htmlFor}
         type="text"
-        value={signalEdited || ""}
-        onChange={e => {
+        value={signalEdited || ''}
+        onChange={(e) => {
           updateField(fieldSpec, e.target.value);
         }}
       />
@@ -28,7 +28,7 @@ export default ({
 
   return (
     <Field
-      title={typeof title === "function" ? title(signal) : title}
+      title={typeof title === 'function' ? title(signal) : title}
       htmlFor={htmlFor}
     >
       {valueCol}

@@ -1,6 +1,6 @@
 function findMaxByteStateChangeCount(messages) {
   return Object.values(messages)
-    .map(m => m.byteStateChangeCounts)
+    .map((m) => m.byteStateChangeCounts)
     .reduce((counts, countArr) => counts.concat(countArr), []) // flatten arrays
     .reduce((count1, count2) => (count1 > count2 ? count1 : count2), 0); // find max
 }
@@ -13,20 +13,20 @@ function addCanMessage(
   prevMsgEntries,
   byteStateChangeCountsByMessage
 ) {
-  var { address, busTime, data, bus } = canMessage;
-  var id = bus + ":" + address.toString(16);
+  const {
+    address, busTime, data, bus
+  } = canMessage;
+  const id = `${bus}:${address.toString(16)}`;
 
-  if (messages[id] === undefined)
-    messages[id] = createMessageSpec(dbc, address, id, bus);
+  if (messages[id] === undefined) messages[id] = createMessageSpec(dbc, address, id, bus);
 
-  const prevMsgEntry =
-    messages[id].entries.length > 0
-      ? messages[id].entries[messages[id].entries.length - 1]
-      : prevMsgEntries[id] || null;
+  const prevMsgEntry = messages[id].entries.length > 0
+    ? messages[id].entries[messages[id].entries.length - 1]
+    : prevMsgEntries[id] || null;
 
   if (
-    byteStateChangeCountsByMessage[id] &&
-    messages[id].byteStateChangeCounts.every(c => c === 0)
+    byteStateChangeCountsByMessage[id]
+    && messages[id].byteStateChangeCounts.every((c) => c === 0)
   ) {
     messages[id].byteStateChangeCounts = byteStateChangeCountsByMessage[id];
   }
@@ -54,11 +54,11 @@ function createMessageSpec(dbc, address, id, bus) {
   const size = frame ? frame.size : 8;
 
   return {
-    address: address,
-    id: id,
-    bus: bus,
+    address,
+    id,
+    bus,
     entries: [],
-    frame: frame,
+    frame,
     byteColors: Array(size).fill(0),
     byteStateChangeCounts: Array(size).fill(0)
   };
@@ -79,8 +79,8 @@ function determineByteStateChangeTimes(
     byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
 
     for (let i = 0; i < byteStateChangeTimes.length; i++) {
-      const currentData = hexData.substr(i * 2, 2),
-        prevData = lastParsedMessage.hexData.substr(i * 2, 2);
+      const currentData = hexData.substr(i * 2, 2);
+      const prevData = lastParsedMessage.hexData.substr(i * 2, 2);
 
       if (currentData !== prevData) {
         byteStateChangeTimes[i] = time;
@@ -104,7 +104,7 @@ function createMessageEntry(
     signals: dbc.getSignalValues(address, data),
     time,
     relTime,
-    hexData: Buffer.from(data).toString("hex"),
+    hexData: Buffer.from(data).toString('hex'),
     byteStateChangeTimes,
     updated: Date.now()
   };
@@ -112,11 +112,11 @@ function createMessageEntry(
 
 function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
   let hexData;
-  if (typeof data === "string") {
+  if (typeof data === 'string') {
     hexData = data;
-    data = Buffer.from(data, "hex");
+    data = Buffer.from(data, 'hex');
   } else {
-    hexData = Buffer.from(data).toString("hex");
+    hexData = Buffer.from(data).toString('hex');
   }
   const msgSpec = dbc.getMessageFrame(address);
   const msgSize = msgSpec ? msgSpec.size : 8;
@@ -160,13 +160,10 @@ function matrixBitNumber(bigEndianIndex) {
 
 function setMessageByteColors(message, maxByteStateChangeCount) {
   message.byteColors = message.byteStateChangeCounts
-    .map(
-      count =>
-        isNaN(count)
-          ? 0
-          : Math.min(255, 75 + 180 * (count / maxByteStateChangeCount))
-    )
-    .map(red => "rgb(" + Math.round(red) + ",0,0)");
+    .map((count) => (isNaN(count)
+      ? 0
+      : Math.min(255, 75 + 180 * (count / maxByteStateChangeCount))))
+    .map((red) => `rgb(${Math.round(red)},0,0)`);
 
   return message;
 }

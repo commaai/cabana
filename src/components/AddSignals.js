@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { StyleSheet } from "aphrodite/no-important";
-import css from "../utils/css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { StyleSheet } from 'aphrodite/no-important';
+import css from '../utils/css';
 
-import SignalLegend from "./SignalLegend";
-import Signal from "../models/can/signal";
-import { shade } from "../utils/color";
-import DbcUtils from "../utils/dbc";
+import SignalLegend from './SignalLegend';
+import Signal from '../models/can/signal';
+import { shade } from '../utils/color';
+import DbcUtils from '../utils/dbc';
 
 /*
 AddSignals component draws an 8x8 matrix
@@ -20,25 +20,25 @@ const Styles = StyleSheet.create({
   bit: {
     margin: 0,
     padding: 12,
-    userSelect: "none",
-    cursor: "pointer",
-    textAlign: "center",
-    position: "relative"
+    userSelect: 'none',
+    cursor: 'pointer',
+    textAlign: 'center',
+    position: 'relative'
   },
   bitSelectedStyle: {
-    backgroundColor: "rgba(0,119,158,0.5)"
+    backgroundColor: 'rgba(0,119,158,0.5)'
   },
   bitSignificance: {
     fontSize: 12,
-    display: "block",
-    position: "absolute",
+    display: 'block',
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    margin: "0 auto"
+    margin: '0 auto'
   },
   highlightedSignalTitle: {
-    backgroundColor: "rgba(0,0,0,0.2)"
+    backgroundColor: 'rgba(0,0,0,0.2)'
   }
 });
 
@@ -61,7 +61,7 @@ export default class AddSignals extends Component {
 
     this.state = {
       bits: [],
-      signals: signals,
+      signals,
       signalStyles: this.calcSignalStyles(signals),
       highlightedSignal: null,
       dragStartBit: null,
@@ -82,28 +82,29 @@ export default class AddSignals extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-      nextProps.message.hexData !== this.props.message.hexData ||
-      nextProps.messageIndex !== this.props.messageIndex ||
-      JSON.stringify(nextProps.plottedSignalUids) !==
-        JSON.stringify(this.props.plottedSignalUids) ||
-      JSON.stringify(this.state) !== JSON.stringify(nextState)
+      nextProps.message.hexData !== this.props.message.hexData
+      || nextProps.messageIndex !== this.props.messageIndex
+      || JSON.stringify(nextProps.plottedSignalUids)
+        !== JSON.stringify(this.props.plottedSignalUids)
+      || JSON.stringify(this.state) !== JSON.stringify(nextState)
     );
   }
 
   signalColorStyle(signal) {
     const { colors } = signal;
 
-    let colorRgbStr, backgroundColor;
+    let colorRgbStr;
+    let backgroundColor;
     if (this.state && this.state.highlightedSignal === signal.name) {
       // when signal highlighted,
       // darkened background and lightened text.
 
       const darkenedColors = shade(colors, -0.5);
       const lightenedColors = shade(colors, 0.9);
-      colorRgbStr = `rgb(${lightenedColors.join(",")})`;
-      backgroundColor = `rgba(${darkenedColors.join(",")},0.5)`;
+      colorRgbStr = `rgb(${lightenedColors.join(',')})`;
+      backgroundColor = `rgba(${darkenedColors.join(',')},0.5)`;
     } else {
-      const colorsCommaSep = colors.join(",");
+      const colorsCommaSep = colors.join(',');
       colorRgbStr = `rgb(${colorsCommaSep})`;
       backgroundColor = `rgba(${colorsCommaSep},0.2)`;
     }
@@ -122,7 +123,7 @@ export default class AddSignals extends Component {
 
   calcSignalStyles(signals) {
     const signalStyles = {};
-    Object.values(signals).forEach(signal => {
+    Object.values(signals).forEach((signal) => {
       signalStyles[signal.name] = this.signalColorStyle(signal);
     });
 
@@ -145,12 +146,12 @@ export default class AddSignals extends Component {
     // bitIdx in [0,64)
     // returns instance of Signal
 
-    return Object.values(this.state.signals).filter(signal => {
-      return signal.bitDescription(bitIdx) !== null;
-    })[0];
+    return Object.values(this.state.signals).filter(
+      (signal) => signal.bitDescription(bitIdx) !== null
+    )[0];
   }
 
-  onSignalHover = signal => {
+  onSignalHover = (signal) => {
     if (!signal) return;
 
     this.setState({ highlightedSignal: signal.name }, this.updateSignalStyles);
@@ -214,22 +215,20 @@ export default class AddSignals extends Component {
                 dragSignal.size = bitIdx - dragStartBit + 1;
                 dragStartBit = bitIdx;
               }
+            } else if (dragSignal.isLittleEndian) {
+              dragSignal.startBit = bitIdx;
+              dragSignal.size = dragStartBit - bitIdx + 1;
+              dragStartBit = bitIdx;
             } else {
-              if (dragSignal.isLittleEndian) {
-                dragSignal.startBit = bitIdx;
-                dragSignal.size = dragStartBit - bitIdx + 1;
-                dragStartBit = bitIdx;
-              } else {
-                dragSignal.size = dragStartBit - bitIdx + 1;
-                dragStartBit = bitIdx;
-              }
+              dragSignal.size = dragStartBit - bitIdx + 1;
+              dragStartBit = bitIdx;
             }
           }
 
           signals[dragSignal.name] = dragSignal;
         } else if (
-          dragSignal.isLittleEndian &&
-          dragStartBit === dragSignal.msbBitIndex()
+          dragSignal.isLittleEndian
+          && dragStartBit === dragSignal.msbBitIndex()
         ) {
           if (bitIdx < dragSignal.startBit) {
             // should not be able to drag the MSB past the LSB
@@ -244,8 +243,8 @@ export default class AddSignals extends Component {
           signals[dragSignal.name] = dragSignal;
           dragStartBit = dragSignal.msbBitIndex();
         } else if (
-          !dragSignal.isLittleEndian &&
-          dragStartBit === dragSignal.lsbBitIndex()
+          !dragSignal.isLittleEndian
+          && dragStartBit === dragSignal.lsbBitIndex()
         ) {
           const diff = bitIdx - dragStartBit;
           if (dragSignal.bitDescription(bitIdx) === null) {
@@ -271,7 +270,7 @@ export default class AddSignals extends Component {
     }
   };
 
-  onSignalHoverEnd = signal => {
+  onSignalHoverEnd = (signal) => {
     if (!signal) return;
 
     this.setState({ highlightedSignal: null }, this.updateSignalStyles);
@@ -279,10 +278,10 @@ export default class AddSignals extends Component {
 
   nextNewSignalName() {
     const existingNames = Object.keys(this.state.signals);
-    let signalNum = 1,
-      signalName;
+    let signalNum = 1;
+    let signalName;
     do {
-      signalName = "NEW_SIGNAL_" + signalNum;
+      signalName = `NEW_SIGNAL_${signalNum}`;
       signalNum++;
     } while (existingNames.indexOf(signalName) !== -1);
 
@@ -300,7 +299,7 @@ export default class AddSignals extends Component {
     const signal = new Signal({
       name: this.nextNewSignalName(),
       startBit,
-      size: size,
+      size,
       isLittleEndian
     });
     let { signals } = this.state;
@@ -319,10 +318,8 @@ export default class AddSignals extends Component {
           return;
         }
       }
-      const isDragAcrossSingleByte =
-        Math.floor(dragEndBit / 8) === Math.floor(dragStartBit / 8);
-      const isDragDirectionUp =
-        !isDragAcrossSingleByte && dragEndBit < dragStartBit;
+      const isDragAcrossSingleByte = Math.floor(dragEndBit / 8) === Math.floor(dragStartBit / 8);
+      const isDragDirectionUp = !isDragAcrossSingleByte && dragEndBit < dragStartBit;
 
       let isLittleEndian;
       if (isDragAcrossSingleByte || !isDragDirectionUp) {
@@ -330,30 +327,27 @@ export default class AddSignals extends Component {
       } else {
         isLittleEndian = dragStartBit % 8 >= 4;
       }
-      let size,
-        startBit = dragStartBit;
+      let size;
+      let startBit = dragStartBit;
 
       if (isDragAcrossSingleByte) {
         size = Math.abs(dragEndBit - dragStartBit) + 1;
-      } else {
-        if (isLittleEndian) {
-          if (dragEndBit > dragStartBit) {
-            startBit = dragStartBit;
-            size = dragEndBit - dragStartBit + 1;
-          } else {
-            startBit = dragEndBit;
-            size = dragStartBit - dragEndBit + 1;
-          }
+      } else if (isLittleEndian) {
+        if (dragEndBit > dragStartBit) {
+          startBit = dragStartBit;
+          size = dragEndBit - dragStartBit + 1;
         } else {
-          if (dragEndBit < dragStartBit) {
-            startBit = dragEndBit;
-          }
-          size =
-            Math.abs(
-              DbcUtils.bigEndianBitIndex(dragEndBit) -
-                DbcUtils.bigEndianBitIndex(dragStartBit)
-            ) + 1;
+          startBit = dragEndBit;
+          size = dragStartBit - dragEndBit + 1;
         }
+      } else {
+        if (dragEndBit < dragStartBit) {
+          startBit = dragEndBit;
+        }
+        size = Math.abs(
+          DbcUtils.bigEndianBitIndex(dragEndBit)
+              - DbcUtils.bigEndianBitIndex(dragStartBit)
+        ) + 1;
       }
 
       this.createSignal({ startBit, size, isLittleEndian });
@@ -362,7 +356,7 @@ export default class AddSignals extends Component {
 
   onBitMouseUp(dragEndBit, signal) {
     if (this.state.dragStartBit !== null) {
-      let { dragStartBit } = this.state;
+      const { dragStartBit } = this.state;
 
       if (dragEndBit !== dragStartBit) {
         // one-bit signal requires double click
@@ -380,24 +374,22 @@ export default class AddSignals extends Component {
       const entry = entries[this.props.messageIndex];
 
       return entry.hexData.substr(byteIdx * 2, 2);
-    } else {
-      return "--";
     }
+    return '--';
   }
 
   bitValue(byteIdx, byteBitIdx) {
     const { entries } = this.props.message;
     if (this.props.messageIndex < entries.length) {
       const entry = entries[this.props.messageIndex];
-      const data = Buffer.from(entry.hexData, "hex");
+      const data = Buffer.from(entry.hexData, 'hex');
       if (byteIdx >= data.length) {
-        return "-";
+        return '-';
       }
       const byte = data.readInt8(byteIdx);
       return (byte >> byteBitIdx) & 1;
-    } else {
-      return "-";
     }
+    return '-';
   }
 
   bitIsContainedInSelection(bitIdx, isLittleEndian = false) {
@@ -405,22 +397,21 @@ export default class AddSignals extends Component {
 
     if (isLittleEndian || dragStartBit % 8 < 4) {
       return (
-        dragStartBit !== null &&
-        dragCurrentBit !== null &&
-        bitIdx >= dragStartBit &&
-        bitIdx <= dragCurrentBit
-      );
-    } else {
-      const bigEndianStartBit = DbcUtils.bigEndianBitIndex(dragStartBit);
-      const bigEndianCurrentBit = DbcUtils.bigEndianBitIndex(dragCurrentBit);
-      const bigEndianBitIdx = DbcUtils.bigEndianBitIndex(bitIdx);
-      return (
-        dragStartBit !== null &&
-        dragCurrentBit !== null &&
-        bigEndianBitIdx >= bigEndianStartBit &&
-        bigEndianBitIdx <= bigEndianCurrentBit
+        dragStartBit !== null
+        && dragCurrentBit !== null
+        && bitIdx >= dragStartBit
+        && bitIdx <= dragCurrentBit
       );
     }
+    const bigEndianStartBit = DbcUtils.bigEndianBitIndex(dragStartBit);
+    const bigEndianCurrentBit = DbcUtils.bigEndianBitIndex(dragCurrentBit);
+    const bigEndianBitIdx = DbcUtils.bigEndianBitIndex(bitIdx);
+    return (
+      dragStartBit !== null
+      && dragCurrentBit !== null
+      && bigEndianBitIdx >= bigEndianStartBit
+      && bigEndianBitIdx <= bigEndianCurrentBit
+    );
   }
 
   onBitDoubleClick(startBit, signal) {
@@ -434,26 +425,26 @@ export default class AddSignals extends Component {
     const rows = [];
     let rowCount;
     if (message.frame && message.frame.size) {
-      rowCount = Math.floor(message.frame.size * 8 / 8);
+      rowCount = Math.floor((message.frame.size * 8) / 8);
     } else {
       rowCount = 8;
     }
 
-    for (var i = 0; i < rowCount; i++) {
+    for (let i = 0; i < rowCount; i++) {
       const rowBits = [];
-      for (var j = 7; j >= 0; j--) {
+      for (let j = 7; j >= 0; j--) {
         const bitIdx = i * 8 + j;
         const signal = this.signalForBit(bitIdx);
-        let bitStyle = null,
-          bitSignificance = "";
+        let bitStyle = null;
+        let bitSignificance = '';
         if (signal) {
           bitStyle = this.state.signalStyles[signal.name] || null;
           const bitDesc = signal.bitDescription(bitIdx);
-          bitSignificance = bitDesc.isMsb ? "msb" : bitDesc.isLsb ? "lsb" : "";
+          bitSignificance = bitDesc.isMsb ? 'msb' : bitDesc.isLsb ? 'lsb' : '';
         } else if (this.bitIsContainedInSelection(bitIdx)) {
           bitStyle = Styles.bitSelectedStyle;
         }
-        const className = css("bit", Styles.bit, bitStyle);
+        const className = css('bit', Styles.bit, bitStyle);
         const bitValue = this.bitValue(i, j);
 
         rowBits.push(
@@ -474,7 +465,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(<td key={"hex-repr"}>{this.byteValueHex(i)}</td>);
+      rowBits.push(<td key="hex-repr">{this.byteValueHex(i)}</td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
@@ -495,7 +486,7 @@ export default class AddSignals extends Component {
     });
   };
 
-  onTentativeSignalChange = signal => {
+  onTentativeSignalChange = (signal) => {
     // Tentative signal changes are not propagated up
     // but their effects are displayed in the bitmatrix
     const { signals } = this.state;
@@ -506,7 +497,7 @@ export default class AddSignals extends Component {
   onSignalChange = (signal, oldSignal) => {
     const { signals } = this.state;
 
-    for (let signalName in signals) {
+    for (const signalName in signals) {
       if (signals[signalName].uid === signal.uid) {
         delete signals[signalName];
       }
@@ -516,7 +507,7 @@ export default class AddSignals extends Component {
     this.setState({ signals }, this.propagateUpSignalChange);
   };
 
-  onSignalRemove = signal => {
+  onSignalRemove = (signal) => {
     const { signals } = this.state;
     delete signals[signal.name];
     this.setState({ signals }, this.propagateUpSignalChange);
@@ -546,7 +537,8 @@ export default class AddSignals extends Component {
         {this.props.message.entries[this.props.messageIndex] ? (
           <div className="cabana-explorer-signals-time">
             <p>
-              time:{" "}
+              time:
+              {' '}
               {this.props.message.entries[
                 this.props.messageIndex
               ].relTime.toFixed(3)}

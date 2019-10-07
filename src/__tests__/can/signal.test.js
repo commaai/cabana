@@ -1,7 +1,7 @@
-import Signal from "../../models/can/signal";
+import Signal from '../../models/can/signal';
 
 const someSignalParams = {
-  name: "STEER_TORQUE",
+  name: 'STEER_TORQUE',
   startBit: 7,
   size: 16,
   isLittleEndian: false,
@@ -10,11 +10,11 @@ const someSignalParams = {
   offset: 0,
   min: -3840,
   max: 3840,
-  unit: ""
+  unit: ''
 };
 
 const someOtherSignalParams = {
-  name: "DIFFERENT_NAME",
+  name: 'DIFFERENT_NAME',
   startBit: 0,
   size: 16,
   isLittleEndian: false,
@@ -23,24 +23,24 @@ const someOtherSignalParams = {
   offset: 0,
   min: -3840,
   max: 3840,
-  unit: ""
+  unit: ''
 };
 
-test("Signal.equals returns true for signals with identical properties", () => {
+test('Signal.equals returns true for signals with identical properties', () => {
   const someSignal = new Signal(someSignalParams);
   const someEquivalentSignal = new Signal(someSignalParams);
   expect(someSignal.equals(someEquivalentSignal)).toBe(true);
 });
 
-test("Signal.equals returns false for signals with different properties", () => {
+test('Signal.equals returns false for signals with different properties', () => {
   const someSignal = new Signal(someSignalParams);
   const differentSignal = new Signal(someOtherSignalParams);
   expect(someSignal.equals(differentSignal)).toBe(false);
 });
 
-test("Signal.bitDescription returns proper description for a little endian signal", () => {
+test('Signal.bitDescription returns proper description for a little endian signal', () => {
   const littleEndianSignal = new Signal({
-    name: "little endian signal",
+    name: 'little endian signal',
     startBit: 20,
     size: 4,
     isLittleEndian: true
@@ -52,9 +52,9 @@ test("Signal.bitDescription returns proper description for a little endian signa
   expect(littleEndianSignal.bitDescription(23).bitNumber).toBe(3);
 });
 
-test("Signal.bitDescription returns proper description for a big endian signal", () => {
+test('Signal.bitDescription returns proper description for a big endian signal', () => {
   const bigEndianSignal = new Signal({
-    name: "big endian signal",
+    name: 'big endian signal',
     startBit: 7,
     size: 16,
     isLittleEndian: false
@@ -91,9 +91,9 @@ test("Signal.bitDescription returns proper description for a big endian signal",
   expect(bigEndianSignal.bitDescription(7)).toEqual(bitSevenDescription);
 });
 
-test("Signal.bitDescription returns null for bit index that is not in its range", () => {
+test('Signal.bitDescription returns null for bit index that is not in its range', () => {
   const someSignal = new Signal({
-    name: "some signal",
+    name: 'some signal',
     startBit: 20,
     size: 4,
     isLittleEndian: false

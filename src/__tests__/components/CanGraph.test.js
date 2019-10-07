@@ -1,10 +1,10 @@
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import CanGraph from '../../components/CanGraph';
+
 global.__JEST__ = 1;
 
-import CanGraph from "../../components/CanGraph";
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-
-test("CanGraph successfully mounts with minimal default props", () => {
+test('CanGraph successfully mounts with minimal default props', () => {
   const component = shallow(
     <CanGraph
       onGraphRefAvailable={() => {}}
@@ -24,7 +24,7 @@ test("CanGraph successfully mounts with minimal default props", () => {
       dragPos={null}
       canReceiveGraphDrop={false}
       plottedSignals={[]}
-      live={true}
+      live
     />
   );
   expect(component.exists()).toBe(true);

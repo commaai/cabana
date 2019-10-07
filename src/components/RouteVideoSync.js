@@ -1,44 +1,44 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { StyleSheet, css } from "aphrodite/no-important";
-import { derived as RouteApi, video as VideoApi } from "@commaai/comma-api";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { StyleSheet, css } from 'aphrodite/no-important';
+import { derived as RouteApi, video as VideoApi } from '@commaai/comma-api';
 
-import HLS from "./HLS";
-import RouteSeeker from "./RouteSeeker/RouteSeeker";
+import HLS from './HLS';
+import RouteSeeker from './RouteSeeker/RouteSeeker';
 
 const Styles = StyleSheet.create({
   loadingOverlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 3
   },
   loadingSpinner: {
-    width: "25%",
-    height: "25%",
-    display: "block"
+    width: '25%',
+    height: '25%',
+    display: 'block'
   },
   img: {
     height: 480,
-    display: "block",
-    position: "absolute",
+    display: 'block',
+    position: 'absolute',
     zIndex: 2
   },
   hls: {
     zIndex: 1,
     height: 480,
-    backgroundColor: "rgba(0,0,0,0.9)"
+    backgroundColor: 'rgba(0,0,0,0.9)'
   },
   seekBar: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
-    width: "100%",
+    width: '100%',
     zIndex: 4
   }
 });
@@ -79,17 +79,17 @@ export default class RouteVideoSync extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      this.props.userSeekIndex !== nextProps.userSeekIndex ||
-      this.props.canFrameOffset !== nextProps.canFrameOffset ||
-      (this.props.message &&
-        nextProps.message &&
-        this.props.message.entries.length !== nextProps.message.entries.length)
+      this.props.userSeekIndex !== nextProps.userSeekIndex
+      || this.props.canFrameOffset !== nextProps.canFrameOffset
+      || (this.props.message
+        && nextProps.message
+        && this.props.message.entries.length !== nextProps.message.entries.length)
     ) {
       this.setState({ shouldRestartHls: true });
     }
     if (
-      nextProps.userSeekTime &&
-      this.props.userSeekTime !== nextProps.userSeekTime
+      nextProps.userSeekTime
+      && this.props.userSeekTime !== nextProps.userSeekTime
     ) {
       if (this.state.videoElement) {
         this.state.videoElement.currentTime = nextProps.userSeekTime;
@@ -111,8 +111,8 @@ export default class RouteVideoSync extends Component {
       <div className={css(Styles.loadingOverlay)}>
         <img
           className={css(Styles.loadingSpinner)}
-          src={process.env.PUBLIC_URL + "/img/loading.svg"}
-          alt={"Loading video"}
+          src={`${process.env.PUBLIC_URL}/img/loading.svg`}
+          alt="Loading video"
         />
       </div>
     );
@@ -154,7 +154,7 @@ export default class RouteVideoSync extends Component {
 
   segmentProgress(currentTime) {
     // returns progress as number in [0,1]
-    let startTime = this.startTime();
+    const startTime = this.startTime();
 
     if (currentTime < startTime) {
       currentTime = startTime;
@@ -175,12 +175,12 @@ export default class RouteVideoSync extends Component {
   onUserSeek(ratio) {
     /* ratio in [0,1] */
 
-    let { videoElement } = this.state;
+    const { videoElement } = this.state;
     if (isNaN(videoElement.duration)) {
       this.setState({ shouldRestartHls: true }, funcSeekToRatio);
       return;
     }
-    let seekTime = this.ratioTime(ratio);
+    const seekTime = this.ratioTime(ratio);
     videoElement.currentTime = seekTime;
 
     const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
@@ -203,7 +203,7 @@ export default class RouteVideoSync extends Component {
           <img
             src={this.nearestFrameUrl()}
             className={css(Styles.img)}
-            alt={"Camera preview at t = " + Math.round(this.props.userSeekTime)}
+            alt={`Camera preview at t = ${Math.round(this.props.userSeekTime)}`}
           />
         ) : null}
         <HLS

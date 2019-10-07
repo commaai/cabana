@@ -1,8 +1,8 @@
 // SignalLegend.js
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import SignalLegendEntry from "./SignalLegendEntry";
+import SignalLegendEntry from './SignalLegendEntry';
 
 export default class SignalLegend extends Component {
   static propTypes = {
@@ -23,13 +23,13 @@ export default class SignalLegend extends Component {
     expandedSignals: []
   };
 
-  toggleExpandSignal = s => {
+  toggleExpandSignal = (s) => {
     const { expandedSignals } = this.state;
     if (!expandedSignals.includes(s.uid)) {
       const updatedExpandedSignals = [...expandedSignals, s.uid];
       this.setState({ expandedSignals: updatedExpandedSignals });
     } else {
-      const updatedExpandedSignals = expandedSignals.filter(i => i !== s.uid);
+      const updatedExpandedSignals = expandedSignals.filter((i) => i !== s.uid);
       this.setState({ expandedSignals: updatedExpandedSignals });
     }
   };
@@ -44,9 +44,8 @@ export default class SignalLegend extends Component {
       .sort(([_, signal1], [__, signal2]) => {
         if (signal1.startBit < signal2.startBit) {
           return -1;
-        } else {
-          return 1;
         }
+        return 1;
       })
       .map(([signalName, signal]) => {
         const { colors } = signals[signalName];
@@ -73,10 +72,8 @@ export default class SignalLegend extends Component {
       });
 
     const signalRows = signalRowsNested
-      .filter(row => row != null)
-      .reduce((a, b) => {
-        return a.concat(b);
-      }, []);
+      .filter((row) => row != null)
+      .reduce((a, b) => a.concat(b), []);
 
     return <div className="cabana-explorer-signals-legend">{signalRows}</div>;
   }

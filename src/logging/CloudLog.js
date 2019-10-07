@@ -1,5 +1,5 @@
-import LogEntries from "./LogEntries";
-import { LOGENTRIES_TOKEN } from "../config";
+import LogEntries from './LogEntries';
+import { LOGENTRIES_TOKEN } from '../config';
 
 class CloudLog {
   constructor() {
@@ -15,8 +15,8 @@ class CloudLog {
     this.context.update(obj);
   }
 
-  emit(message, level = "log") {
-    if (typeof global.__JEST__ !== "undefined") {
+  emit(message, level = 'log') {
+    if (typeof global.__JEST__ !== 'undefined') {
       // Don't log in testing environment
       return;
     }
@@ -25,14 +25,14 @@ class CloudLog {
       ctx: this.context,
       created: new Date().getTime() / 1000,
       msg: message,
-      src: "JSCloudLog"
+      src: 'JSCloudLog'
     };
 
-    if (level === "log") {
+    if (level === 'log') {
       LogEntries.log(entry);
-    } else if (level === "warn") {
+    } else if (level === 'warn') {
       LogEntries.warn(entry);
-    } else if (level === "error") {
+    } else if (level === 'error') {
       LogEntries.error(entry);
     }
   }
@@ -42,11 +42,11 @@ class CloudLog {
   }
 
   warn(message) {
-    this.emit(message, "warn");
+    this.emit(message, 'warn');
   }
 
   error(message) {
-    this.emit(message, "error");
+    this.emit(message, 'error');
   }
 }
 

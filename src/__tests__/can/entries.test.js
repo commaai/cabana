@@ -1,6 +1,6 @@
-import Entries from "../../models/can/entries";
+import Entries from '../../models/can/entries';
 
-test("segment index low is inclusive and index high is exclusive", () => {
+test('segment index low is inclusive and index high is exclusive', () => {
   const entries = [
     { time: 1.0 },
     { time: 3.45 },
@@ -16,8 +16,8 @@ test("segment index low is inclusive and index high is exclusive", () => {
   expect(segmentIdxHi).toBe(entries.length - 1);
 });
 
-test("segment index cant return negative indexes", () => {
-  var indices = Entries.findSegmentIndices([], [123, 321], true);
+test('segment index cant return negative indexes', () => {
+  const indices = Entries.findSegmentIndices([], [123, 321], true);
   expect(indices[0]).toBe(0);
   expect(indices[1]).toBe(0);
 });

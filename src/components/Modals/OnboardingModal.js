@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import Moment from "moment";
-import _ from "lodash";
-import cx from "classnames";
-import CommaAuth from "@commaai/my-comma-auth";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import Moment from 'moment';
+import _ from 'lodash';
+import cx from 'classnames';
+import CommaAuth from '@commaai/my-comma-auth';
 
-import { EXPLORER_URL } from "../../config";
-import Modal from "../Modals/baseModal";
+import { EXPLORER_URL } from '../../config';
+import Modal from './baseModal';
 
 export default class OnboardingModal extends Component {
   static propTypes = {
@@ -15,8 +15,8 @@ export default class OnboardingModal extends Component {
   };
 
   static instructionalImages = {
-    step2: require("../../images/webusb-enable-experimental-features.png"),
-    step3: require("../../images/webusb-enable-webusb.png")
+    step2: require('../../images/webusb-enable-experimental-features.png'),
+    step3: require('../../images/webusb-enable-webusb.png')
   };
 
   constructor(props) {
@@ -66,7 +66,8 @@ export default class OnboardingModal extends Component {
           </a>
         </p>
       );
-    } else if (!pandaConnected && attemptingPandaConnection) {
+    }
+    if (!pandaConnected && attemptingPandaConnection) {
       return (
         <p>
           <i className="fa fa-spinner animate-spin" />
@@ -87,8 +88,8 @@ export default class OnboardingModal extends Component {
         <i className="fa fa-video-camera" />
         <strong>
           {CommaAuth.isAuthenticated()
-            ? "Find a drive in Explorer"
-            : "Log in with Explorer"}
+            ? 'Find a drive in Explorer'
+            : 'Log in with Explorer'}
         </strong>
         <sup>Click "View CAN Data" while replaying a drive</sup>
       </button>
@@ -101,17 +102,19 @@ export default class OnboardingModal extends Component {
         <div className="cabana-onboarding-mode">{this.renderLogin()}</div>
         <div className="cabana-onboarding-mode">
           <button
-            className={cx("button--secondary button--kiosk", {
-              "is-disabled":
-                !this.state.webUsbEnabled ||
-                this.props.attemptingPandaConnection
+            className={cx('button--secondary button--kiosk', {
+              'is-disabled':
+                !this.state.webUsbEnabled
+                || this.props.attemptingPandaConnection
             })}
             onClick={this.attemptPandaConnection}
           >
             <i className="fa fa-bolt" />
             <strong>Launch Realtime Streaming</strong>
             <sup>
-              Interactively stream car data over USB with <em>panda</em>
+              Interactively stream car data over USB with
+              {' '}
+              <em>panda</em>
             </sup>
             {this.renderPandaEligibility()}
           </button>
@@ -147,7 +150,7 @@ export default class OnboardingModal extends Component {
               <strong>Enable Experimental Platform features:</strong>
             </p>
             <img
-              alt={"Screenshot of Google Chrome Experimental Platform features"}
+              alt="Screenshot of Google Chrome Experimental Platform features"
               src={OnboardingModal.instructionalImages.step2}
             />
           </li>
@@ -156,7 +159,7 @@ export default class OnboardingModal extends Component {
               <strong>Enable WebUSB:</strong>
             </p>
             <img
-              alt={"Screenshot of Google Chrome enable WebUSB"}
+              alt="Screenshot of Google Chrome enable WebUSB"
               src={OnboardingModal.instructionalImages.step3}
             />
           </li>
@@ -175,23 +178,25 @@ export default class OnboardingModal extends Component {
   renderModalContent() {
     if (this.state.viewingUsbInstructions) {
       return this.renderUsbInstructions();
-    } else {
-      return this.renderOnboardingOptions();
     }
+    return this.renderOnboardingOptions();
   }
 
   renderModalFooter() {
     return (
       <p>
         <span>
-          Don't have a{" "}
+          Don't have a
+          {' '}
           <a
             href="https://panda.comma.ai"
             target="_blank"
             rel="noopener noreferrer"
           >
             panda
-          </a>?{" "}
+          </a>
+          ?
+          {' '}
         </span>
         <span>
           <a
@@ -200,10 +205,14 @@ export default class OnboardingModal extends Component {
             rel="noopener noreferrer"
           >
             Get one here
-          </a>{" "}
+          </a>
+          {' '}
         </span>
         <span>
-          or <a href={`${window.location.href}?demo=1`}>try the demo</a>.
+          or
+          {' '}
+          <a href={`${window.location.href}?demo=1`}>try the demo</a>
+.
         </span>
       </p>
     );
@@ -215,8 +224,8 @@ export default class OnboardingModal extends Component {
         title="Welcome to Cabana"
         subtitle="Get started by selecting a drive from Explorer or enabling live mode"
         footer={this.renderModalFooter()}
-        disableClose={true}
-        variations={["wide", "dark"]}
+        disableClose
+        variations={['wide', 'dark']}
       >
         {this.renderModalContent()}
       </Modal>

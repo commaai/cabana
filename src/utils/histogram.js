@@ -1,19 +1,19 @@
 const binTimeIntervals = [
   {
     seconds: 1,
-    title: "second"
+    title: 'second'
   },
   {
     seconds: 60,
-    title: "minute"
+    title: 'minute'
   },
   {
     seconds: 300,
-    title: "5 minutes"
+    title: '5 minutes'
   },
   {
     seconds: 3600,
-    title: "hour"
+    title: 'hour'
   }
 ];
 
@@ -33,13 +33,13 @@ function prettyBinDuration(samplesDurationSeconds, maxBinCount = 100) {
 }
 
 export function binMessages(messageEntries, segmentIndices) {
-  let startIdx = 0,
-    endIdx = messageEntries.length - 1;
+  let startIdx = 0;
+  let endIdx = messageEntries.length - 1;
   if (segmentIndices && segmentIndices.length === 2) {
     [startIdx, endIdx] = segmentIndices;
   }
-  const first = messageEntries[startIdx],
-    last = messageEntries[endIdx];
+  const first = messageEntries[startIdx];
+  const last = messageEntries[endIdx];
   const binDuration = prettyBinDuration(last.time - first.time);
 
   const bins = [];
@@ -63,5 +63,5 @@ export function binMessages(messageEntries, segmentIndices) {
     });
   }
 
-  return { bins: bins, binDuration };
+  return { bins, binDuration };
 }

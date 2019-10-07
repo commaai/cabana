@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import CanGraph from "./CanGraph";
+import CanGraph from './CanGraph';
 
-require("element-closest");
+require('element-closest');
 
 export default class CanGraphList extends Component {
   static propTypes = {
@@ -46,9 +46,8 @@ export default class CanGraphList extends Component {
   determineDraggingGraph() {
     const { draggingSignal } = this.state;
     return this.plotRefs.find(
-      ({ messageId, signalUid }) =>
-        draggingSignal.messageId === messageId &&
-        draggingSignal.signalUid === signalUid
+      ({ messageId, signalUid }) => draggingSignal.messageId === messageId
+        && draggingSignal.signalUid === signalUid
     );
   }
 
@@ -66,13 +65,12 @@ export default class CanGraphList extends Component {
       draggingGraph.ref.hidden = true;
       const ele = document.elementFromPoint(e.clientX, e.clientY);
       draggingGraph.ref.hidden = false;
-      const closestPlot = ele.closest(".cabana-explorer-visuals-plot");
+      const closestPlot = ele.closest('.cabana-explorer-visuals-plot');
       const closestPlotRef = this.plotRefs.find(
-        ({ ref, messageId, signalUid }) =>
-          !(
-            messageId === draggingGraph.messageId &&
-            signalUid === draggingGraph.signalUid
-          ) && ref.isEqualNode(closestPlot)
+        ({ ref, messageId, signalUid }) => !(
+          messageId === draggingGraph.messageId
+            && signalUid === draggingGraph.signalUid
+        ) && ref.isEqualNode(closestPlot)
       );
       if (closestPlotRef) {
         this.setState({ graphToReceiveDrop: closestPlotRef });
@@ -107,7 +105,7 @@ export default class CanGraphList extends Component {
       let { plotRefs } = this;
       plotRefs = plotRefs
         .filter(
-          ref => !(ref.messageId === messageId && ref.signalUid === signalUid)
+          (ref) => !(ref.messageId === messageId && ref.signalUid === signalUid)
         )
         .concat([{ messageId, signalUid, ref }]);
       this.plotRefs = plotRefs;
@@ -119,33 +117,29 @@ export default class CanGraphList extends Component {
     const { messageId, signalUid } = plottedSignals[0];
     const msg = this.props.messages[messageId];
     const signal = Object.values(msg.frame.signals).find(
-      s => s.uid === signalUid
+      (s) => s.uid === signalUid
     );
 
     if (!this.plotListRef) {
       return [];
     }
 
-    const isDragging =
-      draggingSignal.signalUid === signalUid &&
-      draggingSignal.messageId === messageId;
-    const canReceiveGraphDrop =
-      graphToReceiveDrop &&
-      graphToReceiveDrop.signalUid === signalUid &&
-      graphToReceiveDrop.messageId === messageId;
-    plottedSignals = plottedSignals.map(plottedSignal => {
-      return {
-        messageName: this.props.messages[plottedSignal.messageId].frame.name,
-        ...plottedSignal
-      };
-    });
+    const isDragging = draggingSignal.signalUid === signalUid
+      && draggingSignal.messageId === messageId;
+    const canReceiveGraphDrop = graphToReceiveDrop
+      && graphToReceiveDrop.signalUid === signalUid
+      && graphToReceiveDrop.messageId === messageId;
+    plottedSignals = plottedSignals.map((plottedSignal) => ({
+      messageName: this.props.messages[plottedSignal.messageId].frame.name,
+      ...plottedSignal
+    }));
     const key = plottedSignals.reduce(
-      (key, { messageId, signalUid }) => key + messageId + "_" + signalUid,
-      ""
+      (key, { messageId, signalUid }) => `${key + messageId}_${signalUid}`,
+      ''
     );
     return (
       <CanGraph
-        onGraphRefAvailable={ref => {
+        onGraphRefAvailable={(ref) => {
           this.addCanGraphRef(ref, messageId, signalUid);
         }}
         key={key}

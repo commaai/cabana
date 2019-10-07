@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
 export default class PlaySpeedSelector extends Component {
   constructor(props) {
@@ -16,8 +16,8 @@ export default class PlaySpeedSelector extends Component {
     return (
       <div
         style={{
-          display: "inline-block",
-          float: "right",
+          display: 'inline-block',
+          float: 'right',
           margin: 10
         }}
       >

@@ -1,10 +1,10 @@
+import React from 'react';
+import { shallow, mount, render } from 'enzyme';
+import SignalLegend from '../../components/SignalLegend';
+
 global.__JEST__ = 1;
 
-import SignalLegend from "../../components/SignalLegend";
-import React from "react";
-import { shallow, mount, render } from "enzyme";
-
-test("SignalLegend successfully mounts with minimal default props", () => {
+test('SignalLegend successfully mounts with minimal default props', () => {
   const component = shallow(
     <SignalLegend
       signals={{}}

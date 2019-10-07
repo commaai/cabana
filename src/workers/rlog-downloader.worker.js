@@ -1,13 +1,13 @@
 /* eslint-env worker */
 /* eslint-disable no-restricted-globals */
-import LogStream from "@commaai/log_reader";
-import { timeout } from "thyming";
-import { partial } from "ap";
+import LogStream from '@commaai/log_reader';
+import { timeout } from 'thyming';
+import { partial } from 'ap';
 
-import { getLogPart } from "../api/rlog";
-import DbcUtils from "../utils/dbc";
-import DBC from "../models/can/dbc";
-import { addressForName } from "../models/can/logSignals";
+import { getLogPart } from '../api/rlog';
+import DbcUtils from '../utils/dbc';
+import DBC from '../models/can/dbc';
+import { addressForName } from '../models/can/logSignals';
 
 const DEBOUNCE_DELAY = 100;
 
@@ -16,21 +16,23 @@ self.onmessage = handleMessage;
 function handleMessage(msg) {
   const options = msg.data;
 
-  if (options.action === "terminate") {
+  if (options.action === 'terminate') {
     close();
     return;
   }
 
   options.dbc = new DBC(options.dbcText);
 
-  var entry = new CacheEntry(options);
+  const entry = new CacheEntry(options);
 }
 
 function CacheEntry(options) {
   options = options || {};
   this.options = options;
 
-  let { route, part, dbc, logUrls } = options;
+  const {
+    route, part, dbc, logUrls
+  } = options;
 
   this.messages = {};
   this.route = route;
@@ -45,10 +47,10 @@ function CacheEntry(options) {
 
 function sendBatch(entry) {
   delete entry.batching;
-  let messages = entry.messages;
+  const { messages } = entry;
   entry.messages = {};
 
-  let maxByteStateChangeCount = entry.options.maxByteStateChangeCount;
+  let { maxByteStateChangeCount } = entry.options;
   const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
     messages
   );
@@ -56,7 +58,7 @@ function sendBatch(entry) {
     maxByteStateChangeCount = newMaxByteStateChangeCount;
   }
 
-  Object.keys(messages).forEach(key => {
+  Object.keys(messages).forEach((key) => {
     messages[key] = DbcUtils.setMessageByteColors(
       messages[key],
       maxByteStateChangeCount
@@ -70,121 +72,121 @@ function sendBatch(entry) {
   });
 
   if (entry.ended) {
-    console.log("Sending finished");
+    console.log('Sending finished');
     close();
   }
 }
 
 async function loadData(entry) {
-  var url = null;
+  let url = null;
 
   if (!entry.options.isDemo && !entry.options.isLegacyShare) {
     url = entry.logUrls[entry.part];
   }
 
-  if (!url || url.indexOf(".7z") !== -1) {
+  if (!url || url.indexOf('.7z') !== -1) {
     return self.postMessage({
-      error: "Invalid or missing log files"
+      error: 'Invalid or missing log files'
     });
   }
-  var res = await getLogPart(entry.logUrls[entry.part]);
-  var logReader = new LogStream(res);
+  const res = await getLogPart(entry.logUrls[entry.part]);
+  const logReader = new LogStream(res);
 
   entry.ended = false;
 
-  res.on("end", function() {
-    console.log("Stream ended");
+  res.on('end', () => {
+    console.log('Stream ended');
     setTimeout(() => {
       entry.ended = true;
       queueBatch(entry);
     });
   });
 
-  var msgArr = [];
-  var startTime = Date.now();
-  var i = 0;
+  const msgArr = [];
+  const startTime = Date.now();
+  const i = 0;
 
-  logReader(function(msg) {
+  logReader((msg) => {
     if (entry.ended) {
-      console.log("You can get msgs after end", msg);
+      console.log('You can get msgs after end', msg);
     }
-    if ("InitData" in msg) {
-      let monoTime = msg.LogMonoTime / 1e9;
+    if ('InitData' in msg) {
+      const monoTime = msg.LogMonoTime / 1e9;
       if (entry.options.canStartTime == null) {
         entry.options.canStartTime = monoTime;
       }
-    } else if ("Can" in msg) {
-      let monoTime = msg.LogMonoTime / 1000000000;
+    } else if ('Can' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
       msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
-    } else if ("CarState" in msg) {
-      let monoTime = msg.LogMonoTime / 1000000000;
+    } else if ('CarState' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "CarState",
-        "Ego",
+        'CarState',
+        'Ego',
         entry,
         monoTime,
         partial(getEgoData, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "Controls",
+        'CarState',
+        'Controls',
         entry,
         monoTime,
         partial(getCarStateControls, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "Flags",
+        'CarState',
+        'Flags',
         entry,
         monoTime,
         partial(getFlags, msg.CarState)
       );
       insertEventData(
-        "CarState",
-        "WheelSpeeds",
+        'CarState',
+        'WheelSpeeds',
         entry,
         monoTime,
         partial(getWheelSpeeds, msg.CarState)
       );
-    } else if ("UbloxGnss" in msg) {
-      let monoTime = msg.LogMonoTime / 1000000000;
+    } else if ('UbloxGnss' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
       if (msg.UbloxGnss.MeasurementReport) {
         insertEventData(
-          "UbloxGnss",
-          "MeasurementReport",
+          'UbloxGnss',
+          'MeasurementReport',
           entry,
           monoTime,
           partial(getUbloxGnss, msg.UbloxGnss.MeasurementReport)
         );
       }
-    } else if ("Health" in msg) {
-      let monoTime = msg.LogMonoTime / 1000000000;
+    } else if ('Health' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "Health",
-        "Data",
+        'Health',
+        'Data',
         entry,
         monoTime,
         partial(getHealth, msg.Health)
       );
-    } else if ("Thermal" in msg) {
-      let monoTime = msg.LogMonoTime / 1000000000;
+    } else if ('Thermal' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
-        "Thermal",
-        "CPU",
+        'Thermal',
+        'CPU',
         entry,
         monoTime,
         partial(getThermalCPU, msg.Thermal)
       );
       insertEventData(
-        "Thermal",
-        "Data",
+        'Thermal',
+        'Data',
         entry,
         monoTime,
         partial(getThermalData, msg.Thermal)
       );
       insertEventData(
-        "Thermal",
-        "FreeSpace",
+        'Thermal',
+        'FreeSpace',
         entry,
         monoTime,
         partial(getThermalFreeSpace, msg.Thermal)
@@ -203,8 +205,8 @@ function queueBatch(entry) {
 }
 
 function insertEventData(src, part, entry, logTime, getData) {
-  var id = src + ":" + part;
-  var address = addressForName(id);
+  const id = `${src}:${part}`;
+  const address = addressForName(id);
 
   if (!entry.messages[id]) {
     entry.messages[id] = DbcUtils.createMessageSpec(
@@ -215,13 +217,13 @@ function insertEventData(src, part, entry, logTime, getData) {
     );
     entry.messages[id].isLogEvent = true;
   }
-  let prevMsgEntry = getPrevMsgEntry(
+  const prevMsgEntry = getPrevMsgEntry(
     entry.messages,
     entry.options.prevMsgEntries,
     id
   );
 
-  let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
+  const { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
     entry.dbc,
     logTime,
     address,
@@ -230,18 +232,15 @@ function insertEventData(src, part, entry, logTime, getData) {
     prevMsgEntry
   );
 
-  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(function(
-    count,
-    idx
-  ) {
-    return entry.messages[id].byteStateChangeCounts[idx] + count;
-  });
+  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(
+    (count, idx) => entry.messages[id].byteStateChangeCounts[idx] + count
+  );
 
   entry.messages[id].entries.push(msgEntry);
 }
 
 function getThermalFlags(state) {
-  var flags = 0x00;
+  let flags = 0x00;
 
   if (state.UsbOnline) {
     flags |= 0x01;
@@ -279,7 +278,7 @@ function getHealth(state) {
 }
 
 function getHealthFlags(state) {
-  var flags = 0x00;
+  let flags = 0x00;
 
   if (state.Started) {
     flags |= 0x01;
@@ -325,8 +324,8 @@ function getWheelSpeeds(state) {
 }
 
 function getFlags(state) {
-  var flags = 0x00;
-  var arr = [0, 0, 0];
+  let flags = 0x00;
+  const arr = [0, 0, 0];
 
   if (state.LeftBlinker) {
     flags |= 0x01;
@@ -378,11 +377,11 @@ function getFlags(state) {
 }
 
 function insertCanMessage(entry, logTime, msg) {
-  var src = msg.Src;
-  var address = Number(msg.Address);
-  var busTime = msg.BusTime;
-  var addressHexStr = address.toString(16);
-  var id = src + ":" + addressHexStr;
+  const src = msg.Src;
+  const address = Number(msg.Address);
+  const busTime = msg.BusTime;
+  const addressHexStr = address.toString(16);
+  const id = `${src}:${addressHexStr}`;
 
   if (!entry.messages[id]) {
     entry.messages[id] = DbcUtils.createMessageSpec(
@@ -393,13 +392,13 @@ function insertCanMessage(entry, logTime, msg) {
     );
     entry.messages[id].isLogEvent = false;
   }
-  let prevMsgEntry = getPrevMsgEntry(
+  const prevMsgEntry = getPrevMsgEntry(
     entry.messages,
     entry.options.prevMsgEntries,
     id
   );
 
-  let { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
+  const { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
     entry.dbc,
     logTime,
     address,
@@ -408,12 +407,9 @@ function insertCanMessage(entry, logTime, msg) {
     prevMsgEntry
   );
 
-  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(function(
-    count,
-    idx
-  ) {
-    return entry.messages[id].byteStateChangeCounts[idx] + count;
-  });
+  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(
+    (count, idx) => entry.messages[id].byteStateChangeCounts[idx] + count
+  );
 
   entry.messages[id].entries.push(msgEntry);
 
@@ -428,56 +424,56 @@ function getPrevMsgEntry(messages, prevMsgEntries, id) {
 }
 
 function signedShortToByteArray(short) {
-  var byteArray = [0, 0];
-  var isNegative = short < 0;
+  const byteArray = [0, 0];
+  const isNegative = short < 0;
   if (isNegative) {
     short += Math.pow(2, 8 * byteArray.length);
   }
 
-  for (var index = byteArray.length - 1; index >= 0; --index) {
-    var byte = short & 0xff;
+  for (let index = byteArray.length - 1; index >= 0; --index) {
+    const byte = short & 0xff;
     byteArray[index] = byte;
-    short = short >> 8;
+    short >>= 8;
   }
 
   return byteArray;
 }
 
 function shortToByteArray(short) {
-  var byteArray = [0, 0];
+  const byteArray = [0, 0];
 
-  for (var index = byteArray.length - 1; index >= 0; --index) {
-    var byte = short & 0xff;
+  for (let index = byteArray.length - 1; index >= 0; --index) {
+    const byte = short & 0xff;
     byteArray[index] = byte;
-    short = short >> 8;
+    short >>= 8;
   }
 
   return byteArray;
 }
 
 function longToByteArray(long) {
-  var byteArray = [0, 0, 0, 0];
+  const byteArray = [0, 0, 0, 0];
 
-  for (var index = byteArray.length - 1; index >= 0; --index) {
-    var byte = long & 0xff;
+  for (let index = byteArray.length - 1; index >= 0; --index) {
+    const byte = long & 0xff;
     byteArray[index] = byte;
-    long = long >> 8;
+    long >>= 8;
   }
 
   return byteArray;
 }
 
 function signedLongToByteArray(long) {
-  var byteArray = [0, 0, 0, 0];
-  var isNegative = long < 0;
+  const byteArray = [0, 0, 0, 0];
+  const isNegative = long < 0;
   if (isNegative) {
     long += Math.pow(2, 8 * byteArray.length);
   }
 
-  for (var index = byteArray.length - 1; index >= 0; --index) {
-    var byte = long & 0xff;
+  for (let index = byteArray.length - 1; index >= 0; --index) {
+    const byte = long & 0xff;
     byteArray[index] = byte;
-    long = long >> 8;
+    long >>= 8;
   }
 
   return byteArray;

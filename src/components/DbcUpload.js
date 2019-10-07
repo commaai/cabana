@@ -1,14 +1,15 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export default class DbcUpload extends Component {
   static propTypes = {
     onDbcLoaded: PropTypes.func
   };
+
   constructor(props) {
     super(props);
     this.state = {
-      dbcText: ""
+      dbcText: ''
     };
 
     this.onTextChanged = this.onTextChanged.bind(this);
@@ -17,7 +18,7 @@ export default class DbcUpload extends Component {
   onTextChanged(e) {
     const dbcText = e.target.value;
     this.setState({ dbcText });
-    this.props.onDbcLoaded("from paste", dbcText);
+    this.props.onDbcLoaded('from paste', dbcText);
   }
 
   render() {

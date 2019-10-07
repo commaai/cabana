@@ -1,6 +1,6 @@
-import { shade } from "../../utils/color";
+import { shade } from '../../utils/color';
 
-test("Shade darkens rgb white (255,255,255)", () => {
+test('Shade darkens rgb white (255,255,255)', () => {
   const rgb = [255, 255, 255];
   const darkenRgb = shade(rgb, -0.5);
 

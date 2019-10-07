@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import Modal from "./Modals/baseModal";
+import Modal from './Modals/baseModal';
 
 export default class EditMessageModal extends Component {
   static propTypes = {
@@ -32,9 +32,7 @@ export default class EditMessageModal extends Component {
     this.setState({ messageFrame });
   }
 
-  editTransmitter(transmitter) {
-    return;
-  }
+  editTransmitter(transmitter) {}
 
   renderActions() {
     return (
@@ -67,7 +65,7 @@ export default class EditMessageModal extends Component {
             type="text"
             id="message_name"
             value={this.state.messageFrame.name}
-            onChange={e => {
+            onChange={(e) => {
               const { messageFrame } = this.state;
               messageFrame.name = e.target.value;
               this.setState({ messageFrame });
@@ -83,7 +81,7 @@ export default class EditMessageModal extends Component {
             type="number"
             id="message_size"
             value={this.state.messageFrame.size}
-            onChange={e => {
+            onChange={(e) => {
               const { messageFrame } = this.state;
               if (e.target.value > 8) {
                 return;
@@ -102,23 +100,21 @@ export default class EditMessageModal extends Component {
           </label>
           <div className="form-field-inset">
             <ul className="form-field-inset-list">
-              {this.state.messageFrame.transmitters.map(transmitter => {
-                return (
-                  <li className="form-field-inset-list-item" key={transmitter}>
-                    <div className="form-field-inset-list-item-title">
-                      <span>{transmitter}</span>
-                    </div>
-                    <div className="form-field-inset-list-item-action">
-                      <button className="button--tiny button--alpha">
-                        Edit
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
+              {this.state.messageFrame.transmitters.map((transmitter) => (
+                <li className="form-field-inset-list-item" key={transmitter}>
+                  <div className="form-field-inset-list-item-title">
+                    <span>{transmitter}</span>
+                  </div>
+                  <div className="form-field-inset-list-item-action">
+                    <button className="button--tiny button--alpha">Edit</button>
+                  </div>
+                </li>
+              ))}
               <button className="button--tiny button--alpha">
                 <span>
-                  <i className="fa fa-plus" /> Add Transmitter
+                  <i className="fa fa-plus" />
+                  {' '}
+Add Transmitter
                 </span>
               </button>
             </ul>

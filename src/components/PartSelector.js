@@ -1,10 +1,11 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import { PART_SEGMENT_LENGTH } from "../config";
+import { PART_SEGMENT_LENGTH } from '../config';
 
 export default class PartSelector extends Component {
   static selectorWidth = 150;
+
   static propTypes = {
     onPartChange: PropTypes.func.isRequired,
     partsCount: PropTypes.number.isRequired,
@@ -29,14 +30,14 @@ export default class PartSelector extends Component {
 
   makePartStyle(partsCount, selectedPart) {
     return {
-      left: selectedPart / partsCount * PartSelector.selectorWidth,
-      width: PART_SEGMENT_LENGTH / partsCount * PartSelector.selectorWidth
+      left: (selectedPart / partsCount) * PartSelector.selectorWidth,
+      width: (PART_SEGMENT_LENGTH / partsCount) * PartSelector.selectorWidth
     };
   }
 
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.selectedPart !== this.props.selectedPart) {
-      console.log("updating styles for part picker");
+      console.log('updating styles for part picker');
       const selectedPartStyle = this.makePartStyle(
         nextProps.partsCount,
         nextProps.selectedPart
@@ -80,12 +81,12 @@ export default class PartSelector extends Component {
   partAtClientX(clientX) {
     const rect = this.selectorRect.getBoundingClientRect();
     const x = clientX - rect.left;
-    return Math.floor(x * this.props.partsCount / PartSelector.selectorWidth);
+    return Math.floor((x * this.props.partsCount) / PartSelector.selectorWidth);
   }
 
   onSelectedPartDragStart(e) {
     this.setState({ isDragging: true });
-    document.addEventListener("mouseup", this.onSelectedPartDragEnd);
+    document.addEventListener('mouseup', this.onSelectedPartDragEnd);
   }
 
   onSelectedPartMouseMove(e) {
@@ -97,7 +98,7 @@ export default class PartSelector extends Component {
 
   onSelectedPartDragEnd(e) {
     this.setState({ isDragging: false });
-    document.removeEventListener("mouseup", this.onSelectedPartDragEnd);
+    document.removeEventListener('mouseup', this.onSelectedPartDragEnd);
   }
 
   onClick(e) {
@@ -116,7 +117,7 @@ export default class PartSelector extends Component {
       <div className="cabana-explorer-part-selector">
         <div
           className="cabana-explorer-part-selector-track"
-          ref={selector => (this.selectorRect = selector)}
+          ref={(selector) => (this.selectorRect = selector)}
           style={{ width: PartSelector.selectorWidth }}
           onMouseMove={this.onSelectedPartMouseMove}
           onClick={this.onClick}
