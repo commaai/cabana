@@ -75,21 +75,19 @@ export default class GithubDbcList extends Component {
               p =>
                 (this.state.pathQuery === "") | p.includes(this.state.pathQuery)
             )
-            .map(path => {
-              return (
-                <div
-                  className={cx("cabana-dbc-list-file", {
-                    "is-selected": this.state.selectedPath === path
-                  })}
-                  onClick={() => {
-                    this.selectPath(path);
-                  }}
-                  key={path}
-                >
-                  <span>{path}</span>
-                </div>
-              );
-            })}
+            .map(path => (
+              <div
+                className={cx("cabana-dbc-list-file", {
+                  "is-selected": this.state.selectedPath === path
+                })}
+                onClick={() => {
+                  this.selectPath(path);
+                }}
+                key={path}
+              >
+                <span>{path}</span>
+              </div>
+            ))}
         </div>
       </div>
     );

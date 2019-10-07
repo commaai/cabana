@@ -32,9 +32,7 @@ export default class EditMessageModal extends Component {
     this.setState({ messageFrame });
   }
 
-  editTransmitter(transmitter) {
-    return;
-  }
+  editTransmitter(transmitter) {}
 
   renderActions() {
     return (
@@ -102,20 +100,16 @@ export default class EditMessageModal extends Component {
           </label>
           <div className="form-field-inset">
             <ul className="form-field-inset-list">
-              {this.state.messageFrame.transmitters.map(transmitter => {
-                return (
-                  <li className="form-field-inset-list-item" key={transmitter}>
-                    <div className="form-field-inset-list-item-title">
-                      <span>{transmitter}</span>
-                    </div>
-                    <div className="form-field-inset-list-item-action">
-                      <button className="button--tiny button--alpha">
-                        Edit
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
+              {this.state.messageFrame.transmitters.map(transmitter => (
+                <li className="form-field-inset-list-item" key={transmitter}>
+                  <div className="form-field-inset-list-item-title">
+                    <span>{transmitter}</span>
+                  </div>
+                  <div className="form-field-inset-list-item-action">
+                    <button className="button--tiny button--alpha">Edit</button>
+                  </div>
+                </li>
+              ))}
               <button className="button--tiny button--alpha">
                 <span>
                   <i className="fa fa-plus" /> Add Transmitter

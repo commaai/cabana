@@ -61,7 +61,7 @@ export default class AddSignals extends Component {
 
     this.state = {
       bits: [],
-      signals: signals,
+      signals,
       signalStyles: this.calcSignalStyles(signals),
       highlightedSignal: null,
       dragStartBit: null,
@@ -93,7 +93,8 @@ export default class AddSignals extends Component {
   signalColorStyle(signal) {
     const { colors } = signal;
 
-    let colorRgbStr, backgroundColor;
+    let colorRgbStr;
+    let backgroundColor;
     if (this.state && this.state.highlightedSignal === signal.name) {
       // when signal highlighted,
       // darkened background and lightened text.
@@ -145,9 +146,9 @@ export default class AddSignals extends Component {
     // bitIdx in [0,64)
     // returns instance of Signal
 
-    return Object.values(this.state.signals).filter(signal => {
-      return signal.bitDescription(bitIdx) !== null;
-    })[0];
+    return Object.values(this.state.signals).filter(
+      signal => signal.bitDescription(bitIdx) !== null
+    )[0];
   }
 
   onSignalHover = signal => {
@@ -214,15 +215,13 @@ export default class AddSignals extends Component {
                 dragSignal.size = bitIdx - dragStartBit + 1;
                 dragStartBit = bitIdx;
               }
+            } else if (dragSignal.isLittleEndian) {
+              dragSignal.startBit = bitIdx;
+              dragSignal.size = dragStartBit - bitIdx + 1;
+              dragStartBit = bitIdx;
             } else {
-              if (dragSignal.isLittleEndian) {
-                dragSignal.startBit = bitIdx;
-                dragSignal.size = dragStartBit - bitIdx + 1;
-                dragStartBit = bitIdx;
-              } else {
-                dragSignal.size = dragStartBit - bitIdx + 1;
-                dragStartBit = bitIdx;
-              }
+              dragSignal.size = dragStartBit - bitIdx + 1;
+              dragStartBit = bitIdx;
             }
           }
 
@@ -279,10 +278,10 @@ export default class AddSignals extends Component {
 
   nextNewSignalName() {
     const existingNames = Object.keys(this.state.signals);
-    let signalNum = 1,
-      signalName;
+    let signalNum = 1;
+    let signalName;
     do {
-      signalName = "NEW_SIGNAL_" + signalNum;
+      signalName = `NEW_SIGNAL_${signalNum}`;
       signalNum++;
     } while (existingNames.indexOf(signalName) !== -1);
 
@@ -300,7 +299,7 @@ export default class AddSignals extends Component {
     const signal = new Signal({
       name: this.nextNewSignalName(),
       startBit,
-      size: size,
+      size,
       isLittleEndian
     });
     let { signals } = this.state;
@@ -330,30 +329,28 @@ export default class AddSignals extends Component {
       } else {
         isLittleEndian = dragStartBit % 8 >= 4;
       }
-      let size,
-        startBit = dragStartBit;
+      let size;
+      let startBit = dragStartBit;
 
       if (isDragAcrossSingleByte) {
         size = Math.abs(dragEndBit - dragStartBit) + 1;
-      } else {
-        if (isLittleEndian) {
-          if (dragEndBit > dragStartBit) {
-            startBit = dragStartBit;
-            size = dragEndBit - dragStartBit + 1;
-          } else {
-            startBit = dragEndBit;
-            size = dragStartBit - dragEndBit + 1;
-          }
+      } else if (isLittleEndian) {
+        if (dragEndBit > dragStartBit) {
+          startBit = dragStartBit;
+          size = dragEndBit - dragStartBit + 1;
         } else {
-          if (dragEndBit < dragStartBit) {
-            startBit = dragEndBit;
-          }
-          size =
-            Math.abs(
-              DbcUtils.bigEndianBitIndex(dragEndBit) -
-                DbcUtils.bigEndianBitIndex(dragStartBit)
-            ) + 1;
+          startBit = dragEndBit;
+          size = dragStartBit - dragEndBit + 1;
         }
+      } else {
+        if (dragEndBit < dragStartBit) {
+          startBit = dragEndBit;
+        }
+        size =
+          Math.abs(
+            DbcUtils.bigEndianBitIndex(dragEndBit) -
+              DbcUtils.bigEndianBitIndex(dragStartBit)
+          ) + 1;
       }
 
       this.createSignal({ startBit, size, isLittleEndian });
@@ -362,7 +359,7 @@ export default class AddSignals extends Component {
 
   onBitMouseUp(dragEndBit, signal) {
     if (this.state.dragStartBit !== null) {
-      let { dragStartBit } = this.state;
+      const { dragStartBit } = this.state;
 
       if (dragEndBit !== dragStartBit) {
         // one-bit signal requires double click
@@ -380,9 +377,8 @@ export default class AddSignals extends Component {
       const entry = entries[this.props.messageIndex];
 
       return entry.hexData.substr(byteIdx * 2, 2);
-    } else {
-      return "--";
     }
+    return "--";
   }
 
   bitValue(byteIdx, byteBitIdx) {
@@ -395,9 +391,8 @@ export default class AddSignals extends Component {
       }
       const byte = data.readInt8(byteIdx);
       return (byte >> byteBitIdx) & 1;
-    } else {
-      return "-";
     }
+    return "-";
   }
 
   bitIsContainedInSelection(bitIdx, isLittleEndian = false) {
@@ -410,17 +405,16 @@ export default class AddSignals extends Component {
         bitIdx >= dragStartBit &&
         bitIdx <= dragCurrentBit
       );
-    } else {
-      const bigEndianStartBit = DbcUtils.bigEndianBitIndex(dragStartBit);
-      const bigEndianCurrentBit = DbcUtils.bigEndianBitIndex(dragCurrentBit);
-      const bigEndianBitIdx = DbcUtils.bigEndianBitIndex(bitIdx);
-      return (
-        dragStartBit !== null &&
-        dragCurrentBit !== null &&
-        bigEndianBitIdx >= bigEndianStartBit &&
-        bigEndianBitIdx <= bigEndianCurrentBit
-      );
     }
+    const bigEndianStartBit = DbcUtils.bigEndianBitIndex(dragStartBit);
+    const bigEndianCurrentBit = DbcUtils.bigEndianBitIndex(dragCurrentBit);
+    const bigEndianBitIdx = DbcUtils.bigEndianBitIndex(bitIdx);
+    return (
+      dragStartBit !== null &&
+      dragCurrentBit !== null &&
+      bigEndianBitIdx >= bigEndianStartBit &&
+      bigEndianBitIdx <= bigEndianCurrentBit
+    );
   }
 
   onBitDoubleClick(startBit, signal) {
@@ -434,18 +428,18 @@ export default class AddSignals extends Component {
     const rows = [];
     let rowCount;
     if (message.frame && message.frame.size) {
-      rowCount = Math.floor(message.frame.size * 8 / 8);
+      rowCount = Math.floor((message.frame.size * 8) / 8);
     } else {
       rowCount = 8;
     }
 
-    for (var i = 0; i < rowCount; i++) {
+    for (let i = 0; i < rowCount; i++) {
       const rowBits = [];
-      for (var j = 7; j >= 0; j--) {
+      for (let j = 7; j >= 0; j--) {
         const bitIdx = i * 8 + j;
         const signal = this.signalForBit(bitIdx);
-        let bitStyle = null,
-          bitSignificance = "";
+        let bitStyle = null;
+        let bitSignificance = "";
         if (signal) {
           bitStyle = this.state.signalStyles[signal.name] || null;
           const bitDesc = signal.bitDescription(bitIdx);
@@ -474,7 +468,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(<td key={"hex-repr"}>{this.byteValueHex(i)}</td>);
+      rowBits.push(<td key="hex-repr">{this.byteValueHex(i)}</td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
@@ -506,7 +500,7 @@ export default class AddSignals extends Component {
   onSignalChange = (signal, oldSignal) => {
     const { signals } = this.state;
 
-    for (let signalName in signals) {
+    for (const signalName in signals) {
       if (signals[signalName].uid === signal.uid) {
         delete signals[signalName];
       }

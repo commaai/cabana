@@ -133,14 +133,12 @@ export default class CanGraphList extends Component {
       graphToReceiveDrop &&
       graphToReceiveDrop.signalUid === signalUid &&
       graphToReceiveDrop.messageId === messageId;
-    plottedSignals = plottedSignals.map(plottedSignal => {
-      return {
-        messageName: this.props.messages[plottedSignal.messageId].frame.name,
-        ...plottedSignal
-      };
-    });
+    plottedSignals = plottedSignals.map(plottedSignal => ({
+      messageName: this.props.messages[plottedSignal.messageId].frame.name,
+      ...plottedSignal
+    }));
     const key = plottedSignals.reduce(
-      (key, { messageId, signalUid }) => key + messageId + "_" + signalUid,
+      (key, { messageId, signalUid }) => `${key + messageId}_${signalUid}`,
       ""
     );
     return (

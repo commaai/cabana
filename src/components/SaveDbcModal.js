@@ -44,7 +44,7 @@ export default class SaveDbcModal extends Component {
 
   async commitToGitHub() {
     const { openDbcFork, dbcFilename } = this.state;
-    const filename = dbcFilename.replace(/\.dbc/g, "") + ".dbc";
+    const filename = `${dbcFilename.replace(/\.dbc/g, "")}.dbc`;
     const success = await this.props.openDbcClient.commitFile(
       openDbcFork,
       filename,
@@ -60,7 +60,7 @@ export default class SaveDbcModal extends Component {
     const blob = new Blob([this.props.dbc.text()], {
       type: "text/plain;charset=utf-8"
     });
-    const filename = this.state.dbcFilename.replace(/\.dbc/g, "") + ".dbc";
+    const filename = `${this.state.dbcFilename.replace(/\.dbc/g, "")}.dbc`;
     FileSaver.saveAs(blob, filename, true);
   }
 
@@ -96,7 +96,8 @@ export default class SaveDbcModal extends Component {
       return (
         this.state.openDbcFork != null && this.state.dbcFilename.length > 0
       );
-    } else if (tab === "Download") {
+    }
+    if (tab === "Download") {
       return true;
     }
   }
@@ -117,7 +118,11 @@ export default class SaveDbcModal extends Component {
       content = (
         <button disabled>
           <i className="fa fa-code-fork" />
-          <span> Forked: {openDbcFork}</span>
+          <span>
+            {" "}
+            Forked:
+            {openDbcFork}
+          </span>
         </button>
       );
     } else if (this.props.hasGithubAuth) {
@@ -155,19 +160,17 @@ export default class SaveDbcModal extends Component {
   renderTabNavigation() {
     return (
       <div className="cabana-tabs-navigation">
-        {this.state.tabs.map(tab => {
-          return (
-            <a
-              className={cx({ "is-active": this.state.tab === tab })}
-              onClick={() => {
-                this.setState({ tab });
-              }}
-              key={tab}
-            >
-              <span>{tab}</span>
-            </a>
-          );
-        })}
+        {this.state.tabs.map(tab => (
+          <a
+            className={cx({ "is-active": this.state.tab === tab })}
+            onClick={() => {
+              this.setState({ tab });
+            }}
+            key={tab}
+          >
+            <span>{tab}</span>
+          </a>
+        ))}
       </div>
     );
   }
@@ -199,7 +202,8 @@ export default class SaveDbcModal extends Component {
           {this.renderCommitMessage()}
         </div>
       );
-    } else if (tab === "Download") {
+    }
+    if (tab === "Download") {
       return <div>{this.renderFilenameField()}</div>;
     }
   }
@@ -217,7 +221,8 @@ export default class SaveDbcModal extends Component {
           </button>
         </div>
       );
-    } else if (tab === "Download") {
+    }
+    if (tab === "Download") {
       return (
         <div>
           <button className="button--inverted" onClick={this.props.handleClose}>

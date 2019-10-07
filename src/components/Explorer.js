@@ -144,7 +144,7 @@ export default class Explorer extends Component {
       // by finding a entry indices
       // corresponding to old message segment/seek times.
 
-      let { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = this.clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -173,7 +173,7 @@ export default class Explorer extends Component {
       curMessage &&
       nextMessage.entries.length !== curMessage.entries.length
     ) {
-      let { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = this.clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -193,8 +193,8 @@ export default class Explorer extends Component {
     const { routeStartTime, currentParts } = this.props;
 
     if (routeStartTime) {
-      const partStartOffset = currentParts[0] * 60,
-        partEndOffset = (currentParts[1] + 1) * 60;
+      const partStartOffset = currentParts[0] * 60;
+      const partEndOffset = (currentParts[1] + 1) * 60;
 
       const windowStartTime = routeStartTime
         .clone()
@@ -206,7 +206,8 @@ export default class Explorer extends Component {
         .format("HH:mm:ss");
 
       return `${windowStartTime} - ${windowEndTime}`;
-    } else return "";
+    }
+    return "";
   }
 
   onSignalPlotPressed(messageId, signalUid) {
@@ -297,14 +298,13 @@ export default class Explorer extends Component {
         }
       }
       return segmentIndices[1];
-    } else {
-      for (let i = 0; i < entries.length; i++) {
-        if (entries[i].relTime >= time) {
-          return i;
-        }
-      }
-      return entries.length - 1;
     }
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].relTime >= time) {
+        return i;
+      }
+    }
+    return entries.length - 1;
   }
 
   onUserSeek(time) {
@@ -448,7 +448,7 @@ export default class Explorer extends Component {
   }
 
   mergePlots({ fromPlot, toPlot }) {
-    let { plottedSignals } = this.state;
+    const { plottedSignals } = this.state;
 
     // remove fromPlot from plottedSignals
     const fromPlotIdx = plottedSignals.findIndex(plot =>
@@ -522,7 +522,7 @@ export default class Explorer extends Component {
           ) : null}
           {this.state.segment.length > 0 ? (
             <div
-              className={"cabana-explorer-visuals-segmentreset"}
+              className="cabana-explorer-visuals-segmentreset"
               onClick={() => {
                 this.resetSegment();
               }}

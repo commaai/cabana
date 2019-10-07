@@ -44,8 +44,18 @@ const canHistogramSpec = {
   ],
 
   axes: [
-    { orient: "bottom", scale: "xrelscale", zindex: 1, tickCount: 10 },
-    { orient: "left", scale: "yscale", tickCount: 5, zindex: 1 }
+    {
+      orient: "bottom",
+      scale: "xrelscale",
+      zindex: 1,
+      tickCount: 10
+    },
+    {
+      orient: "left",
+      scale: "yscale",
+      tickCount: 5,
+      zindex: 1
+    }
   ],
 
   marks: [

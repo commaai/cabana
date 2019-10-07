@@ -1,5 +1,3 @@
-global.__JEST__ = 1;
-
 import React from "react";
 import { shallow, mount, render } from "enzyme";
 
@@ -7,13 +5,15 @@ import SaveDbcModal from "../../components/SaveDbcModal";
 import OpenDbc from "../../api/OpenDbc";
 import DBC from "../../models/can/dbc";
 
+global.__JEST__ = 1;
+
 test("SaveDbcModal successfully mounts with minimal default props", () => {
   const openDbcClient = new OpenDbc(null);
   const dbc = new DBC();
   const component = shallow(
     <SaveDbcModal
       dbc={dbc}
-      sourceDbcFilename={""}
+      sourceDbcFilename=""
       onDbcSaved={() => {}}
       handleClose={() => {}}
       openDbcClient={openDbcClient}

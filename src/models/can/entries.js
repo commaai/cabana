@@ -20,13 +20,13 @@ function findSegmentIndices(
     Returns `[segmentIdxLow, segmentIdxHigh]`
              (inclusive, exclusive)
     */
-  let timeIndexFunc =
+  const timeIndexFunc =
     isRelative === true ? findRelativeTimeIndex : findTimeIndex;
 
   const segmentIdxLow = Math.max(0, timeIndexFunc(entries, segmentTimeLow));
 
   const upperSegments = entries.slice(segmentIdxLow);
-  let upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
+  const upperSegmentIdxHi = timeIndexFunc(upperSegments, segmentTimeHi);
   const segmentIdxHi =
     upperSegmentIdxHi >= 0
       ? upperSegmentIdxHi + segmentIdxLow + 1

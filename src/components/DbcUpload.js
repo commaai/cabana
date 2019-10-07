@@ -5,6 +5,7 @@ export default class DbcUpload extends Component {
   static propTypes = {
     onDbcLoaded: PropTypes.func
   };
+
   constructor(props) {
     super(props);
     this.state = {

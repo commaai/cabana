@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Clipboard from "clipboard";
 
 import MessageBytes from "./MessageBytes";
+
 const { ckmeans } = require("simple-statistics");
 
 export default class Meta extends Component {
@@ -136,9 +137,8 @@ export default class Meta extends Component {
           .sort((msg1, msg2) => {
             if (msg1.address < msg2.address) {
               return 1;
-            } else {
-              return -1;
             }
+            return -1;
           })
           .map(msg => msg.id)
       )
@@ -209,7 +209,7 @@ export default class Meta extends Component {
   }
 
   onMessageHover(key) {
-    let { hoveredMessages } = this.state;
+    const { hoveredMessages } = this.state;
     if (hoveredMessages.indexOf(key) !== -1) return;
 
     hoveredMessages.push(key);
@@ -265,10 +265,10 @@ export default class Meta extends Component {
         {msg.isLogEvent ? (
           <td colSpan="2">{msg.id}</td>
         ) : (
-          <React.Fragment>
+          <>
             <td>{msg.frame ? msg.frame.name : "untitled"}</td>
             <td>{msg.id}</td>
-          </React.Fragment>
+          </>
         )}
         <td>{msg.entries.length}</td>
         <td>
@@ -303,10 +303,10 @@ export default class Meta extends Component {
       return <p>Loading messages...</p>;
     }
     return (
-      <React.Fragment>
+      <>
         <table cellPadding="5">
           {this.state.showLogEvents && (
-            <React.Fragment>
+            <>
               <thead>
                 <tr>
                   <td colSpan="2">Name</td>
@@ -322,7 +322,7 @@ export default class Meta extends Component {
                   </td>
                 </tr>
               </tbody>
-            </React.Fragment>
+            </>
           )}
           <thead>
             <tr>
@@ -334,7 +334,7 @@ export default class Meta extends Component {
           </thead>
           <tbody>{this.renderCanMessages()}</tbody>
         </table>
-      </React.Fragment>
+      </>
     );
   }
 
@@ -349,6 +349,7 @@ export default class Meta extends Component {
       return false;
     }
   }
+
   render() {
     return (
       <div className="cabana-meta">
@@ -361,7 +362,10 @@ export default class Meta extends Component {
           </strong>
           {this.props.dbcLastSaved !== null ? (
             <div className="cabana-meta-header-last-saved">
-              <p>Last saved: {this.lastSavedPretty()}</p>
+              <p>
+                Last saved:
+                {this.lastSavedPretty()}
+              </p>
             </div>
           ) : null}
           <div className={`cabana-meta-header-actions ${this.saveable()}`}>

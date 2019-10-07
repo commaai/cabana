@@ -1,17 +1,15 @@
 import DbcUtils from "../../utils/dbc";
 
-const unsignedTransformation = field => {
-  return (value, signal) => {
-    if (value !== "") {
-      value = Number(value) || 0;
+const unsignedTransformation = field => (value, signal) => {
+  if (value !== "") {
+    value = Number(value) || 0;
 
-      if (value < 0) {
-        value = 0;
-      }
+    if (value < 0) {
+      value = 0;
     }
-    signal[field] = value;
-    return signal;
-  };
+  }
+  signal[field] = value;
+  return signal;
 };
 
 export default [
@@ -47,8 +45,8 @@ export default [
 
         if (isLittleEndian) {
           // big endian -> little endian
-          const startByte = Math.floor(signal.startBit / 8),
-            endByte = Math.floor((signal.startBit - signal.size + 1) / 8);
+          const startByte = Math.floor(signal.startBit / 8);
+          const endByte = Math.floor((signal.startBit - signal.size + 1) / 8);
 
           if (startByte === endByte) {
             signal.startBit = signal.startBit - signal.size + 1;
@@ -57,8 +55,8 @@ export default [
           }
         } else {
           // little endian -> big endian
-          const startByte = Math.floor(signal.startBit / 8),
-            endByte = Math.floor((signal.startBit + signal.size - 1) / 8);
+          const startByte = Math.floor(signal.startBit / 8);
+          const endByte = Math.floor((signal.startBit + signal.size - 1) / 8);
 
           if (startByte === endByte) {
             signal.startBit = signal.startBit + signal.size - 1;

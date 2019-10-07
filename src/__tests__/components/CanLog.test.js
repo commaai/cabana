@@ -1,8 +1,8 @@
-global.__JEST__ = 1;
-
-import CanLog from "../../components/CanLog";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
+import CanLog from "../../components/CanLog";
+
+global.__JEST__ = 1;
 
 test("CanLog successfully mounts with minimal default props", () => {
   const component = shallow(

@@ -1,8 +1,8 @@
 /* eslint-env worker */
 /* eslint-disable no-restricted-globals */
+import extend from "xtend";
 import DBC from "../models/can/dbc";
 import DbcUtils from "../utils/dbc";
-import extend from "xtend";
 
 function processStreamedCanMessages(
   newCanMessages,
@@ -21,17 +21,17 @@ function processStreamedCanMessages(
     canMessages = canMessages.sort((msg1, msg2) => {
       if (msg1[1] < msg2[1]) {
         return -1;
-      } else if (msg1[1] > msg2[1]) {
-        return 1;
-      } else {
-        return 0;
       }
+      if (msg1[1] > msg2[1]) {
+        return 1;
+      }
+      return 0;
     });
 
     let busTimeSum = 0;
 
     for (let i = 0; i < canMessages.length; i++) {
-      let { address, busTime, data, bus } = canMessages[i];
+      const { address, busTime, data, bus } = canMessages[i];
 
       let prevBusTime;
       if (i === 0) {

@@ -111,8 +111,8 @@ export default class RouteVideoSync extends Component {
       <div className={css(Styles.loadingOverlay)}>
         <img
           className={css(Styles.loadingSpinner)}
-          src={process.env.PUBLIC_URL + "/img/loading.svg"}
-          alt={"Loading video"}
+          src={`${process.env.PUBLIC_URL}/img/loading.svg`}
+          alt="Loading video"
         />
       </div>
     );
@@ -154,7 +154,7 @@ export default class RouteVideoSync extends Component {
 
   segmentProgress(currentTime) {
     // returns progress as number in [0,1]
-    let startTime = this.startTime();
+    const startTime = this.startTime();
 
     if (currentTime < startTime) {
       currentTime = startTime;
@@ -175,12 +175,12 @@ export default class RouteVideoSync extends Component {
   onUserSeek(ratio) {
     /* ratio in [0,1] */
 
-    let { videoElement } = this.state;
+    const { videoElement } = this.state;
     if (isNaN(videoElement.duration)) {
       this.setState({ shouldRestartHls: true }, funcSeekToRatio);
       return;
     }
-    let seekTime = this.ratioTime(ratio);
+    const seekTime = this.ratioTime(ratio);
     videoElement.currentTime = seekTime;
 
     const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
@@ -203,7 +203,7 @@ export default class RouteVideoSync extends Component {
           <img
             src={this.nearestFrameUrl()}
             className={css(Styles.img)}
-            alt={"Camera preview at t = " + Math.round(this.props.userSeekTime)}
+            alt={`Camera preview at t = ${Math.round(this.props.userSeekTime)}`}
           />
         ) : null}
         <HLS

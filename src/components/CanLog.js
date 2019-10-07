@@ -105,7 +105,8 @@ export default class CanLog extends Component {
   signalValuePretty(signal, value) {
     if (signal.isFloat) {
       return value.toFixed(3);
-    } else return value;
+    }
+    return value;
   }
 
   isMessageExpanded(msg) {
@@ -141,7 +142,6 @@ export default class CanLog extends Component {
       });
       this.props.onMessageExpanded();
     } else {
-      return;
     }
   }
 
@@ -239,9 +239,8 @@ export default class CanLog extends Component {
         this.props.message.entries[offset + index],
         key
       );
-    } else {
-      return null;
     }
+    return null;
   }
 
   renderLogList(items, ref) {
@@ -263,14 +262,15 @@ export default class CanLog extends Component {
     const { segmentIndices, messageIndex } = this.props;
     if (messageIndex > 0) {
       return this.props.message.entries.length - messageIndex;
-    } else if (segmentIndices.length === 2) {
-      return segmentIndices[1] - segmentIndices[0];
-    } else if (this.props.message) {
-      return this.props.message.entries.length;
-    } else {
-      // no message yet
-      return 0;
     }
+    if (segmentIndices.length === 2) {
+      return segmentIndices[1] - segmentIndices[0];
+    }
+    if (this.props.message) {
+      return this.props.message.entries.length;
+    }
+    // no message yet
+    return 0;
   }
 
   onExpandAllChanged(e) {
@@ -282,10 +282,12 @@ export default class CanLog extends Component {
   }
 
   render() {
-    let expandAllText = this.state.allPacketsExpanded
+    const expandAllText = this.state.allPacketsExpanded
       ? "Collapse All"
       : "Expand All";
-    let expandAllClass = this.state.allPacketsExpanded ? null : "button--alpha";
+    const expandAllClass = this.state.allPacketsExpanded
+      ? null
+      : "button--alpha";
     return (
       <div className="cabana-explorer-signals-log">
         <div className="cabana-explorer-signals-log-header">

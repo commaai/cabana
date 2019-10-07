@@ -37,31 +37,37 @@ const Styles = StyleSheet.create({
 });
 
 const leftArrow = createImageComponent(
-  process.env.PUBLIC_URL + "/img/ic_arrow_left_black_24dp.png",
+  `${process.env.PUBLIC_URL}/img/ic_arrow_left_black_24dp.png`,
   "Left arrow",
   Styles.materialIcon
 );
 const rightArrow = createImageComponent(
-  process.env.PUBLIC_URL + "/img/ic_arrow_right_black_24dp.png",
+  `${process.env.PUBLIC_URL}/img/ic_arrow_right_black_24dp.png`,
   "Right arrow",
   Styles.materialIcon
 );
 
 const downArrow = createImageComponent(
-  process.env.PUBLIC_URL + "/img/ic_arrow_drop_down_black_24dp.png",
+  `${process.env.PUBLIC_URL}/img/ic_arrow_drop_down_black_24dp.png`,
   "Down arrow",
   Styles.materialIcon
 );
 
 const clear = createImageComponent(
-  process.env.PUBLIC_URL + "/img/ic_clear_black_24dp.png",
+  `${process.env.PUBLIC_URL}/img/ic_clear_black_24dp.png`,
   "Clear",
   [Styles.materialIcon, Styles.pointer]
 );
 
 const panda = createImageComponent(
-  process.env.PUBLIC_URL + "/img/panda.png",
+  `${process.env.PUBLIC_URL}/img/panda.png`,
   "Panda",
   []
 );
-export default { rightArrow, leftArrow, downArrow, clear, panda };
+export default {
+  rightArrow,
+  leftArrow,
+  downArrow,
+  clear,
+  panda
+};

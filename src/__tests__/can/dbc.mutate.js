@@ -1,6 +1,7 @@
-global.__JEST__ = 1;
 import DBC from "../../models/can/dbc";
 import Signal from "../../models/can/signal";
+
+global.__JEST__ = 1;
 
 test("setting signals should create a message", () => {
   const dbc = new DBC();

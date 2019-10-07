@@ -36,7 +36,7 @@ export default class Modal extends Component {
     if (this.props.variations) {
       const { variations } = this.props;
       const classes = variations.reduce(
-        (classes, variation) => classes + `cabana-modal--${variation} `,
+        (classes, variation) => `${classes}cabana-modal--${variation} `,
         ""
       );
       return classes;

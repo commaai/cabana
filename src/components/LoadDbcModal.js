@@ -54,19 +54,17 @@ export default class LoadDbcModal extends Component {
   renderTabNavigation() {
     return (
       <div className="cabana-tabs-navigation">
-        {this.state.tabs.map(tab => {
-          return (
-            <a
-              className={cx({ "is-active": this.state.tab === tab })}
-              onClick={() => {
-                this.setState({ tab });
-              }}
-              key={tab}
-            >
-              <span>{tab}</span>
-            </a>
-          );
-        })}
+        {this.state.tabs.map(tab => (
+          <a
+            className={cx({ "is-active": this.state.tab === tab })}
+            onClick={() => {
+              this.setState({ tab });
+            }}
+            key={tab}
+          >
+            <span>{tab}</span>
+          </a>
+        ))}
       </div>
     );
   }
@@ -81,21 +79,23 @@ export default class LoadDbcModal extends Component {
           openDbcClient={this.props.openDbcClient}
         />
       );
-    } else if (tab === "GitHub") {
+    }
+    if (tab === "GitHub") {
       if (!this.props.openDbcClient.hasAuth()) {
         return this.props.loginWithGithub;
-      } else if (this.state.userOpenDbcRepo === null) {
-        return <div>Fork it</div>;
-      } else {
-        return (
-          <GithubDbcList
-            onDbcLoaded={this.onDbcLoaded}
-            repo={this.state.userOpenDbcRepo}
-            openDbcClient={this.props.openDbcClient}
-          />
-        );
       }
-    } else if (tab === "Upload") {
+      if (this.state.userOpenDbcRepo === null) {
+        return <div>Fork it</div>;
+      }
+      return (
+        <GithubDbcList
+          onDbcLoaded={this.onDbcLoaded}
+          repo={this.state.userOpenDbcRepo}
+          openDbcClient={this.props.openDbcClient}
+        />
+      );
+    }
+    if (tab === "Upload") {
       return <DbcUpload onDbcLoaded={this.onDbcLoaded} />;
     }
   }

@@ -1,9 +1,9 @@
-global.__JEST__ = 1;
-
+import extend from "xtend";
 import DbcUtils from "../../utils/dbc";
 import DBC from "../../models/can/dbc";
 import Signal from "../../models/can/signal";
-import extend from "xtend";
+
+global.__JEST__ = 1;
 
 // want to mock pandareader and test processStreamedCanMessages
 const SAMPLE_MESSAGE = {
@@ -28,7 +28,7 @@ function expectSampleMessageFieldsPreserved(messages, frame) {
 // function addCanMessage([address, busTime, data, bus], dbc, canStartTime, messages, prevMsgEntries, byteStateChangeCountsByMessage) {
 function addMessages(messages, message, dbc, n) {
   const firstCanTime = 0;
-  let nextMessage = () => {
+  const nextMessage = () => {
     message = extend(message);
     message.busTime += 1;
     return message;

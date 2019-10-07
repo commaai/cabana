@@ -5,7 +5,7 @@ function init() {
     const opts = {};
 
     if (typeof __webpack_hash__ !== "undefined") {
-      opts["release"] = __webpack_hash__; // eslint-disable-line no-undef
+      opts.release = __webpack_hash__; // eslint-disable-line no-undef
     }
 
     Raven.config(

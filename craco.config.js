@@ -2,7 +2,7 @@ const WorkerLoaderPlugin = require("craco-worker-loader");
 const SentryPlugin = require("craco-sentry-plugin");
 
 module.exports = function({ env }) {
-  var plugins = [
+  const plugins = [
     {
       plugin: WorkerLoaderPlugin
     }
@@ -13,12 +13,12 @@ module.exports = function({ env }) {
     // });
   }
   return {
-    plugins: plugins,
+    plugins,
     webpack: {
       configure: (webpackConfig, { env, paths }) => {
         webpackConfig.output.globalObject = "this";
         webpackConfig.optimization.minimizer = webpackConfig.optimization.minimizer.map(
-          function(plugin) {
+          plugin => {
             if (plugin.constructor.name !== "TerserPlugin") {
               return plugin;
             }

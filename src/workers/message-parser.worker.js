@@ -4,7 +4,7 @@ import Sentry from "../logging/Sentry";
 import DBC from "../models/can/dbc";
 import DbcUtils from "../utils/dbc";
 
-var window = self;
+const window = self;
 
 function reparseEntry(entry, address, dbc, canStartTime, prevMsgEntry) {
   const data = Buffer.from(entry.hexData, "hex");
@@ -23,7 +23,7 @@ self.onmessage = function(e) {
   const dbc = new DBC(dbcText);
   Object.keys(messages).forEach(messageId => {
     const message = messages[messageId];
-    for (var i = 0; i < message.entries.length; i++) {
+    for (let i = 0; i < message.entries.length; i++) {
       const entry = message.entries[i];
       const prevMsgEntry = i > 0 ? message.entries[i - 1] : null;
 

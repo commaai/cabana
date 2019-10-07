@@ -1,8 +1,8 @@
-import Sentry from "./logging/Sentry";
 import React from "react";
 import ReactDOM from "react-dom";
 import CommaAuth from "@commaai/my-comma-auth";
 import { request as Request } from "@commaai/comma-api";
+import Sentry from "./logging/Sentry";
 import CanExplorer from "./CanExplorer";
 import AcuraDbc from "./acura-dbc";
 import { getUrlParameter, modifyQueryParameters } from "./utils/url";
@@ -17,8 +17,8 @@ import "./index.css";
 Sentry.init();
 
 const routeFullName = getUrlParameter("route");
-let isDemo = !routeFullName;
-let props = { autoplay: true, isDemo };
+const isDemo = !routeFullName;
+const props = { autoplay: true, isDemo };
 let persistedDbc = null;
 
 if (routeFullName) {
@@ -28,10 +28,10 @@ if (routeFullName) {
 
   persistedDbc = fetchPersistedDbc(routeFullName);
 
-  let max = getUrlParameter("max"),
-    url = getUrlParameter("url"),
-    exp = getUrlParameter("exp"),
-    sig = getUrlParameter("sig");
+  const max = getUrlParameter("max");
+  const url = getUrlParameter("url");
+  const exp = getUrlParameter("exp");
+  const sig = getUrlParameter("sig");
 
   if (max) {
     props.max = max;
@@ -104,7 +104,7 @@ if (routeFullName || isDemo) {
   init();
 } else {
   const img = document.createElement("img");
-  img.src = process.env.PUBLIC_URL + "/img/cabana.jpg";
+  img.src = `${process.env.PUBLIC_URL}/img/cabana.jpg`;
   img.style.width = "100%";
   const comment = document.createComment("7/6/17");
 

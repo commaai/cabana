@@ -46,6 +46,7 @@ export default class HLS extends Component {
   // legacy outer scope variable. Revisit this to see if putting in state
   // makes more sense
   shouldInitVideoTime = true;
+
   onSeeked = () => {
     if (!this.props.playing) {
       if (this.shouldInitVideoTime) {

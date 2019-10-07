@@ -19,9 +19,13 @@ export default class RouteSeeker extends Component {
   };
 
   static hiddenMarkerStyle = { display: "none", left: 0 };
+
   static zeroSeekedBarStyle = { width: 0 };
+
   static hiddenTooltipStyle = { display: "none", left: 0 };
+
   static markerWidth = 20;
+
   static tooltipWidth = 50;
 
   constructor(props) {
@@ -96,15 +100,15 @@ export default class RouteSeeker extends Component {
       this.onMouseLeave();
       return;
     }
-    const markerWidth = RouteSeeker.markerWidth;
+    const { markerWidth } = RouteSeeker;
 
-    const markerLeft = `calc(${markerOffsetPct + "%"} - ${markerWidth / 2}px)`;
+    const markerLeft = `calc(${`${markerOffsetPct}%`} - ${markerWidth / 2}px)`;
     const markerStyle = {
       display: "",
       left: markerLeft
     };
-    const tooltipWidth = RouteSeeker.tooltipWidth;
-    const tooltipLeft = `calc(${markerOffsetPct + "%"} - ${tooltipWidth /
+    const { tooltipWidth } = RouteSeeker;
+    const tooltipLeft = `calc(${`${markerOffsetPct}%`} - ${tooltipWidth /
       2}px)`;
 
     const tooltipStyle = { display: "flex", left: tooltipLeft };
@@ -130,7 +134,7 @@ export default class RouteSeeker extends Component {
   }
 
   updateSeekedBar(ratio) {
-    const seekedBarStyle = { width: 100 * ratio + "%" };
+    const seekedBarStyle = { width: `${100 * ratio}%` };
     this.setState({ seekedBarStyle, ratio });
   }
 
@@ -210,13 +214,13 @@ export default class RouteSeeker extends Component {
     return (
       <div className="cabana-explorer-visuals-camera-seeker">
         <PlayButton
-          className={"cabana-explorer-visuals-camera-seeker-playbutton"}
+          className="cabana-explorer-visuals-camera-seeker-playbutton"
           onPlay={this.onPlay}
           onPause={this.onPause}
           isPlaying={this.state.isPlaying}
         />
         <div
-          className={"cabana-explorer-visuals-camera-seeker-progress"}
+          className="cabana-explorer-visuals-camera-seeker-progress"
           onMouseMove={this.onMouseMove}
           onMouseLeave={this.onMouseLeave}
           onMouseDown={this.onMouseDown}
@@ -225,17 +229,17 @@ export default class RouteSeeker extends Component {
           ref={ref => (this.progressBar = ref)}
         >
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-tooltip"}
+            className="cabana-explorer-visuals-camera-seeker-progress-tooltip"
             style={tooltipStyle}
           >
             {this.state.tooltipTime}
           </div>
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-marker"}
+            className="cabana-explorer-visuals-camera-seeker-progress-marker"
             style={markerStyle}
           />
           <div
-            className={"cabana-explorer-visuals-camera-seeker-progress-inner"}
+            className="cabana-explorer-visuals-camera-seeker-progress-inner"
             style={seekedBarStyle}
           />
         </div>

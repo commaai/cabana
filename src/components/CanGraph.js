@@ -63,10 +63,10 @@ export default class CanGraph extends Component {
   getGraphData(props) {
     let firstRelTime = -1;
     let lastRelTime = -1;
-    let series = props.plottedSignals
+    const series = props.plottedSignals
       .map(signals => {
         const { messageId, signalUid } = signals;
-        let entries = props.messages[messageId].entries;
+        const { entries } = props.messages[messageId];
         if (entries.length) {
           let messageRelTime = entries[0].relTime;
           if (firstRelTime === -1) {
@@ -151,8 +151,8 @@ export default class CanGraph extends Component {
 
     // adding plot points by diff isn't faster since it basically has to be n^2
     // out-of-order events make it so that you can't just check the bounds
-    let { series } = this.state.data;
-    let changeset = this.view
+    const { series } = this.state.data;
+    const changeset = this.view
       .changeset()
       .remove(v => true)
       .insert(series);
@@ -173,7 +173,7 @@ export default class CanGraph extends Component {
       this.props.messages !== nextProps.messages ||
       this.props.plottedSignal !== nextProps.plottedSignal
     ) {
-      let data = this.getGraphData(nextProps);
+      const data = this.getGraphData(nextProps);
       if (
         data.series.length === this.state.data.series.length &&
         data.firstRelTime === this.state.data.firstRelTime &&
@@ -188,6 +188,7 @@ export default class CanGraph extends Component {
       this.setState({ spec: this.getGraphSpec(nextProps) });
     }
   }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (!this.view) {
       return true;
@@ -213,6 +214,7 @@ export default class CanGraph extends Component {
     this.view.runAsync();
     return false;
   }
+
   componentDidUpdate(oldProps, oldState) {
     if (this.view) {
       if (this.props.segment.length > 0) {
@@ -350,7 +352,7 @@ export default class CanGraph extends Component {
               return (
                 <div
                   className="cabana-explorer-visuals-plot-header"
-                  key={messageId + "_" + signal.uid}
+                  key={`${messageId}_${signal.uid}`}
                 >
                   <div className="cabana-explorer-visuals-plot-header-toggle">
                     <button
@@ -377,29 +379,27 @@ export default class CanGraph extends Component {
             }
           )}
           <Measure bounds onResize={this.onPlotResize}>
-            {({ measureRef }) => {
-              return (
-                <div
-                  ref={measureRef}
-                  className="cabana-explorer-visuals-plot-container"
-                >
-                  <Vega
-                    onNewView={this.onNewView}
-                    logLevel={1}
-                    signalListeners={{
-                      clickTime: this.onSignalClickTime,
-                      segment: this.onSignalSegment
-                    }}
-                    renderer={"canvas"}
-                    spec={this.state.spec}
-                    actions={false}
-                    data={{
-                      table: this.state.data.series
-                    }}
-                  />
-                </div>
-              );
-            }}
+            {({ measureRef }) => (
+              <div
+                ref={measureRef}
+                className="cabana-explorer-visuals-plot-container"
+              >
+                <Vega
+                  onNewView={this.onNewView}
+                  logLevel={1}
+                  signalListeners={{
+                    clickTime: this.onSignalClickTime,
+                    segment: this.onSignalSegment
+                  }}
+                  renderer="canvas"
+                  spec={this.state.spec}
+                  actions={false}
+                  data={{
+                    table: this.state.data.series
+                  }}
+                />
+              </div>
+            )}
           </Measure>
         </div>
       </div>

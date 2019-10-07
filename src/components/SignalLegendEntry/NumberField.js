@@ -15,7 +15,7 @@ export default ({
   if (isExpanded) {
     let value = signalEdited;
     if (value !== "") {
-      let num = Number(value);
+      const num = Number(value);
       value = isNaN(num) ? "" : num;
     }
     valueCol = (
@@ -29,7 +29,7 @@ export default ({
       />
     );
   } else {
-    let value = signal[field];
+    const value = signal[field];
     valueCol = <span>{value}</span>;
   }
   return (

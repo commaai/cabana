@@ -14,7 +14,7 @@ export default ({
   const { field, title } = fieldSpec;
   const htmlFor = `${signal.name}_${field}`;
   const { options, optionValues } = fieldSpec.options;
-  let valueOptions = swapKeysAndValues(optionValues);
+  const valueOptions = swapKeysAndValues(optionValues);
 
   if (isExpanded) {
     const optionEles = options.map(opt => (

@@ -7,7 +7,8 @@ export function fetchPersistedDbc(routeName) {
     const dbc = new DBC(dbcText);
 
     return { dbc, dbcText, dbcFilename };
-  } else return null;
+  }
+  return null;
 }
 
 export function persistDbc(routeName, { dbcFilename, dbc }) {

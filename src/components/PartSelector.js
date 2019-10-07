@@ -5,6 +5,7 @@ import { PART_SEGMENT_LENGTH } from "../config";
 
 export default class PartSelector extends Component {
   static selectorWidth = 150;
+
   static propTypes = {
     onPartChange: PropTypes.func.isRequired,
     partsCount: PropTypes.number.isRequired,
@@ -29,8 +30,8 @@ export default class PartSelector extends Component {
 
   makePartStyle(partsCount, selectedPart) {
     return {
-      left: selectedPart / partsCount * PartSelector.selectorWidth,
-      width: PART_SEGMENT_LENGTH / partsCount * PartSelector.selectorWidth
+      left: (selectedPart / partsCount) * PartSelector.selectorWidth,
+      width: (PART_SEGMENT_LENGTH / partsCount) * PartSelector.selectorWidth
     };
   }
 
@@ -80,7 +81,7 @@ export default class PartSelector extends Component {
   partAtClientX(clientX) {
     const rect = this.selectorRect.getBoundingClientRect();
     const x = clientX - rect.left;
-    return Math.floor(x * this.props.partsCount / PartSelector.selectorWidth);
+    return Math.floor((x * this.props.partsCount) / PartSelector.selectorWidth);
   }
 
   onSelectedPartDragStart(e) {

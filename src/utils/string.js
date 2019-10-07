@@ -1,6 +1,6 @@
 export function hash(str) {
-  var hash = 5381,
-    i = str.length;
+  let hash = 5381;
+  let i = str.length;
 
   while (i) {
     hash = (hash * 33) ^ str.charCodeAt(--i);

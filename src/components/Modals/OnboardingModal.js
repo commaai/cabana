@@ -6,7 +6,7 @@ import cx from "classnames";
 import CommaAuth from "@commaai/my-comma-auth";
 
 import { EXPLORER_URL } from "../../config";
-import Modal from "../Modals/baseModal";
+import Modal from "./baseModal";
 
 export default class OnboardingModal extends Component {
   static propTypes = {
@@ -66,7 +66,8 @@ export default class OnboardingModal extends Component {
           </a>
         </p>
       );
-    } else if (!pandaConnected && attemptingPandaConnection) {
+    }
+    if (!pandaConnected && attemptingPandaConnection) {
       return (
         <p>
           <i className="fa fa-spinner animate-spin" />
@@ -147,7 +148,7 @@ export default class OnboardingModal extends Component {
               <strong>Enable Experimental Platform features:</strong>
             </p>
             <img
-              alt={"Screenshot of Google Chrome Experimental Platform features"}
+              alt="Screenshot of Google Chrome Experimental Platform features"
               src={OnboardingModal.instructionalImages.step2}
             />
           </li>
@@ -156,7 +157,7 @@ export default class OnboardingModal extends Component {
               <strong>Enable WebUSB:</strong>
             </p>
             <img
-              alt={"Screenshot of Google Chrome enable WebUSB"}
+              alt="Screenshot of Google Chrome enable WebUSB"
               src={OnboardingModal.instructionalImages.step3}
             />
           </li>
@@ -175,9 +176,8 @@ export default class OnboardingModal extends Component {
   renderModalContent() {
     if (this.state.viewingUsbInstructions) {
       return this.renderUsbInstructions();
-    } else {
-      return this.renderOnboardingOptions();
     }
+    return this.renderOnboardingOptions();
   }
 
   renderModalFooter() {
@@ -191,7 +191,8 @@ export default class OnboardingModal extends Component {
             rel="noopener noreferrer"
           >
             panda
-          </a>?{" "}
+          </a>
+          ?{" "}
         </span>
         <span>
           <a
@@ -215,7 +216,7 @@ export default class OnboardingModal extends Component {
         title="Welcome to Cabana"
         subtitle="Get started by selecting a drive from Explorer or enabling live mode"
         footer={this.renderModalFooter()}
-        disableClose={true}
+        disableClose
         variations={["wide", "dark"]}
       >
         {this.renderModalContent()}

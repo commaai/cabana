@@ -25,9 +25,7 @@ export default class SignalLegendEntry extends Component {
     isExpanded: PropTypes.bool
   };
 
-  static fieldSpecForName = name => {
-    return FIELDS.find(field => field.field === name);
-  };
+  static fieldSpecForName = name => FIELDS.find(field => field.field === name);
 
   constructor(props) {
     super(props);
@@ -109,9 +107,8 @@ export default class SignalLegendEntry extends Component {
     this.props.onSignalPlotChange(!isPlotted, signal.uid);
   };
 
-  getSignalEdited = field => {
-    return this.state.signalEdited[field];
-  };
+  getSignalEdited = field => this.state.signalEdited[field];
+
   render() {
     const { signal, isHighlighted, color, isPlotted, isExpanded } = this.props;
     const expandedEntryClass = isExpanded ? "is-expanded" : null;

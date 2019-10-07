@@ -17,11 +17,10 @@ export default class OpenDBC {
   async getGithubUsername() {
     if (this.githubUsername) {
       return this.githubUsername;
-    } else {
-      const githubUsername = await this.fetchGithubUsername();
-      if (githubUsername) {
-        return githubUsername;
-      }
+    }
+    const githubUsername = await this.fetchGithubUsername();
+    if (githubUsername) {
+      return githubUsername;
     }
   }
 
@@ -96,18 +95,16 @@ export default class OpenDBC {
 
     if (this.repoSourceIsOpenDbc(repoDetails)) {
       return repoDetails.full_name;
-    } else {
-      return null;
     }
+    return null;
   }
 
   async fork() {
     const forkResponse = await this.sourceRepo.fork();
     if (forkResponse.status === 202) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   async commitFile(repoFullName, path, contents, commitMessage) {
@@ -134,7 +131,7 @@ export default class OpenDBC {
     const tree = [
       {
         mode: "100644",
-        path: path,
+        path,
         type: "blob",
         content: contents
       }

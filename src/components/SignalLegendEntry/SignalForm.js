@@ -17,31 +17,29 @@ export default ({
   isExpanded,
   getSignalEdited,
   update
-}) => {
-  return (
-    <div className="signals-legend-entry-form">
-      {FIELDS.map(field => {
-        const Node = FieldMap[field.type];
-        return (
-          <div className="signals-legend-entry-form-field" key={field.field}>
-            <Node
-              fieldSpec={field}
-              signal={signal}
-              isExpanded={isExpanded}
-              signalEdited={getSignalEdited(field.field)}
-              updateField={update}
-            />
-          </div>
-        );
-      })}
-      <div className="signals-legend-entry-form-remove">
-        <button
-          className="button--tiny button--alpha"
-          onClick={() => onSignalRemove(signal)}
-        >
-          Remove Signal
-        </button>
-      </div>
+}) => (
+  <div className="signals-legend-entry-form">
+    {FIELDS.map(field => {
+      const Node = FieldMap[field.type];
+      return (
+        <div className="signals-legend-entry-form-field" key={field.field}>
+          <Node
+            fieldSpec={field}
+            signal={signal}
+            isExpanded={isExpanded}
+            signalEdited={getSignalEdited(field.field)}
+            updateField={update}
+          />
+        </div>
+      );
+    })}
+    <div className="signals-legend-entry-form-remove">
+      <button
+        className="button--tiny button--alpha"
+        onClick={() => onSignalRemove(signal)}
+      >
+        Remove Signal
+      </button>
     </div>
-  );
-};
+  </div>
+);

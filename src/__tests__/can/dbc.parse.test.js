@@ -1,6 +1,7 @@
-global.__JEST__ = 1;
 import DBC, { swapOrder } from "../../models/can/dbc";
 import Signal from "../../models/can/signal";
+
+global.__JEST__ = 1;
 
 const DBC_MESSAGE_DEF = `BO_ 228 STEERING_CONTROL: 5 ADAS
  SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS
@@ -170,7 +171,7 @@ test("DBC parses steering control message", () => {
   const { signals } = dbcParsed.getMessageFrame(228);
 
   expect(Object.keys(signals).length).toBe(6);
-  expect(signals["STEER_TORQUE"].equals(steerTorqueSignal)).toBe(true);
+  expect(signals.STEER_TORQUE.equals(steerTorqueSignal)).toBe(true);
 });
 
 test("DBC parses signal comment", () => {
@@ -269,7 +270,7 @@ test("int32 parser produces correct value for steer torque signal", () => {
   const hex = "e2d62a0bd0d3b5e5";
   const value = dbcInt32SignalValue(
     dbc,
-    dbc.getMessageFrame(228).signals["STEER_TORQUE"],
+    dbc.getMessageFrame(228).signals.STEER_TORQUE,
     hex
   );
 
@@ -291,28 +292,28 @@ test("int32 parser produces correct value for wheel speeds", () => {
   const hex = "36806cd8d8f1b0b7";
   const rearRight = dbcInt32SignalValue(
     dbc,
-    dbc.getMessageFrame(464).signals["WHEEL_SPEED_RR"],
+    dbc.getMessageFrame(464).signals.WHEEL_SPEED_RR,
     hex
   );
   expect(rearRight).toBe(69.23);
 
   const rearLeft = dbcInt32SignalValue(
     dbc,
-    dbc.getMessageFrame(464).signals["WHEEL_SPEED_RL"],
+    dbc.getMessageFrame(464).signals.WHEEL_SPEED_RL,
     hex
   );
   expect(rearLeft).toBe(69.42);
 
   const frontLeft = dbcInt32SignalValue(
     dbc,
-    dbc.getMessageFrame(464).signals["WHEEL_SPEED_FL"],
+    dbc.getMessageFrame(464).signals.WHEEL_SPEED_FL,
     hex
   );
   expect(frontLeft).toBe(69.76);
 
   const frontRight = dbcInt32SignalValue(
     dbc,
-    dbc.getMessageFrame(464).signals["WHEEL_SPEED_FR"],
+    dbc.getMessageFrame(464).signals.WHEEL_SPEED_FR,
     hex
   );
   expect(frontRight).toBe(69.66);
@@ -325,7 +326,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 
 test("int32 parsers produces correct value for binary little endian signal", () => {
   const dbc = new DBC(DBC_BINARY_LE_SIGNAL);
-  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
   const hexDataSet = "0000000020000000";
   const hexDataNotSet = "0000000000000000";
@@ -343,7 +344,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 `;
 test("int32 parser produces correct value for 2-bit little endian signal spanning words", () => {
   const dbc = new DBC(DBC_TWO_BIT_LE_SIGNAL);
-  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
   const hexData = "00000001f8000000";
 
@@ -357,7 +358,7 @@ BO_ 768 NEW_MSG_1: 8 XXX
 `;
 test("int32 parser produces correct value for 4-bit little endian signal", () => {
   const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL);
-  const signalSpec = dbc.getMessageFrame(768).signals["NEW_SIGNAL_1"];
+  const signalSpec = dbc.getMessageFrame(768).signals.NEW_SIGNAL_1;
 
   // this data is symmetric, the data bits are 1111
   const hexDataSymmetric = "f00f000000000000";
@@ -388,7 +389,7 @@ BO_ 1265 CLU11: 4 CLU
 test("int32 parser produces correct value for 4-bit little endian signal within a 4-byte message", () => {
   const dbc = new DBC(DBC_FOUR_BIT_LE_SIGNAL_FOUR_BYTE_MESSAGE);
   const frame = dbc.getMessageFrame(1265);
-  const signalSpec = frame.signals["CF_Clu_AliveCnt1"];
+  const signalSpec = frame.signals.CF_Clu_AliveCnt1;
 
   const hexData = "2000662000000000";
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
@@ -406,7 +407,7 @@ BO_ 688 SAS11: 5 MDPS
 test("int32 parser produces correct value for 2-byte signed little endian signal within a 5-byte message", () => {
   const dbc = new DBC(DBC_MESSAGE_WITH_LE_SIGNED_SIGNAL);
   const frame = dbc.getMessageFrame(688);
-  const signalSpec = frame.signals["SAS_Angle"];
+  const signalSpec = frame.signals.SAS_Angle;
 
   const hexData = "000000fafe000700";
   const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);

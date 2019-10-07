@@ -1,8 +1,8 @@
-import SignalLegendEntry from ".";
-import Signal from "../../models/can/signal";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
 import { StyleSheetTestUtils } from "aphrodite";
+import Signal from "../../models/can/signal";
+import SignalLegendEntry from ".";
 
 // Prevents style injection from firing after test finishes
 // and jsdom is torn down.
@@ -14,9 +14,9 @@ afterEach(() => {
 });
 
 function createSignalLegendEntry(props) {
-  let signal = props.signal,
-    onSignalChange = props.onSignalChange,
-    onTentativeSignalChange = props.onTentativeSignalChange;
+  let { signal } = props;
+  let { onSignalChange } = props;
+  let { onTentativeSignalChange } = props;
   if (signal === undefined) {
     signal = new Signal({ name: "NEW_SIGNAL" });
   }

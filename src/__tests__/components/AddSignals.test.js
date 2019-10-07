@@ -5,10 +5,10 @@ note: 'right' and 'left' in test descriptions
        refer to the sides of the bit matrix
        as displayed to the user.
 */
-import AddSignals from "../../components/AddSignals";
 import React from "react";
 import { shallow, mount, render } from "enzyme";
 import { StyleSheetTestUtils } from "aphrodite";
+import AddSignals from "../../components/AddSignals";
 
 // Prevents style injection from firing after test finishes
 // and jsdom is torn down.

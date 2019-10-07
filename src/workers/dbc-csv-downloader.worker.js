@@ -6,15 +6,15 @@ import NumpyLoader from "../utils/loadnpy";
 
 const MAX_CONNECTIONS = 8;
 
-var window = self;
+const window = self;
 
-const Int64LE = require("int64-buffer").Int64LE;
+const { Int64LE } = require("int64-buffer");
 
 function transformAndSend(rawData) {
-  var totalSize = 0;
-  var maxTime = rawData.reduce(function(memo, sourceData) {
+  let totalSize = 0;
+  const maxTime = rawData.reduce((memo, sourceData) => {
     totalSize += sourceData.entries.length;
-    sourceData.entries = sourceData.entries.sort(function(a, b) {
+    sourceData.entries = sourceData.entries.sort((a, b) => {
       if (a.relTime > b.relTime) {
         return 1;
       }
@@ -26,14 +26,14 @@ function transformAndSend(rawData) {
     return Math.max(memo, getLastTimeFromEntries(sourceData.entries));
   }, 0);
 
-  var minTime = Math.max(0, maxTime - 30);
+  const minTime = Math.max(0, maxTime - 30);
   console.log("Time span from", minTime, maxTime);
-  var curIndexes = {};
-  rawData.forEach(function(sourceData) {
+  const curIndexes = {};
+  rawData.forEach(sourceData => {
     if (!sourceData.entries.length) {
       return;
     }
-    var sourceId = sourceData.id;
+    const sourceId = sourceData.id;
     if (minTime === 0 || sourceData.entries[0].relTime > minTime) {
       curIndexes[sourceId] = 0;
       return;
@@ -41,12 +41,12 @@ function transformAndSend(rawData) {
     curIndexes[sourceId] = findFirstEntryIndex(sourceData.entries, minTime);
   });
 
-  var entryBuffer = [];
-  var totalEntries = 0;
+  let entryBuffer = [];
+  let totalEntries = 0;
 
   while (!isAtEnd()) {
-    let nextSource = rawData.reduce(function(memo, sourceData) {
-      let curEntry = sourceData.entries[curIndexes[sourceData.id]];
+    const nextSource = rawData.reduce((memo, sourceData) => {
+      const curEntry = sourceData.entries[curIndexes[sourceData.id]];
       if (!curEntry) {
         return memo;
       }

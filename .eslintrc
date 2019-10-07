@@ -1,0 +1,18 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb"
+  ],
+  "rules": {
+    "import/prefer-default-export": 0,
+    "import/no-named-as-default": 0,
+    "comma-dangle": 0,
+    "react/jsx-filename-extension": 0, // .jsx should be better? But git diff will be crazy
+    "react/forbid-prop-types": 0, // Too time consuming to map out types for now
+    "react/require-default-props": 0,
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
+  },
+  "env": {
+      "browser": true
+  }
+}

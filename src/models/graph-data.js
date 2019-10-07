@@ -12,7 +12,7 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
     return null;
   }
   let samples = [];
-  let skip = Math.floor(msg.entries.length / CAN_GRAPH_MAX_POINTS);
+  const skip = Math.floor(msg.entries.length / CAN_GRAPH_MAX_POINTS);
 
   if (skip === 0) {
     samples = msg.entries;
@@ -57,9 +57,7 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
   );
 
   const extendedPlots = messagesPerPlot
-    .map((plottedMessageIds, index) => {
-      return { plottedMessageIds, index };
-    }) // preserve index so we can look up graphData
+    .map((plottedMessageIds, index) => ({ plottedMessageIds, index })) // preserve index so we can look up graphData
     .filter(({ plottedMessageIds, index }) => {
       if (index < graphData.length) {
         let maxGraphTime = 0;
@@ -73,9 +71,8 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
             (messages[messageId].entries.length > 0 && series.length === 0) ||
             messages[messageId].entries.some(e => e.relTime > maxGraphTime)
         );
-      } else {
-        return false;
       }
+      return false;
     })
     .map(({ plottedMessageIds, index }) => {
       plottedMessageIds = plottedMessageIds.reduce((arr, messageId) => {
@@ -102,9 +99,10 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
     const graphDataMaxMessageTimes = plottedMessageIds.reduce(
       (obj, messageId) => {
         const signalUids = signalUidsByMessageId[messageId];
-        const maxIndex = ArrayUtils.findIndexRight(series, entry => {
-          return signalUids.indexOf(entry.signalUid) !== -1;
-        });
+        const maxIndex = ArrayUtils.findIndexRight(
+          series,
+          entry => signalUids.indexOf(entry.signalUid) !== -1
+        );
         if (maxIndex) {
           obj[messageId] = series[maxIndex].relTime;
         } else if (series.length > 0) {
@@ -121,9 +119,7 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
 
     let newGraphData = [];
     plottedMessageIds
-      .map(messageId => {
-        return { messageId, entries: messages[messageId].entries };
-      })
+      .map(messageId => ({ messageId, entries: messages[messageId].entries }))
       .filter(
         (
           { messageId, entries } // Filter to only messages with stale graphData
@@ -133,7 +129,7 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
       )
       .forEach(({ messageId, entries }) => {
         // Compute and append new graphData
-        let firstNewEntryIdx = entries.findIndex(
+        const firstNewEntryIdx = entries.findIndex(
           entry => entry.relTime > graphDataMaxMessageTimes[messageId]
         );
 

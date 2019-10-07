@@ -6,7 +6,7 @@ import BoardUnit from "./BoardUnit";
 import DbcUtils from "../../utils/dbc";
 import * as LogSignals from "./logSignals";
 
-const UINT64 = require("cuint").UINT64;
+const { UINT64 } = require("cuint");
 
 const DBC_COMMENT_RE = /^CM_ *"(.*)";/;
 const DBC_COMMENT_MULTI_LINE_RE = /^CM_ *"(.*)/;
@@ -42,9 +42,8 @@ const FOLLOW_UP_BOARD_UNIT_COMMENT = "FollowUpBoardUnitComment";
 function floatOrInt(numericStr) {
   if (Number.isInteger(numericStr)) {
     return parseInt(numericStr, 10);
-  } else {
-    return parseFloat(numericStr);
   }
+  return parseFloat(numericStr);
 }
 
 export function swapOrder(arr, wordSize, gSize) {
@@ -82,14 +81,14 @@ export default class DBC {
   nextNewFrameName() {
     const messageNames = [];
 
-    for (let msg of this.messages.values()) {
+    for (const msg of this.messages.values()) {
       messageNames.push(msg.name);
     }
 
-    let msgNum = 1,
-      msgName;
+    let msgNum = 1;
+    let msgName;
     do {
-      msgName = "NEW_MSG_" + msgNum;
+      msgName = `NEW_MSG_${msgNum}`;
       msgNum++;
     } while (messageNames.indexOf(msgName) !== -1);
 
@@ -114,25 +113,24 @@ export default class DBC {
     this.updateBoardUnits();
 
     let txt = 'VERSION ""\n\n\n';
-    txt += "NS_ :" + this._newSymbols();
+    txt += `NS_ :${this._newSymbols()}`;
     txt += "\n\nBS_:\n";
 
     const boardUnitsText = this.boardUnits.map(bu => bu.text()).join(" ");
-    txt += "\nBU_: " + boardUnitsText + "\n\n\n";
+    txt += `\nBU_: ${boardUnitsText}\n\n\n`;
 
     const frames = [];
-    for (let frame of this.messages.values()) {
+    for (const frame of this.messages.values()) {
       frames.push(frame);
     }
-    txt += frames.map(f => f.text()).join("\n\n") + "\n\n";
+    txt += `${frames.map(f => f.text()).join("\n\n")}\n\n`;
 
     const messageTxs = frames
       .map(f => [f.id, f.transmitters.slice(1)])
       .filter(([addr, txs]) => txs.length > 0);
-    txt +=
-      messageTxs
-        .map(([addr, txs]) => `BO_TX_BU_ ${addr} : ${txs.join(",")};`)
-        .join("\n") + "\n\n\n";
+    txt += `${messageTxs
+      .map(([addr, txs]) => `BO_TX_BU_ ${addr} : ${txs.join(",")};`)
+      .join("\n")}\n\n\n`;
 
     txt += this.boardUnits
       .filter(bu => bu.comment !== null)
@@ -148,23 +146,21 @@ export default class DBC {
       .map(f => Object.values(f.signals).map(sig => [f.id, sig]))
       .reduce((s1, s2) => s1.concat(s2), []);
 
-    txt +=
-      signalsByMsgId
-        .filter(([msgAddr, sig]) => sig.comment !== null)
-        .map(
-          ([msgAddr, sig]) => `CM_ SG_ ${msgAddr} ${sig.name} "${sig.comment}";`
-        )
-        .join("\n") + "\n";
+    txt += `${signalsByMsgId
+      .filter(([msgAddr, sig]) => sig.comment !== null)
+      .map(
+        ([msgAddr, sig]) => `CM_ SG_ ${msgAddr} ${sig.name} "${sig.comment}";`
+      )
+      .join("\n")}\n`;
 
-    txt +=
-      signalsByMsgId
-        .filter(([msgAddr, sig]) => sig.valueDescriptions.size > 0)
-        .map(([msgAddr, sig]) => sig.valueDescriptionText(msgAddr))
-        .join("\n") + "\n";
+    txt += `${signalsByMsgId
+      .filter(([msgAddr, sig]) => sig.valueDescriptions.size > 0)
+      .map(([msgAddr, sig]) => sig.valueDescriptionText(msgAddr))
+      .join("\n")}\n`;
 
     txt += this.comments.map(comment => `CM_ "${comment}";`).join("\n");
 
-    return txt.trim() + "\n";
+    return `${txt.trim()}\n`;
   }
 
   getMessageName(msgId) {
@@ -218,7 +214,7 @@ export default class DBC {
     const warnings = [];
     const messages = new Map();
     let boardUnits = [];
-    let valueTables = new Map();
+    const valueTables = new Map();
     let id = 0;
     let followUp = null;
 
@@ -254,7 +250,7 @@ export default class DBC {
       }
 
       if (line.indexOf("BO_ ") === 0) {
-        let matches = line.match(MSG_RE);
+        const matches = line.match(MSG_RE);
         if (matches === null) {
           warnings.push(
             `failed to parse message definition on line ${i + 1} -- ${line}`
@@ -330,14 +326,11 @@ export default class DBC {
           messages.get(id).signals[name] = signal;
         } else {
           CloudLog.warn(
-            "importDbcString: could not add signal: " +
-              name +
-              " due to missing message: " +
-              id
+            `importDbcString: could not add signal: ${name} due to missing message: ${id}`
           );
         }
       } else if (line.indexOf("VAL_ ") === 0) {
-        let matches = line.match(VAL_RE);
+        const matches = line.match(VAL_RE);
 
         if (matches !== null) {
           let [messageId, signalName, vals] = matches.slice(1);
@@ -357,8 +350,8 @@ export default class DBC {
             continue;
           }
           for (let i = 0; i < vals.length; i += 2) {
-            const value = vals[i].trim(),
-              description = vals[i + 1].trim();
+            const value = vals[i].trim();
+            const description = vals[i + 1].trim();
             signal.valueDescriptions.set(value, description);
           }
         } else {
@@ -367,7 +360,7 @@ export default class DBC {
           );
         }
       } else if (line.indexOf("VAL_TABLE_ ") === 0) {
-        let matches = line.match(VAL_TABLE_RE);
+        const matches = line.match(VAL_TABLE_RE);
 
         if (matches !== null) {
           const table = new Map();
@@ -378,8 +371,8 @@ export default class DBC {
             .filter(s => s.length > 0);
 
           for (let i = 0; i < items.length; i += 2) {
-            const key = items[i],
-              value = items[i + 1];
+            const key = items[i];
+            const value = items[i + 1];
             table.set(key, value);
           }
           valueTables.set(tableName, table);
@@ -389,7 +382,7 @@ export default class DBC {
           );
         }
       } else if (line.indexOf("BO_TX_BU_ ") === 0) {
-        let matches = line.match(MSG_TRANSMITTER_RE);
+        const matches = line.match(MSG_TRANSMITTER_RE);
 
         if (matches !== null) {
           let [messageId, transmitter] = matches.slice(1);
@@ -465,7 +458,7 @@ export default class DBC {
           followUp = { type: FOLLOW_UP_MSG_COMMENT, data: msg };
         }
       } else if (line.indexOf("BU_: ") === 0) {
-        let matches = line.match(BOARD_UNIT_RE);
+        const matches = line.match(BOARD_UNIT_RE);
 
         if (matches !== null) {
           const [boardUnitNameStr] = matches.slice(1);
@@ -496,8 +489,8 @@ export default class DBC {
           }
         }
 
-        let [boardUnitName, comment] = matches.slice(1);
-        let boardUnit = boardUnits.find(bu => bu.name === boardUnitName);
+        const [boardUnitName, comment] = matches.slice(1);
+        const boardUnit = boardUnits.find(bu => bu.name === boardUnitName);
         if (boardUnit) {
           boardUnit.comment = comment;
         }
@@ -520,7 +513,7 @@ export default class DBC {
           }
         }
 
-        let [comment] = matches.slice(1);
+        const [comment] = matches.slice(1);
         this.comments.push(comment);
         if (hasFollowUp) {
           followUp = { type: FOLLOW_UP_DBC_COMMENT, data: comment };
@@ -542,7 +535,9 @@ export default class DBC {
 
   valueForInt64Signal(signalSpec, hexData) {
     const blen = hexData.length * 4;
-    let value, startBit, dataBitPos;
+    let value;
+    let startBit;
+    let dataBitPos;
 
     if (signalSpec.isLittleEndian) {
       value = UINT64(swapOrder(hexData, 16, 2), 16);
@@ -559,7 +554,7 @@ export default class DBC {
       return null;
     }
 
-    let rightHandAnd = UINT64(Math.pow(2, signalSpec.size) - 1);
+    const rightHandAnd = UINT64(Math.pow(2, signalSpec.size) - 1);
     let ival = value
       .shiftr(dataBitPos)
       .and(rightHandAnd)
@@ -573,11 +568,11 @@ export default class DBC {
   }
 
   valueForInt32Signal(signalSpec, buf) {
-    var startBit;
+    let startBit;
     if (signalSpec.isLittleEndian) {
       startBit = 64 - signalSpec.startBit - signalSpec.size;
     } else {
-      var bitPos = (-signalSpec.startBit - 1) % 8;
+      let bitPos = (-signalSpec.startBit - 1) % 8;
       if (bitPos < 0) {
         bitPos += 8; // mimic python modulo behavior
       }
@@ -585,8 +580,9 @@ export default class DBC {
       startBit = Math.floor(signalSpec.startBit / 8) * 8 + bitPos;
     }
 
-    var shiftAmount, signalValue;
-    let byteOffset = Math.min(4, Math.floor(signalSpec.startBit / 8));
+    let shiftAmount;
+    let signalValue;
+    const byteOffset = Math.min(4, Math.floor(signalSpec.startBit / 8));
     if (signalSpec.isLittleEndian) {
       signalValue = buf.readUInt32LE(byteOffset);
       shiftAmount = signalSpec.startBit - 8 * byteOffset;
@@ -609,7 +605,7 @@ export default class DBC {
     }
     const frame = this.getMessageFrame(messageId);
 
-    let buffer = Buffer.from(data);
+    const buffer = Buffer.from(data);
     let paddedBuffer = buffer;
     if (buffer.length !== 8) {
       // pad data it's 64 bits long

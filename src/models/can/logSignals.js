@@ -205,8 +205,8 @@ export const signalMap = {
 
 const ADDRESS_LIST = [];
 
-Object.keys(signalMap).forEach(function(name) {
-  Object.keys(signalMap[name]).forEach(function(signal) {
+Object.keys(signalMap).forEach(name => {
+  Object.keys(signalMap[name]).forEach(signal => {
     signalMap[name][signal] = createSignalEntry({
       name: signal,
       ...signalMap[name][signal]
@@ -262,7 +262,7 @@ function boolSignal(options) {
 }
 
 export function addressForName(name) {
-  var i = ADDRESS_LIST.indexOf(name);
+  const i = ADDRESS_LIST.indexOf(name);
   if (i === -1) {
     ADDRESS_LIST.push(name);
     return ADDRESS_LIST.indexOf(name) + 0x1000;
@@ -282,10 +282,10 @@ export function isLogAddress(address) {
 }
 
 export function frameForAddress(address) {
-  let name = nameForAddress(address);
+  const name = nameForAddress(address);
   return new Frame({
     id: name,
-    name: name,
+    name,
     size: 8,
     signals: signalMap[name]
   });

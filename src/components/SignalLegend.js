@@ -44,9 +44,8 @@ export default class SignalLegend extends Component {
       .sort(([_, signal1], [__, signal2]) => {
         if (signal1.startBit < signal2.startBit) {
           return -1;
-        } else {
-          return 1;
         }
+        return 1;
       })
       .map(([signalName, signal]) => {
         const { colors } = signals[signalName];
@@ -74,9 +73,7 @@ export default class SignalLegend extends Component {
 
     const signalRows = signalRowsNested
       .filter(row => row != null)
-      .reduce((a, b) => {
-        return a.concat(b);
-      }, []);
+      .reduce((a, b) => a.concat(b), []);
 
     return <div className="cabana-explorer-signals-legend">{signalRows}</div>;
   }

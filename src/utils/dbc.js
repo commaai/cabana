@@ -13,8 +13,8 @@ function addCanMessage(
   prevMsgEntries,
   byteStateChangeCountsByMessage
 ) {
-  var { address, busTime, data, bus } = canMessage;
-  var id = bus + ":" + address.toString(16);
+  const { address, busTime, data, bus } = canMessage;
+  const id = `${bus}:${address.toString(16)}`;
 
   if (messages[id] === undefined)
     messages[id] = createMessageSpec(dbc, address, id, bus);
@@ -54,11 +54,11 @@ function createMessageSpec(dbc, address, id, bus) {
   const size = frame ? frame.size : 8;
 
   return {
-    address: address,
-    id: id,
-    bus: bus,
+    address,
+    id,
+    bus,
     entries: [],
-    frame: frame,
+    frame,
     byteColors: Array(size).fill(0),
     byteStateChangeCounts: Array(size).fill(0)
   };
@@ -79,8 +79,8 @@ function determineByteStateChangeTimes(
     byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
 
     for (let i = 0; i < byteStateChangeTimes.length; i++) {
-      const currentData = hexData.substr(i * 2, 2),
-        prevData = lastParsedMessage.hexData.substr(i * 2, 2);
+      const currentData = hexData.substr(i * 2, 2);
+      const prevData = lastParsedMessage.hexData.substr(i * 2, 2);
 
       if (currentData !== prevData) {
         byteStateChangeTimes[i] = time;
@@ -160,13 +160,12 @@ function matrixBitNumber(bigEndianIndex) {
 
 function setMessageByteColors(message, maxByteStateChangeCount) {
   message.byteColors = message.byteStateChangeCounts
-    .map(
-      count =>
-        isNaN(count)
-          ? 0
-          : Math.min(255, 75 + 180 * (count / maxByteStateChangeCount))
+    .map(count =>
+      isNaN(count)
+        ? 0
+        : Math.min(255, 75 + 180 * (count / maxByteStateChangeCount))
     )
-    .map(red => "rgb(" + Math.round(red) + ",0,0)");
+    .map(red => `rgb(${Math.round(red)},0,0)`);
 
   return message;
 }
