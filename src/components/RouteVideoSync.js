@@ -44,21 +44,6 @@ const Styles = StyleSheet.create({
 });
 
 export default class RouteVideoSync extends Component {
-  static propTypes = {
-    userSeekIndex: PropTypes.number.isRequired,
-    segment: PropTypes.array.isRequired,
-    message: PropTypes.object,
-    canFrameOffset: PropTypes.number.isRequired,
-    url: PropTypes.string.isRequired,
-    playing: PropTypes.bool.isRequired,
-    onPlaySeek: PropTypes.func.isRequired,
-    onUserSeek: PropTypes.func.isRequired,
-    onPlay: PropTypes.func.isRequired,
-    onPause: PropTypes.func.isRequired,
-    userSeekTime: PropTypes.number.isRequired,
-    playSpeed: PropTypes.number.isRequired
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -73,6 +58,7 @@ export default class RouteVideoSync extends Component {
     this.segmentProgress = this.segmentProgress.bind(this);
     this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
     this.onUserSeek = this.onUserSeek.bind(this);
+    this.onPlaySeek = this.onPlaySeek.bind(this);
     this.onHlsRestart = this.onHlsRestart.bind(this);
     this.ratioTime = this.ratioTime.bind(this);
   }
@@ -97,25 +83,37 @@ export default class RouteVideoSync extends Component {
     }
   }
 
-  nearestFrameUrl() {
-    const { url } = this.props;
-    const sec = Math.round(this.props.userSeekTime);
-    if (isNaN(sec)) {
-      debugger;
-    }
-    return RouteApi(url).getJpegUrl(sec);
+  onVideoElementAvailable(videoElement) {
+    this.setState({ videoElement });
   }
 
-  loadingOverlay() {
-    return (
-      <div className={css(Styles.loadingOverlay)}>
-        <img
-          className={css(Styles.loadingSpinner)}
-          src={`${process.env.PUBLIC_URL}/img/loading.svg`}
-          alt="Loading video"
-        />
-      </div>
-    );
+  onUserSeek(ratio) {
+    /* ratio in [0,1] */
+
+    const { videoElement } = this.state;
+    if (isNaN(videoElement.duration)) {
+      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
+      return;
+    }
+    const seekTime = this.ratioTime(ratio);
+    videoElement.currentTime = seekTime;
+
+    const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
+    if (ratio === 0) {
+      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
+    } else {
+      funcSeekToRatio();
+    }
+  }
+
+  onHlsRestart() {
+    this.setState({ shouldRestartHls: false });
+  }
+
+  onPlaySeek(offset) {
+    const { onPlaySeek } = this.props;
+    this.seekTime = offset;
+    onPlaySeek(offset);
   }
 
   onLoadStart() {
@@ -130,6 +128,18 @@ export default class RouteVideoSync extends Component {
       shouldShowJpeg: false,
       isLoading: false
     });
+  }
+
+  loadingOverlay() {
+    return (
+      <div className={css(Styles.loadingOverlay)}>
+        <img
+          className={css(Styles.loadingSpinner)}
+          src={`${process.env.PUBLIC_URL}/img/loading.svg`}
+          alt="Loading video"
+        />
+      </div>
+    );
   }
 
   videoLength() {
@@ -168,73 +178,73 @@ export default class RouteVideoSync extends Component {
     return ratio * this.videoLength() + this.startTime();
   }
 
-  onVideoElementAvailable(videoElement) {
-    this.setState({ videoElement });
-  }
-
-  onUserSeek(ratio) {
-    /* ratio in [0,1] */
-
-    const { videoElement } = this.state;
-    if (isNaN(videoElement.duration)) {
-      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
-      return;
+  nearestFrameUrl() {
+    const { thumbnails } = this.props;
+    if (!this.seekTime) {
+      return '';
     }
-    const seekTime = this.ratioTime(ratio);
-    videoElement.currentTime = seekTime;
-
-    const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
-    if (ratio === 0) {
-      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
-    } else {
-      funcSeekToRatio();
+    for (let i = 0, l = thumbnails.length; i < l; ++i) {
+      if (Math.abs(thumbnails[i].monoTime - this.seekTime) < 5) {
+        const data = btoa(String.fromCharCode(...thumbnails[i].data));
+        return `data:image/jpeg;base64,${data}`;
+      }
     }
-  }
-
-  onHlsRestart() {
-    this.setState({ shouldRestartHls: false });
+    return '';
   }
 
   render() {
+    const {
+      isLoading,
+      shouldRestartHls,
+      shouldShowJpeg
+    } = this.state;
+    const {
+      userSeekTime,
+      url,
+      playSpeed,
+      playing,
+      onVideoClick,
+      segmentIndices
+    } = this.props;
     return (
       <div className="cabana-explorer-visuals-camera">
-        {this.state.isLoading ? this.loadingOverlay() : null}
-        {this.state.shouldShowJpeg ? (
+        {isLoading ? this.loadingOverlay() : null}
+        {shouldShowJpeg ? (
           <img
             src={this.nearestFrameUrl()}
             className={css(Styles.img)}
-            alt={`Camera preview at t = ${Math.round(this.props.userSeekTime)}`}
+            alt={`Camera preview at t = ${Math.round(userSeekTime)}`}
           />
         ) : null}
         <HLS
           className={css(Styles.hls)}
           source={VideoApi(
-            this.props.url,
+            url,
             process.env.REACT_APP_VIDEO_CDN
           ).getRearCameraStreamIndexUrl()}
           startTime={this.startTime()}
           videoLength={this.videoLength()}
-          playbackSpeed={this.props.playSpeed}
+          playbackSpeed={playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
-          playing={this.props.playing}
-          onClick={this.props.onVideoClick}
+          playing={playing}
+          onClick={onVideoClick}
           onLoadStart={this.onLoadStart}
           onLoadEnd={this.onLoadEnd}
           onUserSeek={this.onUserSeek}
-          onPlaySeek={this.props.onPlaySeek}
+          onPlaySeek={this.onPlaySeek}
           segmentProgress={this.segmentProgress}
-          shouldRestart={this.state.shouldRestartHls}
+          shouldRestart={shouldRestartHls}
           onRestart={this.onHlsRestart}
         />
         <RouteSeeker
           className={css(Styles.seekBar)}
-          nearestFrameTime={this.props.userSeekTime}
+          nearestFrameTime={userSeekTime}
           segmentProgress={this.segmentProgress}
           startTime={this.startTime()}
           videoLength={this.videoLength()}
-          segmentIndices={this.props.segmentIndices}
+          segmentIndices={segmentIndices}
           onUserSeek={this.onUserSeek}
-          onPlaySeek={this.props.onPlaySeek}
+          onPlaySeek={this.onPlaySeek}
           videoElement={this.state.videoElement}
           onPlay={this.props.onPlay}
           onPause={this.props.onPause}
@@ -245,3 +255,19 @@ export default class RouteVideoSync extends Component {
     );
   }
 }
+
+RouteVideoSync.propTypes = {
+  userSeekIndex: PropTypes.number.isRequired,
+  segment: PropTypes.array.isRequired,
+  message: PropTypes.object,
+  thumbnails: PropTypes.array,
+  canFrameOffset: PropTypes.number.isRequired,
+  url: PropTypes.string.isRequired,
+  playing: PropTypes.bool.isRequired,
+  onPlaySeek: PropTypes.func.isRequired,
+  onUserSeek: PropTypes.func.isRequired,
+  onPlay: PropTypes.func.isRequired,
+  onPause: PropTypes.func.isRequired,
+  userSeekTime: PropTypes.number.isRequired,
+  playSpeed: PropTypes.number.isRequired
+};

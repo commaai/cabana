@@ -40,21 +40,11 @@ const MessageParser = require('./workers/message-parser.worker.js');
 const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
 
 export default class CanExplorer extends Component {
-  static propTypes = {
-    dongleId: PropTypes.string,
-    name: PropTypes.string,
-    dbc: PropTypes.instanceOf(DBC),
-    dbcFilename: PropTypes.string,
-    githubAuthToken: PropTypes.string,
-    autoplay: PropTypes.bool,
-    max: PropTypes.number,
-    url: PropTypes.string
-  };
-
   constructor(props) {
     super(props);
     this.state = {
       messages: {},
+      thumbnails: [],
       selectedMessages: [],
       route: null,
       canFrameOffset: 0,
@@ -317,6 +307,45 @@ export default class CanExplorer extends Component {
     });
   }
 
+  mergeThumbnails(newThumbnails) {
+    const { thumbnails } = this.state;
+    if (!newThumbnails || !newThumbnails.length) {
+      return thumbnails;
+    }
+    if (!thumbnails.length) {
+      return newThumbnails;
+    }
+
+    let oldIndex = 0;
+    let newIndex = 0;
+
+    // is old immediately after new?
+    if (newThumbnails[0].monoTime > thumbnails[thumbnails.length - 1]) {
+      return thumbnails.concat(newThumbnails);
+    }
+    // is new immediately after old?
+    if (newThumbnails[newThumbnails.length - 1] < thumbnails[0]) {
+      return newThumbnails.concat(thumbnails);
+    }
+    let result = [];
+    while (oldIndex < thumbnails.length && newIndex < newThumbnails.length) {
+      if (thumbnails[oldIndex].monoTime < newThumbnails[newIndex].monoTime) {
+        result.push(thumbnails[oldIndex]);
+        oldIndex += 1;
+      } else {
+        result.push(newThumbnails[newIndex]);
+        newIndex += 1;
+      }
+    }
+    if (oldIndex < thumbnails.length) {
+      result = result.concat(thumbnails.slice(oldIndex));
+    } else if (newIndex < newThumbnails.length) {
+      result = result.concat(newThumbnails.slice(newIndex));
+    }
+
+    return result;
+  }
+
   addAndRehydrateMessages(newMessages, options) {
     // Adds new message entries to messages state
     // and "rehydrates" ES6 classes (message frame)
@@ -442,14 +471,13 @@ export default class CanExplorer extends Component {
       dbcFilename,
       route,
       firstCanTime,
-      canFrameOffset,
-      maxByteStateChangeCount
+      canFrameOffset
     } = this.state;
+    let { maxByteStateChangeCount } = this.state;
 
     if (!prevMsgEntries) {
       // we have previous messages loaded
       const { messages } = this.state;
-      const canStartTime = firstCanTime - canFrameOffset;
       prevMsgEntries = {};
       Object.keys(messages).forEach((key) => {
         const { entries } = messages[key];
@@ -485,7 +513,8 @@ export default class CanExplorer extends Component {
         return;
       }
 
-      let { newMessages, maxByteStateChangeCount, isFinished } = e.data;
+      maxByteStateChangeCount = e.data.maxByteStateChangeCount;
+      const { newMessages, newThumbnails, isFinished } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
       } else {
@@ -497,12 +526,14 @@ export default class CanExplorer extends Component {
         maxByteStateChangeCount
       );
       const prevMsgEntries = {};
-      for (const key in newMessages) {
+      Object.keys(newMessages).forEach((key) => {
         prevMsgEntries[key] = newMessages[key].entries[newMessages[key].entries.length - 1];
-      }
+      });
+
+      const thumbnails = this.mergeThumbnails(newThumbnails);
 
       if (!isFinished) {
-        this.setState({ messages });
+        this.setState({ messages, thumbnails });
       } else {
         const loadingParts = this.state.loadingParts.filter((p) => p !== part);
         const loadedParts = [part, ...this.state.loadedParts];
@@ -510,6 +541,7 @@ export default class CanExplorer extends Component {
         this.setState(
           {
             messages,
+            thumbnails,
             partsLoaded: this.state.partsLoaded + 1,
             loadingParts,
             loadedParts
@@ -943,6 +975,26 @@ export default class CanExplorer extends Component {
   }
 
   render() {
+    const {
+      route,
+      messages,
+      selectedMessages,
+      currentParts,
+      dbcFilename,
+      dbcLastSaved,
+      seekTime,
+      seekIndex,
+      shareUrl,
+      maxByteStateChangeCount,
+      live,
+      thumbnails,
+      selectedMessage,
+      canFrameOffset,
+      firstCanTime,
+      currentPart,
+      partsLoaded
+    } = this.state;
+
     return (
       <div
         id="cabana"
@@ -973,52 +1025,53 @@ export default class CanExplorer extends Component {
         </div>
         <div className="cabana-window">
           <Meta
-            url={this.state.route ? this.state.route.url : null}
-            messages={this.state.messages}
-            selectedMessages={this.state.selectedMessages}
+            url={this.state.route ? route.url : null}
+            messages={messages}
+            selectedMessages={selectedMessages}
             updateSelectedMessages={this.updateSelectedMessages}
             showEditMessageModal={this.showEditMessageModal}
-            currentParts={this.state.currentParts}
+            currentParts={currentParts}
             onMessageSelected={this.onMessageSelected}
             onMessageUnselected={this.onMessageUnselected}
             showLoadDbc={this.showLoadDbc}
             showSaveDbc={this.showSaveDbc}
-            dbcFilename={this.state.dbcFilename}
-            dbcLastSaved={this.state.dbcLastSaved}
+            dbcFilename={dbcFilename}
+            dbcLastSaved={dbcLastSaved}
             dongleId={this.props.dongleId}
             name={this.props.name}
-            route={this.state.route}
-            seekTime={this.state.seekTime}
-            seekIndex={this.state.seekIndex}
-            shareUrl={this.state.shareUrl}
-            maxByteStateChangeCount={this.state.maxByteStateChangeCount}
+            route={route}
+            seekTime={seekTime}
+            seekIndex={seekIndex}
+            shareUrl={shareUrl}
+            maxByteStateChangeCount={maxByteStateChangeCount}
             isDemo={this.props.isDemo}
-            live={this.state.live}
+            live={live}
             saveLog={debounce(this.downloadLogAsCSV, 500)}
           />
-          {this.state.route || this.state.live ? (
+          {route || live ? (
             <Explorer
-              url={this.state.route ? this.state.route.url : null}
-              live={this.state.live}
-              messages={this.state.messages}
-              selectedMessage={this.state.selectedMessage}
+              url={route ? route.url : null}
+              live={live}
+              messages={messages}
+              thumbnails={thumbnails}
+              selectedMessage={selectedMessage}
               onConfirmedSignalChange={this.onConfirmedSignalChange}
               onSeek={this.onSeek}
               onUserSeek={this.onUserSeek}
-              canFrameOffset={this.state.canFrameOffset}
-              firstCanTime={this.state.firstCanTime}
-              seekTime={this.state.seekTime}
-              seekIndex={this.state.seekIndex}
-              currentParts={this.state.currentParts}
-              selectedPart={this.state.currentPart}
-              partsLoaded={this.state.partsLoaded}
+              canFrameOffset={canFrameOffset}
+              firstCanTime={firstCanTime}
+              seekTime={seekTime}
+              seekIndex={seekIndex}
+              currentParts={currentParts}
+              selectedPart={currentPart}
+              partsLoaded={partsLoaded}
               autoplay={this.props.autoplay}
               showEditMessageModal={this.showEditMessageModal}
               onPartChange={this.onPartChange}
               routeStartTime={
-                this.state.route ? this.state.route.start_time : Moment()
+                route ? route.start_time : Moment()
               }
-              partsCount={this.state.route ? this.state.route.proclog : 0}
+              partsCount={route ? route.proclog : 0}
             />
           ) : null}
         </div>
@@ -1063,3 +1116,14 @@ export default class CanExplorer extends Component {
     );
   }
 }
+
+CanExplorer.propTypes = {
+  dongleId: PropTypes.string,
+  name: PropTypes.string,
+  dbc: PropTypes.instanceOf(DBC),
+  dbcFilename: PropTypes.string,
+  githubAuthToken: PropTypes.string,
+  autoplay: PropTypes.bool,
+  max: PropTypes.number,
+  url: PropTypes.string
+};
