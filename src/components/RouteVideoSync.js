@@ -205,7 +205,8 @@ export default class RouteVideoSync extends Component {
     const {
       isLoading,
       shouldRestartHls,
-      shouldShowJpeg
+      shouldShowJpeg,
+      videoElement
     } = this.state;
     const {
       userSeekTime,
@@ -213,7 +214,8 @@ export default class RouteVideoSync extends Component {
       playSpeed,
       playing,
       onVideoClick,
-      segmentIndices
+      segmentIndices,
+      startTime
     } = this.props;
     return (
       <div className="cabana-explorer-visuals-camera">
@@ -231,7 +233,7 @@ export default class RouteVideoSync extends Component {
             url,
             process.env.REACT_APP_VIDEO_CDN
           ).getRearCameraStreamIndexUrl()}
-          startTime={this.startTime()}
+          startTime={startTime}
           videoLength={this.videoLength()}
           playbackSpeed={playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
@@ -254,7 +256,7 @@ export default class RouteVideoSync extends Component {
           segmentIndices={segmentIndices}
           onUserSeek={this.onUserSeek}
           onPlaySeek={this.onPlaySeek}
-          videoElement={this.state.videoElement}
+          videoElement={videoElement}
           onPlay={this.props.onPlay}
           onPause={this.props.onPause}
           playing={this.props.playing}
@@ -281,4 +283,5 @@ RouteVideoSync.propTypes = {
   playSpeed: PropTypes.number.isRequired,
   onVideoClick: PropTypes.func,
   segmentIndices: PropTypes.array,
+  startTime: PropTypes.number
 };

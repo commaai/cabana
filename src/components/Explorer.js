@@ -9,24 +9,9 @@ import RouteVideoSync from './RouteVideoSync';
 import CanLog from './CanLog';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
-import PartSelector from './PartSelector';
 import PlaySpeedSelector from './PlaySpeedSelector';
 
 export default class Explorer extends Component {
-  static propTypes = {
-    selectedMessage: PropTypes.string,
-    url: PropTypes.string,
-    live: PropTypes.bool.isRequired,
-    messages: PropTypes.objectOf(PropTypes.object),
-    onConfirmedSignalChange: PropTypes.func.isRequired,
-    canFrameOffset: PropTypes.number,
-    firstCanTime: PropTypes.number,
-    onSeek: PropTypes.func.isRequired,
-    autoplay: PropTypes.bool.isRequired,
-    onPartChange: PropTypes.func.isRequired,
-    partsCount: PropTypes.number
-  };
-
   constructor(props) {
     super(props);
 
@@ -460,7 +445,7 @@ export default class Explorer extends Component {
       ? 'is-expanded'
       : null;
 
-    const { thumbnails, messages } = this.props;
+    const { thumbnails, messages, startTime } = this.props;
 
     let graphSegment = this.state.segment;
     if (!graphSegment.length && this.props.currentParts) {
@@ -489,6 +474,7 @@ export default class Explorer extends Component {
               <RouteVideoSync
                 message={messages[this.props.selectedMessage]}
                 segment={this.state.segment}
+                startTime={startTime}
                 seekIndex={this.props.seekIndex}
                 userSeekIndex={this.state.userSeekIndex}
                 playing={this.state.playing}
@@ -532,3 +518,18 @@ export default class Explorer extends Component {
     );
   }
 }
+
+Explorer.propTypes = {
+  selectedMessage: PropTypes.string,
+  url: PropTypes.string,
+  live: PropTypes.bool.isRequired,
+  messages: PropTypes.objectOf(PropTypes.object),
+  thumbnails: PropTypes.array.isRequired,
+  onConfirmedSignalChange: PropTypes.func.isRequired,
+  canFrameOffset: PropTypes.number,
+  firstCanTime: PropTypes.number,
+  onSeek: PropTypes.func.isRequired,
+  autoplay: PropTypes.bool.isRequired,
+  partsCount: PropTypes.number,
+  startTime: PropTypes.number
+};

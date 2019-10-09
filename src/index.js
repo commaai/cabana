@@ -18,7 +18,11 @@ Sentry.init();
 
 const routeFullName = getUrlParameter('route');
 const isDemo = !routeFullName;
-const props = { autoplay: true, isDemo };
+const props = {
+  autoplay: true,
+  startTime: getUrlParameter('seekTime'),
+  isDemo
+};
 let persistedDbc = null;
 
 if (routeFullName) {
@@ -96,7 +100,7 @@ async function init() {
   if (token) {
     Request.configure(token);
   }
-  ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root'));
+  ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root')); // eslint-disable-line react/jsx-props-no-spreading
 }
 
 if (routeFullName || isDemo) {

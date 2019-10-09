@@ -65,7 +65,7 @@ export default class CanExplorer extends Component {
       dbcText: props.dbc ? props.dbc.text() : new DBC().text(),
       dbcFilename: props.dbcFilename ? props.dbcFilename : 'New_DBC',
       dbcLastSaved: null,
-      seekTime: 0,
+      seekTime: props.seekTime || 0,
       seekIndex: 0,
       maxByteStateChangeCount: 0,
       isLoading: true,
@@ -995,6 +995,8 @@ export default class CanExplorer extends Component {
       partsLoaded
     } = this.state;
 
+    const { startTime } = this.props;
+
     return (
       <div
         id="cabana"
@@ -1061,6 +1063,7 @@ export default class CanExplorer extends Component {
               canFrameOffset={canFrameOffset}
               firstCanTime={firstCanTime}
               seekTime={seekTime}
+              startTime={startTime}
               seekIndex={seekIndex}
               currentParts={currentParts}
               selectedPart={currentPart}
@@ -1125,5 +1128,6 @@ CanExplorer.propTypes = {
   githubAuthToken: PropTypes.string,
   autoplay: PropTypes.bool,
   max: PropTypes.number,
-  url: PropTypes.string
+  url: PropTypes.string,
+  startTime: PropTypes.number
 };
