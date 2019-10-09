@@ -1,3 +1,4 @@
+/* eslint-disable */
 const WorkerLoaderPlugin = require('craco-worker-loader');
 const SentryPlugin = require('craco-sentry-plugin');
 

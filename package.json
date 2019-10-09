@@ -124,7 +124,8 @@
       "^@commaai/pandajs$": "<rootDir>/node_modules/@commaai/pandajs/lib/index.js",
       "^@commaai/hls.js$": "<rootDir>/node_modules/@commaai/hls.js/dist/hls.js",
       "^@commaai/(.*comma.*)$": "<rootDir>/node_modules/@commaai/$1/dist/index.js",
-      "^capnp-split$": "<rootDir>/node_modules/capnp-split/dist/index.js"
+      "^capnp-split$": "<rootDir>/node_modules/capnp-split/dist/index.js",
+      "\\.worker": "<rootDir>/src/__mocks__/workerMock.js"
     }
   },
   "browserslist": {

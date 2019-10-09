@@ -34,10 +34,10 @@ import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 
-const RLogDownloader = require('./workers/rlog-downloader.worker.js');
-const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker.js');
-const MessageParser = require('./workers/message-parser.worker.js');
-const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
+const RLogDownloader = require('./workers/rlog-downloader.worker');
+const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
+const MessageParser = require('./workers/message-parser.worker');
+const CanStreamerWorker = require('./workers/CanStreamerWorker.worker');
 
 export default class CanExplorer extends Component {
   constructor(props) {
@@ -120,7 +120,7 @@ export default class CanExplorer extends Component {
     this.pandaReader.onMessage(this.processStreamedCanMessages);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
       this.showOnboarding();
