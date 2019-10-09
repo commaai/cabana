@@ -92,6 +92,7 @@
     "build:staging": "env-cmd .env.staging craco build",
     "test": "craco test --env=jsdom",
     "test-ci": "CI=true craco test --env=jsdom",
+    "test-coverage": "CI=true craco test --env=jsdom --coverage",
     "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass": "node-sass src/index.scss -o src && node-sass -w src/index.scss -o src",
     "deploy": "npm run build && gh-pages -d build"
