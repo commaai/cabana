@@ -54,7 +54,7 @@ export default class Meta extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.lastSavedTimer = setInterval(() => {
       if (this.props.dbcLastSaved !== null) {
         this.setState({ lastSaved: this.props.dbcLastSaved.fromNow() });

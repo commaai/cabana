@@ -92,6 +92,7 @@
     "build:staging": "env-cmd .env.staging craco build",
     "test": "craco test --env=jsdom",
     "test-ci": "CI=true craco test --env=jsdom",
+    "test-coverage": "CI=true craco test --env=jsdom --coverage",
     "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass": "node-sass src/index.scss -o src && node-sass -w src/index.scss -o src",
     "deploy": "npm run build && gh-pages -d build"
@@ -123,7 +124,8 @@
       "^@commaai/pandajs$": "<rootDir>/node_modules/@commaai/pandajs/lib/index.js",
       "^@commaai/hls.js$": "<rootDir>/node_modules/@commaai/hls.js/dist/hls.js",
       "^@commaai/(.*comma.*)$": "<rootDir>/node_modules/@commaai/$1/dist/index.js",
-      "^capnp-split$": "<rootDir>/node_modules/capnp-split/dist/index.js"
+      "^capnp-split$": "<rootDir>/node_modules/capnp-split/dist/index.js",
+      "\\.worker": "<rootDir>/src/__mocks__/workerMock.js"
     }
   },
   "browserslist": {

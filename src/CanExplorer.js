@@ -34,10 +34,10 @@ import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 
-const RLogDownloader = require('./workers/rlog-downloader.worker.js');
-const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker.js');
-const MessageParser = require('./workers/message-parser.worker.js');
-const CanStreamerWorker = require('./workers/CanStreamerWorker.worker.js');
+const RLogDownloader = require('./workers/rlog-downloader.worker');
+const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
+const MessageParser = require('./workers/message-parser.worker');
+const CanStreamerWorker = require('./workers/CanStreamerWorker.worker');
 
 export default class CanExplorer extends Component {
   constructor(props) {
@@ -65,7 +65,7 @@ export default class CanExplorer extends Component {
       dbcText: props.dbc ? props.dbc.text() : new DBC().text(),
       dbcFilename: props.dbcFilename ? props.dbcFilename : 'New_DBC',
       dbcLastSaved: null,
-      seekTime: 0,
+      seekTime: props.seekTime || 0,
       seekIndex: 0,
       maxByteStateChangeCount: 0,
       isLoading: true,
@@ -120,7 +120,7 @@ export default class CanExplorer extends Component {
     this.pandaReader.onMessage(this.processStreamedCanMessages);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
       this.showOnboarding();
@@ -995,6 +995,8 @@ export default class CanExplorer extends Component {
       partsLoaded
     } = this.state;
 
+    const { startTime, segments } = this.props;
+
     return (
       <div
         id="cabana"
@@ -1061,6 +1063,8 @@ export default class CanExplorer extends Component {
               canFrameOffset={canFrameOffset}
               firstCanTime={firstCanTime}
               seekTime={seekTime}
+              startTime={startTime}
+              startSegments={segments}
               seekIndex={seekIndex}
               currentParts={currentParts}
               selectedPart={currentPart}
@@ -1125,5 +1129,7 @@ CanExplorer.propTypes = {
   githubAuthToken: PropTypes.string,
   autoplay: PropTypes.bool,
   max: PropTypes.number,
-  url: PropTypes.string
+  url: PropTypes.string,
+  startTime: PropTypes.number,
+  segments: PropTypes.array
 };
