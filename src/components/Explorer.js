@@ -460,6 +460,8 @@ export default class Explorer extends Component {
       ? 'is-expanded'
       : null;
 
+    const { thumbnails, messages } = this.props;
+
     let graphSegment = this.state.segment;
     if (!graphSegment.length && this.props.currentParts) {
       graphSegment = [
@@ -471,7 +473,7 @@ export default class Explorer extends Component {
     return (
       <div className="cabana-explorer">
         <div className={cx('cabana-explorer-signals', signalsExpandedClass)}>
-          {this.props.messages[this.props.selectedMessage]
+          {messages[this.props.selectedMessage]
             ? this.renderExplorerSignals()
             : this.renderSelectMessagePrompt()}
         </div>
@@ -485,7 +487,7 @@ export default class Explorer extends Component {
               <div className="cabana-explorer-visuals-header g-row" />
               <br />
               <RouteVideoSync
-                message={this.props.messages[this.props.selectedMessage]}
+                message={messages[this.props.selectedMessage]}
                 segment={this.state.segment}
                 seekIndex={this.props.seekIndex}
                 userSeekIndex={this.state.userSeekIndex}
@@ -500,6 +502,7 @@ export default class Explorer extends Component {
                 onPause={this.onPause}
                 userSeekTime={this.state.userSeekTime}
                 playSpeed={this.state.playSpeed}
+                thumbnails={thumbnails}
               />
             </div>
           ) : null}
@@ -515,7 +518,7 @@ export default class Explorer extends Component {
           ) : null}
           <CanGraphList
             plottedSignals={this.state.plottedSignals}
-            messages={this.props.messages}
+            messages={messages}
             onGraphTimeClick={this.onGraphTimeClick}
             seekTime={this.props.seekTime}
             onSegmentChanged={this.onSegmentChanged}

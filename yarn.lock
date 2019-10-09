@@ -911,6 +911,13 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@commaai/capnp-json@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@commaai/capnp-json/-/capnp-json-0.2.0.tgz#866bba39274b02f899803dc7968a7fe79fb02321"
+  integrity sha512-PXqEjvoLkb7VPaeMlFV7NspHAUMfTGhd6plQ72rilrjagf1os73fdItdlhk/q2XELx+l/Vq1xRSLJT1Os0DVqQ==
+  dependencies:
+    capnp-ts "0.2.4"
+
 "@commaai/comma-api@1.1.6":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.6.tgz#be486443a8d8843c74a811cdd406b85694b5d526"
@@ -931,21 +938,21 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/log_reader@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.3.1.tgz#0e2b47b621ac9b852ccf5137787e17952a34170c"
-  integrity sha512-WMV6BiSBOfPFOld3KKuuEHRSAPv95cpeDes4LWwy4cONYZHnnuVu91v5nYzQVbB3F6eQaCvkakmwLSzR2UQkow==
+"@commaai/log_reader@^0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.5.3.tgz#c3dd2c6f3b911198c32bbebd34d0e9cc862e0672"
+  integrity sha512-/962u7s7uXPMGLz2AH+L57w+CSXCX1uZmh0OLSwGZXzyxO/dGvimaVspYe9N78Q0BYa1B5ctv986zliaAblrmg==
   dependencies:
-    "@commaai/unbzip2-stream" "^2.0.0"
+    "@commaai/capnp-json" "^0.2.0"
     JSONStream "^1.3.2"
     ap "^0.2.0"
-    capnp-json "^0.1.2"
     capnp-split "^0.1.1"
     capnp-ts "^0.2.4"
     commander "^2.15.1"
     file-type "^7.6.0"
     geval "^2.2.0"
     stream-selector "^0.4.0"
+    wasm-bz2 "^0.0.2"
 
 "@commaai/my-comma-auth@^1.1.0":
   version "1.1.3"
@@ -977,11 +984,6 @@
     weakmap-event "^2.0.7"
   optionalDependencies:
     usb "^1.3.1"
-
-"@commaai/unbzip2-stream@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@commaai/unbzip2-stream/-/unbzip2-stream-2.0.0.tgz#93821dc5e72f04ec5eedef5ed4e6ff57412019e0"
-  integrity sha512-Dqzzmos7r2OsvpJ9YtID1n50GpVwB4dw7ft41XJZM2V7bJ0L68ygeK4WktaT1ZslgWz5NzqHEn0t9nWFuopixg==
 
 "@craco/craco@^5.5.0":
   version "5.5.0"
@@ -2830,11 +2832,6 @@ canvas@^1.6:
   dependencies:
     nan "^2.10.0"
 
-capnp-json@^0.1.2:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/capnp-json/-/capnp-json-0.1.3.tgz#e305dd690b9fcf53e2e19278eb6a99d187ea8047"
-  integrity sha512-S1bRHkHECsFVjETOZKnxIeab00ozGb7wyS7HEkNhOLUo1/9oDvcURdttp7AbOPDUSIUWM9HoPKdnnH/SSHNBWA==
-
 capnp-split@^0.1.1:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/capnp-split/-/capnp-split-0.1.4.tgz#c3f86890645cd203c5ce23ff1ccb4fe6642ea4a3"
@@ -2842,7 +2839,7 @@ capnp-split@^0.1.1:
   dependencies:
     through2 "^2.0.3"
 
-capnp-ts@^0.2.4:
+capnp-ts@0.2.4, capnp-ts@^0.2.4:
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/capnp-ts/-/capnp-ts-0.2.4.tgz#da729493311f384d65d480d9afe979ceab9f41bb"
   integrity sha512-A9+Awl2WQDhg0fpEoyDpIF7RUQp27gpYBLRGV2zKA37a0IBEutdgIKDI7pO44C9AhzxvCfR6Ooj5W14D3TKaQA==
@@ -13329,6 +13326,14 @@ walker@^1.0.7, walker@~1.0.5:
   integrity sha1-L3+bj9ENZ3JisYqITijRlhjgKPs=
   dependencies:
     makeerror "1.0.x"
+
+wasm-bz2@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/wasm-bz2/-/wasm-bz2-0.0.2.tgz#ff5c4e3ed660169ec14f00bd9f4650c43c142a13"
+  integrity sha512-OjWSwiIvz8yacBBqajiZTSVI9Yom1nHFjBuXJFTOwa9rkHIQFNmFaEG65kmnUlFMUNU6mxmGGKAwF8BGMesZ6g==
+  dependencies:
+    ap "^0.2.0"
+    weakmap-event "^2.0.7"
 
 watchpack@^1.6.0:
   version "1.6.0"

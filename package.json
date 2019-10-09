@@ -5,7 +5,7 @@
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
     "@commaai/comma-api": "1.1.6",
-    "@commaai/log_reader": "^0.3.1",
+    "@commaai/log_reader": "^0.5.3",
     "@commaai/my-comma-auth": "^1.1.0",
     "@commaai/pandajs": "^0.3.4",
     "@craco/craco": "^5.5.0",
@@ -60,6 +60,7 @@
     "socket.io-client": "^2.0.3",
     "stream-selector": "^0.1.1",
     "streamsaver": "^1.0.1",
+    "thyming": "^0.1.1",
     "vega": "^5.3.4",
     "vega-lite": "^3.0.0",
     "vega-tooltip": "^0.4.0"
@@ -96,11 +97,26 @@
     "deploy": "npm run build && gh-pages -d build"
   },
   "lint-staged": {
-    "*.{js,jsx}": ["eslint --fix", "git add"],
-    "*.json": ["prettier --parser json --write", "git add"],
-    "*.{graphql,gql}": ["prettier --parser graphql --write", "git add"],
-    "*.{md,markdown}": ["prettier --parser markdown --write", "git add"],
-    "*.scss": ["prettier --parser postcss --write", "git add"]
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.json": [
+      "prettier --parser json --write",
+      "git add"
+    ],
+    "*.{graphql,gql}": [
+      "prettier --parser graphql --write",
+      "git add"
+    ],
+    "*.{md,markdown}": [
+      "prettier --parser markdown --write",
+      "git add"
+    ],
+    "*.scss": [
+      "prettier --parser postcss --write",
+      "git add"
+    ]
   },
   "jest": {
     "moduleNameMapper": {
@@ -111,7 +127,11 @@
     }
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
