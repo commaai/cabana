@@ -63,22 +63,29 @@ export default class RouteVideoSync extends Component {
     this.ratioTime = this.ratioTime.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
+    const {
+      userSeekIndex,
+      message,
+      canFrameOffset,
+      userSeekTime
+    } = this.props;
+    const { videoElement } = this.state;
     if (
-      this.props.userSeekIndex !== nextProps.userSeekIndex
-      || this.props.canFrameOffset !== nextProps.canFrameOffset
-      || (this.props.message
+      userSeekIndex !== nextProps.userSeekIndex
+      || canFrameOffset !== nextProps.canFrameOffset
+      || (message
         && nextProps.message
-        && this.props.message.entries.length !== nextProps.message.entries.length)
+        && message.entries.length !== nextProps.message.entries.length)
     ) {
       this.setState({ shouldRestartHls: true });
     }
     if (
       nextProps.userSeekTime
-      && this.props.userSeekTime !== nextProps.userSeekTime
+      && userSeekTime !== nextProps.userSeekTime
     ) {
-      if (this.state.videoElement) {
-        this.state.videoElement.currentTime = nextProps.userSeekTime;
+      if (videoElement) {
+        videoElement.currentTime = nextProps.userSeekTime;
       }
     }
   }
@@ -91,14 +98,16 @@ export default class RouteVideoSync extends Component {
     /* ratio in [0,1] */
 
     const { videoElement } = this.state;
-    if (isNaN(videoElement.duration)) {
+    const { onUserSeek } = this.props;
+    const seekTime = this.ratioTime(ratio);
+    const funcSeekToRatio = () => onUserSeek(seekTime);
+
+    if (Number.isNaN(videoElement.duration)) {
       this.setState({ shouldRestartHls: true }, funcSeekToRatio);
       return;
     }
-    const seekTime = this.ratioTime(ratio);
     videoElement.currentTime = seekTime;
 
-    const funcSeekToRatio = () => this.props.onUserSeek(seekTime);
     if (ratio === 0) {
       this.setState({ shouldRestartHls: true }, funcSeekToRatio);
     } else {
@@ -269,5 +278,7 @@ RouteVideoSync.propTypes = {
   onPlay: PropTypes.func.isRequired,
   onPause: PropTypes.func.isRequired,
   userSeekTime: PropTypes.number.isRequired,
-  playSpeed: PropTypes.number.isRequired
+  playSpeed: PropTypes.number.isRequired,
+  onVideoClick: PropTypes.func,
+  segmentIndices: PropTypes.array,
 };
