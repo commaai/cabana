@@ -995,7 +995,7 @@ export default class CanExplorer extends Component {
       partsLoaded
     } = this.state;
 
-    const { startTime } = this.props;
+    const { startTime, segments } = this.props;
 
     return (
       <div
@@ -1064,6 +1064,7 @@ export default class CanExplorer extends Component {
               firstCanTime={firstCanTime}
               seekTime={seekTime}
               startTime={startTime}
+              startSegments={segments}
               seekIndex={seekIndex}
               currentParts={currentParts}
               selectedPart={currentPart}
@@ -1129,5 +1130,6 @@ CanExplorer.propTypes = {
   autoplay: PropTypes.bool,
   max: PropTypes.number,
   url: PropTypes.string,
-  startTime: PropTypes.number
+  startTime: PropTypes.number,
+  segments: PropTypes.array
 };

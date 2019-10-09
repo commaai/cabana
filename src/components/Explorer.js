@@ -11,21 +11,73 @@ import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
 import PlaySpeedSelector from './PlaySpeedSelector';
 
+function clipSegment(_segment, _segmentIndices, nextMessage) {
+  let segment = _segment;
+  let segmentIndices = _segmentIndices;
+  if (segment.length === 2) {
+    const segmentStartIdx = nextMessage.entries.findIndex(
+      (e) => e.relTime >= segment[0]
+    );
+    let segmentEndIdx = nextMessage.entries.findIndex(
+      (e) => e.relTime >= segment[1]
+    );
+    if (segmentStartIdx !== -1) {
+      if (segmentEndIdx === -1) {
+        // previous segment end is past bounds of this message
+        segmentEndIdx = nextMessage.entries.length - 1;
+      }
+      const segmentStartTime = nextMessage.entries[segmentStartIdx].relTime;
+      const segmentEndTime = nextMessage.entries[segmentEndIdx].relTime;
+
+      segment = [segmentStartTime, segmentEndTime];
+      segmentIndices = [segmentStartIdx, segmentEndIdx];
+    } else {
+      // segment times are out of boudns for this message
+      segment = [];
+      segmentIndices = [];
+    }
+  }
+
+  return { segment, segmentIndices };
+}
+
 export default class Explorer extends Component {
+  updateSegment = debounce((messageId, _segment) => {
+    let segment = _segment;
+    const { messages, selectedMessage, currentParts } = this.props;
+    const { entries } = messages[selectedMessage];
+    let segmentIndices = Entries.findSegmentIndices(entries, segment, true);
+
+    // console.log(this.state.segment, '->', segment, segmentIndices);
+    if (
+      segment[0] === currentParts[0] * 60
+      && segment[1] === (currentParts[1] + 1) * 60
+    ) {
+      segment = [];
+      segmentIndices = [];
+    }
+    this.setState({
+      segment,
+      segmentIndices,
+      userSeekIndex: segmentIndices[0],
+      userSeekTime: segment[0] || 0
+    });
+  }, 250);
+
   constructor(props) {
     super(props);
 
     this.state = {
       plottedSignals: [],
-      segment: [],
+      segment: props.startSegments || [],
       segmentIndices: [],
       shouldShowAddSignal: true,
       userSeekIndex: 0,
       userSeekTime: 0,
       playing: props.autoplay,
-      signals: {},
       playSpeed: 1
     };
+
     this.onSignalPlotPressed = this.onSignalPlotPressed.bind(this);
     this.onSignalUnplotPressed = this.onSignalUnplotPressed.bind(this);
     this.onSegmentChanged = this.onSegmentChanged.bind(this);
@@ -37,53 +89,25 @@ export default class Explorer extends Component {
     this.onPause = this.onPause.bind(this);
     this.onVideoClick = this.onVideoClick.bind(this);
     this.onSignalPlotChange = this.onSignalPlotChange.bind(this);
-    this._onKeyDown = this._onKeyDown.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
     this.mergePlots = this.mergePlots.bind(this);
     this.toggleShouldShowAddSignal = this.toggleShouldShowAddSignal.bind(this);
     this.changePlaySpeed = this.changePlaySpeed.bind(this);
   }
 
-  _onKeyDown(e) {
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKeyDown);
+  }
+
+  onKeyDown(e) {
     if (e.keyCode === 27) {
       // escape
       this.resetSegment();
     }
-  }
-
-  componentWillMount() {
-    document.addEventListener('keydown', this._onKeyDown);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this._onKeyDown);
-  }
-
-  clipSegment(segment, segmentIndices, nextMessage) {
-    if (segment.length === 2) {
-      const segmentStartIdx = nextMessage.entries.findIndex(
-        (e) => e.relTime >= segment[0]
-      );
-      let segmentEndIdx = nextMessage.entries.findIndex(
-        (e) => e.relTime >= segment[1]
-      );
-      if (segmentStartIdx !== -1) {
-        if (segmentEndIdx === -1) {
-          // previous segment end is past bounds of this message
-          segmentEndIdx = nextMessage.entries.length - 1;
-        }
-        const segmentStartTime = nextMessage.entries[segmentStartIdx].relTime;
-        const segmentEndTime = nextMessage.entries[segmentEndIdx].relTime;
-
-        segment = [segmentStartTime, segmentEndTime];
-        segmentIndices = [segmentStartIdx, segmentEndIdx];
-      } else {
-        // segment times are out of boudns for this message
-        segment = [];
-        segmentIndices = [];
-      }
-    }
-
-    return { segment, segmentIndices };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -91,7 +115,7 @@ export default class Explorer extends Component {
     const curMessage = this.props.messages[this.props.selectedMessage];
     let { plottedSignals } = this.state;
 
-    if (Object.keys(nextProps.messages).length === 0) {
+    if (Object.keys(nextProps.messages).length === 0 && Object.keys(this.props.messages).length !== 0) {
       this.resetSegment();
     }
     if (nextMessage && nextMessage.frame && nextMessage !== curMessage) {
@@ -127,7 +151,7 @@ export default class Explorer extends Component {
       // by finding a entry indices
       // corresponding to old message segment/seek times.
 
-      const { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -156,7 +180,7 @@ export default class Explorer extends Component {
       && curMessage
       && nextMessage.entries.length !== curMessage.entries.length
     ) {
-      const { segment, segmentIndices } = this.clipSegment(
+      const { segment, segmentIndices } = clipSegment(
         this.state.segment,
         this.state.segmentIndices,
         nextMessage
@@ -212,26 +236,6 @@ export default class Explorer extends Component {
     this.setState({ plottedSignals: newPlottedSignals });
   }
 
-  updateSegment = debounce((messageId, segment) => {
-    const { entries } = this.props.messages[this.props.selectedMessage];
-    let segmentIndices = Entries.findSegmentIndices(entries, segment, true);
-
-    // console.log(this.state.segment, '->', segment, segmentIndices);
-    if (
-      segment[0] === this.props.currentParts[0] * 60
-      && segment[1] === (this.props.currentParts[1] + 1) * 60
-    ) {
-      segment = [];
-      segmentIndices = [];
-    }
-    this.setState({
-      segment,
-      segmentIndices,
-      userSeekIndex: segmentIndices[0],
-      userSeekTime: segment[0] || 0
-    });
-  }, 250);
-
   onSegmentChanged(messageId, segment) {
     if (Array.isArray(segment)) {
       this.updateSegment(messageId, segment);
@@ -240,7 +244,6 @@ export default class Explorer extends Component {
 
   resetSegment() {
     const { segment, segmentIndices } = this.state;
-    const { messages, selectedMessage } = this.props;
     if (segment.length > 0 || segmentIndices.length > 0) {
       // console.log(this.state.segment, '->', segment, segmentIndices);
       this.setState({
@@ -530,6 +533,8 @@ Explorer.propTypes = {
   firstCanTime: PropTypes.number,
   onSeek: PropTypes.func.isRequired,
   autoplay: PropTypes.bool.isRequired,
+  currentParts: PropTypes.array.isRequired,
   partsCount: PropTypes.number,
-  startTime: PropTypes.number
+  startTime: PropTypes.number,
+  startSegments: PropTypes.array
 };

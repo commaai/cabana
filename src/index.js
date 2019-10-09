@@ -18,9 +18,17 @@ Sentry.init();
 
 const routeFullName = getUrlParameter('route');
 const isDemo = !routeFullName;
+let segments = getUrlParameter('segments');
+if (segments && segments.length) {
+  segments = segments.split(',').map(Number);
+}
+if (segments.length !== 2) {
+  segments = undefined;
+}
 const props = {
   autoplay: true,
-  startTime: getUrlParameter('seekTime'),
+  startTime: Number(getUrlParameter('seekTime') || 0),
+  segments,
   isDemo
 };
 let persistedDbc = null;

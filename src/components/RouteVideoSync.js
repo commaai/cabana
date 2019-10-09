@@ -233,7 +233,7 @@ export default class RouteVideoSync extends Component {
             url,
             process.env.REACT_APP_VIDEO_CDN
           ).getRearCameraStreamIndexUrl()}
-          startTime={startTime}
+          startTime={startTime || 0}
           videoLength={this.videoLength()}
           playbackSpeed={playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
