@@ -3,10 +3,9 @@ import Raven from 'raven-js';
 function init() {
   if (process.env.NODE_ENV === 'production') {
     const opts = {};
-    const webpackHash = __webpack_hash__; // eslint-disable-line
 
-    if (typeof webpackHash !== 'undefined') {
-      opts.release = webpackHash;
+    if (typeof __webpack_hash__ !== 'undefined') { // eslint-disable-line camelcase
+      opts.release = __webpack_hash__; // eslint-disable-line no-undef, camelcase
     }
 
     Raven.config(
