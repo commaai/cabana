@@ -9,7 +9,7 @@ import AcuraDbc from '../../acura-dbc';
 
 jest.mock('aphrodite/lib/inject');
 jest.mock('../../components/HLS.js');
-jest.mock('hls.js');
+jest.mock('@commaai/hls.js');
 
 global.document.querySelector = jest.fn();
 

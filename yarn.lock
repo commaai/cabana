@@ -938,6 +938,14 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
+"@commaai/hls.js@^0.12.5":
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.5.tgz#891e47124b4e9e2a1528463613bf415ff252d2ec"
+  integrity sha512-aZcwFrhHSGVpi76cHMjT1wQ6Pe0AVv3s0TdzNGFA6LpCb6WCFy2EF9H8QCtNlAviccYnAw4XQrJ+hHToUp4QnA==
+  dependencies:
+    eventemitter3 "3.1.0"
+    url-toolkit "^2.1.6"
+
 "@commaai/log_reader@^0.5.3":
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.5.3.tgz#c3dd2c6f3b911198c32bbebd34d0e9cc862e0672"
@@ -6030,14 +6038,6 @@ hex-color-regex@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
-
-hls.js@0.12.3-canary.4258:
-  version "0.12.3-canary.4258"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.12.3-canary.4258.tgz#9ef7e89a85609222497512b9baed806712246901"
-  integrity sha512-uSNt4fDVNb5rMpgMGjFvVaIqWwwRnIFiCrTY2zHCIQbaKgw8DOhA3QC5ImYdv8nXiZod5LS69dYxjnj/u8+3nw==
-  dependencies:
-    eventemitter3 "3.1.0"
-    url-toolkit "^2.1.6"
 
 hls@0.0.1:
   version "0.0.1"

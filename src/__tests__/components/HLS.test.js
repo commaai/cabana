@@ -1,6 +1,33 @@
+/* eslint-env jest */
 import React from 'react';
 import { shallow, mount, render } from 'enzyme';
 import HLS from '../../components/HLS';
+import HLSMock from '@commaai/hls.js';
+
+jest.mock('@commaai/hls.js', () => {
+  const onMock = jest.fn();
+  const destroyMock = jest.fn();
+  const module = jest.fn().mockImplementation(() => ({
+    on: onMock,
+    destroy: destroyMock,
+  }));
+
+  module.onMock = onMock;
+  module.destroyMock = destroyMock;
+
+  return module;
+});
+
+HLSMock.Events = {
+  MANIFEST_PARSED: 0,
+  BUFFER_APPENDED: 1
+};
+
+beforeEach(() => {
+  HLSMock.mockClear();
+  HLSMock.onMock.mockClear();
+  HLSMock.destroyMock.mockClear();
+});
 
 test('HLS successfully mounts with minimal default props', () => {
   const component = shallow(
@@ -21,4 +48,8 @@ test('HLS successfully mounts with minimal default props', () => {
     />
   );
   expect(component.exists()).toBe(true);
+  expect(HLSMock).toBeCalledWith({
+    enableWorker: false,
+    disablePtsDtsCorrectionInMp4Remux: true
+  });
 });

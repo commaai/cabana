@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Hls from 'hls.js';
+import Hls from '@commaai/hls.js';
 
 export default class HLS extends Component {
   static propTypes = {
@@ -36,6 +36,14 @@ export default class HLS extends Component {
     }
   }
 
+  componentDidMount() {
+    this.player = new Hls({
+      enableWorker: false,
+      disablePtsDtsCorrectionInMp4Remux: true
+    });
+    this.loadSource();
+  }
+
   onSeeking = () => {
     if (!this.props.playing) {
       this.props.onLoadStart();
@@ -56,11 +64,6 @@ export default class HLS extends Component {
       this.props.onLoadEnd();
     }
   };
-
-  componentDidMount() {
-    this.player = new Hls({ disablePtsDtsCorrectionInMp4Remux: true });
-    this.loadSource();
-  }
 
   loadSource(source = this.props.source) {
     if (this.videoElement) {
