@@ -21,9 +21,10 @@ const isDemo = !routeFullName;
 let segments = getUrlParameter('segments');
 if (segments && segments.length) {
   segments = segments.split(',').map(Number);
-}
-if (segments.length !== 2) {
-  segments = undefined;
+
+  if (segments.length !== 2) {
+    segments = undefined;
+  }
 }
 const props = {
   autoplay: true,
