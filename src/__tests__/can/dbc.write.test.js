@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+/* eslint-env jest */
 import fs from 'fs';
 import path from 'path';
 import DBC, { swapOrder } from '../../models/can/dbc';

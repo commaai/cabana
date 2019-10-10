@@ -1,7 +1,6 @@
+/* eslint-env jest */
 import DBC, { swapOrder } from '../../models/can/dbc';
 import Signal from '../../models/can/signal';
-
-global.__JEST__ = 1;
 
 const DBC_MESSAGE_DEF = `BO_ 228 STEERING_CONTROL: 5 ADAS
  SG_ STEER_TORQUE : 7|16@0- (1,0) [-3840|3840] "" EPS

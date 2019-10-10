@@ -1,9 +1,8 @@
+/* eslint-env jest */
 import extend from 'xtend';
 import DbcUtils from '../../utils/dbc';
 import DBC from '../../models/can/dbc';
 import Signal from '../../models/can/signal';
-
-global.__JEST__ = 1;
 
 // want to mock pandareader and test processStreamedCanMessages
 const SAMPLE_MESSAGE = {
