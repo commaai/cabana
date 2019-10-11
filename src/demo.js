@@ -142,7 +142,7 @@ export const demoProps = {
   dongleId: 'cce908f7eb8db67d',
   dbc: CorollaDBC,
   isDemo: true,
-  dbcFilename: 'toyota_corolla_2017_pt_generated.dbc',
+  dbcFilename: 'toyota_nodsu_pt_generated.dbc',
 };
 
 export const demoRoute = {

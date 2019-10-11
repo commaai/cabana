@@ -98,11 +98,11 @@
     "test-ci": "CI=true craco test --env=jsdom",
     "test-coverage": "CI=true craco test --env=jsdom --coverage",
     "test-puppeteer": "jest -c ./src/__puppeteer__/jest.config.js",
+    "test-all": "yarn run test-ci && yarn run test-puppeteer",
     "test-puppeteer-build": "JEST_PUPPETEER_CONFIG=jest-puppeteer.build.config.js yarn run test-puppeteer",
-    "test-release": "yarn run test-ci && yarn run test-puppeteer && eslint .",
     "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass": "node-sass src/index.scss -o src && node-sass -w src/index.scss -o src",
-    "deploy": "npm run build && gh-pages -d build"
+    "deploy": "yarn run test-ci && npm run build && yarn run test-puppeteer-build && gh-pages -d build"
   },
   "lint-staged": {
     "*.{js,jsx}": [
