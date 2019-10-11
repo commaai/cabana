@@ -146,7 +146,7 @@ function insertCanMessage(entry, logTime, msg) {
 async function loadData(entry) {
   let url = null;
 
-  if (!entry.options.isDemo && !entry.options.isLegacyShare) {
+  if (!entry.options.isLegacyShare) {
     url = entry.logUrls[entry.part];
   }
 

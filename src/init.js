@@ -12,6 +12,7 @@ import {
   fetchPersistedGithubAuthToken,
   persistGithubAuthToken
 } from './api/localstorage';
+import { demoProps } from './demo';
 import './index.css';
 
 export default function init() {
@@ -28,7 +29,7 @@ export default function init() {
     }
   }
 
-  const props = {
+  let props = {
     autoplay: true,
     startTime: Number(getUrlParameter('seekTime') || 0),
     segments,
@@ -63,29 +64,7 @@ export default function init() {
     props.isLegacyShare = max && url && !exp && !sig;
     props.isShare = max && url && exp && sig;
   } else if (getUrlParameter('demo')) {
-    props.max = 12;
-    props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3-permanent/v2/cb38263377b873ee/78392b99580c5920227cc5b43dff8a70_2017-06-12--18-51-47';
-    props.name = '2017-06-12--18-51-47';
-    props.dongleId = 'cb38263377b873ee';
-    props.dbc = AcuraDbc;
-    props.isDemo = true;
-    props.dbcFilename = 'acura_ilx_2016_can.dbc';
-
-    // lots of 404s on this one
-    // props.max = 752;
-    // props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/07e243287e48432a/d97fcc321a58e660a14de72b749269ba_2017-09-09--22-00-00';
-    // props.name = '2017-09-09--22-00-00';
-    // props.dongleId = '07e243287e48432a';
-    // props.dbc = AcuraDbc;
-    // props.dbcFilename = 'acura_ilx_2016_can.dbc';
-
-    // really long one with real content
-    // props.max = 597;
-    // props.url = 'https://chffrprivate.blob.core.windows.net/chffrprivate3/v2/0c249898b339e978/957935e6a75bc2bf6f626fcbe6db93ba_2017-08-11--04-47-54';
-    // props.name = '2017-08-11--04-47-54';
-    // props.dongleId = '0c249898b339e978';
-    // props.dbc = AcuraDbc;
-    // props.dbcFilename = 'acura_ilx_2016_can.dbc';
+    props = { ...props, ...demoProps };
   }
 
   if (persistedDbc) {

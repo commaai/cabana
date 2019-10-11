@@ -15,6 +15,12 @@ module.exports = function ({ env }) {
   }
   return {
     plugins,
+    jest: {
+      configure: (jestConfig, { env, paths }) => {
+        jestConfig.testPathIgnorePatterns = ['node_modules', '__puppeteer__'];
+        return jestConfig;
+      }
+    },
     webpack: {
       configure: (webpackConfig, { env, paths }) => {
         webpackConfig.output.globalObject = 'this';

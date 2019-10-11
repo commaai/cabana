@@ -33,6 +33,7 @@ import UnloggerClient from './api/unlogger';
 import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
+import { demoLogUrls, demoRoute} from './demo';
 
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
@@ -124,13 +125,25 @@ export default class CanExplorer extends Component {
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
       this.showOnboarding();
+    } else if (this.props.isDemo) {
+      // is demo!
+
+      const logUrls = demoLogUrls;
+      const route = demoRoute;
+
+      this.setState({
+        logUrls,
+        route,
+        currentParts: [0, 2],
+        currentPart: 0
+      }, this.initCanData);
     } else if (
       this.props.max
       && this.props.url
       && !this.props.exp
       && !this.props.sig
     ) {
-      // probably the demo!
+      // legacy share? maybe dead code
       const { max, url } = this.props;
       const startTime = Moment(name, 'YYYY-MM-DD--H-m-s');
 
@@ -552,6 +565,10 @@ export default class CanExplorer extends Component {
               spawnWorkerHash,
               prepend
             });
+            if (window.dataCallback) {
+              window.dataCallback();
+              window.dataCallback = null;
+            }
           }
         );
       }
