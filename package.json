@@ -83,6 +83,8 @@
     "jest-puppeteer": "^4.3.0",
     "json-loader": "0.5.4",
     "puppeteer": "^1.20.0",
+    "rimraf": "^3.0.0",
+    "serve-handler": "^6.1.2",
     "url-toolkit": "^2.1.1",
     "webpack-sentry-plugin": "^1.14.0",
     "worker-loader": "^2.0.0",
@@ -96,6 +98,8 @@
     "test-ci": "CI=true craco test --env=jsdom",
     "test-coverage": "CI=true craco test --env=jsdom --coverage",
     "test-puppeteer": "jest -c ./src/__puppeteer__/jest.config.js",
+    "test-puppeteer-build": "JEST_PUPPETEER_CONFIG=jest-puppeteer.build.config.js yarn run test-puppeteer",
+    "test-release": "yarn run test-ci && yarn run test-puppeteer && eslint .",
     "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass": "node-sass src/index.scss -o src && node-sass -w src/index.scss -o src",
     "deploy": "npm run build && gh-pages -d build"
