@@ -13,7 +13,6 @@ import {
   persistGithubAuthToken
 } from './api/localstorage';
 import { demoProps } from './demo';
-import './index.css';
 
 export default function init() {
   Sentry.init();
