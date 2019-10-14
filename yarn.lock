@@ -918,20 +918,10 @@
   dependencies:
     capnp-ts "0.2.4"
 
-"@commaai/comma-api@1.1.6":
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.6.tgz#be486443a8d8843c74a811cdd406b85694b5d526"
-  integrity sha512-LWglx5+GiQN4uhdBUjTJ3hsHxy0/tFVwZrIFKLSwwFyclQWizriHOE4IxKkGLudyQ/KgOL+bLljA+z/huEXW4w==
-  dependencies:
-    babel-runtime "^6.26.0"
-    config-request "^0.5.1"
-    joi-browser "^13.4.0"
-    querystringify "^2.1.1"
-
-"@commaai/comma-api@^1.0.0":
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.1.7.tgz#73bb9794ed06f2c90d188b2d571cf2d18bbcd8d4"
-  integrity sha512-XGBSvIN6wt5xixMhLqlI4rUJTyH9kKRbB+WH9z2WiYFKhPXO43pSmzC0BpNv1QZtKwXRycdMdPNEDI9i1P4Rvg==
+"@commaai/comma-api@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.2.2.tgz#66d9a4da69477aa74e8f2d7aae638589d21cfb99"
+  integrity sha512-A4uGyK1lilMoYbn/s6meZqmBx1g/kYhPrlYgwqk7tpLAJ82AXtWtWiYHMUgvX7dHueywrjgnlXS9hfMbVXpeWA==
   dependencies:
     babel-runtime "^6.26.0"
     config-request "^0.5.1"
@@ -962,12 +952,12 @@
     stream-selector "^0.4.0"
     wasm-bz2 "^0.0.2"
 
-"@commaai/my-comma-auth@^1.1.0":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@commaai/my-comma-auth/-/my-comma-auth-1.1.3.tgz#f72053c76794c749804188cf08f857eef9c30855"
-  integrity sha512-r770CH0oBXqWlbLD1+gHqHxGtGR6n9Tum1LHTq8JjlKAsT1JiZ22WdghqZGsEAuYeyvJZxoJrynKzl81dRSWRQ==
+"@commaai/my-comma-auth@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@commaai/my-comma-auth/-/my-comma-auth-1.1.4.tgz#2d9b40d0625ae0f765e5deb591408fa7d8673bae"
+  integrity sha512-0Mhr01R9gPfDh+H+XoRsFSDIJwM/rEu937LAezayTOBuCgq4sQ6BfsE9MQdxKVLyicEpbLnnzHIrKHz3dR9AqA==
   dependencies:
-    "@commaai/comma-api" "^1.0.0"
+    "@commaai/comma-api" "^1.2.2"
     babel-runtime "^6.26.0"
     config-request "^0.5.1"
     global "^4.4.0"
