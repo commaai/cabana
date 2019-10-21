@@ -1,8 +1,8 @@
 /* eslint-env jest */
 import React from 'react';
 import { shallow, mount, render } from 'enzyme';
-import HLS from '../../components/HLS';
 import HLSMock from '@commaai/hls.js';
+import HLS from '../../components/HLS';
 
 jest.mock('@commaai/hls.js', () => {
   const onMock = jest.fn();

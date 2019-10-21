@@ -33,7 +33,7 @@ import UnloggerClient from './api/unlogger';
 import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
-import { demoLogUrls, demoRoute} from './demo';
+import { demoLogUrls, demoRoute } from './demo';
 
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
