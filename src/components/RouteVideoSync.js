@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, css } from 'aphrodite/no-important';
-import { derived as RouteApi, video as VideoApi } from '@commaai/comma-api';
+import { video as VideoApi } from '@commaai/comma-api';
 
 import HLS from './HLS';
 import RouteSeeker from './RouteSeeker/RouteSeeker';
@@ -50,7 +50,6 @@ export default class RouteVideoSync extends Component {
       shouldShowJpeg: true,
       isLoading: true,
       videoElement: null,
-      shouldRestartHls: false
     };
 
     this.onLoadStart = this.onLoadStart.bind(this);
@@ -59,27 +58,12 @@ export default class RouteVideoSync extends Component {
     this.onVideoElementAvailable = this.onVideoElementAvailable.bind(this);
     this.onUserSeek = this.onUserSeek.bind(this);
     this.onPlaySeek = this.onPlaySeek.bind(this);
-    this.onHlsRestart = this.onHlsRestart.bind(this);
     this.ratioTime = this.ratioTime.bind(this);
   }
 
   componentDidUpdate(nextProps) {
-    const {
-      userSeekIndex,
-      message,
-      canFrameOffset,
-      userSeekTime
-    } = this.props;
+    const { userSeekTime } = this.props;
     const { videoElement } = this.state;
-    if (
-      userSeekIndex !== nextProps.userSeekIndex
-      || canFrameOffset !== nextProps.canFrameOffset
-      || (message
-        && nextProps.message
-        && message.entries.length !== nextProps.message.entries.length)
-    ) {
-      this.setState({ shouldRestartHls: true });
-    }
     if (
       nextProps.userSeekTime
       && userSeekTime !== nextProps.userSeekTime
@@ -103,20 +87,13 @@ export default class RouteVideoSync extends Component {
     const funcSeekToRatio = () => onUserSeek(seekTime);
 
     if (Number.isNaN(videoElement.duration)) {
-      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
       return;
     }
     videoElement.currentTime = seekTime;
 
-    if (ratio === 0) {
-      this.setState({ shouldRestartHls: true }, funcSeekToRatio);
-    } else {
+    if (ratio !== 0) {
       funcSeekToRatio();
     }
-  }
-
-  onHlsRestart() {
-    this.setState({ shouldRestartHls: false });
   }
 
   onPlaySeek(offset) {
@@ -204,7 +181,6 @@ export default class RouteVideoSync extends Component {
   render() {
     const {
       isLoading,
-      shouldRestartHls,
       shouldShowJpeg,
       videoElement
     } = this.state;
@@ -244,8 +220,6 @@ export default class RouteVideoSync extends Component {
           onUserSeek={this.onUserSeek}
           onPlaySeek={this.onPlaySeek}
           segmentProgress={this.segmentProgress}
-          shouldRestart={shouldRestartHls}
-          onRestart={this.onHlsRestart}
         />
         <RouteSeeker
           className={css(Styles.seekBar)}
@@ -268,11 +242,8 @@ export default class RouteVideoSync extends Component {
 }
 
 RouteVideoSync.propTypes = {
-  userSeekIndex: PropTypes.number.isRequired,
   segment: PropTypes.array.isRequired,
-  message: PropTypes.object,
   thumbnails: PropTypes.array,
-  canFrameOffset: PropTypes.number.isRequired,
   url: PropTypes.string.isRequired,
   playing: PropTypes.bool.isRequired,
   onPlaySeek: PropTypes.func.isRequired,

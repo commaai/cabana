@@ -14,7 +14,6 @@ export default class HLS extends Component {
     onLoadEnd: PropTypes.func,
     onPlaySeek: PropTypes.func,
     segmentProgress: PropTypes.func,
-    shouldRestart: PropTypes.bool,
     onRestart: PropTypes.func
   };
 
@@ -40,6 +39,26 @@ export default class HLS extends Component {
     this.player = new Hls({
       enableWorker: false,
       disablePtsDtsCorrectionInMp4Remux: true
+    });
+    this.player.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+          // try to recover network error
+            console.log("fatal network error encountered, try to recover");
+            this.player.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.log("fatal media error encountered, try to recover");
+            this.player.recoverMediaError();
+            break;
+          default:
+          // cannot recover
+            this.player.destroy();
+            this.player = null;
+            break;
+        }
+      }
     });
     this.loadSource();
   }
@@ -78,6 +97,7 @@ export default class HLS extends Component {
     // destroy hls video source
     if (this.player) {
       this.player.destroy();
+      this.player = null;
     }
   }
 
