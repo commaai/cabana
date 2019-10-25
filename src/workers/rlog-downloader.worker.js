@@ -37,6 +37,7 @@ function sendBatch(entry) {
   }
 
   Object.keys(messages).forEach((key) => {
+    // console.log(key);
     messages[key] = DbcUtils.setMessageByteColors(
       messages[key],
       maxByteStateChangeCount
@@ -88,18 +89,12 @@ function insertEventData(src, part, entry, logTime, getData) {
     id
   );
 
-  const { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
-    entry.dbc,
-    logTime,
+  const msgEntry = {
+    time: logTime,
     address,
-    getData(),
-    entry.options.canStartTime,
-    prevMsgEntry
-  );
-
-  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(
-    (count, idx) => entry.messages[id].byteStateChangeCounts[idx] + count
-  );
+    data: getData(),
+    timeStart: entry.options.canStartTime
+  };
 
   entry.messages[id].entries.push(msgEntry);
 }
@@ -125,18 +120,12 @@ function insertCanMessage(entry, logTime, msg) {
     id
   );
 
-  const { msgEntry, byteStateChangeCounts } = DbcUtils.parseMessage(
-    entry.dbc,
-    logTime,
+  const msgEntry = {
+    time: logTime,
     address,
-    msg.Dat,
-    entry.options.canStartTime,
-    prevMsgEntry
-  );
-
-  entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(
-    (count, idx) => entry.messages[id].byteStateChangeCounts[idx] + count
-  );
+    data: msg.Dat,
+    timeStart: entry.options.canStartTime
+  };
 
   entry.messages[id].entries.push(msgEntry);
 

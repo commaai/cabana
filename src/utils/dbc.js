@@ -76,7 +76,8 @@ function determineByteStateChangeTimes(
   if (!lastParsedMessage) {
     byteStateChangeTimes = Array(msgSize).fill(time);
   } else {
-    byteStateChangeTimes = Array.from(lastParsedMessage.byteStateChangeTimes);
+    // debugger;
+    byteStateChangeTimes = lastParsedMessage.byteStateChangeTimes;
 
     for (let i = 0; i < byteStateChangeTimes.length; i++) {
       const currentData = hexData.substr(i * 2, 2);
@@ -102,12 +103,38 @@ function createMessageEntry(
 ) {
   return {
     signals: dbc.getSignalValues(address, data),
+    address,
+    data,
     time,
     relTime,
     hexData: Buffer.from(data).toString('hex'),
     byteStateChangeTimes,
     updated: Date.now()
   };
+}
+
+function reparseMessage(dbc, msg, lastParsedMessage) {
+  const msgSpec = dbc.getMessageFrame(msg.address);
+  const msgSize = msgSpec ? msgSpec.size : 8;
+
+  const {
+    byteStateChangeTimes,
+    byteStateChangeCounts
+  } = determineByteStateChangeTimes(
+    msg.hexData,
+    msg.relTime,
+    msgSize,
+    lastParsedMessage
+  );
+
+  const msgEntry = {
+    ...msg,
+    signals: dbc.getSignalValues(msg.address, msg.data),
+    byteStateChangeTimes,
+    updated: Date.now()
+  };
+
+  return { msgEntry, byteStateChangeCounts };
 }
 
 function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
@@ -174,6 +201,7 @@ export default {
   createMessageSpec,
   matrixBitNumber,
   parseMessage,
+  reparseMessage,
   findMaxByteStateChangeCount,
   setMessageByteColors,
   createMessageEntry
