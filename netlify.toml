@@ -1,3 +1,5 @@
 [[redirects]]
-  from = "/cabana/*"
-  to = "/:splat"
+  from = "/cabana/:slug"
+  to = "/:slug"
+  status = 200
+  force = true
