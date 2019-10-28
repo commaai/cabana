@@ -102,14 +102,13 @@ export default class RouteSeeker extends Component {
     }
     const { markerWidth } = RouteSeeker;
 
-    const markerLeft = `calc(${`${markerOffsetPct}%`} - ${markerWidth / 2}px)`;
+    const markerLeft = `calc(${markerOffsetPct}% - ${markerWidth / 2}px)`;
     const markerStyle = {
       display: '',
       left: markerLeft
     };
     const { tooltipWidth } = RouteSeeker;
-    const tooltipLeft = `calc(${`${markerOffsetPct}%`} - ${tooltipWidth
-      / 2}px)`;
+    const tooltipLeft = `calc(${markerOffsetPct}% - ${tooltipWidth / 2}px)`;
 
     const tooltipStyle = { display: 'flex', left: tooltipLeft };
     const ratio = Math.max(0, markerOffsetPct / 100);
@@ -177,10 +176,13 @@ export default class RouteSeeker extends Component {
       return;
     }
 
-    if (newRatio >= 1 || newRatio < 0) {
+    if ((newRatio >= 1 && this.props.segmentIndices && this.props.segmentIndices.length) || newRatio < 0) {
       newRatio = 0;
       currentTime = startTime;
       this.props.onUserSeek(newRatio);
+    } else if (newRatio >= 1) {
+      videoElement.pause();
+      this.onPause();
     }
 
     if (newRatio >= 0) {
