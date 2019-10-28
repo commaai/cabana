@@ -12,6 +12,7 @@ describe('RouteSeeker', () => {
         segmentProgress={() => {}}
         videoLength={0}
         segmentIndices={[]}
+        segment={[]}
         onUserSeek={() => {}}
         onPlaySeek={() => {}}
         videoElement={null}
@@ -33,6 +34,7 @@ describe('RouteSeeker', () => {
         segmentProgress={() => {}}
         videoLength={0}
         segmentIndices={[]}
+        segment={[]}
         onUserSeek={() => {}}
         onPlaySeek={() => {}}
         videoElement={videoElement}
@@ -64,6 +66,7 @@ describe('RouteSeeker', () => {
         segmentProgress={() => {}}
         videoLength={10}
         segmentIndices={[]}
+        segment={[]}
         onUserSeek={() => {}}
         onPlaySeek={() => {}}
         videoElement={videoElement}
@@ -102,7 +105,7 @@ describe('RouteSeeker', () => {
     expect(component.state('ratio')).toBe(0.3);
 
     component.setProps({
-      segmentIndices: [1, 2]
+      segment: [1, 2]
     });
 
     videoElement.currentTime = 10.1;

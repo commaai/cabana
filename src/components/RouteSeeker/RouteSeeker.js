@@ -7,6 +7,7 @@ export default class RouteSeeker extends Component {
   static propTypes = {
     videoLength: PropTypes.number.isRequired,
     segmentIndices: PropTypes.arrayOf(PropTypes.number),
+    segment: PropTypes.arrayOf(PropTypes.number),
     onUserSeek: PropTypes.func,
     onPlaySeek: PropTypes.func,
     video: PropTypes.node,
@@ -176,7 +177,7 @@ export default class RouteSeeker extends Component {
       return;
     }
 
-    if ((newRatio >= 1 && this.props.segmentIndices && this.props.segmentIndices.length) || newRatio < 0) {
+    if ((newRatio >= 1 && this.props.segment && this.props.segment.length) || newRatio < 0) {
       newRatio = 0;
       currentTime = startTime;
       this.props.onUserSeek(newRatio);

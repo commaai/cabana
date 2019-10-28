@@ -191,7 +191,8 @@ export default class RouteVideoSync extends Component {
       playing,
       onVideoClick,
       segmentIndices,
-      startTime
+      startTime,
+      segment
     } = this.props;
     return (
       <div className="cabana-explorer-visuals-camera">
@@ -235,6 +236,7 @@ export default class RouteVideoSync extends Component {
           onPause={this.props.onPause}
           playing={this.props.playing}
           ratioTime={this.ratioTime}
+          segment={segment}
         />
       </div>
     );
