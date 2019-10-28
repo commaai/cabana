@@ -49,7 +49,16 @@ export default class Signal {
       min,
       max,
       uid,
-      colors
+      _colors: colors
+    });
+
+    Object.defineProperty(this, 'colors', {
+      get: function () {
+        console.error('Something is still using the old colors');
+        debugger;
+        return colors;
+      },
+      enumberable: false
     });
   }
 
@@ -153,6 +162,13 @@ export default class Signal {
   calculateMax() {
     const rawMax = this.calculateRawRange()[1];
     return this.offset + rawMax * this.factor;
+  }
+
+  getColors(messageId) {
+    const parts = messageId.split(':').map(p => Number.parseInt(p, 16) % 255);
+    const colors = this._colors || this.generateColors();
+
+    return colors.map((c) => parts.reduce((m, v) => m ^ v, c));
   }
 
   generateColors() {

@@ -407,6 +407,7 @@ export default class Explorer extends Component {
               messageIndex={this.props.seekIndex}
               onSignalPlotChange={this.onSignalPlotChange}
               plottedSignalUids={this.selectedMessagePlottedSignalUids()}
+              selectedMessageKey={selectedMessageKey}
             />
           ) : null}
           <CanLog

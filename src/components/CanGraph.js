@@ -347,7 +347,7 @@ export default class CanGraph extends Component {
               const signal = Object.values(
                 this.props.messages[messageId].frame.signals
               ).find((s) => s.uid === signalUid);
-              const { colors } = signal;
+              const colors = signal.getColors(messageId);
 
               return (
                 <div
@@ -364,7 +364,7 @@ export default class CanGraph extends Component {
                   </div>
                   <div className="cabana-explorer-visuals-plot-header-copy">
                     <div className="cabana-explorer-visuals-plot-message">
-                      <span>{messageName}</span>
+                      <span>{messageName} {messageId}</span>
                     </div>
                     <div className="cabana-explorer-visuals-plot-signal">
                       <div

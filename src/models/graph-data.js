@@ -1,6 +1,10 @@
 import ArrayUtils from '../utils/array';
 import { CAN_GRAPH_MAX_POINTS } from '../config';
 
+function signalColors(signal, msg) {
+  return signal.colors.map((v) => (v ^ msg.address) ^ msg.bus);
+}
+
 function _calcGraphData(msg, signalUid, firstCanTime) {
   if (!msg) return null;
 
@@ -26,6 +30,8 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
   if (!samples.length) {
     return [];
   }
+
+  const colors = signal.getColors(msg.id);
   // sorting these doesn't fix the phantom lines
   let lastEntry = samples[0].relTime;
   return samples
@@ -41,7 +47,7 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
         relTime: entry.relTime,
         y: entry.signals[signal.name],
         unit: signal.unit,
-        color: `rgba(${signal.colors.join(',')}, 0.5)`,
+        color: `rgba(${colors.join(',')}, 0.5)`,
         signalName: signal.name,
         signalUid
       };
@@ -170,4 +176,4 @@ function appendNewGraphData(plottedSignals, graphData, messages, firstCanTime) {
   return [...graphData];
 }
 
-export default { _calcGraphData, appendNewGraphData };
+export default { _calcGraphData, appendNewGraphData, signalColors };

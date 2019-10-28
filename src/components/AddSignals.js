@@ -48,7 +48,8 @@ export default class AddSignals extends Component {
     onConfirmedSignalChange: PropTypes.func,
     messageIndex: PropTypes.number,
     onSignalPlotChange: PropTypes.func,
-    plottedSignalUids: PropTypes.array
+    plottedSignalUids: PropTypes.array,
+    selectedMessageKey: PropTypes.string
   };
 
   constructor(props) {
@@ -91,7 +92,7 @@ export default class AddSignals extends Component {
   }
 
   signalColorStyle(signal) {
-    const { colors } = signal;
+    const colors = signal.getColors(this.props.selectedMessageKey);
 
     let colorRgbStr;
     let backgroundColor;
@@ -130,10 +131,10 @@ export default class AddSignals extends Component {
     return signalStyles;
   }
 
-  componentWillReceiveProps({ message }) {
-    const isNewMessage = message.address !== this.props.message.address;
-    if (isNewMessage) {
-      const signals = message.frame ? message.frame.signals : {};
+  componentWillReceiveProps(newProps) {
+    if (newProps.message.address !== this.props.message.address
+      || newProps.selectedMessageKey !== this.props.selectedMessageKey) {
+      const signals = newProps.message.frame ? newProps.message.frame.signals : {};
 
       this.setState(
         { signals: this.copySignals(signals) },
@@ -529,6 +530,7 @@ export default class AddSignals extends Component {
   };
 
   render() {
+    const { selectedMessageKey } = this.props;
     return (
       <div className="cabana-explorer-signals-controller">
         {Object.keys(this.state.signals).length === 0 ? (
@@ -558,6 +560,7 @@ export default class AddSignals extends Component {
           onSignalRemove={this.onSignalRemove}
           onSignalPlotChange={this.onSignalPlotChange}
           plottedSignalUids={this.props.plottedSignalUids}
+          selectedMessageKey={selectedMessageKey}
         />
       </div>
     );
