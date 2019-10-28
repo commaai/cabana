@@ -92,7 +92,9 @@
   },
   "scripts": {
     "start": "PORT=3001 env-cmd .env.development craco start",
-    "build": "craco build",
+    "build": "env-cmd .env.production craco build",
+    "netlify-sass": "node-sass src/index.scss > src/index.css",
+    "netlify-build": "yarn run netlify-sass && yarn run build",
     "build:staging": "env-cmd .env.staging craco build",
     "test": "craco test --env=jsdom",
     "test-ci": "CI=true craco test --env=jsdom",
@@ -100,7 +102,6 @@
     "test-puppeteer": "jest -c ./src/__puppeteer__/jest.config.js",
     "test-all": "yarn run test-ci && yarn run test-puppeteer",
     "test-puppeteer-build": "JEST_PUPPETEER_CONFIG=jest-puppeteer.build.config.js yarn run test-puppeteer",
-    "netlify-sass": "node-sass src/index.scss > src/index.css",
     "sass": "node-sass src/index.scss -o src && node-sass -w src/index.scss -o src",
     "deploy": "yarn run test-ci && npm run build && yarn run test-puppeteer-build && gh-pages -d build"
   },
