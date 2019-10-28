@@ -37,6 +37,11 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
   return samples
     .filter((e) => e.signals[signal.name] !== undefined)
     .map((entry) => {
+      if (entry.relTime < lastEntry) {
+        console.log(msg);
+        console.error('Found out of order messages');
+        debugger;
+      }
       if (entry.relTime - lastEntry > 2) {
         signalUid = Math.random().toString(36);
       }

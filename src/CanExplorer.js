@@ -535,10 +535,11 @@ export default class CanExplorer extends Component {
     // Adds new message entries to messages state
     // and "rehydrates" ES6 classes (message frame)
     // lost from JSON serialization in webworker data cloning.
+    // handles merging the data in correct order
     options = options || {};
 
     const messages = { ...this.state.messages };
-    for (const key in newMessages) {
+    Object.keys(newMessages).forEach((key) => {
       // add message
       if (options.replace !== true && key in messages) {
         // should merge here instead of concat
@@ -575,7 +576,22 @@ export default class CanExplorer extends Component {
           messages[key].address
         );
       }
-    }
+    });
+
+    const maxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
+      messages
+    );
+    this.setState({
+      maxByteStateChangeCount
+    });
+
+    Object.keys(messages).forEach((key) => {
+      // console.log(key);
+      messages[key] = DbcUtils.setMessageByteColors(
+        messages[key],
+        maxByteStateChangeCount
+      );
+    });
 
     return messages;
   }
@@ -640,9 +656,12 @@ export default class CanExplorer extends Component {
         thumbnails = thumbnails.concat(cacheEntry.thumbnails);
         Object.keys(newMessages).forEach((key) => {
           if (!messages[key]) {
-            messages[key] = newMessages[key];
+            messages[key] = { ...newMessages[key] };
           } else {
-            // holy memory usage batman!
+            if (newMessages[key].entries.length && newMessages[key].entries[0].relTime < messages[key].entries[messages[key].entries.length - 1].relTime) {
+              console.error('Found out of order messages');
+              debugger;
+            }
             messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
           }
         });
@@ -656,6 +675,22 @@ export default class CanExplorer extends Component {
         messages[key] = this.state.messages[key];
         messages[key].entries = [];
       }
+    });
+
+    const maxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
+      messages
+    );
+
+    this.setState({
+      maxByteStateChangeCount
+    });
+
+    Object.keys(messages).forEach((key) => {
+      // console.log(key);
+      messages[key] = DbcUtils.setMessageByteColors(
+        messages[key],
+        maxByteStateChangeCount
+      );
     });
 
     console.log('Done with old messages', performance.now() - start);
@@ -807,6 +842,7 @@ export default class CanExplorer extends Component {
     }
 
     dbc.lastUpdated = Date.now();
+    this.loadMessagesFromCache();
   }
 
   onConfirmedSignalChange(message, signals) {
