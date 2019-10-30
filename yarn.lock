@@ -936,10 +936,10 @@
     eventemitter3 "3.1.0"
     url-toolkit "^2.1.6"
 
-"@commaai/log_reader@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.5.3.tgz#c3dd2c6f3b911198c32bbebd34d0e9cc862e0672"
-  integrity sha512-/962u7s7uXPMGLz2AH+L57w+CSXCX1uZmh0OLSwGZXzyxO/dGvimaVspYe9N78Q0BYa1B5ctv986zliaAblrmg==
+"@commaai/log_reader@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@commaai/log_reader/-/log_reader-0.5.4.tgz#99d52da1900199b552592d1e4ba5d90af6b0812f"
+  integrity sha512-mxSBxCQP/hhoKmPmTxkiOi6LgR5Z9IjIHJWK2fH7TRPS80atjkYawqroX/GlEaMO9uAjKPGvuH84dTRvYjGb3w==
   dependencies:
     "@commaai/capnp-json" "^0.2.0"
     JSONStream "^1.3.2"
@@ -950,7 +950,7 @@
     file-type "^7.6.0"
     geval "^2.2.0"
     stream-selector "^0.4.0"
-    wasm-bz2 "^0.0.2"
+    wasm-bz2 "^0.0.3"
 
 "@commaai/my-comma-auth@^1.1.4":
   version "1.1.4"
@@ -13569,10 +13569,10 @@ walker@^1.0.7, walker@~1.0.5:
   dependencies:
     makeerror "1.0.x"
 
-wasm-bz2@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/wasm-bz2/-/wasm-bz2-0.0.2.tgz#ff5c4e3ed660169ec14f00bd9f4650c43c142a13"
-  integrity sha512-OjWSwiIvz8yacBBqajiZTSVI9Yom1nHFjBuXJFTOwa9rkHIQFNmFaEG65kmnUlFMUNU6mxmGGKAwF8BGMesZ6g==
+wasm-bz2@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/wasm-bz2/-/wasm-bz2-0.0.3.tgz#0b2afddde6721dc4025248db38eef6025f96f7e3"
+  integrity sha512-QJV9jwhqgtqkSo97v75Dw46TAJfTEau+GkAKS/s9THHZ7W2gAT/21GtdZWcVd3WoSJcMXrXNs/SlXJ5mCK6Ghw==
   dependencies:
     ap "^0.2.0"
     weakmap-event "^2.0.7"
