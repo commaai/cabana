@@ -469,7 +469,7 @@ export default class Explorer extends Component {
         <div className="cabana-explorer-visuals">
           {this.props.live === false ? (
             <div>
-              <div class="cabana-explorer-visuals-header g-row">
+              <div className="cabana-explorer-visuals-header g-row">
                 <PlaySpeedSelector
                   playSpeed={this.state.playSpeed}
                   onPlaySpeedChanged={this.changePlaySpeed}
