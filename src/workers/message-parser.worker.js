@@ -19,27 +19,50 @@ function reparseEntry(entry, address, dbc, canStartTime, prevMsgEntry) {
 }
 
 self.onmessage = function (e) {
+  /*
+        entries: entry.entries,
+        dbcText: dbc.text(),
+        canStartTime: this.state.firstCanTime
+  */
   const { messages, dbcText, canStartTime } = e.data;
   const dbc = new DBC(dbcText);
+
   Object.keys(messages).forEach((messageId) => {
-    const message = messages[messageId];
-    for (let i = 0; i < message.entries.length; i++) {
-      const entry = message.entries[i];
-      const prevMsgEntry = i > 0 ? message.entries[i - 1] : null;
+    let prevMsgEntry = null;
+    const entry = messages[messageId];
+    const byteStateChangeCounts = [];
 
-      const { msgEntry } = reparseEntry(
-        entry,
-        message.address,
-        dbc,
-        canStartTime,
-        prevMsgEntry
-      );
+    entry.entries = entry.entries.map((message) => {
+      if (message.hexData) {
+        prevMsgEntry = DbcUtils.reparseMessage(dbc, message, prevMsgEntry);
+      } else {
+        prevMsgEntry = DbcUtils.parseMessage(
+          dbc,
+          message.time,
+          message.address,
+          message.data,
+          message.timeStart,
+          prevMsgEntry
+        );
+      }
+      byteStateChangeCounts.push(prevMsgEntry.byteStateChangeCounts);
+      prevMsgEntry = prevMsgEntry.msgEntry;
+      return prevMsgEntry;
+    });
 
-      message.entries[i] = msgEntry;
-    }
-    messages[messageId] = message;
+    entry.byteStateChangeCounts = byteStateChangeCounts.reduce((memo, val) => {
+      if (!memo) {
+        return val;
+      }
+      return memo.map((count, idx) => val[idx] + count);
+    }, null);
+
+    messages[messageId] = entry;
   });
 
-  self.postMessage(messages);
+  self.postMessage({
+    messages
+  });
+
   self.close();
 };
