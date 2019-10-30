@@ -61,15 +61,15 @@ export default class RouteVideoSync extends Component {
     this.ratioTime = this.ratioTime.bind(this);
   }
 
-  componentDidUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     const { userSeekTime } = this.props;
     const { videoElement } = this.state;
     if (
-      nextProps.userSeekTime
-      && userSeekTime !== nextProps.userSeekTime
+      prevProps.userSeekTime
+      && userSeekTime !== prevProps.userSeekTime
     ) {
       if (videoElement) {
-        videoElement.currentTime = nextProps.userSeekTime;
+        videoElement.currentTime = userSeekTime;
       }
     }
   }

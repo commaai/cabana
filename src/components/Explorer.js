@@ -166,12 +166,12 @@ export default class Explorer extends Component {
       } else {
         nextSeekTime = nextMessage.entries[0];
       }
-      // console.log(this.state.segment, '->', segment, segmentIndices, nextSeekTime);
+      // console.log('componentWillReceiveProps', this.state.userSeekTime, '->', nextSeekTime);
       this.setState({
         segment,
         segmentIndices,
         userSeekIndex: nextProps.seekIndex,
-        userSeekTime: nextSeekTime
+        // userSeekTime: nextSeekTime
       });
     }
 
@@ -291,9 +291,6 @@ export default class Explorer extends Component {
   }
 
   onUserSeek(time) {
-    this.setState({ userSeekTime: time });
-    const message = this.props.messages[this.props.selectedMessage];
-
     this.props.onUserSeek(time);
     this.setState({ userSeekTime: time });
   }
