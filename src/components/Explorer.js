@@ -469,12 +469,12 @@ export default class Explorer extends Component {
         <div className="cabana-explorer-visuals">
           {this.props.live === false ? (
             <div>
-              <PlaySpeedSelector
-                playSpeed={this.state.playSpeed}
-                onPlaySpeedChanged={this.changePlaySpeed}
-              />
-              <div className="cabana-explorer-visuals-header g-row" />
-              <br />
+              <div class="cabana-explorer-visuals-header g-row">
+                <PlaySpeedSelector
+                  playSpeed={this.state.playSpeed}
+                  onPlaySpeedChanged={this.changePlaySpeed}
+                />
+              </div>
               <RouteVideoSync
                 message={messages[this.props.selectedMessage]}
                 segment={this.state.segment}
