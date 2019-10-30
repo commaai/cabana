@@ -56,11 +56,19 @@ export default class Explorer extends Component {
       segment = [];
       segmentIndices = [];
     }
+    let { userSeekTime } = this.state;
+    if (segment.length) {
+      userSeekTime = Math.max(segment[0], userSeekTime);
+      userSeekTime = Math.min(segment[1], userSeekTime);
+    } else {
+      userSeekTime = Math.max(currentParts[0] * 60, userSeekTime);
+      userSeekTime = Math.min(currentParts[1] * 60, userSeekTime);
+    }
     this.setState({
       segment,
       segmentIndices,
       userSeekIndex: segmentIndices[0],
-      userSeekTime: segment[0] || 0
+      userSeekTime
     });
   }, 250);
 
