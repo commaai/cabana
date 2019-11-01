@@ -130,7 +130,7 @@ export default class CanExplorer extends Component {
     this.dataCacheTimer = interval(() => {
       const { currentParts } = this.state;
       let { loadedParts } = this.state;
-      if (loadedParts.length < 4) {
+      if (this.loadMessagesFromCacheRunning || loadedParts.length < 4) {
         return;
       }
       loadedParts.forEach((part) => {
