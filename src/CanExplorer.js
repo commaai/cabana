@@ -676,18 +676,45 @@ export default class CanExplorer extends Component {
   async loadMessagesFromCache() {
     // create a new messages object for state
     if (this.loadMessagesFromCacheRunning) {
+      if (!this.loadMessagesFromCacheTimer) {
+        this.loadMessagesFromCacheTimer = timeout(() => this.loadMessagesFromCache(), 10);
+      }
       return;
     }
     this.loadMessagesFromCacheRunning = true;
+    if (this.loadMessagesFromCacheTimer) {
+      this.loadMessagesFromCacheTimer();
+      this.loadMessagesFromCacheTimer = null;
+    }
     const { currentParts, dbc } = this.state;
+    const { lastUpdated } = dbc;
     const [minPart, maxPart] = currentParts;
     const messages = {};
     let thumbnails = [];
+    let isCanceled = false;
 
     let start = performance.now();
 
+    let promises = [];
+
     for (let i = minPart, l = maxPart; i <= l; ++i) {
-      const cacheEntry = await this.getParseSegment(i);
+      promises.push(this.getParseSegment(i));
+    }
+    await promises.reduce(async (prev, p) => {
+      await prev;
+      if (isCanceled) {
+        return;
+      }
+      const cacheEntry = await p;
+      if (this.state.dbc.lastUpdated !== lastUpdated) {
+        if (!isCanceled) {
+          isCanceled = true;
+          this.loadMessagesFromCacheRunning = false;
+          console.log('Canceling!');
+          this.loadMessagesFromCache();
+        }
+        return;
+      }
       if (cacheEntry) {
         const newMessages = cacheEntry.messages;
         thumbnails = thumbnails.concat(cacheEntry.thumbnails);
@@ -705,8 +732,12 @@ export default class CanExplorer extends Component {
           }
         });
       }
-      console.log('Done with', i, performance.now() - start);
+      console.log('Done with', performance.now() - start);
       start = performance.now();
+    }, Promise.resolve());
+
+    if (isCanceled) {
+      return;
     }
 
     Object.keys(this.state.messages).forEach((key) => {
@@ -749,8 +780,16 @@ export default class CanExplorer extends Component {
     if (!dataCache[part]) {
       return null;
     }
-    const start = performance.now();
+    if (dataCache[part].promise) {
+      await dataCache[part].promise;
+    }
+    dataCache[part].promise = this.getParseSegmentInternal(part);
 
+    return dataCache[part].promise;
+  }
+
+  async getParseSegmentInternal(part) {
+    const start = performance.now();
     const { dbc } = this.state;
     if (!dbc.lastUpdated) {
       dbc.lastUpdated = Date.now();
@@ -807,7 +846,6 @@ export default class CanExplorer extends Component {
     dbc.lastUpdated = dbc.lastUpdated || Date.now();
 
     Object.keys(messages).forEach((key) => {
-      messages[key].lastUpdated = dbc.lastUpdated;
       messages[key].frame = dbc.getMessageFrame(messages[key].address);
     });
 
