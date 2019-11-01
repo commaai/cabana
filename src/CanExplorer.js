@@ -127,9 +127,13 @@ export default class CanExplorer extends Component {
   }
 
   componentDidMount() {
-    this.dataCacheTimer = setInterval(() => {
+    this.dataCacheTimer = interval(() => {
+      const { currentParts } = this.state;
       let { loadedParts } = this.state;
       loadedParts.forEach((part) => {
+        if (part >= currentParts[0] && part <= currentParts[1]) {
+          return;
+        }
         if (Date.now() - dataCache[part].lastUsed > 2 * 60 * 1000) {
           console.log('Decaching part', part);
           loadedParts = loadedParts.filter((p) => p !== part);
@@ -237,7 +241,9 @@ export default class CanExplorer extends Component {
   }
 
   componentWillUnmount() {
-    this.dataCacheTimer();
+    if (this.dataCacheTimer) {
+      this.dataCacheTimer();
+    }
   }
 
   initCanData() {
@@ -755,11 +761,11 @@ export default class CanExplorer extends Component {
       if (messages[key].lastUpdated >= lastUpdated) {
         return;
       }
-      console.log('Reparsing messages!');
       reparseMessages[key] = messages[key];
     });
 
     if (Object.keys(reparseMessages).length) {
+      console.log('Reparsing messages!', Object.keys(reparseMessages).length);
       reparseMessages = await this.reparseMessages(reparseMessages);
     }
 
@@ -767,6 +773,13 @@ export default class CanExplorer extends Component {
       ...messages,
       ...reparseMessages
     };
+
+    Object.keys(reparseMessages).forEach((key) => {
+      messages[key].frame = this.state.dbc.getMessageFrame(
+        messages[key].address
+      );
+    });
+    dataCache[part].messages = messages;
 
     const end = performance.now();
     if (end - start > 200) {
@@ -779,8 +792,8 @@ export default class CanExplorer extends Component {
 
   decacheMessageId(messageId) {
     Object.keys(dataCache).forEach((part) => {
-      if (dataCache[part][messageId]) {
-        dataCache[part][messageId].lastUpdated = 0;
+      if (dataCache[part].messages[messageId]) {
+        dataCache[part].messages[messageId].lastUpdated = 0;
       }
     });
   }
@@ -912,9 +925,9 @@ export default class CanExplorer extends Component {
     const { dbc, dbcFilename } = this.state;
     dbc.setSignals(message.address, { ...signals });
 
-    this.updateMessageFrame(message.id, dbc.getMessageFrame(message.address));
-
     this.persistDbc({ dbcFilename, dbc });
+
+    this.updateMessageFrame(message.id, dbc.getMessageFrame(message.address));
 
     this.setState({ dbc, dbcText: dbc.text() }, () => {
       this.decacheMessageId(message.id);

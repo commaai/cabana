@@ -173,16 +173,19 @@ export default class CanGraph extends Component {
       this.props.messages !== nextProps.messages
       || this.props.plottedSignal !== nextProps.plottedSignal
     ) {
+      console.log('Calculating new data!');
       const data = this.getGraphData(nextProps);
-      if (
-        data.series.length === this.state.data.series.length
-        && data.firstRelTime === this.state.data.firstRelTime
-        && data.lastRelTime === this.state.data.lastRelTime
-      ) {
-        // do nothing, the data didn't *actually* change
-      } else {
+      // if (
+      //   data.series.length === this.state.data.series.length
+      //   && data.firstRelTime === this.state.data.firstRelTime
+      //   && data.lastRelTime === this.state.data.lastRelTime
+      //   && JSON.stringify(nextProps.signalSpec) === JSON.stringify(this.props.signalSpec)
+      // ) {
+      //   // do nothing, the data didn't *actually* change
+      // } else {
+        console.log('Inserting new data!');
         this.setState({ data });
-      }
+      // }
     }
     if (this.segmentIsNew(nextProps.segment)) {
       this.setState({ spec: this.getGraphSpec(nextProps) });
