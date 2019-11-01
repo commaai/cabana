@@ -18,7 +18,7 @@ export default function init() {
   Sentry.init();
 
   const routeFullName = getUrlParameter('route');
-  const isDemo = !routeFullName;
+  const isDemo = !!getUrlParameter('demo');
   let segments = getUrlParameter('segments');
   if (segments && segments.length) {
     segments = segments.split(',').map(Number);
@@ -62,7 +62,7 @@ export default function init() {
     }
     props.isLegacyShare = max && url && !exp && !sig;
     props.isShare = max && url && exp && sig;
-  } else if (getUrlParameter('demo')) {
+  } else if (isDemo) {
     props = { ...props, ...demoProps };
   }
 
@@ -92,16 +92,5 @@ export default function init() {
     ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root')); // eslint-disable-line react/jsx-props-no-spreading
   }
 
-  if (routeFullName || isDemo) {
-    renderDom();
-    return;
-  }
-
-  const img = document.createElement('img');
-  img.src = `${process.env.PUBLIC_URL}/img/cabana.jpg`;
-  img.style.width = '100%';
-  const comment = document.createComment('7/6/17');
-
-  document.getElementById('root').appendChild(img);
-  document.getElementById('root').appendChild(comment);
+  renderDom();
 }
