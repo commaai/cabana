@@ -695,9 +695,11 @@ export default class CanExplorer extends Component {
           if (!messages[key]) {
             messages[key] = { ...newMessages[key] };
           } else {
-            if (newMessages[key].entries.length && newMessages[key].entries[0].relTime < messages[key].entries[messages[key].entries.length - 1].relTime) {
-              console.error('Found out of order messages');
-              debugger;
+            const newMessageEntries = newMessages[key].entries;
+            const messageEntries = messages[key].entries;
+            if (newMessageEntries.length
+              && newMessageEntries[0].relTime < messageEntries[messageEntries.length - 1].relTime) {
+              console.error('Found out of order messages', newMessageEntries[0], messageEntries[messageEntries.length - 1]);
             }
             messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
           }
@@ -712,6 +714,12 @@ export default class CanExplorer extends Component {
         messages[key] = this.state.messages[key];
         messages[key].entries = [];
       }
+    });
+
+    Object.keys(messages).forEach((key) => {
+      messages[key].frame = dbc.getMessageFrame(
+        messages[key].address
+      );
     });
 
     const maxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
@@ -774,11 +782,6 @@ export default class CanExplorer extends Component {
       ...reparseMessages
     };
 
-    Object.keys(reparseMessages).forEach((key) => {
-      messages[key].frame = this.state.dbc.getMessageFrame(
-        messages[key].address
-      );
-    });
     dataCache[part].messages = messages;
 
     const end = performance.now();
@@ -811,7 +814,12 @@ export default class CanExplorer extends Component {
     return new Promise((resolve, reject) => {
       const worker = new MessageParser();
       worker.onmessage = (e) => {
-        resolve(e.data.messages);
+        const newMessages = e.data.messages;
+        Object.keys(newMessages).forEach((key) => {
+          newMessages[key].lastUpdated = dbc.lastUpdated;
+          newMessages[key].frame = dbc.getMessageFrame(newMessages[key].address);
+        });
+        resolve(newMessages);
       };
 
       worker.postMessage({
