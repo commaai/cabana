@@ -130,11 +130,14 @@ export default class CanExplorer extends Component {
     this.dataCacheTimer = interval(() => {
       const { currentParts } = this.state;
       let { loadedParts } = this.state;
+      if (loadedParts.length < 4) {
+        return;
+      }
       loadedParts.forEach((part) => {
         if (part >= currentParts[0] && part <= currentParts[1]) {
           return;
         }
-        if (Date.now() - dataCache[part].lastUsed > 2 * 60 * 1000) {
+        if (Date.now() - dataCache[part].lastUsed > 3 * 60 * 1000) {
           console.log('Decaching part', part);
           loadedParts = loadedParts.filter((p) => p !== part);
           this.setState({
