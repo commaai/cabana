@@ -6,6 +6,7 @@ import { createWriteStream } from 'streamsaver';
 import Panda from '@commaai/pandajs';
 import CommaAuth from '@commaai/my-comma-auth';
 import { raw as RawDataApi, drives as DrivesApi } from '@commaai/comma-api';
+import { timeout, interval } from 'thyming';
 import {
   USE_UNLOGGER,
   PART_SEGMENT_LENGTH,
@@ -33,12 +34,16 @@ import UnloggerClient from './api/unlogger';
 import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
+import DbcUtils from './utils/dbc';
 import { demoLogUrls, demoRoute } from './demo';
 
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
 const MessageParser = require('./workers/message-parser.worker');
 const CanStreamerWorker = require('./workers/CanStreamerWorker.worker');
+
+const dataCache = {};
+
 
 export default class CanExplorer extends Component {
   constructor(props) {
@@ -122,6 +127,26 @@ export default class CanExplorer extends Component {
   }
 
   componentDidMount() {
+    this.dataCacheTimer = interval(() => {
+      const { currentParts } = this.state;
+      let { loadedParts } = this.state;
+      if (this.loadMessagesFromCacheRunning || loadedParts.length < 4) {
+        return;
+      }
+      loadedParts.forEach((part) => {
+        if (part >= currentParts[0] && part <= currentParts[1]) {
+          return;
+        }
+        if (Date.now() - dataCache[part].lastUsed > 3 * 60 * 1000) {
+          console.log('Decaching part', part);
+          loadedParts = loadedParts.filter((p) => p !== part);
+          this.setState({
+            loadedParts
+          }, () => { delete dataCache[part]; });
+        }
+      });
+    }, 10000);
+
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
       this.showOnboarding();
@@ -218,6 +243,12 @@ export default class CanExplorer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.dataCacheTimer) {
+      this.dataCacheTimer();
+    }
+  }
+
   initCanData() {
     const { route } = this.state;
 
@@ -227,6 +258,7 @@ export default class CanExplorer extends Component {
   onDbcSelected(dbcFilename, dbc) {
     const { route } = this.state;
     this.hideLoadDbc();
+    dbc.lastUpdated = Date.now();
     this.persistDbc({ dbcFilename, dbc });
 
     if (route) {
@@ -240,8 +272,7 @@ export default class CanExplorer extends Component {
           messages: {}
         },
         () => {
-          // Pass DBC text to webworker b/c can't pass instance of es6 class
-          this.spawnWorker();
+          this.loadMessagesFromCache();
         }
       );
     } else {
@@ -359,56 +390,9 @@ export default class CanExplorer extends Component {
     return result;
   }
 
-  addAndRehydrateMessages(newMessages, options) {
-    // Adds new message entries to messages state
-    // and "rehydrates" ES6 classes (message frame)
-    // lost from JSON serialization in webworker data cloning.
-    options = options || {};
-
-    const messages = { ...this.state.messages };
-    for (const key in newMessages) {
-      // add message
-      if (options.replace !== true && key in messages) {
-        // should merge here instead of concat
-        // assumes messages are always sequential
-        const msgEntries = messages[key].entries;
-        const newMsgEntries = newMessages[key].entries;
-        const msgLength = msgEntries.length;
-        const newMsgLength = newMsgEntries.length;
-        const entryLength = msgLength + newMsgLength;
-        messages[key].entries = Array(entryLength);
-
-        let msgIndex = 0;
-        let newMsgIndex = 0;
-
-        for (let i = 0; i < entryLength; ++i) {
-          if (newMsgIndex >= newMsgLength) {
-            messages[key].entries[i] = msgEntries[msgIndex++];
-          } else if (msgIndex >= msgLength) {
-            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
-          } else if (
-            msgEntries[msgIndex].relTime <= newMsgEntries[newMsgIndex].relTime
-          ) {
-            messages[key].entries[i] = msgEntries[msgIndex++];
-          } else if (
-            msgEntries[msgIndex].relTime >= newMsgEntries[newMsgIndex].relTime
-          ) {
-            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
-          }
-        }
-        messages[key].byteStateChangeCounts = newMessages[key].byteStateChangeCounts;
-      } else {
-        messages[key] = newMessages[key];
-        messages[key].frame = this.state.dbc.getMessageFrame(
-          messages[key].address
-        );
-      }
-    }
-
-    return messages;
-  }
-
   cancelWorker(workerHash) {
+    // actually don't...
+    return;
     const currentWorkers = { ...this.state.currentWorkers };
     const { worker, part } = currentWorkers[workerHash];
     const loadingParts = this.state.loadingParts.filter((p) => p !== part);
@@ -428,35 +412,24 @@ export default class CanExplorer extends Component {
   }
 
   spawnWorker(options) {
-    let { currentParts, currentWorkers } = this.state;
+    let { currentParts, currentWorkers, loadingParts } = this.state;
     console.log('Checking worker for', currentParts);
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
     }
+    if (loadingParts.length > 1) {
+      // only 2 workers at a time pls
+      return;
+    }
     const [minPart, maxPart] = currentParts;
-    // cancel old workers that are still loading data no longer inside the window
-    Object.keys(currentWorkers).forEach((workerHash) => {
-      if (
-        currentWorkers[workerHash].part < minPart
-        || currentWorkers[workerHash].part > maxPart
-      ) {
-        this.cancelWorker(workerHash);
-      }
-    });
+
     // updated worker list (post canceling, and this time a copy)
     currentWorkers = { ...this.state.currentWorkers };
 
-    let { loadingParts, loadedParts, currentPart } = this.state;
-
-    // clean this up just in case, the cancel process above *should* have already done this
-    // they have at most 4 entries so it's trivial
-    loadingParts = loadingParts.filter((p) => p >= minPart && p <= maxPart);
-    loadedParts = loadedParts.filter((p) => p >= minPart && p <= maxPart);
+    let { loadedParts, currentPart } = this.state;
 
     let part = -1;
-    const allWorkerParts = Object.keys(currentWorkers).map(
-      (i) => currentWorkers[i].part
-    );
+    const allWorkerParts = loadingParts.concat(loadedParts);
 
     for (let partOffset = 0; partOffset <= maxPart - minPart; ++partOffset) {
       let tempPart = currentPart + partOffset;
@@ -520,12 +493,6 @@ export default class CanExplorer extends Component {
         return;
       }
 
-      if (this.state.dbcFilename !== dbcFilename) {
-        // DBC changed while this worker was running
-        // -- don't update messages and halt recursion.
-        return;
-      }
-
       maxByteStateChangeCount = e.data.maxByteStateChangeCount;
       const { newMessages, newThumbnails, isFinished } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
@@ -534,27 +501,25 @@ export default class CanExplorer extends Component {
         maxByteStateChangeCount = this.state.maxByteStateChangeCount;
       }
 
-      const messages = this.addAndRehydrateMessages(
-        newMessages,
-        maxByteStateChangeCount
-      );
-      const prevMsgEntries = {};
-      Object.keys(newMessages).forEach((key) => {
-        prevMsgEntries[key] = newMessages[key].entries[newMessages[key].entries.length - 1];
-      });
+      this.addMessagesToDataCache(part, newMessages, newThumbnails);
 
-      const thumbnails = this.mergeThumbnails(newThumbnails);
+      // const messages = this.addAndRehydrateMessages(
+      //   newMessages,
+      //   maxByteStateChangeCount
+      // );
+      // const prevMsgEntries = {};
+      // Object.keys(newMessages).forEach((key) => {
+      //   prevMsgEntries[key] = newMessages[key].entries[newMessages[key].entries.length - 1];
+      // });
 
-      if (!isFinished) {
-        this.setState({ messages, thumbnails });
-      } else {
+      // const thumbnails = this.mergeThumbnails(newThumbnails);
+
+      if (isFinished) {
         const loadingParts = this.state.loadingParts.filter((p) => p !== part);
         const loadedParts = [part, ...this.state.loadedParts];
 
         this.setState(
           {
-            messages,
-            thumbnails,
             partsLoaded: this.state.partsLoaded + 1,
             loadingParts,
             loadedParts
@@ -592,6 +557,358 @@ export default class CanExplorer extends Component {
       prevMsgEntries,
       maxByteStateChangeCount
     });
+  }
+
+  addAndRehydrateMessages(newMessages, options) {
+    // Adds new message entries to messages state
+    // and "rehydrates" ES6 classes (message frame)
+    // lost from JSON serialization in webworker data cloning.
+    // handles merging the data in correct order
+    options = options || {};
+
+    const { messages } = this.state;
+
+    Object.keys(newMessages).forEach((key) => {
+      // add message
+      if (options.replace !== true && key in messages) {
+        // should merge here instead of concat
+        // assumes messages are always sequential
+        const msgEntries = messages[key].entries;
+        const newMsgEntries = newMessages[key].entries;
+        const msgLength = msgEntries.length;
+        const newMsgLength = newMsgEntries.length;
+        const entryLength = msgLength + newMsgLength;
+        messages[key] = {
+          ...messages[key],
+          entries: Array(entryLength)
+        };
+
+        let msgIndex = 0;
+        let newMsgIndex = 0;
+
+        for (let i = 0; i < entryLength; ++i) {
+          if (newMsgIndex >= newMsgLength) {
+            messages[key].entries[i] = msgEntries[msgIndex++];
+          } else if (msgIndex >= msgLength) {
+            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
+          } else if (
+            msgEntries[msgIndex].relTime <= newMsgEntries[newMsgIndex].relTime
+          ) {
+            messages[key].entries[i] = msgEntries[msgIndex++];
+          } else if (
+            msgEntries[msgIndex].relTime >= newMsgEntries[newMsgIndex].relTime
+          ) {
+            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
+          }
+        }
+        messages[key].byteStateChangeCounts = newMessages[key].byteStateChangeCounts;
+      } else {
+        messages[key] = newMessages[key];
+        messages[key].frame = this.state.dbc.getMessageFrame(
+          messages[key].address
+        );
+      }
+    });
+
+    const maxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
+      messages
+    );
+    this.setState({
+      maxByteStateChangeCount
+    });
+
+    Object.keys(messages).forEach((key) => {
+      // console.log(key);
+      messages[key] = DbcUtils.setMessageByteColors(
+        messages[key],
+        maxByteStateChangeCount
+      );
+    });
+
+    return messages;
+  }
+
+  async addMessagesToDataCache(part, newMessages, newThumbnails) {
+    const { dbc, currentParts } = this.state;
+    let entry = await this.getParseSegment(part);
+    if (!entry) {
+      // first chunk of data returned from this segment
+      Object.keys(newMessages).forEach((key) => {
+        newMessages[key] = this.parseMessageEntry(newMessages[key], dbc);
+      });
+      dataCache[part] = {
+        messages: newMessages,
+        thumbnails: newThumbnails,
+        lastUpdated: Date.now(),
+        lastUsed: Date.now()
+      };
+      if (part >= currentParts[0] && part <= currentParts[1]) {
+        this.setState({
+          messages: this.addAndRehydrateMessages(newMessages)
+        });
+      }
+      return;
+    }
+
+    entry.lastUsed = Date.now();
+
+    // data is always append only, and always per segment
+    Object.keys(newMessages).forEach((key) => {
+      let msgs = newMessages[key];
+      if (!dataCache[part].messages[key]) {
+        msgs = this.parseMessageEntry(msgs, dbc);
+        dataCache[part].messages[key] = msgs;
+      } else {
+        let { entries } = dataCache[part].messages[key];
+        const lastEntry = entries.length ? entries[entries.length - 1] : null;
+        msgs = this.parseMessageEntry(msgs, dbc, lastEntry);
+        entries = entries.concat(msgs.entries);
+        dataCache[part].messages[key].entries = entries;
+      }
+      newMessages[key] = msgs;
+    });
+    dataCache[part].thumbnails = dataCache[part].thumbnails.concat(newThumbnails);
+
+    if (part >= currentParts[0] && part <= currentParts[1]) {
+      this.setState({
+        messages: this.addAndRehydrateMessages(newMessages)
+      });
+    }
+  }
+
+  async loadMessagesFromCache() {
+    // create a new messages object for state
+    if (this.loadMessagesFromCacheRunning) {
+      if (!this.loadMessagesFromCacheTimer) {
+        this.loadMessagesFromCacheTimer = timeout(() => this.loadMessagesFromCache(), 10);
+      }
+      return;
+    }
+    this.loadMessagesFromCacheRunning = true;
+    if (this.loadMessagesFromCacheTimer) {
+      this.loadMessagesFromCacheTimer();
+      this.loadMessagesFromCacheTimer = null;
+    }
+    const { currentParts, dbc } = this.state;
+    const { lastUpdated } = dbc;
+    const [minPart, maxPart] = currentParts;
+    const messages = {};
+    let thumbnails = [];
+    let isCanceled = false;
+
+    let start = performance.now();
+
+    let promises = [];
+
+    for (let i = minPart, l = maxPart; i <= l; ++i) {
+      promises.push(this.getParseSegment(i));
+    }
+    await promises.reduce(async (prev, p) => {
+      await prev;
+      if (isCanceled) {
+        return;
+      }
+      const cacheEntry = await p;
+      if (this.state.dbc.lastUpdated !== lastUpdated) {
+        if (!isCanceled) {
+          isCanceled = true;
+          this.loadMessagesFromCacheRunning = false;
+          console.log('Canceling!');
+          this.loadMessagesFromCache();
+        }
+        return;
+      }
+      if (cacheEntry) {
+        const newMessages = cacheEntry.messages;
+        thumbnails = thumbnails.concat(cacheEntry.thumbnails);
+        Object.keys(newMessages).forEach((key) => {
+          if (!messages[key]) {
+            messages[key] = { ...newMessages[key] };
+          } else {
+            const newMessageEntries = newMessages[key].entries;
+            const messageEntries = messages[key].entries;
+            if (newMessageEntries.length
+              && newMessageEntries[0].relTime < messageEntries[messageEntries.length - 1].relTime) {
+              console.error('Found out of order messages', newMessageEntries[0], messageEntries[messageEntries.length - 1]);
+            }
+            messages[key].entries = messages[key].entries.concat(newMessages[key].entries);
+          }
+        });
+      }
+      console.log('Done with', performance.now() - start);
+      start = performance.now();
+    }, Promise.resolve());
+
+    if (isCanceled) {
+      return;
+    }
+
+    Object.keys(this.state.messages).forEach((key) => {
+      if (!messages[key]) {
+        messages[key] = this.state.messages[key];
+        messages[key].entries = [];
+      }
+    });
+
+    Object.keys(messages).forEach((key) => {
+      messages[key].frame = dbc.getMessageFrame(
+        messages[key].address
+      );
+    });
+
+    const maxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
+      messages
+    );
+
+    this.setState({
+      maxByteStateChangeCount
+    });
+
+    Object.keys(messages).forEach((key) => {
+      // console.log(key);
+      messages[key] = DbcUtils.setMessageByteColors(
+        messages[key],
+        maxByteStateChangeCount
+      );
+    });
+
+    console.log('Done with old messages', performance.now() - start);
+
+    this.setState({ messages, thumbnails });
+
+    this.loadMessagesFromCacheRunning = false;
+  }
+
+  async getParseSegment(part) {
+    if (!dataCache[part]) {
+      return null;
+    }
+    if (dataCache[part].promise) {
+      await dataCache[part].promise;
+    }
+    dataCache[part].promise = this.getParseSegmentInternal(part);
+
+    return dataCache[part].promise;
+  }
+
+  async getParseSegmentInternal(part) {
+    const start = performance.now();
+    const { dbc } = this.state;
+    if (!dbc.lastUpdated) {
+      dbc.lastUpdated = Date.now();
+    }
+    const { lastUpdated } = dbc;
+    let { messages } = dataCache[part];
+
+    let reparseMessages = {};
+
+    // if (lastUpdated > dataCache[part].lastUpdated) {
+    //   dataCache[part].lastUpdated = Date.now();
+    //   return await this.reparseMessages(messages);
+    // }
+
+    Object.keys(messages).forEach((key) => {
+      if (messages[key].lastUpdated >= lastUpdated) {
+        return;
+      }
+      reparseMessages[key] = messages[key];
+    });
+
+    if (Object.keys(reparseMessages).length) {
+      console.log('Reparsing messages!', Object.keys(reparseMessages).length);
+      reparseMessages = await this.reparseMessages(reparseMessages);
+    }
+
+    messages = {
+      ...messages,
+      ...reparseMessages
+    };
+
+    dataCache[part].messages = messages;
+
+    const end = performance.now();
+    if (end - start > 200) {
+      // warn about anything over 200ms
+      console.warn('getParseSegment took', part, end - start, Object.keys(messages).length);
+    }
+
+    return dataCache[part];
+  }
+
+  decacheMessageId(messageId) {
+    Object.keys(dataCache).forEach((part) => {
+      if (dataCache[part].messages[messageId]) {
+        dataCache[part].messages[messageId].lastUpdated = 0;
+      }
+    });
+  }
+
+  async reparseMessages(_messages) {
+    const messages = _messages;
+    const { dbc } = this.state;
+    dbc.lastUpdated = dbc.lastUpdated || Date.now();
+
+    Object.keys(messages).forEach((key) => {
+      messages[key].frame = dbc.getMessageFrame(messages[key].address);
+    });
+
+    return new Promise((resolve, reject) => {
+      const worker = new MessageParser();
+      worker.onmessage = (e) => {
+        const newMessages = e.data.messages;
+        Object.keys(newMessages).forEach((key) => {
+          newMessages[key].lastUpdated = dbc.lastUpdated;
+          newMessages[key].frame = dbc.getMessageFrame(newMessages[key].address);
+        });
+        resolve(newMessages);
+      };
+
+      worker.postMessage({
+        messages,
+        dbcText: dbc.text(),
+        canStartTime: this.state.firstCanTime
+      });
+    });
+  }
+
+  parseMessageEntry(_entry, dbc, lastMsg) {
+    const entry = _entry;
+    dbc.lastUpdated = dbc.lastUpdated || Date.now();
+    entry.lastUpdated = dbc.lastUpdated;
+    entry.frame = dbc.getMessageFrame(
+      entry.address
+    );
+
+    let prevMsgEntry = lastMsg || null;
+    const byteStateChangeCounts = [];
+    // entry.messages[id].byteStateChangeCounts = byteStateChangeCounts.map(
+    //   (count, idx) => entry.messages[id].byteStateChangeCounts[idx] + count
+    // );
+    entry.entries = entry.entries.map((message) => {
+      if (message.hexData) {
+        prevMsgEntry = DbcUtils.reparseMessage(dbc, message, prevMsgEntry);
+      } else {
+        prevMsgEntry = DbcUtils.parseMessage(
+          dbc,
+          message.time,
+          message.address,
+          message.data,
+          message.timeStart,
+          prevMsgEntry
+        );
+      }
+      byteStateChangeCounts.push(prevMsgEntry.byteStateChangeCounts);
+      prevMsgEntry = prevMsgEntry.msgEntry;
+      return prevMsgEntry;
+    });
+    entry.byteStateChangeCounts = byteStateChangeCounts.reduce((memo, val) => {
+      if (!memo) {
+        return val;
+      }
+      return memo.map((count, idx) => val[idx] + count);
+    }, null);
+
+    return entry;
   }
 
   showingModal() {
@@ -635,25 +952,6 @@ export default class CanExplorer extends Component {
     this.setState({ showSaveDbc: false });
   }
 
-  reparseMessages(messages) {
-    this.setState({ isLoading: true });
-
-    const { dbc } = this.state;
-    const worker = new MessageParser();
-    worker.onmessage = (e) => {
-      let messages = e.data;
-      messages = this.addAndRehydrateMessages(messages, { replace: true });
-
-      this.setState({ messages, isLoading: false });
-    };
-
-    worker.postMessage({
-      messages,
-      dbcText: dbc.text(),
-      canStartTime: this.state.firstCanTime
-    });
-  }
-
   updateMessageFrame(messageId, frame) {
     const { messages } = this.state;
 
@@ -668,50 +966,26 @@ export default class CanExplorer extends Component {
     } else {
       persistDbc('live', { dbcFilename, dbc });
     }
+
+    this.loadMessagesFromCache();
   }
 
   onConfirmedSignalChange(message, signals) {
     const { dbc, dbcFilename } = this.state;
     dbc.setSignals(message.address, { ...signals });
 
-    this.updateMessageFrame(message.id, dbc.getMessageFrame(message.address));
-
     this.persistDbc({ dbcFilename, dbc });
 
-    const messages = {};
-    const newMessage = { ...message };
-    const frame = dbc.getMessageFrame(message.address);
-    newMessage.frame = frame;
+    this.updateMessageFrame(message.id, dbc.getMessageFrame(message.address));
 
-    messages[message.id] = newMessage;
-
-    this.setState({ dbc, dbcText: dbc.text() }, () => this.reparseMessages(messages));
+    this.setState({ dbc, dbcText: dbc.text() }, () => {
+      this.decacheMessageId(message.id);
+      this.loadMessagesFromCache();
+    });
   }
 
   partChangeDebounced = debounce(() => {
-    const [minPart, maxPart] = this.state.currentParts;
-    const messages = { ...this.state.messages };
-    // update messages to only preserve entries in new part range
-    const minTime = minPart * 60;
-    const maxTime = maxPart * 60 + 60;
-    Object.keys(messages).forEach((key) => {
-      const { entries } = messages[key];
-      let minIndex = 0;
-      let maxIndex = entries.length - 1;
-      while (minIndex < entries.length && entries[minIndex].relTime < minTime) {
-        minIndex++;
-      }
-      while (maxIndex > minIndex && entries[maxIndex].relTime > maxTime) {
-        maxIndex--;
-      }
-      if (minIndex > 0 || maxIndex < entries.length - 1) {
-        messages[key].entries = entries.slice(minIndex, maxIndex + 1);
-      }
-    });
-
-    this.setState({
-      messages
-    });
+    this.loadMessagesFromCache();
 
     this.spawnWorker();
   }, 500);
