@@ -53,7 +53,7 @@ export default class Signal {
     });
 
     Object.defineProperty(this, 'colors', {
-      get: function () {
+      get() {
         console.error('Something is still using the old colors');
         debugger;
         return colors;
@@ -165,7 +165,7 @@ export default class Signal {
   }
 
   getColors(messageId) {
-    const parts = messageId.split(':').map(p => Number.parseInt(p, 16) % 255);
+    const parts = messageId.split(':').map((p) => Number.parseInt(p, 16) % 255);
     const colors = this._colors || this.generateColors();
 
     return colors.map((c) => parts.reduce((m, v) => m ^ v, c));

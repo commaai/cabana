@@ -426,7 +426,7 @@ export default class CanExplorer extends Component {
     // updated worker list (post canceling, and this time a copy)
     currentWorkers = { ...this.state.currentWorkers };
 
-    let { loadedParts, currentPart } = this.state;
+    const { loadedParts, currentPart } = this.state;
 
     let part = -1;
     const allWorkerParts = loadingParts.concat(loadedParts);
@@ -630,7 +630,7 @@ export default class CanExplorer extends Component {
 
   async addMessagesToDataCache(part, newMessages, newThumbnails) {
     const { dbc, currentParts } = this.state;
-    let entry = await this.getParseSegment(part);
+    const entry = await this.getParseSegment(part);
     if (!entry) {
       // first chunk of data returned from this segment
       Object.keys(newMessages).forEach((key) => {
@@ -698,7 +698,7 @@ export default class CanExplorer extends Component {
 
     let start = performance.now();
 
-    let promises = [];
+    const promises = [];
 
     for (let i = minPart, l = maxPart; i <= l; ++i) {
       promises.push(this.getParseSegment(i));

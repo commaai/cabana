@@ -45,11 +45,11 @@ export default class HLS extends Component {
         switch (data.type) {
           case Hls.ErrorTypes.NETWORK_ERROR:
           // try to recover network error
-            console.log("fatal network error encountered, try to recover");
+            console.log('fatal network error encountered, try to recover');
             this.player.startLoad();
             break;
           case Hls.ErrorTypes.MEDIA_ERROR:
-            console.log("fatal media error encountered, try to recover");
+            console.log('fatal media error encountered, try to recover');
             this.player.recoverMediaError();
             break;
           default:

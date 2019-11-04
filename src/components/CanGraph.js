@@ -183,8 +183,8 @@ export default class CanGraph extends Component {
       // ) {
       //   // do nothing, the data didn't *actually* change
       // } else {
-        console.log('Inserting new data!');
-        this.setState({ data });
+      console.log('Inserting new data!');
+      this.setState({ data });
       // }
     }
     if (this.segmentIsNew(nextProps.segment)) {
@@ -367,7 +367,11 @@ export default class CanGraph extends Component {
                   </div>
                   <div className="cabana-explorer-visuals-plot-header-copy">
                     <div className="cabana-explorer-visuals-plot-message">
-                      <span>{messageName} {messageId}</span>
+                      <span>
+                        {messageName}
+                        {' '}
+                        {messageId}
+                      </span>
                     </div>
                     <div className="cabana-explorer-visuals-plot-signal">
                       <div
