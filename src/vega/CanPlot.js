@@ -270,7 +270,7 @@ export default {
             "encode": {
               "update": {
                 "interpolate": {
-                  "value": "natural",
+                  "value": "cardinal",
                   "tension": 1
                 },
                 "x": {
