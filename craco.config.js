@@ -9,9 +9,9 @@ module.exports = function ({ env }) {
     }
   ];
   if (env === 'production') {
-    // plugins.push({
-    //   plugin: SentryPlugin
-    // });
+    plugins.push({
+      plugin: SentryPlugin
+    });
   }
   return {
     plugins,
