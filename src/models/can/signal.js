@@ -165,7 +165,7 @@ export default class Signal {
   }
 
   getColors(messageId) {
-    const parts = messageId.split(':').map((p) => Number.parseInt(p, 16) % 255);
+    const parts = messageId.split(':').map((p) => ((3 + Number.parseInt(p, 16)) * 3) % 253);
     const colors = this._colors || this.generateColors();
 
     return colors.map((c) => parts.reduce((m, v) => m ^ v, c));

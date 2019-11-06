@@ -566,7 +566,7 @@ export default class CanExplorer extends Component {
     // handles merging the data in correct order
     options = options || {};
 
-    const { messages } = this.state;
+    const messages = { ...this.state.messages };
 
     Object.keys(newMessages).forEach((key) => {
       // add message

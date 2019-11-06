@@ -32,6 +32,7 @@ function _calcGraphData(msg, signalUid, firstCanTime) {
   }
 
   const colors = signal.getColors(msg.id);
+  signalUid = msg.id + signalUid;
   // sorting these doesn't fix the phantom lines
   let lastEntry = samples[0].relTime;
   return samples
