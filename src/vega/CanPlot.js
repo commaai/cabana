@@ -269,10 +269,8 @@ export default {
             "interactive": true,
             "encode": {
               "update": {
-                "interpolate": {
-                  "value": "cardinal",
-                  "tension": 1
-                },
+                "interpolate": "cardinal",
+                "tension": 0,
                 "x": {
                   "scale": "xrelscale",
                   "field": "relTime"

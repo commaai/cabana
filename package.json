@@ -44,6 +44,7 @@
     "node-sass": "^4.12.0",
     "prettier": "^1.9.2",
     "prop-types": "^15.5.10",
+    "randomcolor": "^0.5.4",
     "raven-js": "^3.16.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

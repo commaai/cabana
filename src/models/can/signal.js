@@ -1,3 +1,4 @@
+import randomcolor from 'randomcolor';
 import DbcUtils from '../../utils/dbc';
 
 export default class Signal {
@@ -165,17 +166,20 @@ export default class Signal {
   }
 
   getColors(messageId) {
-    const parts = messageId.split(':').map((p) => ((3 + Number.parseInt(p, 16)) * 3) % 253);
+    let parts = messageId.split(':').map((p) => ((3 + Number.parseInt(p, 16)) * 3) % 253);
     const colors = this._colors || this.generateColors();
 
-    return colors.map((c) => parts.reduce((m, v) => m ^ v, c));
+    let lastColor = 0;
+
+    return colors.map((c) => {
+      parts = parts.map(p => p ^ lastColor);
+      lastColor = parts.reduce((m, v) => m ^ v, c);
+      return lastColor;
+    });
   }
 
   generateColors() {
-    const colors = Array(3);
-    for (let i = 0; i < 3; i++) {
-      colors[i] = Math.floor(Math.random() * 211);
-    }
+    const colors = randomcolor({ format: 'rgbArray' });
 
     return colors;
   }
