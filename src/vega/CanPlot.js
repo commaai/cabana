@@ -269,7 +269,7 @@ export default {
             "interactive": true,
             "encode": {
               "update": {
-                "interpolate": "cardinal",
+                "value": "natural",
                 "tension": 0,
                 "x": {
                   "scale": "xrelscale",
