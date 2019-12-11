@@ -938,10 +938,10 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/hls.js@^0.12.6":
-  version "0.12.6"
-  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.6.tgz#adffabb407b71e9bb3cd60e5e7309b3a9831a5f7"
-  integrity sha512-yJHlG5A8zlemSF6A88reyy5RnCcLrUT/qYqXwoRz2dk4O3bZ226EOvI801ngOaeaI/CUq3Hf/K24yXR0/g4WOA==
+"@commaai/hls.js@^0.12.7":
+  version "0.12.7"
+  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.7.tgz#1f93e0f0b1921bcd889c768df34eb018c25276fb"
+  integrity sha512-jISvZJRCg5nBv+jn9H7UDcdKPGdjyFcGDOJ9GBksOnXZPEwcVbsrH4FCr7fTju68eEH6rd4ydvYh2O1oYTdjPg==
   dependencies:
     eventemitter3 "3.1.0"
     url-toolkit "^2.1.6"
