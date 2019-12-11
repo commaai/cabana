@@ -50,6 +50,6 @@ test('HLS successfully mounts with minimal default props', () => {
   expect(component.exists()).toBe(true);
   expect(HLSMock).toBeCalledWith({
     enableWorker: false,
-    disablePtsDtsCorrectionInMp4Remux: true
+    disablePtsDtsCorrectionInMp4Remux: false
   });
 });

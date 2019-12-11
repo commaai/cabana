@@ -39,7 +39,6 @@ export default class HLS extends Component {
     this.player = new Hls({
       enableWorker: false,
       disablePtsDtsCorrectionInMp4Remux: false,
-      debug: true
     });
     this.player.on(Hls.Events.INIT_PTS_FOUND, (event, data) => {
       const time = data.initPTS/90000;
