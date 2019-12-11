@@ -463,7 +463,6 @@ export default class Explorer extends Component {
         (this.props.currentParts[1] + 1) * 60
       ];
     }
-
     return (
       <div className="cabana-explorer">
         <div className={cx('cabana-explorer-signals', signalsExpandedClass)}>
@@ -488,8 +487,8 @@ export default class Explorer extends Component {
                 userSeekIndex={this.state.userSeekIndex}
                 playing={this.state.playing}
                 url={this.props.url}
-                canFrameOffset={this.props.canFrameOffset}
                 firstCanTime={this.props.firstCanTime}
+                routeInitTime={this.props.routeInitTime}
                 onVideoClick={this.onVideoClick}
                 onPlaySeek={this.onPlaySeek}
                 onUserSeek={this.onUserSeek}

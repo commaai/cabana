@@ -28,7 +28,7 @@ function sendBatch(entry) {
   entry.messages = {};
   entry.thumbnails = [];
 
-  let { maxByteStateChangeCount } = entry.options;
+  let { maxByteStateChangeCount, routeInitTime } = entry.options;
   const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
     messages
   );
@@ -48,7 +48,8 @@ function sendBatch(entry) {
     newMessages: messages,
     newThumbnails: thumbnails,
     isFinished: entry.ended,
-    maxByteStateChangeCount
+    maxByteStateChangeCount,
+    routeInitTime,
   });
 
   if (entry.ended) {
@@ -93,7 +94,7 @@ function insertEventData(src, part, entry, logTime, getData) {
     time: logTime,
     address,
     data: getData(),
-    timeStart: entry.options.canStartTime
+    timeStart: entry.options.routeInitTime
   };
 
   entry.messages[id].entries.push(msgEntry);
@@ -124,7 +125,7 @@ function insertCanMessage(entry, logTime, msg) {
     time: logTime,
     address,
     data: msg.Dat,
-    timeStart: entry.options.canStartTime
+    timeStart: entry.options.routeInitTime
   };
 
   entry.messages[id].entries.push(msgEntry);
@@ -164,8 +165,8 @@ async function loadData(entry) {
     }
     if ('InitData' in msg) {
       const monoTime = msg.LogMonoTime / 1e9;
-      if (entry.options.canStartTime == null) {
-        entry.options.canStartTime = monoTime;
+      if (entry.options.routeInitTime == null) {
+        entry.options.routeInitTime = monoTime;
       }
     } else if ('Can' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
@@ -244,7 +245,7 @@ async function loadData(entry) {
         partial(getThermalFreeSpace, msg.Thermal)
       );
     } else if ('Thumbnail' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000 - entry.options.canStartTime;
+      const monoTime = msg.LogMonoTime / 1000000000 - entry.options.routeInitTime;
       const data = new Uint8Array(msg.Thumbnail.Thumbnail);
       entry.thumbnails.push({ data, monoTime });
     } else {

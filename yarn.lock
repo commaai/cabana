@@ -928,10 +928,20 @@
     joi-browser "^13.4.0"
     querystringify "^2.1.1"
 
-"@commaai/hls.js@^0.12.5":
-  version "0.12.5"
-  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.5.tgz#891e47124b4e9e2a1528463613bf415ff252d2ec"
-  integrity sha512-aZcwFrhHSGVpi76cHMjT1wQ6Pe0AVv3s0TdzNGFA6LpCb6WCFy2EF9H8QCtNlAviccYnAw4XQrJ+hHToUp4QnA==
+"@commaai/comma-api@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-1.3.1.tgz#b9f94beb1a3a6f7257683025422bbce5455fc137"
+  integrity sha512-S2cosuSobuY+mlMxy2Dpt6pK2wrymNcbN3Xz6f8i6072H7t33RK3DQgtTByOPoz4iDuVVQrgAexkP3zwXOUm8Q==
+  dependencies:
+    babel-runtime "^6.26.0"
+    config-request "^0.5.1"
+    joi-browser "^13.4.0"
+    querystringify "^2.1.1"
+
+"@commaai/hls.js@^0.12.6":
+  version "0.12.6"
+  resolved "https://registry.yarnpkg.com/@commaai/hls.js/-/hls.js-0.12.6.tgz#adffabb407b71e9bb3cd60e5e7309b3a9831a5f7"
+  integrity sha512-yJHlG5A8zlemSF6A88reyy5RnCcLrUT/qYqXwoRz2dk4O3bZ226EOvI801ngOaeaI/CUq3Hf/K24yXR0/g4WOA==
   dependencies:
     eventemitter3 "3.1.0"
     url-toolkit "^2.1.6"
@@ -6129,11 +6139,6 @@ hex-color-regex@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
-
-hls@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/hls/-/hls-0.0.1.tgz#3433be0d4b1305db312c966527fbb156e7ed79ca"
-  integrity sha1-NDO+DUsTBdsxLJZlJ/uxVufteco=
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
