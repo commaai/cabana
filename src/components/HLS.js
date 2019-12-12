@@ -9,7 +9,6 @@ export default class HLS extends Component {
     playbackSpeed: PropTypes.number.isRequired,
     playing: PropTypes.bool.isRequired,
     onVideoElementAvailable: PropTypes.func,
-    onStartTimeAvailable: PropTypes.func,
     onClick: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
@@ -39,10 +38,6 @@ export default class HLS extends Component {
     this.player = new Hls({
       enableWorker: false,
       disablePtsDtsCorrectionInMp4Remux: false,
-    });
-    this.player.on(Hls.Events.INIT_PTS_FOUND, (event, data) => {
-      const time = data.initPTS/90000;
-      this.props.onStartTimeAvailable(time);
     });
     this.player.on(Hls.Events.ERROR, (event, data) => {
       if (data.fatal) {

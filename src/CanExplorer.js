@@ -55,6 +55,7 @@ export default class CanExplorer extends Component {
       route: null,
       canFrameOffset: 0,
       routeInitTime: 0,
+      firstFrameTime: 0,
       firstCanTime: null,
       lastBusTime: null,
       selectedMessage: null,
@@ -495,7 +496,13 @@ export default class CanExplorer extends Component {
       }
 
       maxByteStateChangeCount = e.data.maxByteStateChangeCount;
-      const { newMessages, newThumbnails, isFinished, routeInitTime } = e.data;
+      const {
+        newMessages,
+        newThumbnails,
+        isFinished,
+        routeInitTime,
+        firstFrameTime,
+      } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
       } else {
@@ -503,6 +510,9 @@ export default class CanExplorer extends Component {
       }
       if (routeInitTime !== this.state.routeInitTime) {
         this.setState({ routeInitTime });
+      }
+      if (firstFrameTime && firstFrameTime !== this.state.firstFrameTime) {
+        this.setState({ firstFrameTime });
       }
 
       this.addMessagesToDataCache(part, newMessages, newThumbnails);
@@ -1370,7 +1380,7 @@ export default class CanExplorer extends Component {
               routeStartTime={
                 route ? route.start_time : Moment()
               }
-              routeInitTime={ this.state.routeInitTime }
+              videoOffset={ (this.state.firstFrameTime && this.state.routeInitTime) ? this.state.firstFrameTime - this.state.routeInitTime : 0 }
               partsCount={route ? route.proclog : 0}
             />
           ) : null}

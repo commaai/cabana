@@ -51,8 +51,6 @@ export default class RouteVideoSync extends Component {
       isLoading: true,
       videoElement: null,
       source: null,
-      videoStartTime: null,
-      offset: 0,
     };
 
     this.onLoadStart = this.onLoadStart.bind(this);
@@ -62,7 +60,6 @@ export default class RouteVideoSync extends Component {
     this.onUserSeek = this.onUserSeek.bind(this);
     this.onPlaySeek = this.onPlaySeek.bind(this);
     this.ratioTime = this.ratioTime.bind(this);
-    this.onStartTimeAvailable = this.onStartTimeAvailable.bind(this);
   }
 
   componentWillMount() {
@@ -74,19 +71,15 @@ export default class RouteVideoSync extends Component {
 
   componentDidUpdate(prevProps) {
     const { userSeekTime } = this.props;
-    const { videoElement, videoStartTime } = this.state;
+    const { videoElement } = this.state;
 
     if (
       prevProps.userSeekTime
       && userSeekTime !== prevProps.userSeekTime
     ) {
       if (videoElement) {
-        videoElement.currentTime = userSeekTime - this.state.offset;
+        videoElement.currentTime = userSeekTime - this.props.videoOffset;
       }
-    }
-
-    if (!prevProps.routeInitTime && this.props.routeInitTime) {
-      this.updateOffset();
     }
   }
 
@@ -94,19 +87,10 @@ export default class RouteVideoSync extends Component {
     this.setState({ videoElement });
   }
 
-  onStartTimeAvailable(videoStartTime) {
-    this.setState({ videoStartTime }, () => this.updateOffset());
-  }
-
-  updateOffset() {
-    if (this.props.routeInitTime && this.state.videoStartTime) {
-      this.setState({ offset: this.state.videoStartTime - this.props.routeInitTime });
-    }
-  }
   onUserSeek(ratio) {
     /* ratio in [0,1] */
 
-    const { videoElement, videoStartTime } = this.state;
+    const { videoElement } = this.state;
     const { onUserSeek } = this.props;
     const seekTime = this.ratioTime(ratio);
     const funcSeekToRatio = () => onUserSeek(seekTime);
@@ -114,7 +98,7 @@ export default class RouteVideoSync extends Component {
     if (Number.isNaN(videoElement.duration)) {
       return;
     }
-    videoElement.currentTime = seekTime - this.state.offset;
+    videoElement.currentTime = seekTime - this.props.videoOffset;
 
     if (ratio !== 0) {
       funcSeekToRatio();
@@ -122,7 +106,7 @@ export default class RouteVideoSync extends Component {
   }
 
   onPlaySeek(offset) {
-    this.seekTime = offset + this.state.offset;
+    this.seekTime = offset + this.props.videoOffset;
     this.props.onPlaySeek(this.seekTime);
   }
 
@@ -207,7 +191,6 @@ export default class RouteVideoSync extends Component {
       isLoading,
       shouldShowJpeg,
       videoElement,
-      videoStartTime,
     } = this.state;
     const {
       userSeekTime,
@@ -233,12 +216,11 @@ export default class RouteVideoSync extends Component {
         <HLS
           className={css(Styles.hls)}
           source={this.state.source}
-          startTime={startTime || 0}
+          startTime={(startTime || 0) - this.props.videoOffset}
           videoLength={this.videoLength()}
           playbackSpeed={playSpeed}
           onVideoElementAvailable={this.onVideoElementAvailable}
           playing={playing}
-          onStartTimeAvailable={this.onStartTimeAvailable}
           onClick={onVideoClick}
           onLoadStart={this.onLoadStart}
           onLoadEnd={this.onLoadEnd}
@@ -249,7 +231,7 @@ export default class RouteVideoSync extends Component {
           className={css(Styles.seekBar)}
           nearestFrameTime={userSeekTime}
           segmentProgress={this.segmentProgress}
-          startTime={this.startTime() - this.state.offset}
+          startTime={this.startTime() - this.props.videoOffset}
           videoLength={this.videoLength()}
           segmentIndices={segmentIndices}
           onUserSeek={this.onUserSeek}

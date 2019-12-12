@@ -28,7 +28,7 @@ function sendBatch(entry) {
   entry.messages = {};
   entry.thumbnails = [];
 
-  let { maxByteStateChangeCount, routeInitTime } = entry.options;
+  let { maxByteStateChangeCount, routeInitTime, firstFrameTime } = entry.options;
   const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
     messages
   );
@@ -50,6 +50,7 @@ function sendBatch(entry) {
     isFinished: entry.ended,
     maxByteStateChangeCount,
     routeInitTime,
+    firstFrameTime,
   });
 
   if (entry.ended) {
@@ -164,9 +165,12 @@ async function loadData(entry) {
       console.log('You can get msgs after end', msg);
     }
     if ('InitData' in msg) {
-      const monoTime = msg.LogMonoTime / 1e9;
       if (entry.options.routeInitTime == null) {
-        entry.options.routeInitTime = monoTime;
+        entry.options.routeInitTime = msg.LogMonoTime / 1e9;
+      }
+    } else if (entry.part === 0 && 'Frame' in msg) {
+      if (entry.options.firstFrameTime == null) {
+        entry.options.firstFrameTime = msg.Frame.TimestampEof / 1e9;
       }
     } else if ('Can' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;

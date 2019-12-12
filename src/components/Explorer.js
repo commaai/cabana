@@ -488,7 +488,7 @@ export default class Explorer extends Component {
                 playing={this.state.playing}
                 url={this.props.url}
                 firstCanTime={this.props.firstCanTime}
-                routeInitTime={this.props.routeInitTime}
+                videoOffset={this.props.videoOffset}
                 onVideoClick={this.onVideoClick}
                 onPlaySeek={this.onPlaySeek}
                 onUserSeek={this.onUserSeek}
