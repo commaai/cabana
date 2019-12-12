@@ -63,10 +63,12 @@ export default class RouteVideoSync extends Component {
   }
 
   componentWillMount() {
-    this.setState({source: VideoApi(
-      this.props.url,
-      process.env.REACT_APP_VIDEO_CDN
-    ).getQcameraStreamIndexUrl()});
+    let videoApi = VideoApi(this.props.url, process.env.REACT_APP_VIDEO_CDN);
+    videoApi.getQcameraStreamIndex().then(() => {
+      this.setState({source: videoApi.getQcameraStreamIndexUrl()});
+    }).catch(() => {
+      this.setState({source: videoApi.getRearCameraStreamIndexUrl()});
+    })
   }
 
   componentDidUpdate(prevProps) {
@@ -213,7 +215,7 @@ export default class RouteVideoSync extends Component {
             alt={`Camera preview at t = ${Math.round(userSeekTime)}`}
           />
         ) : null}
-        <HLS
+        {this.state.source && <HLS
           className={css(Styles.hls)}
           source={this.state.source}
           startTime={(startTime || 0) - this.props.videoOffset}
@@ -226,7 +228,7 @@ export default class RouteVideoSync extends Component {
           onLoadEnd={this.onLoadEnd}
           onUserSeek={this.onUserSeek}
           onPlaySeek={this.onPlaySeek}
-        />
+        />}
         <RouteSeeker
           className={css(Styles.seekBar)}
           nearestFrameTime={userSeekTime}
