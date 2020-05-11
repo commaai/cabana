@@ -14,6 +14,9 @@ import {
   getEgoData,
   getCarStateControls,
   getWheelSpeeds,
+  getCarControlActuators,
+  getRadarStateLeadOne,
+  getRadarStateLeadTwo,
   getThermalFreeSpace,
   getThermalData,
   getThermalCPU,
@@ -204,6 +207,31 @@ async function loadData(entry) {
         entry,
         monoTime,
         partial(getWheelSpeeds, msg.CarState)
+      );
+    } else if ('CarControl' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
+       insertEventData(
+        'CarControl',
+        'Actuators',
+        entry,
+        monoTime,
+        partial(getCarControlActuators, msg.CarControl)
+      );
+    } else if ('RadarState' in msg) {
+      const monoTime = msg.LogMonoTime / 1000000000;
+       insertEventData(
+        'RadarState',
+        'LeadOne',
+        entry,
+        monoTime,
+        partial(getRadarStateLeadOne, msg.RadarState)
+      );
+       insertEventData(
+        'RadarState',
+        'LeadTwo',
+        entry,
+        monoTime,
+        partial(getRadarStateLeadTwo, msg.RadarState)
       );
     } else if ('UbloxGnss' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
