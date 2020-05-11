@@ -54,6 +54,47 @@ export const controls = {
   })
 };
 
+export const actuators = {
+  Steer: shortSignal({
+    index: 0,
+    factor: 0.001
+  }),
+  SteerAngle: shortSignal({
+    index: 1,
+    factor: 0.001
+  }),
+  Brake: shortSignal({
+    index: 2,
+    factor: 0.001
+  }),
+  Gas: shortSignal({
+    index: 3,
+    factor: 0.001
+  })
+};
+
+export const leadOne = {
+  DRel: shortSignal({
+    index: 0,
+    factor: 0.001
+  }),
+  VRel: shortSignal({
+    index: 1,
+    factor: 0.001
+  }),
+};
+
+export const leadTwo = {
+  DRel: shortSignal({
+    index: 0,
+    factor: 0.001
+  }),
+  VRel: shortSignal({
+    index: 1,
+    factor: 0.001
+  }),
+};
+
 export const flags = {
   LeftBlinker: boolSignal({
     index: 0
@@ -196,6 +237,9 @@ export const signalMap = {
   'CarState:Ego': ego,
   'CarState:Controls': controls,
   'CarState:Flags': flags,
+  'CarControl:Actuators': actuators,
+  'RadarState:LeadOne': leadOne,
+  'RadarState:LeadTwo': leadTwo,
   'UbloxGnss:MeasurementReport': ubloxGnss,
   'Health:Data': health,
   'Thermal:CPU': thermalCPU,

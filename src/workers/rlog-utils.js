@@ -168,6 +168,23 @@ export function getWheelSpeeds(state) {
     .concat(signedShortToByteArray(state.WheelSpeeds.Rr * 100));
 }
 
+export function getCarControlActuators(state) {
+  return signedShortToByteArray(state.Actuators.Steer * 1000)
+    .concat(signedShortToByteArray(state.Actuators.SteerAngle * 1000))
+    .concat(signedShortToByteArray(state.Actuators.Brake * 1000))
+    .concat(signedShortToByteArray(state.Actuators.Gas * 1000));
+}
+
+export function getRadarStateLeadOne(state) {
+  return signedShortToByteArray(state.LeadOne.DRel * 1000)
+    .concat(signedShortToByteArray(state.LeadOne.VRel * 1000));
+}
+
+export function getRadarStateLeadTwo(state) {
+  return signedShortToByteArray(state.LeadTwo.DRel * 1000)
+    .concat(signedShortToByteArray(state.LeadTwo.VRel * 1000));
+}
+
 export function getThermalFreeSpace(state) {
   return longToByteArray(state.FreeSpace * 1000000000);
 }
