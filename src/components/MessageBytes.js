@@ -27,7 +27,9 @@ export default class MessageBytes extends Component {
       const curLastEntry = this.props.message.entries[
         this.props.message.entries.length - 1
       ];
-
+      if ( (curLastEntry === undefined) || ( nextLastEntry === undefined) ) {
+        return false
+      }
       return nextLastEntry.hexData !== curLastEntry.hexData;
     }
     return nextProps.seekTime !== this.props.seekTime;
