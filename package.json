@@ -40,7 +40,7 @@
     "lint-staged": "^9.4.0",
     "localforage": "^1.7.1",
     "moment": "^2.18.1",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.13.1",
     "prettier": "^1.9.2",
     "prop-types": "^15.5.10",
     "randomcolor": "^0.5.4",
