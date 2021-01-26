@@ -283,7 +283,7 @@ export default class AddSignals extends Component {
     let signalName;
     do {
       signalName = `NEW_SIGNAL_${signalNum}`;
-      signalNum++;
+      signalNum += 1;
     } while (existingNames.indexOf(signalName) !== -1);
 
     return signalName;

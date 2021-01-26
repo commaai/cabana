@@ -602,17 +602,21 @@ export default class CanExplorer extends Component {
 
         for (let i = 0; i < entryLength; ++i) {
           if (newMsgIndex >= newMsgLength) {
-            messages[key].entries[i] = msgEntries[msgIndex++];
+            messages[key].entries[i] = msgEntries[msgIndex];
+            msgIndex += 1;
           } else if (msgIndex >= msgLength) {
-            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
+            messages[key].entries[i] = newMsgEntries[newMsgIndex];
+            newMsgIndex += 1;
           } else if (
             msgEntries[msgIndex].relTime <= newMsgEntries[newMsgIndex].relTime
           ) {
-            messages[key].entries[i] = msgEntries[msgIndex++];
+            messages[key].entries[i] = msgEntries[msgIndex];
+            msgIndex += 1;
           } else if (
             msgEntries[msgIndex].relTime >= newMsgEntries[newMsgIndex].relTime
           ) {
-            messages[key].entries[i] = newMsgEntries[newMsgIndex++];
+            messages[key].entries[i] = newMsgEntries[newMsgIndex];
+            newMsgIndex += 1;
           }
         }
         messages[key].byteStateChangeCounts = newMessages[key].byteStateChangeCounts;

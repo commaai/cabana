@@ -24,7 +24,7 @@ export default class Frame {
     let txName;
     do {
       txName = `NEW_TRANSMITTER_${txNum}`;
-      txNum++;
+      txNum += 1;
     } while (this.transmitters.indexOf(txName) !== -1);
 
     return txName;

@@ -3,7 +3,8 @@ export function hash(str) {
   let i = str.length;
 
   while (i) {
-    hash = (hash * 33) ^ str.charCodeAt(--i);
+    i -= 1;
+    hash = (hash * 33) ^ str.charCodeAt(i);
   }
 
   // to positive number

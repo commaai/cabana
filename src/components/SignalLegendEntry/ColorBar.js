@@ -1,4 +1,4 @@
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 
 // color bar on the left side of the signals legend
 export default styled('div')`
