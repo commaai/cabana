@@ -175,6 +175,12 @@ export default class Meta extends Component {
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : '';
 
+    if (filterText.includes(' ')) {
+      const multiFilters = filterText.toLowerCase().split(' ').filter((f) => f);
+      return (multiFilters.filter((m) => (msg.id.toLowerCase().indexOf(m) !== -1
+            || msgName.toLowerCase().indexOf(m) !== -1)).length >= 1);
+    }
+
     return (
       filterText === 'Filter'
       || filterText === ''
@@ -189,6 +195,12 @@ export default class Meta extends Component {
     }
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : '';
+
+    if (filterText.includes(' ')) {
+      const multiFilters = filterText.toLowerCase().split(' ').filter((f) => f);
+      return (multiFilters.filter((m) => (msg.id.toLowerCase().indexOf(m) !== -1
+            || msgName.toLowerCase().indexOf(m) !== -1)).length >= 1);
+    }
 
     return (
       filterText === 'Filter'
