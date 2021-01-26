@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import CommaAuth from '@commaai/my-comma-auth';
 import { request as Request } from '@commaai/comma-api';
-import Sentry from './logging/Sentry';
+//import Sentry from './logging/Sentry';
 import CanExplorer from './CanExplorer';
 import AcuraDbc from './acura-dbc';
 import { getUrlParameter, modifyQueryParameters } from './utils/url';
@@ -15,7 +15,7 @@ import {
 import { demoProps } from './demo';
 
 export default function init() {
-  Sentry.init();
+//  Sentry.init();
 
   const routeFullName = getUrlParameter('route');
   const isDemo = !!getUrlParameter('demo');
