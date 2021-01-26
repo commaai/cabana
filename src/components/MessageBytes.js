@@ -21,6 +21,10 @@ export default class MessageBytes extends Component {
     this.onCanvasRefAvailable = this.onCanvasRefAvailable.bind(this);
   }
 
+  componentDidMount() {
+    this.updateCanvas(this.props);
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.live) {
       const nextLastEntry = nextProps.message.entries[nextProps.message.entries.length - 1];
