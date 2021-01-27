@@ -311,7 +311,7 @@ export default class Meta extends Component {
     }
     return (
       <>
-        <table cellPadding="5">
+        <table cellPadding="2">
           {this.state.showLogEvents && (
             <>
               <thead>

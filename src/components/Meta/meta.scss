@@ -61,7 +61,6 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding-left: 11px;
     &-header {
       height: 34px;
       padding: 22px 11px;
@@ -105,11 +104,7 @@
   }
   table {
     border-spacing: 0;
-    font-size: 12px;
+    font-size: 10px;
     width: 100%;
-    thead tr td:first-child,
-    tbody tr td:first-child {
-      padding-left: 11px;
-    }
   }
 }
