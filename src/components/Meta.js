@@ -42,38 +42,15 @@ export default class Meta extends Component {
     this.renderMessageBytes = this.renderMessageBytes.bind(this);
     this.toggleShowLogEvents = this.toggleShowLogEvents.bind(this);
 
-    const { dbcLastSaved } = props;
-
     this.state = {
       filterText: 'Filter',
-      lastSaved:
-        dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
       hoveredMessages: [],
       orderedMessageKeys: [],
       showLogEvents: false
     };
   }
 
-  componentDidMount() {
-    this.lastSavedTimer = setInterval(() => {
-      if (this.props.dbcLastSaved !== null) {
-        this.setState({ lastSaved: this.props.dbcLastSaved.fromNow() });
-      }
-    }, 30000);
-  }
-
-  componentWillUnmount() {
-    window.clearInterval(this.lastSavedTimer);
-  }
-
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.lastSaved !== this.props.lastSaved
-      && typeof nextProps === 'object'
-    ) {
-      this.setState({ lastSaved: nextProps.dbcLastSaved.fromNow() });
-    }
-
     const nextMsgKeys = Object.keys(nextProps.messages);
     if (
       JSON.stringify(nextMsgKeys)
