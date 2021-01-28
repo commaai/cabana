@@ -45,28 +45,29 @@ export default class Meta extends Component {
     this.state = {
       filterText: 'Filter',
       hoveredMessages: [],
+      MessageKeys: [],
       orderedMessageKeys: [],
       showLogEvents: false
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const nextMsgKeys = Object.keys(nextProps.messages);
+  static getDerivedStateFromProps(props, state) {
+    const nextMsgKeys = Object.keys(props.messages);
     if (
       JSON.stringify(nextMsgKeys)
-      !== JSON.stringify(Object.keys(this.props.messages))
+      !== JSON.stringify(state.MessageKeys)
     ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
+      return {
+          MessageKeys: nextMsgKeys
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.MessageKeys !== this.state.MessageKeys) {
+      const orderedMessageKeys = this.sortMessages(this.props.messages);
       this.setState({ hoveredMessages: [], orderedMessageKeys });
-    } else if (
-      this.state.orderedMessageKeys.length === 0
-      || (!this.props.live
-        && this.props.messages
-        && nextProps.messages
-        && this.byteCountsDidUpdate(this.props.messages, nextProps.messages))
-    ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
-      this.setState({ orderedMessageKeys });
     }
   }
 
