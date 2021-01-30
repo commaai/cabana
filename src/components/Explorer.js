@@ -9,6 +9,7 @@ import RouteVideoSync from './RouteVideoSync';
 import CanLog from './CanLog';
 import Entries from '../models/can/entries';
 import debounce from '../utils/debounce';
+import FormatTime from '../utils/time';
 import PlaySpeedSelector from './PlaySpeedSelector';
 
 function clipSegment(_segment, _segmentIndices, nextMessage) {
@@ -474,6 +475,19 @@ export default class Explorer extends Component {
           {this.props.live === false ? (
             <div>
               <div className="cabana-explorer-visuals-header g-row">
+                <div
+                  style={{
+                    'display': 'table-cell',
+                    'text-align': 'left',
+                    'vertical-align': 'middle'
+                  }}
+                >
+                  <p>
+                    Time:
+                      {' '}
+                      {FormatTime(this.props.seekTime)}
+                  </p>
+                </div>
                 <PlaySpeedSelector
                   playSpeed={this.state.playSpeed}
                   onPlaySpeedChanged={this.changePlaySpeed}

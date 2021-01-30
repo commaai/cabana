@@ -16,9 +16,8 @@ export default class PlaySpeedSelector extends Component {
     return (
       <div
         style={{
-          display: 'inline-block',
-          float: 'right',
-          margin: 10
+          display: 'table-cell',
+          'text-align': 'right'
         }}
       >
         <label>Play speed:&nbsp;</label>
