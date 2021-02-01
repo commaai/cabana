@@ -477,9 +477,8 @@ export default class Explorer extends Component {
               <div className="cabana-explorer-visuals-header g-row">
                 <div
                   style={{
-                    'display': 'table-cell',
-                    'text-align': 'left',
-                    'vertical-align': 'middle'
+                    display: 'table-cell',
+                    textAlign: 'left'
                   }}
                 >
                   <p>
