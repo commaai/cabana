@@ -132,12 +132,8 @@ export default class CanGraph extends Component {
       return;
     }
 
-    let bounds = null;
     if (options && options.bounds) {
       this.setState({ bounds: options.bounds });
-      bounds = options.bounds;
-    } else {
-      bounds = this.state.bounds;
     }
 
     this.view.runAfter(this.updateBounds);
