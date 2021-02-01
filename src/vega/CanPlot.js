@@ -1,13 +1,6 @@
 export default {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "width": 400,
-  "height": 200,
-  "padding": {
-    "top": 5,
-    "left": 30,
-    "right": 5,
-    "bottom": 10
-  },
+  "autosize": "fit",
   "data": [
     {
       "name": "table"

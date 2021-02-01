@@ -144,8 +144,8 @@ export default class CanGraph extends Component {
   }
 
   updateBounds = debounce(() => {
-    this.view.signal('width', this.state.bounds.width - 70);
-    this.view.signal('height', 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
+    this.view.signal('width', this.state.bounds.width);
+    this.view.signal('height', 0.4 * this.state.bounds.width); // 5:2 aspect ratio
     this.view.run();
   }, 100);
 

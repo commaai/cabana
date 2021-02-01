@@ -259,7 +259,6 @@
     &-plot {
       $drag-anchor-width: 25px;
       $toggle-width: 80px;
-      min-height: 233px;
       &-inner {
         background: #fff;
         border-bottom: 1px solid $color-grey-30;
@@ -267,8 +266,8 @@
         padding: 1.5% 3%;
         &:first-child,
         &:last-child {
-          padding-top: 3%;
-          padding-bottom: 3%;
+          padding-top: 2%;
+          padding-bottom: 2%;
         }
         &.is-droppable {
           background: $color-grey-50;
