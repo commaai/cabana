@@ -9,6 +9,26 @@ import GraphData from '../models/graph-data';
 import CanPlotSpec from '../vega/CanPlot';
 import debounce from '../utils/debounce';
 
+const propTypes = {
+  plottedSignal: PropTypes.string,
+  messages: PropTypes.object,
+  messageId: PropTypes.string,
+  messageName: PropTypes.string,
+  signalSpec: PropTypes.instanceOf(Signal),
+  segment: PropTypes.array,
+  unplot: PropTypes.func,
+  onRelativeTimeClick: PropTypes.func,
+  currentTime: PropTypes.number,
+  onSegmentChanged: PropTypes.func,
+  onDragStart: PropTypes.func,
+  onDragEnd: PropTypes.func,
+  container: PropTypes.object,
+  dragPos: PropTypes.object,
+  canReceiveGraphDrop: PropTypes.bool,
+  onGraphRefAvailable: PropTypes.func,
+  plottedSignals: PropTypes.array
+};
+
 const DefaultPlotInnerStyle = {
   position: 'absolute',
   top: 0,
@@ -17,26 +37,6 @@ const DefaultPlotInnerStyle = {
 
 export default class CanGraph extends Component {
   static emptyTable = [];
-
-  static propTypes = {
-    plottedSignal: PropTypes.string,
-    messages: PropTypes.object,
-    messageId: PropTypes.string,
-    messageName: PropTypes.string,
-    signalSpec: PropTypes.instanceOf(Signal),
-    segment: PropTypes.array,
-    unplot: PropTypes.func,
-    onRelativeTimeClick: PropTypes.func,
-    currentTime: PropTypes.number,
-    onSegmentChanged: PropTypes.func,
-    onDragStart: PropTypes.func,
-    onDragEnd: PropTypes.func,
-    container: PropTypes.node,
-    dragPos: PropTypes.object,
-    canReceiveGraphDrop: PropTypes.bool,
-    onGraphRefAvailable: PropTypes.func,
-    plottedSignals: PropTypes.array
-  };
 
   constructor(props) {
     super(props);
@@ -413,3 +413,5 @@ export default class CanGraph extends Component {
     );
   }
 }
+
+CanGraph.propTypes = propTypes;
