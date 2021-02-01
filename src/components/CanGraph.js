@@ -3,11 +3,13 @@ import Measure from 'react-measure';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Vega } from 'react-vega';
+import { expressionFunction } from 'vega';
 
 import Signal from '../models/can/signal';
 import GraphData from '../models/graph-data';
 import CanPlotSpec from '../vega/CanPlot';
 import debounce from '../utils/debounce';
+import FormatTime from '../utils/time';
 
 const propTypes = {
   plottedSignal: PropTypes.string,
@@ -50,6 +52,10 @@ export default class CanGraph extends Component {
       data: this.getGraphData(props),
       spec: this.getGraphSpec(props)
     };
+
+    expressionFunction('FormatTime', function(sec) {
+      return FormatTime(sec,true);
+    });
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
     this.onSignalSegment = this.onSignalSegment.bind(this);

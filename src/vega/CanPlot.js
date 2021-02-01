@@ -117,7 +117,22 @@ export default {
     {
       "orient": "bottom",
       "scale": "xrelscale",
-      "labelOverlap": true
+      "labelOverlap": true,
+      "encode": {
+        "labels": {
+          "update": {
+            "text": {
+              "signal": "FormatTime(datum.value)"
+            },
+            "angle": {
+              "value": -45
+            },
+            "align": {
+              "value": "right"
+            }
+          }
+        }
+      }
     },
     {
       "orient": "left",
@@ -434,7 +449,7 @@ export default {
               "encode": {
                 "update": {
                   "text": {
-                    "signal": "format(parent.argmin.relTime, ',.2f') + ': ' + format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit"
+                    "signal": "isValid(parent.argmin.relTime) ? format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit + '@' + FormatTime(parent.argmin.relTime) : ''"
                   },
                   "fill": {
                     "value": "black"
@@ -443,7 +458,7 @@ export default {
                     "value": "bold"
                   },
                   "y": {
-                    "value": 20
+                    "value": 15
                   }
                 }
               }

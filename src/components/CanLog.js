@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactList from 'react-list';
 
+import FormatTime from '../utils/time';
 import cx from 'classnames';
 
 export default class CanLog extends Component {
@@ -209,9 +210,7 @@ export default class CanLog extends Component {
           </div>
           <div className="signals-log-list-time">
             <span>
-[
-              {msgEntry.relTime.toFixed(3)}
-]
+              [{FormatTime(msgEntry.relTime)}]
             </span>
           </div>
           <div className="signals-log-list-bytes">

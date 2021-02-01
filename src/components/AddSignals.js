@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet } from 'aphrodite/no-important';
 import css from '../utils/css';
+import FormatTime from '../utils/time';
 
 import SignalLegend from './SignalLegend';
 import Signal from '../models/can/signal';
@@ -539,11 +540,11 @@ export default class AddSignals extends Component {
         {this.props.message.entries[this.props.messageIndex] ? (
           <div className="cabana-explorer-signals-time">
             <p>
-              time:
+              Time:
               {' '}
-              {this.props.message.entries[
+              {FormatTime(this.props.message.entries[
                 this.props.messageIndex
-              ].relTime.toFixed(3)}
+              ].relTime)}
             </p>
           </div>
         ) : null}
