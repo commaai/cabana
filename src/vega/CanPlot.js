@@ -401,14 +401,14 @@ export default {
             "update": {
               "x": [
                 {
-                  "test": "inrange(datum.argmin.relTime + 80, domain('xrelscale'))",
+                  "test": "inrange(datum.argmin.relTime + 60, domain('xrelscale'))",
                   "scale": "xrelscale",
                   "field": "argmin.relTime"
                 },
                 {
                   "scale": "xrelscale",
                   "field": "argmin.relTime",
-                  "offset": -80
+                  "offset": -100
                 }
               ],
               "y": {
@@ -419,7 +419,7 @@ export default {
                 "value": 20
               },
               "width": {
-                "value": 80
+                "value": 100
               },
               "fill": {
                 "value": "#fff"
