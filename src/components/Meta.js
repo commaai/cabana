@@ -395,6 +395,7 @@ export default class Meta extends Component {
                 Show log events
                 <input
                   type="checkbox"
+                  aria-label="LogEvents"
                   onChange={this.toggleShowLogEvents}
                   checked={!!this.state.showLogEvents}
                 />
@@ -407,6 +408,7 @@ export default class Meta extends Component {
               <div className="form-field form-field--small">
                 <input
                   type="text"
+                  aria-label="Filter"
                   value={this.state.filterText}
                   onFocus={this.onFilterFocus}
                   onBlur={this.onFilterUnfocus}

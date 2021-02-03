@@ -20,7 +20,7 @@ export default class PlaySpeedSelector extends Component {
           textAlign: 'right'
         }}
       >
-        <label>Play speed:&nbsp;</label>
+        <label htmlFor="playSpeed">Play speed:&nbsp;</label>
         <select
           id="playSpeed"
           style={{
