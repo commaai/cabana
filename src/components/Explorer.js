@@ -69,7 +69,7 @@ export default class Explorer extends Component {
       segment,
       segmentIndices,
       userSeekIndex: segmentIndices[0],
-      userSeekTime
+      // userSeekTime
     });
   }, 250);
 
