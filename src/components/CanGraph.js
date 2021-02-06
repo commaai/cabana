@@ -50,7 +50,7 @@ export default class CanGraph extends Component {
       bounds: null,
       isDataInserted: false,
       data: this.getGraphData(props),
-      spec: this.getGraphSpec(props)
+      spec: this.getGraphSpec(props, 0)
     };
 
     expressionFunction('FormatTime', function(sec) {
@@ -99,9 +99,11 @@ export default class CanGraph extends Component {
     };
   }
 
-  getGraphSpec(props) {
+  getGraphSpec(props, width) {
     return {
       ...CanPlotSpec,
+      width: width,
+      height: 0.4 * width,
       scales: [
         {
           ...CanPlotSpec.scales[0],
@@ -190,7 +192,7 @@ export default class CanGraph extends Component {
       // }
     }
     if (this.segmentIsNew(nextProps.segment)) {
-      this.setState({ spec: this.getGraphSpec(nextProps) });
+      this.setState({ spec: this.getGraphSpec(nextProps, this.state.bounds.width) });
     }
   }
 
