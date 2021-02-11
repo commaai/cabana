@@ -1,13 +1,6 @@
 export default {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "width": 400,
-  "height": 200,
-  "padding": {
-    "top": 5,
-    "left": 30,
-    "right": 5,
-    "bottom": 10
-  },
+  "autosize": "fit",
   "data": [
     {
       "name": "table"
@@ -117,7 +110,22 @@ export default {
     {
       "orient": "bottom",
       "scale": "xrelscale",
-      "labelOverlap": true
+      "labelOverlap": true,
+      "encode": {
+        "labels": {
+          "update": {
+            "text": {
+              "signal": "FormatTime(datum.value)"
+            },
+            "angle": {
+              "value": -45
+            },
+            "align": {
+              "value": "right"
+            }
+          }
+        }
+      }
     },
     {
       "orient": "left",
@@ -393,14 +401,14 @@ export default {
             "update": {
               "x": [
                 {
-                  "test": "inrange(datum.argmin.relTime + 80, domain('xrelscale'))",
+                  "test": "inrange(datum.argmin.relTime + 60, domain('xrelscale'))",
                   "scale": "xrelscale",
                   "field": "argmin.relTime"
                 },
                 {
                   "scale": "xrelscale",
                   "field": "argmin.relTime",
-                  "offset": -80
+                  "offset": -100
                 }
               ],
               "y": {
@@ -411,7 +419,7 @@ export default {
                 "value": 20
               },
               "width": {
-                "value": 80
+                "value": 100
               },
               "fill": {
                 "value": "#fff"
@@ -434,7 +442,7 @@ export default {
               "encode": {
                 "update": {
                   "text": {
-                    "signal": "format(parent.argmin.relTime, ',.2f') + ': ' + format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit"
+                    "signal": "isValid(parent.argmin.relTime) ? format(parent.argmin.y, ',.2f') + ' ' + parent.argmin.unit + '@' + FormatTime(parent.argmin.relTime) : ''"
                   },
                   "fill": {
                     "value": "black"
@@ -443,7 +451,7 @@ export default {
                     "value": "bold"
                   },
                   "y": {
-                    "value": 20
+                    "value": 15
                   }
                 }
               }

@@ -3,11 +3,33 @@ import Measure from 'react-measure';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Vega } from 'react-vega';
+import { expressionFunction } from 'vega';
 
 import Signal from '../models/can/signal';
 import GraphData from '../models/graph-data';
 import CanPlotSpec from '../vega/CanPlot';
 import debounce from '../utils/debounce';
+import FormatTime from '../utils/time';
+
+const propTypes = {
+  plottedSignal: PropTypes.string,
+  messages: PropTypes.object,
+  messageId: PropTypes.string,
+  messageName: PropTypes.string,
+  signalSpec: PropTypes.instanceOf(Signal),
+  segment: PropTypes.array,
+  unplot: PropTypes.func,
+  onRelativeTimeClick: PropTypes.func,
+  currentTime: PropTypes.number,
+  onSegmentChanged: PropTypes.func,
+  onDragStart: PropTypes.func,
+  onDragEnd: PropTypes.func,
+  container: PropTypes.object,
+  dragPos: PropTypes.object,
+  canReceiveGraphDrop: PropTypes.bool,
+  onGraphRefAvailable: PropTypes.func,
+  plottedSignals: PropTypes.array
+};
 
 const DefaultPlotInnerStyle = {
   position: 'absolute',
@@ -17,26 +39,6 @@ const DefaultPlotInnerStyle = {
 
 export default class CanGraph extends Component {
   static emptyTable = [];
-
-  static propTypes = {
-    plottedSignal: PropTypes.string,
-    messages: PropTypes.object,
-    messageId: PropTypes.string,
-    messageName: PropTypes.string,
-    signalSpec: PropTypes.instanceOf(Signal),
-    segment: PropTypes.array,
-    unplot: PropTypes.func,
-    onRelativeTimeClick: PropTypes.func,
-    currentTime: PropTypes.number,
-    onSegmentChanged: PropTypes.func,
-    onDragStart: PropTypes.func,
-    onDragEnd: PropTypes.func,
-    container: PropTypes.node,
-    dragPos: PropTypes.object,
-    canReceiveGraphDrop: PropTypes.bool,
-    onGraphRefAvailable: PropTypes.func,
-    plottedSignals: PropTypes.array
-  };
 
   constructor(props) {
     super(props);
@@ -48,8 +50,12 @@ export default class CanGraph extends Component {
       bounds: null,
       isDataInserted: false,
       data: this.getGraphData(props),
-      spec: this.getGraphSpec(props)
+      spec: this.getGraphSpec(props, 0)
     };
+
+    expressionFunction('FormatTime', function(sec) {
+      return FormatTime(sec,true);
+    });
     this.onNewView = this.onNewView.bind(this);
     this.onSignalClickTime = this.onSignalClickTime.bind(this);
     this.onSignalSegment = this.onSignalSegment.bind(this);
@@ -93,9 +99,11 @@ export default class CanGraph extends Component {
     };
   }
 
-  getGraphSpec(props) {
+  getGraphSpec(props, width) {
     return {
       ...CanPlotSpec,
+      width: width,
+      height: 0.4 * width,
       scales: [
         {
           ...CanPlotSpec.scales[0],
@@ -126,20 +134,16 @@ export default class CanGraph extends Component {
       return;
     }
 
-    let bounds = null;
     if (options && options.bounds) {
       this.setState({ bounds: options.bounds });
-      bounds = options.bounds;
-    } else {
-      bounds = this.state.bounds;
     }
 
     this.view.runAfter(this.updateBounds);
   }
 
   updateBounds = debounce(() => {
-    this.view.signal('width', this.state.bounds.width - 70);
-    this.view.signal('height', 0.4 * (this.state.bounds.width - 70)); // 5:2 aspect ratio
+    this.view.signal('width', this.state.bounds.width);
+    this.view.signal('height', 0.4 * this.state.bounds.width); // 5:2 aspect ratio
     this.view.run();
   }, 100);
 
@@ -188,7 +192,7 @@ export default class CanGraph extends Component {
       // }
     }
     if (this.segmentIsNew(nextProps.segment)) {
-      this.setState({ spec: this.getGraphSpec(nextProps) });
+      this.setState({ spec: this.getGraphSpec(nextProps, this.state.bounds.width) });
     }
   }
 
@@ -413,3 +417,5 @@ export default class CanGraph extends Component {
     );
   }
 }
+
+CanGraph.propTypes = propTypes;

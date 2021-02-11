@@ -89,7 +89,7 @@ export default class DBC {
     let msgName;
     do {
       msgName = `NEW_MSG_${msgNum}`;
-      msgNum++;
+      msgNum += 1;
     } while (messageNames.indexOf(msgName) !== -1);
 
     return msgName;

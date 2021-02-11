@@ -386,3 +386,5 @@ export default {
     for (var k in loggers) loggers[k].info.apply(this, arguments);
   }
 };
+
+self.$RefreshReg$ = () => {};

@@ -16,12 +16,11 @@ export default class PlaySpeedSelector extends Component {
     return (
       <div
         style={{
-          display: 'inline-block',
-          float: 'right',
-          margin: 10
+          display: 'table-cell',
+          textAlign: 'right'
         }}
       >
-        <label>Play speed:&nbsp;</label>
+        <label htmlFor="playSpeed">Play speed:&nbsp;</label>
         <select
           id="playSpeed"
           style={{

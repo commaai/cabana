@@ -71,8 +71,8 @@ function transformAndSend(rawData) {
     if (nextSource === -1) {
       break;
     }
-    curIndexes[nextSource.id]++;
-    totalEntries++;
+    curIndexes[nextSource.id] += 1;
+    totalEntries += 1;
 
     entryBuffer.push(makeEntry(nextSource));
 

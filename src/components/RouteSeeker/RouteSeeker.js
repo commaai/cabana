@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PlayButton from '../PlayButton';
 import debounce from '../../utils/debounce';
+import FormatTime from '../../utils/time';
 
 export default class RouteSeeker extends Component {
   static propTypes = {
@@ -121,7 +122,7 @@ export default class RouteSeeker extends Component {
     this.setState({
       markerStyle,
       tooltipStyle,
-      tooltipTime: this.props.ratioTime(ratio).toFixed(3)
+      tooltipTime: FormatTime(this.props.ratioTime(ratio))
     });
   }
 

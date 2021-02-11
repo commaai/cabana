@@ -1,6 +1,6 @@
 /* eslint-disable */
 const WorkerLoaderPlugin = require('craco-worker-loader');
-const SentryPlugin = require('craco-sentry-plugin');
+// const SentryPlugin = require('craco-sentry-plugin');
 
 module.exports = function ({ env }) {
   const plugins = [
@@ -8,11 +8,11 @@ module.exports = function ({ env }) {
       plugin: WorkerLoaderPlugin
     }
   ];
-  if (env === 'production') {
-    plugins.push({
-      plugin: SentryPlugin
-    });
-  }
+//  if (env === 'production') {
+//    plugins.push({
+//      plugin: SentryPlugin
+//    });
+//  }
   return {
     plugins,
     jest: {

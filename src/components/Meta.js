@@ -42,54 +42,32 @@ export default class Meta extends Component {
     this.renderMessageBytes = this.renderMessageBytes.bind(this);
     this.toggleShowLogEvents = this.toggleShowLogEvents.bind(this);
 
-    const { dbcLastSaved } = props;
-
     this.state = {
       filterText: 'Filter',
-      lastSaved:
-        dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
       hoveredMessages: [],
+      MessageKeys: [],
       orderedMessageKeys: [],
       showLogEvents: false
     };
   }
 
-  componentDidMount() {
-    this.lastSavedTimer = setInterval(() => {
-      if (this.props.dbcLastSaved !== null) {
-        this.setState({ lastSaved: this.props.dbcLastSaved.fromNow() });
-      }
-    }, 30000);
-  }
-
-  componentWillUnmount() {
-    window.clearInterval(this.lastSavedTimer);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.lastSaved !== this.props.lastSaved
-      && typeof nextProps === 'object'
-    ) {
-      this.setState({ lastSaved: nextProps.dbcLastSaved.fromNow() });
-    }
-
-    const nextMsgKeys = Object.keys(nextProps.messages);
+  static getDerivedStateFromProps(props, state) {
+    const nextMsgKeys = Object.keys(props.messages);
     if (
       JSON.stringify(nextMsgKeys)
-      !== JSON.stringify(Object.keys(this.props.messages))
+      !== JSON.stringify(state.MessageKeys)
     ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
+      return {
+          MessageKeys: nextMsgKeys
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.MessageKeys !== this.state.MessageKeys) {
+      const orderedMessageKeys = this.sortMessages(this.props.messages);
       this.setState({ hoveredMessages: [], orderedMessageKeys });
-    } else if (
-      this.state.orderedMessageKeys.length === 0
-      || (!this.props.live
-        && this.props.messages
-        && nextProps.messages
-        && this.byteCountsDidUpdate(this.props.messages, nextProps.messages))
-    ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
-      this.setState({ orderedMessageKeys });
     }
   }
 
@@ -175,6 +153,12 @@ export default class Meta extends Component {
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : '';
 
+    if (filterText.includes(' ')) {
+      const multiFilters = filterText.toLowerCase().split(' ').filter((f) => f);
+      return (multiFilters.filter((m) => (msg.id.toLowerCase().indexOf(m) !== -1
+            || msgName.toLowerCase().indexOf(m) !== -1)).length >= 1);
+    }
+
     return (
       filterText === 'Filter'
       || filterText === ''
@@ -189,6 +173,12 @@ export default class Meta extends Component {
     }
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : '';
+
+    if (filterText.includes(' ')) {
+      const multiFilters = filterText.toLowerCase().split(' ').filter((f) => f);
+      return (multiFilters.filter((m) => (msg.id.toLowerCase().indexOf(m) !== -1
+            || msgName.toLowerCase().indexOf(m) !== -1)).length >= 1);
+    }
 
     return (
       filterText === 'Filter'
@@ -299,7 +289,7 @@ export default class Meta extends Component {
     }
     return (
       <>
-        <table cellPadding="5">
+        <table cellPadding="2">
           {this.state.showLogEvents && (
             <>
               <thead>
@@ -405,6 +395,7 @@ export default class Meta extends Component {
                 Show log events
                 <input
                   type="checkbox"
+                  aria-label="LogEvents"
                   onChange={this.toggleShowLogEvents}
                   checked={!!this.state.showLogEvents}
                 />
@@ -417,6 +408,7 @@ export default class Meta extends Component {
               <div className="form-field form-field--small">
                 <input
                   type="text"
+                  aria-label="Filter"
                   value={this.state.filterText}
                   onFocus={this.onFilterFocus}
                   onBlur={this.onFilterUnfocus}
