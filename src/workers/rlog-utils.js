@@ -156,7 +156,7 @@ export function getEgoData(state) {
 }
 
 export function getCarStateControls(state) {
-  return signedLongToByteArray(state.SteeringAngle * 1000)
+  return signedLongToByteArray(state.SteeringAngleDeg * 1000)
     .concat(signedShortToByteArray(state.Brake * 1000))
     .concat(signedShortToByteArray(state.Gas * 1000));
 }

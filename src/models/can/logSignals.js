@@ -40,7 +40,7 @@ export const ego = {
 };
 
 export const controls = {
-  SteeringAngle: longSignal({
+  SteeringAngleDeg: longSignal({
     index: 0,
     factor: 0.001
   }),
