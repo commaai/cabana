@@ -29,6 +29,6 @@ export const STREAMING_WINDOW = 60;
 
 const ENV_EXPLORER_URL = {
   debug: 'http://127.0.0.1:3000/',
-  prod: 'https://my.comma.ai/'
+  prod: 'https://connect.comma.ai/'
 };
 export const EXPLORER_URL = ENV_EXPLORER_URL[ENV];

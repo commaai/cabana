@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import CommaAuth from '@commaai/my-comma-auth';
-import { request as Request } from '@commaai/comma-api';
+import qs from 'query-string';
+import CommaAuth, { config as AuthConfig, storage as AuthStorage } from '@commaai/my-comma-auth';
+import { auth as AuthApi, request as Request } from '@commaai/comma-api';
 import Sentry from './logging/Sentry';
 import CanExplorer from './CanExplorer';
 import AcuraDbc from './acura-dbc';
@@ -13,6 +14,26 @@ import {
   persistGithubAuthToken
 } from './api/localstorage';
 import { demoProps } from './demo';
+
+async function authenticate() {
+  if (document.location && document.location.pathname === '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH) {
+    const redirect_uri = document.location.origin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
+    try {
+      const { code } = qs.parse(document.location.search);
+      const token = await AuthApi.refreshAccessToken(code, redirect_uri, 'google');
+      if (token) {
+        AuthStorage.setCommaAccessToken(token);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const token = await CommaAuth.init();
+  if (token) {
+    Request.configure(token);
+  }
+}
 
 export default function init() {
   Sentry.init();
@@ -85,12 +106,10 @@ export default function init() {
   }
 
   async function renderDom() {
-    const token = await CommaAuth.init();
-    if (token) {
-      Request.configure(token);
-    }
     ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root')); // eslint-disable-line react/jsx-props-no-spreading
   }
 
-  renderDom();
+  authenticate().then(() => {
+    renderDom();
+  });
 }

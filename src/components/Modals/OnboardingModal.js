@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import Moment from 'moment';
 import _ from 'lodash';
 import cx from 'classnames';
-import CommaAuth from '@commaai/my-comma-auth';
+import qs from 'query-string';
+import CommaAuth, { config as AuthConfig } from '@commaai/my-comma-auth';
 
 import { EXPLORER_URL } from '../../config';
 import Modal from './baseModal';
@@ -80,20 +81,29 @@ export default class OnboardingModal extends Component {
   }
 
   renderLogin() {
-    return (
-      <button
-        onClick={this.navigateToExplorer}
-        className="button--primary button--kiosk"
-      >
-        <i className="fa fa-video-camera" />
-        <strong>
-          {CommaAuth.isAuthenticated()
-            ? 'Find a drive in Explorer'
-            : 'Log in with Explorer'}
-        </strong>
-        <sup>Click "View CAN Data" while replaying a drive</sup>
-      </button>
-    );
+    if (CommaAuth.isAuthenticated()) {
+      return (
+        <button onClick={this.navigateToExplorer} className="button--primary button--kiosk">
+          <i className="fa fa-video-camera" />
+          <strong>Find a drive in Explorer</strong>
+          <sup>Click "View CAN Data" while replaying a drive</sup>
+        </button>
+      );
+    } else {
+      let redirectOrigin = 'http://127.0.0.1';
+      if (document.location) {
+        redirectOrigin = document.location.origin;
+      }
+      const params = AuthConfig.GOOGLE_OAUTH_PARAMS;
+      params.redirect_uri = redirectOrigin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
+      const redirectLink = [AuthConfig.GOOGLE_AUTH_ENDPOINT, qs.stringify(params)].join('?')
+      return (
+        <a href={ redirectLink } className="button button--primary button--kiosk">
+          <i className="fa fa-google" />
+          <strong>Sign in with Google</strong>
+        </a>
+      );
+    }
   }
 
   renderOnboardingOptions() {
