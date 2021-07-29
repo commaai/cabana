@@ -16,7 +16,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/cabana/fdbfd08ff19fe7bdfbad.worker.js"
   },
   {
-    "revision": "940146dff309745a9c3a7e9a68f0715d",
+    "revision": "ed4b4e5046e6b887a1b5f0f2e2d7463c",
     "url": "/cabana/index.html"
   },
   {
