@@ -19,7 +19,7 @@ describe('demo mode', () => {
   });
   beforeAll(async () => {
     browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       slowMo: 80,
       args: [`--window-size=${width},${height}`]
     });
