@@ -54,7 +54,6 @@ export default class AddSignals extends Component {
 
   constructor(props) {
     super(props);
-    this.count = 0;
     let signals = {};
     if (props.message && props.message.frame && props.message.frame.signals) {
       signals = this.copySignals(props.message.frame.signals);
@@ -530,8 +529,6 @@ export default class AddSignals extends Component {
   };
 
   render() {
-    console.log(this.count);
-    this.count++;
     const { selectedMessageKey } = this.props;
     return (
       <div className="cabana-explorer-signals-controller">
