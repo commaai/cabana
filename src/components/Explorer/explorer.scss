@@ -37,18 +37,26 @@
   background: $color-grey-90;
   color: #fff;
   height: 55px;
-  padding: 16px 22px;
+  padding: 7px 10px 7px 22px;
+  display: flex;
+  justify-content: space-between;
   &-logo {
     color: #fff;
-    font-family: monospace;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
     text-decoration: none;
     text-transform: lowercase;
     pointer-events: none; // disable actual click
+    display: flex;
+    align-items: center;
+    img{
+      height: 36px;
+      margin-right: 12px;
+    }
   }
   &-account {
-    float: right;
+    display:flex;
+    align-items: center;
     width: 177px;
     &-signout {
       cursor: pointer;
@@ -89,6 +97,7 @@
     width: 100%;
     h1 {
       position: relative;
+      color: #6f6f6f;
       &:before {
         content: $fa-var-long-arrow-left;
         color: $color-grey-70;
@@ -103,6 +112,8 @@
   &-signals {
     flex: 1;
     max-height: 100vh;
+    border-left: 1px solid #e1e1e1;
+    border-right: 1px solid #e1e1e1;
     &.is-expanded {
       .cabana-explorer-signals-subheader:before {
         transform: rotate(90deg);
@@ -173,7 +184,7 @@
       table {
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 5px;
-        font-family: monospace;
+        font-family: 'Roboto Mono', monospace;
         margin: 2% 0;
         width: 100%;
       }
@@ -208,17 +219,13 @@
     max-height: 100vh;
     overflow-x: hidden;
     overflow-y: scroll;
-    padding: 1.5% 3%;
     &-header {
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      margin-bottom: 2%;
-      padding: 2% 0;
+      padding: 0;
     }
     &-camera {
-      border: 5px solid #000;
-      border-radius: 5px;
-      max-height: 480px;
-      max-width: 640px;
+      // max-height: 480px;
+      // max-width: 640px;
       background: #000;
       overflow: hidden;
       position: relative;
@@ -231,28 +238,24 @@
     }
     &-segmentreset {
       cursor: pointer;
-      background-color: RGB(63, 135, 255);
-      border-radius: 5px;
+      background-color: #2d2d2d;
       min-width: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       &:hover {
-        background-color: rgba(63, 135, 255, 0.5);
+        background-color: #444444;
       }
-      margin-top: 10px;
       padding: 10px 0;
-      width: 160px;
+      width: 100%;
     }
     &-plots {
       background: rgba(0, 0, 0, 0.02);
-      border-radius: 5px;
-      margin: 3% 0;
       position: relative;
-      max-width: 640px;
+      // max-width: 640px;
       &:not(:empty) {
-        border: 1px solid $color-grey-40;
+        border-bottom: 1px solid $color-grey-40;
       }
     }
     &-plot {

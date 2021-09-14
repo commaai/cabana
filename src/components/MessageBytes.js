@@ -99,7 +99,7 @@ export default class MessageBytes extends Component {
 
       ctx.fillRect(i * 20, 0, 20, 15);
 
-      ctx.font = '12px Courier';
+      ctx.font = '12px Roboto Mono, monospace';
       ctx.fillStyle = 'white';
       if (hexData) {
         ctx.fillText(hexData, i * 20 + 2, 12);

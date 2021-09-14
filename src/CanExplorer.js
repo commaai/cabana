@@ -1315,7 +1315,8 @@ export default class CanExplorer extends Component {
         ) : null}
         <div className="cabana-header">
           <a className="cabana-header-logo" href="">
-            Comma Cabana
+            <img alt="comma" src={`${process.env.PUBLIC_URL}/img/comma-white.png`}/>
+            cabana
           </a>
           <div className="cabana-header-account">
             {this.state.isGithubAuthenticated ? (

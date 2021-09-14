@@ -3,6 +3,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Clipboard from 'clipboard';
 
+import LoadingDots from './LoadingDots';
 import MessageBytes from './MessageBytes';
 
 const { ckmeans } = require('simple-statistics');
@@ -295,7 +296,7 @@ export default class Meta extends Component {
 
   renderAvailableMessagesList() {
     if (Object.keys(this.props.messages).length === 0) {
-      return <p>Loading messages...</p>;
+      return <LoadingDots />;
     }
     return (
       <>
