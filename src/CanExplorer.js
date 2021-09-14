@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { createWriteStream } from 'streamsaver';
 import Panda from '@commaai/pandajs';
-import CommaAuth from '@commaai/my-comma-auth';
+import CommaAuth, { storage as CommaAuthStorage } from '@commaai/my-comma-auth';
 import { raw as RawDataApi, drives as DrivesApi } from '@commaai/comma-api';
 import { timeout, interval } from 'thyming';
 import {
@@ -237,8 +237,11 @@ export default class CanExplorer extends Component {
           }));
         })
         .catch((err) => {
-          console.error(err);
-          this.showOnboarding();
+          console.log(err);
+          CommaAuthStorage.logOut().then(() => {
+            CommaAuthStorage.isAuthed = false;
+            this.showOnboarding();
+          });
         });
     } else {
       this.showOnboarding();
