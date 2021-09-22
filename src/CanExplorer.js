@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { createWriteStream } from 'streamsaver';
 import Panda from '@commaai/pandajs';
-import CommaAuth, { storage as CommaAuthStorage } from '@commaai/my-comma-auth';
+import CommaAuth, { storage as CommaAuthStorage, config as AuthConfig } from '@commaai/my-comma-auth';
 import { raw as RawDataApi, drives as DrivesApi } from '@commaai/comma-api';
 import { timeout, interval } from 'thyming';
 import {
@@ -947,7 +947,9 @@ export default class CanExplorer extends Component {
   }
 
   showOnboarding() {
-    if (window.sessionStorage && window.location && window.location.search) {
+    if (!CommaAuth.isAuthenticated() && window.sessionStorage && window.location &&
+      window.location.pathname !== AuthConfig.AUTH_PATH)
+    {
       window.sessionStorage.setItem('onboardingPath', window.location.href);
     }
     this.setState({ showOnboarding: true });
