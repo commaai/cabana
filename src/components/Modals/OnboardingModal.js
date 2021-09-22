@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Moment from 'moment';
 import _ from 'lodash';
 import cx from 'classnames';
 import qs from 'query-string';
@@ -32,6 +31,26 @@ export default class OnboardingModal extends Component {
     this.attemptPandaConnection = this.attemptPandaConnection.bind(this);
     this.toggleUsbInstructions = this.toggleUsbInstructions.bind(this);
     this.navigateToExplorer = this.navigateToExplorer.bind(this);
+  }
+
+  componentDidMount() {
+    const script = document.createElement("script");
+    document.body.appendChild(script);
+    script.onload = () => {
+      window.AppleID.auth.init({
+        clientId : AuthConfig.APPLE_CLIENT_ID,
+        scope : AuthConfig.APPLE_SCOPES,
+        redirectURI : AuthConfig.APPLE_REDIRECT_URI,
+        state : AuthConfig.APPLE_STATE,
+      });
+    };
+    script.src = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+    script.async = true;
+    document.addEventListener('AppleIDSignInOnSuccess', (data) => {
+      const { code, state } = data.detail.authorization;
+      window.location = [AuthConfig.APPLE_REDIRECT_PATH, qs.stringify({ code, state })].join('?');
+    });
+    document.addEventListener('AppleIDSignInOnFailure', console.log);
   }
 
   attemptPandaConnection() {
@@ -90,19 +109,20 @@ export default class OnboardingModal extends Component {
         </button>
       );
     } else {
-      let redirectOrigin = 'http://127.0.0.1';
-      if (document.location) {
-        redirectOrigin = document.location.origin;
-      }
-      const params = AuthConfig.GOOGLE_OAUTH_PARAMS;
-      params.redirect_uri = redirectOrigin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
-      const redirectLink = [AuthConfig.GOOGLE_AUTH_ENDPOINT, qs.stringify(params)].join('?')
-      return (
-        <a href={ redirectLink } className="button button--primary button--kiosk">
+      return <>
+        <a href={ AuthConfig.GOOGLE_REDIRECT_LINK } className="button button--primary button--kiosk">
           <i className="fa fa-google" />
           <strong>Sign in with Google</strong>
         </a>
-      );
+        <a onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--kiosk">
+          <i className="fa fa-apple" />
+          <strong>Sign in with Apple</strong>
+        </a>
+        <a href={ AuthConfig.GITHUB_REDIRECT_LINK } className="button button--primary button--kiosk">
+          <i className="fa fa-github" />
+          <strong>Sign in with GitHub</strong>
+        </a>
+      </>;
     }
   }
 

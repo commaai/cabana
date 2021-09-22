@@ -4,10 +4,10 @@
   "private": true,
   "homepage": "https://community.comma.ai/cabana",
   "dependencies": {
-    "@commaai/comma-api": "^1.7.0",
+    "@commaai/comma-api": "^2.1.1",
     "@commaai/hls.js": "^0.12.7",
     "@commaai/log_reader": "^0.5.5",
-    "@commaai/my-comma-auth": "^1.3.0",
+    "@commaai/my-comma-auth": "^1.4.0",
     "@commaai/pandajs": "^0.3.4",
     "@craco/craco": "^5.5.0",
     "ap": "^0.2.0",

@@ -16,11 +16,10 @@ import {
 import { demoProps } from './demo';
 
 async function authenticate() {
-  if (document.location && document.location.pathname === '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH) {
-    const redirect_uri = document.location.origin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
+  if (document.location && document.location.pathname === AuthConfig.AUTH_PATH) {
     try {
-      const { code } = qs.parse(document.location.search);
-      const token = await AuthApi.refreshAccessToken(code, redirect_uri, 'google');
+      const { code, provider } = qs.parse(document.location.search);
+      const token = await AuthApi.refreshAccessToken(code, provider);
       if (token) {
         AuthStorage.setCommaAccessToken(token);
       }
