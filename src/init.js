@@ -31,7 +31,6 @@ async function authenticate() {
             window.location = onboardingPath;
           }
         }
-        window.location = window.location.origin;
       }
     } catch (err) {
       console.log(err);
