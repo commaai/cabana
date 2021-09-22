@@ -110,15 +110,15 @@ export default class OnboardingModal extends Component {
       );
     } else {
       return <>
-        <a href={ AuthConfig.GOOGLE_REDIRECT_LINK } className="button button--primary button--kiosk">
+        <a href={ AuthConfig.GOOGLE_REDIRECT_LINK } className="button button--primary button--icon">
           <i className="fa fa-google" />
           <strong>Sign in with Google</strong>
         </a>
-        <a onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--kiosk">
+        <a onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--icon">
           <i className="fa fa-apple" />
           <strong>Sign in with Apple</strong>
         </a>
-        <a href={ AuthConfig.GITHUB_REDIRECT_LINK } className="button button--primary button--kiosk">
+        <a href={ AuthConfig.GITHUB_REDIRECT_LINK } className="button button--primary button--icon">
           <i className="fa fa-github" />
           <strong>Sign in with GitHub</strong>
         </a>
