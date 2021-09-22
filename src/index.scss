@@ -6,27 +6,27 @@
 */
 
 // Globals
-@import "./styles/base/base";
-@import "./styles/base/grid";
-@import "./styles/base/forms";
-@import "./styles/base/lists";
-@import "./styles/base/typography";
-@import "./styles/base/utils";
-@import "./styles/base/animations";
-@import "./styles/base/insets";
+@import "./styles/base/base.scss";
+@import "./styles/base/grid.scss";
+@import "./styles/base/forms.scss";
+@import "./styles/base/lists.scss";
+@import "./styles/base/typography.scss";
+@import "./styles/base/utils.scss";
+@import "./styles/base/animations.scss";
+@import "./styles/base/insets.scss";
 
 // Libraries
-@import "./styles/lib/index";
-@import "./styles/lib/font-awesome";
+@import "./styles/lib/index.scss";
+@import "./styles/lib/font-awesome.scss";
 
 // Components
-@import "./components/Meta/meta";
-@import "./components/Explorer/explorer";
-@import "./components/RouteSeeker/RouteSeeker";
-@import "./components/SignalLegend/signalLegend";
-@import "./components/SignalLog/signalLog";
-@import "./components/PartSelector/partSelector";
-@import "./components/Modals/modal";
-@import "./components/Modals/onboardingModal";
-@import "./components/Tabs/tabs";
-@import "./components/DBCList/dbclist";
+@import "./components/Meta/meta.scss";
+@import "./components/Explorer/explorer.scss";
+@import "./components/RouteSeeker/RouteSeeker.scss";
+@import "./components/SignalLegend/signalLegend.scss";
+@import "./components/SignalLog/signalLog.scss";
+@import "./components/PartSelector/partSelector.scss";
+@import "./components/Modals/modal.scss";
+@import "./components/Modals/onboardingModal.scss";
+@import "./components/Tabs/tabs.scss";
+@import "./components/DBCList/dbclist.scss";
