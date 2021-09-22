@@ -104,8 +104,8 @@ export default class OnboardingModal extends Component {
       return (
         <button onClick={this.navigateToExplorer} className="button--primary button--kiosk">
           <i className="fa fa-video-camera" />
-          <strong>Find a drive in Explorer</strong>
-          <sup>Click "View CAN Data" while replaying a drive</sup>
+          <strong>Find a drive in connect</strong>
+          <sup>Click "View in cabana" while replaying a drive</sup>
         </button>
       );
     } else {
@@ -252,7 +252,7 @@ export default class OnboardingModal extends Component {
     return (
       <Modal
         title="Welcome to Cabana"
-        subtitle="Get started by selecting a drive from Explorer or enabling live mode"
+        subtitle="Get started by selecting a drive from connect or enabling live mode"
         footer={this.renderModalFooter()}
         disableClose
         variations={['wide', 'dark']}

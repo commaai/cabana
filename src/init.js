@@ -16,12 +16,21 @@ import {
 import { demoProps } from './demo';
 
 async function authenticate() {
-  if (document.location && document.location.pathname === AuthConfig.AUTH_PATH) {
+  if (window.location && window.location.pathname === AuthConfig.AUTH_PATH) {
     try {
-      const { code, provider } = qs.parse(document.location.search);
+      const { code, provider } = qs.parse(window.location.search);
       const token = await AuthApi.refreshAccessToken(code, provider);
       if (token) {
         AuthStorage.setCommaAccessToken(token);
+
+        // reset stored path
+        if (window.sessionStorage) {
+          const onboardingPath = window.sessionStorage.getItem('onboardingPath');
+          if (onboardingPath) {
+            window.sessionStorage.removeItem('onboardingPath');
+            window.location = onboardingPath;
+          }
+        }
       }
     } catch (err) {
       console.log(err);

@@ -14,6 +14,7 @@ import {
   GITHUB_AUTH_TOKEN_KEY
 } from './config';
 import * as GithubAuth from './api/github-auth';
+import qs from 'query-string';
 
 import DBC from './models/can/dbc';
 import Meta from './components/Meta';
@@ -946,6 +947,9 @@ export default class CanExplorer extends Component {
   }
 
   showOnboarding() {
+    if (window.sessionStorage && window.location && window.location.search) {
+      window.sessionStorage.setItem('onboardingPath', window.location.href);
+    }
     this.setState({ showOnboarding: true });
   }
 
