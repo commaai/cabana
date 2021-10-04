@@ -8,7 +8,7 @@ module.exports = function ({ env }) {
       plugin: WorkerLoaderPlugin
     }
   ];
-  if (env === 'production') {
+  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_AUTH_TOKEN) {
     plugins.push({
       plugin: SentryPlugin
     });
