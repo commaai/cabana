@@ -6,8 +6,8 @@ const server = http.createServer((request, response) => {
   // More details here: https://github.com/zeit/serve-handler#options
   handler(request, response, {
     public: 'build',
-    redirects: [
-      { source: '/', destination: '/index.js' },
+    rewrites: [
+      { source: '/', destination: '/index.html' },
     ]
   });
 });
