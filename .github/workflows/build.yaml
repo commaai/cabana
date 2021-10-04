@@ -18,6 +18,8 @@ jobs:
     - name: yarn install
       if: steps.yarn-cache.outputs.cache-hit != 'true'
       run: yarn install
+    - name: yarn netlify-sass
+      run: yarn netlify-sass
     - name: yarn build
       run: yarn build
     - name: run tests
