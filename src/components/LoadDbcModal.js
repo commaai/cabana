@@ -55,7 +55,7 @@ export default class LoadDbcModal extends Component {
     return (
       <div className="cabana-tabs-navigation">
         {this.state.tabs.map((tab) => (
-          <a
+          <button
             className={cx({ 'is-active': this.state.tab === tab })}
             onClick={() => {
               this.setState({ tab });
@@ -63,7 +63,7 @@ export default class LoadDbcModal extends Component {
             key={tab}
           >
             <span>{tab}</span>
-          </a>
+          </button>
         ))}
       </div>
     );

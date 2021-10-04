@@ -126,7 +126,7 @@ export default class CanGraph extends Component {
       return;
     }
 
-    let bounds = null;
+    let bounds = null; // eslint-disable-line no-unused-vars
     if (options && options.bounds) {
       this.setState({ bounds: options.bounds });
       bounds = options.bounds;

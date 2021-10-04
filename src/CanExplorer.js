@@ -14,7 +14,6 @@ import {
   GITHUB_AUTH_TOKEN_KEY
 } from './config';
 import * as GithubAuth from './api/github-auth';
-import qs from 'query-string';
 
 import DBC from './models/can/dbc';
 import Meta from './components/Meta';
@@ -32,7 +31,6 @@ import {
 } from './api/localstorage';
 import OpenDbc from './api/OpenDbc';
 import UnloggerClient from './api/unlogger';
-import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 import DbcUtils from './utils/dbc';
@@ -256,8 +254,6 @@ export default class CanExplorer extends Component {
   }
 
   initCanData() {
-    const { route } = this.state;
-
     this.spawnWorker(this.state.currentParts);
   }
 
@@ -399,22 +395,6 @@ export default class CanExplorer extends Component {
   cancelWorker(workerHash) {
     // actually don't...
     return;
-    const currentWorkers = { ...this.state.currentWorkers };
-    const { worker, part } = currentWorkers[workerHash];
-    const loadingParts = this.state.loadingParts.filter((p) => p !== part);
-    const loadedParts = this.state.loadedParts.filter((p) => p !== part);
-    delete currentWorkers[workerHash];
-
-    console.log('Stoping worker', workerHash, 'for part', part);
-    worker.postMessage({
-      action: 'terminate'
-    });
-
-    this.setState({
-      currentWorkers,
-      loadingParts,
-      loadedParts
-    });
   }
 
   spawnWorker(options) {
@@ -460,7 +440,6 @@ export default class CanExplorer extends Component {
 
     const {
       dbc,
-      dbcFilename,
       route,
       firstCanTime,
       canFrameOffset
@@ -1027,7 +1006,6 @@ export default class CanExplorer extends Component {
     if (minPart === 0) {
       maxPart = Math.min(route.proclog, 2);
     }
-    const currentPartSpan = currentParts[1] - currentParts[0] + 1;
 
     // update current parts
     currentParts = [minPart, maxPart];
@@ -1320,7 +1298,7 @@ export default class CanExplorer extends Component {
           <LoadingBar isLoading={this.state.isLoading} />
         ) : null}
         <div className="cabana-header">
-          <a className="cabana-header-logo" href="">
+          <a className="cabana-header-logo" href="/">
             Comma Cabana
           </a>
           <div className="cabana-header-account">

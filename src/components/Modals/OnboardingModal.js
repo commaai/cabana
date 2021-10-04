@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
 import qs from 'query-string';
 import CommaAuth, { config as AuthConfig } from '@commaai/my-comma-auth';
@@ -81,9 +80,9 @@ export default class OnboardingModal extends Component {
       return (
         <p>
           <i className="fa fa-exclamation-triangle" />
-          <a onClick={this.toggleUsbInstructions}>
+          <span onClick={this.toggleUsbInstructions}>
             <span>WebUSB is not enabled in your Chrome settings</span>
-          </a>
+          </span>
         </p>
       );
     }
@@ -114,10 +113,10 @@ export default class OnboardingModal extends Component {
           <i className="fa fa-google" />
           <strong>Sign in with Google</strong>
         </a>
-        <a onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--icon">
+        <button onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--icon">
           <i className="fa fa-apple" />
           <strong>Sign in with Apple</strong>
-        </a>
+        </button>
         <a href={ AuthConfig.GITHUB_REDIRECT_LINK } className="button button--primary button--icon">
           <i className="fa fa-github" />
           <strong>Sign in with GitHub</strong>

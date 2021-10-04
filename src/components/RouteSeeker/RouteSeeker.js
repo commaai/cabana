@@ -163,12 +163,11 @@ export default class RouteSeeker extends Component {
     }
 
     let { videoLength, startTime } = this.props;
-    let { currentTime, duration } = videoElement;
+    let { currentTime } = videoElement;
 
     currentTime = roundTime(currentTime);
     startTime = roundTime(startTime);
     videoLength = roundTime(videoLength);
-    duration = roundTime(duration);
 
     let newRatio = (currentTime - startTime) / videoLength;
 

@@ -196,7 +196,6 @@ export default class RouteVideoSync extends Component {
     } = this.state;
     const {
       userSeekTime,
-      url,
       playSpeed,
       playing,
       onVideoClick,

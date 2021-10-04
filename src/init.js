@@ -5,7 +5,6 @@ import CommaAuth, { config as AuthConfig, storage as AuthStorage } from '@commaa
 import { auth as AuthApi, request as Request } from '@commaai/comma-api';
 import Sentry from './logging/Sentry';
 import CanExplorer from './CanExplorer';
-import AcuraDbc from './acura-dbc';
 import { getUrlParameter, modifyQueryParameters } from './utils/url';
 import { GITHUB_AUTH_TOKEN_KEY } from './config';
 import {
