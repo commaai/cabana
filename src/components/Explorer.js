@@ -165,15 +165,6 @@ export default class Explorer extends Component {
         nextMessage
       );
 
-      const nextSeekMsgEntry = nextMessage.entries[nextProps.seekIndex];
-      let nextSeekTime;
-      if (nextSeekMsgEntry) {
-        nextSeekTime = nextSeekMsgEntry.relTime;
-      } else if (segment.length === 2) {
-        nextSeekTime = segment[0];
-      } else {
-        nextSeekTime = nextMessage.entries[0];
-      }
       // console.log('componentWillReceiveProps', this.state.userSeekTime, '->', nextSeekTime);
       this.setState({
         segment,

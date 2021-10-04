@@ -4,14 +4,10 @@ const http = require('http');
 const server = http.createServer((request, response) => {
   // You pass two more arguments for config and middleware
   // More details here: https://github.com/zeit/serve-handler#options
-
-  request.url = request.url.replace('/cabana', '');
-
   handler(request, response, {
     public: 'build',
-    redirects: [
-      { source: 'cabana/:page', destination: '/:page' },
-      { source: 'cabana/', destination: '/index.js' },
+    rewrites: [
+      { source: '/', destination: '/index.html' },
     ]
   });
 });

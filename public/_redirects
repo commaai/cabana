@@ -1,6 +1,0 @@
-/    /index.html   200
-
-/cabana/:slug     /:slug    200
-/cabana/*         /:splat   200
-/cabana/:a/:b     /:a/:b    200
-/cabana/:a/:b/:c  /:a/:b/:c    200

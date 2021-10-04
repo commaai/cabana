@@ -5,7 +5,7 @@
 
 */
 
-@import "../../styles/_global/all";
+@import "../../styles/_global/all.scss";
 
 $input-border-color: $color-grey-40;
 $input-height: 42px;
@@ -302,6 +302,36 @@ a.button {
     em {
       font-style: normal;
       font-weight: 500;
+    }
+  }
+  &.button--icon {
+    box-shadow: 0 1px 3px 0 rgba(105, 105, 105, 0.2);
+    height: 84px;
+    margin-bottom: 15px;
+    padding-left: 160px;
+    padding-top: 26px;
+    padding-bottom: 23px;
+    position: relative;
+    text-align: left;
+    width: 100%;
+    > i {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 100%;
+      font-size: 36px;
+      line-height: 54px;
+      text-align: center;
+      left: 59px;
+      top: 13px;
+      opacity: 0.3;
+      position: absolute;
+      width: 54px;
+    }
+    strong {
+      display: block;
+      line-height: normal;
+      font-size: 26px;
+      letter-spacing: 0.0125em;
     }
   }
 }

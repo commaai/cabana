@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Moment from 'moment';
-import _ from 'lodash';
 import cx from 'classnames';
 import qs from 'query-string';
 import CommaAuth, { config as AuthConfig } from '@commaai/my-comma-auth';
@@ -34,6 +32,26 @@ export default class OnboardingModal extends Component {
     this.navigateToExplorer = this.navigateToExplorer.bind(this);
   }
 
+  componentDidMount() {
+    const script = document.createElement("script");
+    document.body.appendChild(script);
+    script.onload = () => {
+      window.AppleID.auth.init({
+        clientId : AuthConfig.APPLE_CLIENT_ID,
+        scope : AuthConfig.APPLE_SCOPES,
+        redirectURI : AuthConfig.APPLE_REDIRECT_URI,
+        state : AuthConfig.APPLE_STATE,
+      });
+    };
+    script.src = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+    script.async = true;
+    document.addEventListener('AppleIDSignInOnSuccess', (data) => {
+      const { code, state } = data.detail.authorization;
+      window.location = [AuthConfig.APPLE_REDIRECT_PATH, qs.stringify({ code, state })].join('?');
+    });
+    document.addEventListener('AppleIDSignInOnFailure', console.log);
+  }
+
   attemptPandaConnection() {
     if (!this.state.webUsbEnabled) {
       return;
@@ -62,9 +80,9 @@ export default class OnboardingModal extends Component {
       return (
         <p>
           <i className="fa fa-exclamation-triangle" />
-          <a onClick={this.toggleUsbInstructions}>
+          <span onClick={this.toggleUsbInstructions}>
             <span>WebUSB is not enabled in your Chrome settings</span>
-          </a>
+          </span>
         </p>
       );
     }
@@ -85,24 +103,25 @@ export default class OnboardingModal extends Component {
       return (
         <button onClick={this.navigateToExplorer} className="button--primary button--kiosk">
           <i className="fa fa-video-camera" />
-          <strong>Find a drive in Explorer</strong>
-          <sup>Click "View CAN Data" while replaying a drive</sup>
+          <strong>Find a drive in connect</strong>
+          <sup>Click "View in cabana" while replaying a drive</sup>
         </button>
       );
     } else {
-      let redirectOrigin = 'http://127.0.0.1';
-      if (document.location) {
-        redirectOrigin = document.location.origin;
-      }
-      const params = AuthConfig.GOOGLE_OAUTH_PARAMS;
-      params.redirect_uri = redirectOrigin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
-      const redirectLink = [AuthConfig.GOOGLE_AUTH_ENDPOINT, qs.stringify(params)].join('?')
-      return (
-        <a href={ redirectLink } className="button button--primary button--kiosk">
+      return <>
+        <a href={ AuthConfig.GOOGLE_REDIRECT_LINK } className="button button--primary button--icon">
           <i className="fa fa-google" />
           <strong>Sign in with Google</strong>
         </a>
-      );
+        <button onClick={ () => window.AppleID.auth.signIn() } className="button button--primary button--icon">
+          <i className="fa fa-apple" />
+          <strong>Sign in with Apple</strong>
+        </button>
+        <a href={ AuthConfig.GITHUB_REDIRECT_LINK } className="button button--primary button--icon">
+          <i className="fa fa-github" />
+          <strong>Sign in with GitHub</strong>
+        </a>
+      </>;
     }
   }
 
@@ -232,7 +251,7 @@ export default class OnboardingModal extends Component {
     return (
       <Modal
         title="Welcome to Cabana"
-        subtitle="Get started by selecting a drive from Explorer or enabling live mode"
+        subtitle="Get started by selecting a drive from connect or enabling live mode"
         footer={this.renderModalFooter()}
         disableClose
         variations={['wide', 'dark']}

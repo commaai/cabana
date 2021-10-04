@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { createWriteStream } from 'streamsaver';
 import Panda from '@commaai/pandajs';
-import CommaAuth, { storage as CommaAuthStorage } from '@commaai/my-comma-auth';
+import CommaAuth, { storage as CommaAuthStorage, config as AuthConfig } from '@commaai/my-comma-auth';
 import { raw as RawDataApi, drives as DrivesApi } from '@commaai/comma-api';
 import { timeout, interval } from 'thyming';
 import {
@@ -31,7 +31,6 @@ import {
 } from './api/localstorage';
 import OpenDbc from './api/OpenDbc';
 import UnloggerClient from './api/unlogger';
-import * as ObjectUtils from './utils/object';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 import DbcUtils from './utils/dbc';
@@ -255,8 +254,6 @@ export default class CanExplorer extends Component {
   }
 
   initCanData() {
-    const { route } = this.state;
-
     this.spawnWorker(this.state.currentParts);
   }
 
@@ -398,22 +395,6 @@ export default class CanExplorer extends Component {
   cancelWorker(workerHash) {
     // actually don't...
     return;
-    const currentWorkers = { ...this.state.currentWorkers };
-    const { worker, part } = currentWorkers[workerHash];
-    const loadingParts = this.state.loadingParts.filter((p) => p !== part);
-    const loadedParts = this.state.loadedParts.filter((p) => p !== part);
-    delete currentWorkers[workerHash];
-
-    console.log('Stoping worker', workerHash, 'for part', part);
-    worker.postMessage({
-      action: 'terminate'
-    });
-
-    this.setState({
-      currentWorkers,
-      loadingParts,
-      loadedParts
-    });
   }
 
   spawnWorker(options) {
@@ -459,7 +440,6 @@ export default class CanExplorer extends Component {
 
     const {
       dbc,
-      dbcFilename,
       route,
       firstCanTime,
       canFrameOffset
@@ -946,6 +926,11 @@ export default class CanExplorer extends Component {
   }
 
   showOnboarding() {
+    if (!CommaAuth.isAuthenticated() && window.sessionStorage && window.location &&
+      window.location.pathname !== AuthConfig.AUTH_PATH)
+    {
+      window.sessionStorage.setItem('onboardingPath', window.location.href);
+    }
     this.setState({ showOnboarding: true });
   }
 
@@ -1021,7 +1006,6 @@ export default class CanExplorer extends Component {
     if (minPart === 0) {
       maxPart = Math.min(route.proclog, 2);
     }
-    const currentPartSpan = currentParts[1] - currentParts[0] + 1;
 
     // update current parts
     currentParts = [minPart, maxPart];
@@ -1314,7 +1298,7 @@ export default class CanExplorer extends Component {
           <LoadingBar isLoading={this.state.isLoading} />
         ) : null}
         <div className="cabana-header">
-          <a className="cabana-header-logo" href="">
+          <a className="cabana-header-logo" href="/">
             Comma Cabana
           </a>
           <div className="cabana-header-account">

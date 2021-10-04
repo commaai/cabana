@@ -57,7 +57,7 @@ export default class GithubDbcList extends Component {
     return (
       <div className="cabana-dbc-list">
         <div className="cabana-dbc-list-header">
-          <a href={`https://github.com/${this.props.repo}`} target="_blank">
+          <a href={`https://github.com/${this.props.repo}`} target="_blank" rel="noopener noreferrer">
             <i className="fa fa-github" />
             <span>{this.props.repo}</span>
           </a>

@@ -5,17 +5,20 @@
 
 */
 
-@import "../../styles/_global/all";
+@import "../../styles/_global/all.scss";
 
 .cabana-tabs-navigation {
   border-top: 1px solid $color-grey-20;
   border-bottom: 1px solid $color-grey-50;
   padding: 0 3%;
-  a {
+  button {
+    border: none;
     border-bottom: 3px solid transparent;
     color: $color-grey-60;
     cursor: pointer;
     display: inline-block;
+    line-height: unset;
+    background-color: transparent;
     font-size: 14px;
     font-weight: 600;
     padding: 11px 16px;

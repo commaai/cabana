@@ -5,7 +5,6 @@ import CommaAuth, { config as AuthConfig, storage as AuthStorage } from '@commaa
 import { auth as AuthApi, request as Request } from '@commaai/comma-api';
 import Sentry from './logging/Sentry';
 import CanExplorer from './CanExplorer';
-import AcuraDbc from './acura-dbc';
 import { getUrlParameter, modifyQueryParameters } from './utils/url';
 import { GITHUB_AUTH_TOKEN_KEY } from './config';
 import {
@@ -16,13 +15,21 @@ import {
 import { demoProps } from './demo';
 
 async function authenticate() {
-  if (document.location && document.location.pathname === '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH) {
-    const redirect_uri = document.location.origin + '/cabana' + AuthConfig.GOOGLE_REDIRECT_PATH;
+  if (window.location && window.location.pathname === AuthConfig.AUTH_PATH) {
     try {
-      const { code } = qs.parse(document.location.search);
-      const token = await AuthApi.refreshAccessToken(code, redirect_uri, 'google');
+      const { code, provider } = qs.parse(window.location.search);
+      const token = await AuthApi.refreshAccessToken(code, provider);
       if (token) {
         AuthStorage.setCommaAccessToken(token);
+
+        // reset stored path
+        if (window.sessionStorage) {
+          const onboardingPath = window.sessionStorage.getItem('onboardingPath');
+          if (onboardingPath) {
+            window.sessionStorage.removeItem('onboardingPath');
+            window.location = onboardingPath;
+          }
+        }
       }
     } catch (err) {
       console.log(err);
