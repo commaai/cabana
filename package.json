@@ -61,7 +61,7 @@
     "stream-selector": "^0.1.1",
     "streamsaver": "^1.0.1",
     "thyming": "^0.1.1",
-    "vega": "^5.3.4",
+    "vega": "^5.17.3",
     "vega-lite": "^3.0.0",
     "vega-tooltip": "^0.4.0"
   },
