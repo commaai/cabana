@@ -115,7 +115,7 @@ function createMessageEntry(
 
 function reparseMessage(dbc, msg, lastParsedMessage) {
   const msgSpec = dbc.getMessageFrame(msg.address);
-  const msgSize = msgSpec ? msgSpec.size : 8;
+  const msgSize = msgSpec ? msgSpec.size : 64;
 
   const {
     byteStateChangeTimes,
@@ -146,7 +146,7 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
     hexData = Buffer.from(data).toString('hex');
   }
   const msgSpec = dbc.getMessageFrame(address);
-  const msgSize = msgSpec ? msgSpec.size : 8;
+  const msgSize = msgSpec ? msgSpec.size : 64;
   const relTime = time - timeStart;
 
   const {
