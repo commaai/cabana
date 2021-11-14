@@ -374,7 +374,6 @@ export default class Explorer extends Component {
       <div className="cabana-explorer-signals-wrapper">
         <div className="cabana-explorer-signals-header">
           <div className="cabana-explorer-signals-header-context">
-            <h5 className="t-capline">Selected Message:</h5>
             <h3>{selectedMessageName}</h3>
           </div>
           <div className="cabana-explorer-signals-header-action">
@@ -385,12 +384,6 @@ export default class Explorer extends Component {
               Edit
             </button>
           </div>
-        </div>
-        <div
-          className="cabana-explorer-signals-subheader"
-          onClick={this.toggleShouldShowAddSignal}
-        >
-          <strong>Edit Signals</strong>
         </div>
         <div className="cabana-explorer-signals-window">
           {this.state.shouldShowAddSignal ? (
