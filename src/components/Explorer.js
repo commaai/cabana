@@ -399,6 +399,7 @@ export default class Explorer extends Component {
               selectedMessageKey={selectedMessageKey}
             />
           ) : null}
+          {/*
           <CanLog
             message={this.props.messages[this.props.selectedMessage]}
             messageIndex={this.props.seekIndex}
@@ -408,7 +409,7 @@ export default class Explorer extends Component {
             onSignalUnplotPressed={this.onSignalUnplotPressed}
             showAddSignal={this.showAddSignal}
             onMessageExpanded={this.onPause}
-          />
+          */}
         </div>
       </div>
     );

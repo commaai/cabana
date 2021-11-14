@@ -537,15 +537,28 @@ export default class AddSignals extends Component {
           <p>Double click or drag to add a signal</p>
         ) : null}
         {this.props.message.entries[this.props.messageIndex] ? (
-          <div className="cabana-explorer-signals-time">
-            <p>
+          <div className="cabana-explorer-signals-info">
+            <p
+              style={{
+                display: 'inline-block',
+              }}
+            >
               time:
               {' '}
               {this.props.message.entries[
                 this.props.messageIndex
               ].relTime.toFixed(3)}
             </p>
+
+            <p
+              style={{
+                float: 'right',
+              }}
+            >
+              {this.state.highlightedSignal}
+            </p>
           </div>
+
         ) : null}
         {this.props.message.isLogEvent || this.renderBitMatrix()}
         <SignalLegend
