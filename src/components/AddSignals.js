@@ -466,7 +466,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(<td key="hex-repr">{this.byteValueHex(i)}</td>);
+      rowBits.push(<td key="hex-repr"><strong>{this.byteValueHex(i)}</strong></td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
