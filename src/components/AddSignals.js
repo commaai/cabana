@@ -84,14 +84,9 @@ export default class AddSignals extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.message !== this.props.message) {
-      let max = this.state.maxMessageBytes;
-      for (const entry of this.props.message.entries) {
-        const data = Buffer.from(entry.hexData, 'hex');
-        if (data.length > max) {
-          max = data.length;
-        }
-      }
-      this.setState({ maxMessageBytes: max });
+      this.setState({
+        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes),
+      });
     }
   }
 

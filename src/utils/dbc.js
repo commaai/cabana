@@ -195,6 +195,17 @@ function setMessageByteColors(message, maxByteStateChangeCount) {
   return message;
 }
 
+function maxMessageSize(message, initial = 8) {
+  let max = initial;
+  for (const entry of message.entries) {
+    const data = Buffer.from(entry.hexData, 'hex');
+    if (data.length > max) {
+      max = data.length;
+    }
+  }
+  return max;
+}
+
 export default {
   bigEndianBitIndex,
   addCanMessage,
@@ -204,5 +215,6 @@ export default {
   reparseMessage,
   findMaxByteStateChangeCount,
   setMessageByteColors,
-  createMessageEntry
+  createMessageEntry,
+  maxMessageSize,
 };
