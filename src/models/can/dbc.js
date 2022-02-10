@@ -178,7 +178,7 @@ export default class DBC {
     const msg = new Frame({
       name: this.nextNewFrameName(),
       id: msgId,
-      size: 8
+      size: 64,  // TODO max size of msg
     });
 
     this.messages.set(msgId, msg);
