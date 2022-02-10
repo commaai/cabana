@@ -420,11 +420,15 @@ export default class AddSignals extends Component {
   }
 
   renderBitMatrix() {
-    const { message } = this.props;
+    const { message, messageIndex } = this.props;
     const rows = [];
     let rowCount;
     if (message.frame && message.frame.size) {
       rowCount = Math.floor((message.frame.size * 8) / 8);
+    } else if (messageIndex < message.entries.length) {
+      const entry = message.entries[messageIndex];
+      const data = Buffer.from(entry.hexData, 'hex');
+      rowCount = data.length;
     } else {
       rowCount = 8;
     }
