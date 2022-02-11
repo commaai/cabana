@@ -55,7 +55,6 @@
     "react-test-renderer": "^16.2.0",
     "react-vega": "^7.0.0",
     "react-visibility-sensor": "^3.10.1",
-    "right-pad": "^1.0.1",
     "simple-get": "^4.0.1",
     "simple-statistics": "^4.1.0",
     "socket.io-client": "^2.0.3",

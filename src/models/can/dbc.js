@@ -1,4 +1,3 @@
-import rightPad from 'right-pad';
 import CloudLog from '../../logging/CloudLog';
 import Signal from './signal';
 import Frame from './frame';
@@ -608,7 +607,7 @@ export default class DBC {
     let paddedBuffer = buffer;
     if (buffer.length !== 8) {
       // pad data it's 64 bits long
-      const paddedDataHex = rightPad(buffer.toString('hex'), 16, '0');
+      const paddedDataHex = buffer.toString('hex').padEnd(16, '0');
       paddedBuffer = Buffer.from(paddedDataHex, 'hex');
     }
     const hexData = paddedBuffer.toString('hex');
