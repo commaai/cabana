@@ -34,7 +34,7 @@ export default class MessageBytes extends Component {
       const maxMessageBytes = DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes);
       this.setState({ maxMessageBytes: maxMessageBytes });
       if (this.canvas) {
-        this.canvas.width = maxMessageBytes * 20 * window.devicePixelRatio;
+        this.canvas.height = Math.ceil(maxMessageBytes / 8) * 15 * window.devicePixelRatio;
       }
     }
   }
@@ -108,17 +108,16 @@ export default class MessageBytes extends Component {
 
     for (let i = 0; i < message.byteStateChangeCounts.length; ++i) {
       const hexData = mostRecentMsg.hexData.substr(i * 2, 2);
-      ctx.fillStyle = message.byteColors[i];
 
-      ctx.fillRect(i * 20, 0, 20, 15);
+      const x = (i % 8) * 20;
+      const y = Math.floor(i / 8) * 15;
+
+      ctx.fillStyle = message.byteColors[i];
+      ctx.fillRect(x, y, 20, 15);
 
       ctx.font = '12px Courier';
       ctx.fillStyle = 'white';
-      if (hexData) {
-        ctx.fillText(hexData, i * 20 + 2, 12);
-      } else {
-        ctx.fillText('-', i * 20 + 7, 12);
-      }
+      ctx.fillText(hexData ? hexData : '-', x + 2, y + 12);
     }
   }
 
@@ -132,8 +131,8 @@ export default class MessageBytes extends Component {
     if (!ref) return;
 
     this.canvas = ref;
-    this.canvas.width = this.state.maxMessageBytes * 20 * window.devicePixelRatio;
-    this.canvas.height = 15 * window.devicePixelRatio;
+    this.canvas.width = 160 * window.devicePixelRatio;
+    this.canvas.height = Math.ceil(this.state.maxMessageBytes / 8) * 15 * window.devicePixelRatio;
     const ctx = this.canvas.getContext('2d');
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   }

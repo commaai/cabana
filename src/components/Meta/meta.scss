@@ -87,8 +87,9 @@
         position: relative;
         transition-duration: 0.1s;
         &-bytes {
+          width: 160px;
           &-canvas {
-            height: 15px;
+            width: 160px;
           }
         }
         &:not(.is-selected):hover {
