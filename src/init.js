@@ -1,10 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import qs from 'query-string';
 import CommaAuth, { config as AuthConfig, storage as AuthStorage } from '@commaai/my-comma-auth';
 import { auth as AuthApi, request as Request } from '@commaai/comma-api';
 import Sentry from './logging/Sentry';
-import CanExplorer from './CanExplorer';
 import { getUrlParameter, modifyQueryParameters } from './utils/url';
 import { GITHUB_AUTH_TOKEN_KEY } from './config';
 import {
@@ -112,11 +109,9 @@ export default function init() {
     props.githubAuthToken = fetchPersistedGithubAuthToken();
   }
 
-  async function renderDom() {
-    ReactDOM.render(<CanExplorer {...props} />, document.getElementById('root')); // eslint-disable-line react/jsx-props-no-spreading
-  }
-
-  authenticate().then(() => {
-    renderDom();
+  return new Promise((resolve) => {
+    authenticate().then(() => {
+      resolve(props);
+    });
   });
 }

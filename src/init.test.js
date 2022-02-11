@@ -3,6 +3,8 @@ import init from './init';
 
 describe('init', () => {
   it('works without url params', () => {
-    init();
+    init().then((props) => {
+      expect(true).toBe(true);
+    });
   });
 });
