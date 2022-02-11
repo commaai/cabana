@@ -85,7 +85,7 @@ export default class AddSignals extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.message !== this.props.message) {
       this.setState({
-        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes),
+        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message),
       });
     }
   }

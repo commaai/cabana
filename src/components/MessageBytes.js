@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import DbcUtils from '../utils/dbc';
+
 export default class MessageBytes extends Component {
   static propTypes = {
     seekTime: PropTypes.number.isRequired,
@@ -14,12 +16,27 @@ export default class MessageBytes extends Component {
     this.state = {
       isVisible: true,
       lastMessageIndex: 0,
-      lastSeekTime: 0
+      lastSeekTime: 0,
+      maxMessageBytes: 8,
     };
 
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
     this.onCanvasRefAvailable = this.onCanvasRefAvailable.bind(this);
     this.updateCanvas = this.updateCanvas.bind(this);
+  }
+
+  componentDidMount() {
+    this.componentDidUpdate({}, {});
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.message !== this.props.message) {
+      const maxMessageBytes = DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes);
+      this.setState({ maxMessageBytes: maxMessageBytes });
+      if (this.canvas) {
+        this.canvas.width = maxMessageBytes * 20 * window.devicePixelRatio;
+      }
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -115,7 +132,7 @@ export default class MessageBytes extends Component {
     if (!ref) return;
 
     this.canvas = ref;
-    this.canvas.width = 160 * window.devicePixelRatio;
+    this.canvas.width = this.state.maxMessageBytes * 20 * window.devicePixelRatio;
     this.canvas.height = 15 * window.devicePixelRatio;
     const ctx = this.canvas.getContext('2d');
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
