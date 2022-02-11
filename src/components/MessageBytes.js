@@ -40,7 +40,7 @@ export default class MessageBytes extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.live) {
+    if (nextProps.live && nextProps.message.entries.length) {
       const nextLastEntry = nextProps.message.entries[nextProps.message.entries.length - 1];
       const curLastEntry = this.props.message.entries[
         this.props.message.entries.length - 1

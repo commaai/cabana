@@ -59,7 +59,7 @@ test('addCanMessage should add parsed can message with dbc containing message sp
   const messages = {};
   // create dbc with message spec and signal for sample_message
   const dbc = new DBC();
-  dbc.createFrame(SAMPLE_MESSAGE.address);
+  dbc.createFrame(SAMPLE_MESSAGE.address, 8);
   const signal = new Signal({ name: 'NEW_SIGNAL', startBit: 0, size: 8 });
   dbc.addSignal(SAMPLE_MESSAGE.address, signal);
 
