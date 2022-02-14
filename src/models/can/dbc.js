@@ -450,6 +450,12 @@ export default class DBC {
         let [messageId, comment] = matches.slice(1);
         messageId = parseInt(messageId, 10);
         const msg = messages.get(messageId);
+        if (msg === undefined) {
+          warnings.push(
+            `failed to find message to add comment to, msg id: ${messageId}`
+          );
+          continue;
+        }
         msg.comment = comment;
 
         if (hasFollowUp) {
