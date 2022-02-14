@@ -66,30 +66,21 @@ export default class Meta extends Component {
     window.clearInterval(this.lastSavedTimer);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.lastSaved !== this.props.lastSaved
-      && typeof nextProps === 'object'
-    ) {
-      this.setState({ lastSaved: nextProps.dbcLastSaved.fromNow() });
+  componentDidUpdate(prevProps) {
+    if (prevProps.lastSaved !== this.props.lastSaved) {
+      this.setState({ lastSaved: this.props.dbcLastSaved.fromNow() });
     }
 
-    const nextMsgKeys = Object.keys(nextProps.messages);
-    if (
-      JSON.stringify(nextMsgKeys)
-      !== JSON.stringify(Object.keys(this.props.messages))
-    ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
+    if (JSON.stringify(Object.keys(prevProps.messages)) !== JSON.stringify(Object.keys(this.props.messages))) {
+      const orderedMessageKeys = this.sortMessages(this.props.messages);
       this.setState({ hoveredMessages: [], orderedMessageKeys });
-    } else if (
-      this.state.orderedMessageKeys.length === 0
-      || (!this.props.live
-        && this.props.messages
-        && nextProps.messages
-        && this.byteCountsDidUpdate(this.props.messages, nextProps.messages))
-    ) {
-      const orderedMessageKeys = this.sortMessages(nextProps.messages);
-      this.setState({ orderedMessageKeys });
+    } else if (this.state.orderedMessageKeys.length === 0 || (!this.props.live && prevProps.messages &&
+      this.props.messages && this.byteCountsDidUpdate(prevProps.messages, this.props.messages)))
+    {
+      const orderedMessageKeys = this.sortMessages(this.props.messages);
+      if (orderedMessageKeys.length > 0) {
+        this.setState({ orderedMessageKeys });
+      }
     }
   }
 

@@ -47,7 +47,6 @@
     "raven-js": "^3.16.0",
     "react": "~16.14",
     "react-dom": "~16.14",
-    "react-emotion": "^8.0.12",
     "react-infinite": "^0.11.0",
     "react-list": "^0.8.6",
     "react-measure": "^2.0.2",

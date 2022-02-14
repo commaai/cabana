@@ -23,19 +23,19 @@ export default class GithubDbcList extends Component {
     this.updatePathQuery = this.updatePathQuery.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.repo !== this.props.repo) {
-      this.props.openDbcClient.list(nextProps.repo).then((paths) => {
-        this.setState({ paths, selectedPath: null });
-      });
-    }
-  }
-
   componentDidMount() {
     this.props.openDbcClient.list(this.props.repo).then((paths) => {
       paths = paths.filter((path) => path.indexOf('.dbc') !== -1);
       this.setState({ paths });
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.repo !== this.props.repo) {
+      this.props.openDbcClient.list(this.props.repo).then((paths) => {
+        this.setState({ paths, selectedPath: null });
+      });
+    }
   }
 
   updatePathQuery(e) {

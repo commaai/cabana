@@ -33,7 +33,7 @@ export default class LoadDbcModal extends Component {
     this.renderActions = this.renderActions.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.openDbcClient.getUserOpenDbcFork().then((userOpenDbcRepo) => {
       this.setState({ userOpenDbcRepo });
     });

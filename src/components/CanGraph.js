@@ -160,35 +160,31 @@ export default class CanGraph extends Component {
     this.view.run();
   }, 250);
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.dragPos
-      && JSON.stringify(nextProps.dragPos) !== JSON.stringify(this.props.dragPos)
-    ) {
-      this.updateStyleFromDragPos(nextProps.dragPos);
-    } else if (!nextProps.dragPos && this.state.plotInnerStyle !== null) {
+  componentDidUpdate(prevProps) {
+    if (this.props.dragPos && JSON.stringify(prevProps.dragPos) !== JSON.stringify(this.props.dragPos)) {
+      this.updateStyleFromDragPos(this.props.dragPos);
+    } else if (!this.props.dragPos && this.state.plotInnerStyle !== null) {
       this.setState({ plotInnerStyle: null });
     }
-    if (
-      this.props.messages !== nextProps.messages
-      || this.props.plottedSignal !== nextProps.plottedSignal
-    ) {
-      console.log('Calculating new data!');
-      const data = this.getGraphData(nextProps);
-      // if (
-      //   data.series.length === this.state.data.series.length
-      //   && data.firstRelTime === this.state.data.firstRelTime
-      //   && data.lastRelTime === this.state.data.lastRelTime
-      //   && JSON.stringify(nextProps.signalSpec) === JSON.stringify(this.props.signalSpec)
-      // ) {
-      //   // do nothing, the data didn't *actually* change
-      // } else {
-      console.log('Inserting new data!');
+
+    if (prevProps.messages !== this.props.messages || prevProps.plottedSignal !== this.props.plottedSignal) {
+      const data = this.getGraphData(this.props);
       this.setState({ data });
-      // }
     }
-    if (this.segmentIsNew(nextProps.segment)) {
-      this.setState({ spec: this.getGraphSpec(nextProps) });
+    if (this.segmentIsNew(this.props.segment)) {
+      this.setState({ spec: this.getGraphSpec(this.props) });
+    }
+
+    if (this.view) {
+      if (this.props.segment.length > 0) {
+        // Set segmented domain
+        this.view.signal('segment', this.props.segment);
+      } else {
+        // Reset segment to full domain
+        this.view.signal('segment', 0);
+      }
+      this.view.signal('videoTime', this.props.currentTime);
+      this.view.runAsync();
     }
   }
 
@@ -216,20 +212,6 @@ export default class CanGraph extends Component {
     }
     this.view.runAsync();
     return false;
-  }
-
-  componentDidUpdate(oldProps, oldState) {
-    if (this.view) {
-      if (this.props.segment.length > 0) {
-        // Set segmented domain
-        this.view.signal('segment', this.props.segment);
-      } else {
-        // Reset segment to full domain
-        this.view.signal('segment', 0);
-      }
-      this.view.signal('videoTime', this.props.currentTime);
-      this.view.runAsync();
-    }
   }
 
   updateStyleFromDragPos({ left, top }) {

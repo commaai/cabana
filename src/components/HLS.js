@@ -16,17 +16,14 @@ export default class HLS extends Component {
     onRestart: PropTypes.func
   };
 
-  componentWillReceiveProps(nextProps) {
-    this.videoElement.playbackRate = nextProps.playbackSpeed;
+  componentDidUpdate(prevProps) {
+    this.videoElement.playbackRate = this.props.playbackSpeed;
 
-    if (nextProps.source !== this.props.source) {
-      this.loadSource(nextProps.source);
+    if (prevProps.source !== this.props.source) {
+      this.loadSource(this.props.source);
     }
-    if (nextProps.playing) {
-      if (
-        this.videoElement
-        && (this.videoElement.paused || this.videoElement.currentTime < 0.01)
-      ) {
+    if (this.props.playing) {
+      if (this.videoElement && (this.videoElement.paused || this.videoElement.currentTime < 0.01)) {
         this.videoElement.play();
       }
     } else {

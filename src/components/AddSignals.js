@@ -131,15 +131,13 @@ export default class AddSignals extends Component {
     return signalStyles;
   }
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.message.address !== this.props.message.address
-      || newProps.selectedMessageKey !== this.props.selectedMessageKey) {
-      const signals = newProps.message.frame ? newProps.message.frame.signals : {};
+  componentDidUpdate(prevProps) {
+    if (prevProps.message.address !== this.props.message.address ||
+      prevProps.selectedMessageKey !== this.props.selectedMessageKey)
+    {
+      const signals = this.props.message.frame ? this.props.message.frame.signals : {};
 
-      this.setState(
-        { signals: this.copySignals(signals) },
-        this.updateSignalStyles
-      );
+      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
     }
   }
 

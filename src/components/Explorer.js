@@ -118,73 +118,60 @@ export default class Explorer extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const nextMessage = nextProps.messages[nextProps.selectedMessage];
+  componentDidUpdate(prevProps) {
+    const prevMessage = prevProps.messages[prevProps.selectedMessage];
     const curMessage = this.props.messages[this.props.selectedMessage];
-    let { plottedSignals } = this.state;
 
-    if (Object.keys(nextProps.messages).length === 0 && Object.keys(this.props.messages).length !== 0) {
+    if (Object.keys(prevProps.messages).length === 0 && Object.keys(this.props.messages).length !== 0) {
       this.resetSegment();
     }
-    if (nextMessage && nextMessage.frame && nextMessage !== curMessage) {
-      const nextSignalNames = Object.keys(nextMessage.frame.signals);
 
-      if (nextSignalNames.length === 0) {
+    if (curMessage && curMessage.frame && prevMessage !== curMessage) {
+      if (Object.keys(curMessage.frame.signals).length === 0) {
         this.setState({ shouldShowAddSignal: true });
       }
     }
 
     // remove plottedSignals that no longer exist
-    plottedSignals = plottedSignals
-      .map((plot) => plot.filter(({ messageId, signalUid }, index) => {
-        const messageExists = !!nextProps.messages[messageId];
+    const newPlottedSignals = this.state.plottedSignals
+      .map((plot) => plot.filter(({ messageId, signalUid }) => {
+        const messageExists = Boolean(this.props.messages[messageId]);
         let signalExists = true;
         if (messageExists) {
-          signalExists = Object.values(
-            nextProps.messages[messageId].frame.signals
-          ).some((signal) => signal.uid === signalUid);
+          signalExists = Object.values(this.props.messages[messageId].frame.signals)
+            .some((signal) => signal.uid === signalUid);
         }
 
         return messageExists && signalExists;
       }))
       .filter((plot) => plot.length > 0);
 
-    this.setState({ plottedSignals });
+    if (this.state.plottedSignals.length !== newPlottedSignals.length) {
+      this.setState({ plottedSignals: newPlottedSignals });
+    }
 
-    if (
-      nextProps.selectedMessage
-      && nextProps.selectedMessage !== this.props.selectedMessage
-    ) {
-      // Update segment and seek state
-      // by finding a entry indices
-      // corresponding to old message segment/seek times.
+    if (this.props.selectedMessage && prevProps.selectedMessage !== this.props.selectedMessage) {
+      // Update segment and seek state by finding a entry indices corresponding to old message segment/seek times.
 
       const { segment, segmentIndices } = clipSegment(
         this.state.segment,
         this.state.segmentIndices,
-        nextMessage
+        curMessage
       );
 
-      // console.log('componentWillReceiveProps', this.state.userSeekTime, '->', nextSeekTime);
       this.setState({
         segment,
         segmentIndices,
-        userSeekIndex: nextProps.seekIndex,
-        // userSeekTime: nextSeekTime
+        userSeekIndex: this.props.seekIndex,
       });
     }
 
-    if (
-      nextMessage
-      && curMessage
-      && nextMessage.entries.length !== curMessage.entries.length
-    ) {
+    if (prevMessage && curMessage && prevMessage.entries.length !== curMessage.entries.length) {
       const { segment, segmentIndices } = clipSegment(
         this.state.segment,
         this.state.segmentIndices,
-        nextMessage
+        curMessage
       );
-      // console.log(this.state.segment, '->', segment, segmentIndices);
       this.setState({ segment, segmentIndices });
     }
   }

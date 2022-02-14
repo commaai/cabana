@@ -51,34 +51,31 @@ export default class RouteSeeker extends Component {
     this.executePlayTimer = this.executePlayTimer.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { ratio } = this.state;
-
-    if (
-      JSON.stringify(this.props.segmentIndices)
-      !== JSON.stringify(nextProps.segmentIndices)
-    ) {
+  componentDidUpdate(prevProps) {
+    if (JSON.stringify(prevProps.segmentIndices) !== JSON.stringify(this.props.segmentIndices)) {
       this.setState({
         seekedBarStyle: RouteSeeker.zeroSeekedBarStyle,
         markerStyle: RouteSeeker.hiddenMarkerStyle,
         ratio: 0
       });
-    } else if (nextProps.videoLength !== this.props.videoLength) {
+    } else if (this.props.videoLength && prevProps.videoLength !== this.props.videoLength) {
       // adjust ratio in line with new videoLength
-      const secondsSeeked = ratio * this.props.videoLength;
-      const newRatio = secondsSeeked / nextProps.videoLength;
+      const secondsSeeked = this.state.ratio * prevProps.videoLength;
+      const newRatio = secondsSeeked / this.props.videoLength;
       this.updateSeekedBar(newRatio);
     }
 
-    if (this.props.nearestFrameTime !== nextProps.nearestFrameTime) {
-      const newRatio = this.props.segmentProgress(nextProps.nearestFrameTime);
+    if (prevProps.nearestFrameTime !== this.props.nearestFrameTime) {
+      const newRatio = this.props.segmentProgress(this.props.nearestFrameTime);
       this.updateSeekedBar(newRatio);
     }
 
-    if (nextProps.playing && !this.state.isPlaying) {
-      this.onPlay();
-    } else if (!nextProps.playing && this.state.isPlaying) {
-      this.onPause();
+    if (prevProps.playing !== this.props.isPlaying) {
+      if (this.props.playing && !this.state.isPlaying) {
+        this.onPlay();
+      } else if (!this.props.playing && this.state.isPlaying) {
+        this.onPause();
+      }
     }
   }
 

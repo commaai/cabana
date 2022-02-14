@@ -11894,14 +11894,6 @@ react-dom@~16.14:
     prop-types "^15.6.2"
     scheduler "^0.19.1"
 
-react-emotion@^8.0.12:
-  version "8.0.12"
-  resolved "https://registry.yarnpkg.com/react-emotion/-/react-emotion-8.0.12.tgz#3dd94c151197e2e3399e34e3e118df141b5ebb7b"
-  integrity sha512-shGa+uer+Ng1uRwqkdVIYW5zsxx4/kc5za8zRMhrTaGJCpU3uwQsdMpmX2kF4chJZvRsfxW+2cBue3EnJeX5zw==
-  dependencies:
-    babel-plugin-emotion "^8.0.12"
-    emotion-utils "^8.0.12"
-
 react-error-overlay@^6.0.7:
   version "6.0.10"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.10.tgz#0fe26db4fa85d9dbb8624729580e90e7159a59a6"

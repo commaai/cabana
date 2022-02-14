@@ -6,7 +6,6 @@ import cx from 'classnames';
 
 import Signal from '../../models/can/signal';
 import SignalForm from './SignalForm';
-import ColorBar from './ColorBar';
 import FIELDS from './FIELDS';
 
 export default class SignalLegendEntry extends Component {
@@ -34,12 +33,12 @@ export default class SignalLegendEntry extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.signal.equals(this.props.signal)) {
+  componentDidUpdate(prevProps) {
+    if (!this.props.signal.equals(prevProps.signal)) {
       this.setState({
         signalEdited: Object.assign(
-          Object.create(nextProps.signal),
-          nextProps.signal
+          Object.create(this.props.signal),
+          this.props.signal
         )
       });
     }
@@ -115,13 +114,17 @@ export default class SignalLegendEntry extends Component {
     } = this.props;
     const expandedEntryClass = isExpanded ? 'is-expanded' : null;
     const plottedButtonClass = isPlotted ? 'button' : 'button--alpha';
+    const colorBarStyle = {
+      opacity: isHighlighted ? 0.5 : 0.3,
+      backgroundColor: `rgb(${color.join(',')})`,
+    };
     return (
       <div
         className={cx('signals-legend-entry', expandedEntryClass)}
         onMouseEnter={() => this.props.onSignalHover(signal)}
         onMouseLeave={() => this.props.onSignalHoverEnd(signal)}
       >
-        <ColorBar isHighlighted={isHighlighted} rgb={color} />
+        <div className="signals-legend-entry-colorbar" style={ colorBarStyle } />
         <div className="signals-legend-entry-header">
           <div
             className="signals-legend-entry-header-name"

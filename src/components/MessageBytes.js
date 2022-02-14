@@ -19,6 +19,7 @@ export default class MessageBytes extends Component {
 
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
     this.onCanvasRefAvailable = this.onCanvasRefAvailable.bind(this);
+    this.updateCanvas = this.updateCanvas.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -33,16 +34,11 @@ export default class MessageBytes extends Component {
     return nextProps.seekTime !== this.props.seekTime;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.seekIndex !== nextProps.seekIndex
-      || frameForTime(this.props.seekTime) !== frameForTime(nextProps.seekTime)
-    ) {
-      this.updateCanvas(nextProps);
-    }
-
-    function frameForTime(t) {
-      return ~~(t * 60);
+  componentDidUpdate(prevProps) {
+    if (prevProps.seekIndex !== this.props.seekIndex ||
+      Math.floor(prevProps.seekTime * 60) !== Math.floor(this.props.seekTime * 60))
+    {
+      this.updateCanvas();
     }
   }
 
@@ -77,8 +73,8 @@ export default class MessageBytes extends Component {
     }
   }
 
-  updateCanvas(props) {
-    const { message, live, seekTime } = props;
+  updateCanvas() {
+    const { message, live, seekTime } = this.props;
     if (!this.canvas || message.entries.length === 0) return;
 
     let mostRecentMsg = message.entries[message.entries.length - 1];

@@ -23,7 +23,6 @@ import SaveDbcModal from './components/SaveDbcModal';
 import LoadDbcModal from './components/LoadDbcModal';
 import debounce from './utils/debounce';
 import EditMessageModal from './components/EditMessageModal';
-import LoadingBar from './components/LoadingBar';
 import {
   persistDbc,
   fetchPersistedDbc,
@@ -75,7 +74,6 @@ export default class CanExplorer extends Component {
       seekTime: props.seekTime || 0,
       seekIndex: 0,
       maxByteStateChangeCount: 0,
-      isLoading: true,
       partsLoaded: 0,
       spawnWorkerHash: null,
       attemptingPandaConnection: false,
@@ -400,9 +398,6 @@ export default class CanExplorer extends Component {
   spawnWorker(options) {
     let { currentParts, currentWorkers, loadingParts } = this.state;
     console.log('Checking worker for', currentParts);
-    if (!this.state.isLoading) {
-      this.setState({ isLoading: true });
-    }
     if (loadingParts.length > 1) {
       // only 2 workers at a time pls
       return;
@@ -426,11 +421,6 @@ export default class CanExplorer extends Component {
         part = tempPart;
         break;
       }
-    }
-    if (part === -1) {
-      console.log('Loading complete');
-      this.setState({ isLoading: false });
-      return;
     }
     console.log('Starting worker for part', part);
     // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
@@ -1294,9 +1284,6 @@ export default class CanExplorer extends Component {
         id="cabana"
         className={cx({ 'is-showing-modal': this.showingModal() })}
       >
-        {this.state.isLoading ? (
-          <LoadingBar isLoading={this.state.isLoading} />
-        ) : null}
         <div className="cabana-header">
           <a className="cabana-header-logo" href="/">
             Comma Cabana

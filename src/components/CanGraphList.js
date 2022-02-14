@@ -116,13 +116,13 @@ export default class CanGraphList extends Component {
     const { draggingSignal, graphToReceiveDrop } = this.state;
     const { messageId, signalUid } = plottedSignals[0];
     const msg = this.props.messages[messageId];
+    if (!this.plotListRef || !msg) {
+      return [];
+    }
+
     const signal = Object.values(msg.frame.signals).find(
       (s) => s.uid === signalUid
     );
-
-    if (!this.plotListRef) {
-      return [];
-    }
 
     const isDragging = draggingSignal.signalUid === signalUid
       && draggingSignal.messageId === messageId;

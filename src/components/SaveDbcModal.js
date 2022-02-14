@@ -37,7 +37,7 @@ export default class SaveDbcModal extends Component {
     this.renderActions = this.renderActions.bind(this);
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const openDbcFork = await this.props.openDbcClient.getUserOpenDbcFork();
     this.setState({ openDbcFork });
   }

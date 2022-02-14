@@ -38,8 +38,8 @@ export default class CanLog extends Component {
     this.toggleSignalPlot = this.toggleSignalPlot.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.message && !this.props.message) {
+  componentDidUpdate(prevProps) {
+    if (!prevProps.message && this.props.message) {
       this.addDisplayedMessages();
     }
   }

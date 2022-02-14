@@ -62,7 +62,7 @@ export default class RouteVideoSync extends Component {
     this.ratioTime = this.ratioTime.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     let videoApi = VideoApi(this.props.url, process.env.REACT_APP_VIDEO_CDN);
     videoApi.getQcameraStreamIndex().then(() => {
       this.setState({source: videoApi.getQcameraStreamIndexUrl()});

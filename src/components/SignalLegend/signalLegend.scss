@@ -42,6 +42,13 @@
       display: block;
     }
   }
+  &-colorbar {
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    width: 1.5%;
+  }
   &-header {
     border-bottom: 1px solid transparent;
     cursor: pointer;
