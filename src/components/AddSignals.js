@@ -82,19 +82,20 @@ export default class AddSignals extends Component {
     );
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.message !== this.props.message) {
-      this.setState({
-        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message),
-      });
-    }
+  componentDidMount() {
+    this.componentDidUpdate({}, {});
+  }
 
-    if (prevProps.message.address !== this.props.message.address ||
+  componentDidUpdate(prevProps) {
+    if (!prevProps.message || prevProps.message.address !== this.props.message.address ||
       prevProps.selectedMessageKey !== this.props.selectedMessageKey)
     {
       const signals = this.props.message.frame ? this.props.message.frame.signals : {};
 
-      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
+      this.setState({
+        signals: this.copySignals(signals),
+        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message)
+      }, this.updateSignalStyles);
     }
   }
 
