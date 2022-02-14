@@ -41,7 +41,7 @@
     "moment": "^2.18.1",
     "node-sass": "^7.0.1",
     "prettier": "^1.9.2",
-    "prop-types": "^15.5.10",
+    "prop-types": "^15.8.1",
     "query-string": "^5.0.1",
     "randomcolor": "^0.5.4",
     "raven-js": "^3.16.0",

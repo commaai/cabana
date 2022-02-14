@@ -27,10 +27,9 @@ export default class CanGraphList extends Component {
       graphToReceiveDrop: null
     };
 
-    this.plotListRef = null;
+    this.plotListRef = React.createRef();
     this.plotRefs = [];
     this.renderSignalPlot = this.renderSignalPlot.bind(this);
-    this.onPlotListRefReady = this.onPlotListRefReady.bind(this);
     this.onGraphDragStart = this.onGraphDragStart.bind(this);
     this.onGraphDragEnd = this.onGraphDragEnd.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
@@ -116,7 +115,7 @@ export default class CanGraphList extends Component {
     const { draggingSignal, graphToReceiveDrop } = this.state;
     const { messageId, signalUid } = plottedSignals[0];
     const msg = this.props.messages[messageId];
-    if (!this.plotListRef || !msg) {
+    if (!this.plotListRef.current || !msg) {
       return [];
     }
 
@@ -154,7 +153,7 @@ export default class CanGraphList extends Component {
         currentTime={this.props.seekTime}
         onDragStart={this.onGraphDragStart}
         onDragEnd={this.onGraphDragEnd}
-        container={this.plotListRef}
+        container={this.plotListRef.current}
         dragPos={isDragging ? this.state.dragPos : null}
         canReceiveGraphDrop={canReceiveGraphDrop}
         plottedSignals={plottedSignals}
@@ -163,15 +162,11 @@ export default class CanGraphList extends Component {
     );
   }
 
-  onPlotListRefReady(ref) {
-    this.plotListRef = ref;
-  }
-
   render() {
     return (
       <div
         className="cabana-explorer-visuals-plots"
-        ref={this.onPlotListRefReady}
+        ref={ this.plotListRef }
         onMouseMove={this.onMouseMove}
         onMouseLeave={this.onGraphDragEnd}
         onMouseUp={this.onGraphDragEnd}

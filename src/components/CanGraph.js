@@ -31,7 +31,7 @@ export default class CanGraph extends Component {
     onSegmentChanged: PropTypes.func,
     onDragStart: PropTypes.func,
     onDragEnd: PropTypes.func,
-    container: PropTypes.node,
+    container: PropTypes.object,
     dragPos: PropTypes.object,
     canReceiveGraphDrop: PropTypes.bool,
     onGraphRefAvailable: PropTypes.func,
