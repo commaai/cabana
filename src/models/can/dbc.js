@@ -174,25 +174,26 @@ export default class DBC {
     return {};
   }
 
-  createFrame(msgId) {
+  createFrame(msgId, size=64) {
+    console.log(this.messages, msgId);
     const msg = new Frame({
       name: this.nextNewFrameName(),
       id: msgId,
-      size: 8
+      size: size,
     });
 
     this.messages.set(msgId, msg);
     return msg;
   }
 
-  setSignals(msgId, signals) {
-    const msg = this.getMessageFrame(msgId);
+  setSignals(msgId, signals, frameSize) {
+    const msg = this.getMessageFrame(msgId); // TODO conform frameSize
     if (msg) {
       const newMsg = Object.assign(Object.create(msg), msg);
       newMsg.signals = signals;
       this.messages.set(msgId, newMsg);
     } else {
-      const msg = this.createFrame(msgId);
+      const msg = this.createFrame(msgId, frameSize);
       msg.signals = signals;
 
       this.messages.set(msgId, msg);

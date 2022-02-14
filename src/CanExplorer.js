@@ -966,7 +966,8 @@ export default class CanExplorer extends Component {
 
   onConfirmedSignalChange(message, signals) {
     const { dbc, dbcFilename } = this.state;
-    dbc.setSignals(message.address, { ...signals });
+    const frameSize = DbcUtils.maxMessageSize(message);
+    dbc.setSignals(message.address, { ...signals }, frameSize);
 
     this.persistDbc({ dbcFilename, dbc });
 
@@ -1015,8 +1016,9 @@ export default class CanExplorer extends Component {
 
   showEditMessageModal(msgKey) {
     const msg = this.state.messages[msgKey];
+    console.log(msg);
     if (!msg.frame) {
-      msg.frame = this.state.dbc.createFrame(msg.address);
+      msg.frame = this.state.dbc.createFrame(msg.address);  // TODO frameSize
     }
 
     this.setState({

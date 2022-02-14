@@ -146,7 +146,7 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
     hexData = Buffer.from(data).toString('hex');
   }
   const msgSpec = dbc.getMessageFrame(address);
-  const msgSize = msgSpec ? msgSpec.size : 8;
+  const msgSize = msgSpec ? msgSpec.size : Math.max(8, data.length);
   const relTime = time - timeStart;
 
   const {
@@ -171,7 +171,7 @@ function parseMessage(dbc, time, address, data, timeStart, lastParsedMessage) {
 }
 
 const BIG_ENDIAN_START_BITS = [];
-for (let i = 0; i < 64; i += 8) {
+for (let i = 0; i < 8 * 64; i += 8) {
   for (let j = 7; j > -1; j--) {
     BIG_ENDIAN_START_BITS.push(i + j);
   }
@@ -195,6 +195,17 @@ function setMessageByteColors(message, maxByteStateChangeCount) {
   return message;
 }
 
+function maxMessageSize(message, initial = 8) {
+  let max = initial;
+  for (const entry of message.entries) {
+    const data = Buffer.from(entry.hexData, 'hex');
+    if (data.length > max) {
+      max = data.length;
+    }
+  }
+  return max;
+}
+
 export default {
   bigEndianBitIndex,
   addCanMessage,
@@ -204,5 +215,6 @@ export default {
   reparseMessage,
   findMaxByteStateChangeCount,
   setMessageByteColors,
-  createMessageEntry
+  createMessageEntry,
+  maxMessageSize,
 };

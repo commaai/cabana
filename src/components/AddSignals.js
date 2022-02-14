@@ -67,7 +67,8 @@ export default class AddSignals extends Component {
       highlightedSignal: null,
       dragStartBit: null,
       dragSignal: null,
-      dragCurrentBit: null
+      dragCurrentBit: null,
+      maxMessageBytes: 8,
     };
   }
 
@@ -79,6 +80,22 @@ export default class AddSignals extends Component {
       },
       {}
     );
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.message !== this.props.message) {
+      this.setState({
+        maxMessageBytes: DbcUtils.maxMessageSize(this.props.message),
+      });
+    }
+
+    if (prevProps.message.address !== this.props.message.address ||
+      prevProps.selectedMessageKey !== this.props.selectedMessageKey)
+    {
+      const signals = this.props.message.frame ? this.props.message.frame.signals : {};
+
+      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -129,16 +146,6 @@ export default class AddSignals extends Component {
     });
 
     return signalStyles;
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.message.address !== this.props.message.address ||
-      prevProps.selectedMessageKey !== this.props.selectedMessageKey)
-    {
-      const signals = this.props.message.frame ? this.props.message.frame.signals : {};
-
-      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
-    }
   }
 
   signalForBit(bitIdx) {
@@ -426,7 +433,7 @@ export default class AddSignals extends Component {
     if (message.frame && message.frame.size) {
       rowCount = Math.floor((message.frame.size * 8) / 8);
     } else {
-      rowCount = 8;
+      rowCount = this.state.maxMessageBytes;
     }
 
     for (let i = 0; i < rowCount; i++) {
