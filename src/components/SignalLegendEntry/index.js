@@ -116,7 +116,7 @@ export default class SignalLegendEntry extends Component {
     const plottedButtonClass = isPlotted ? 'button' : 'button--alpha';
     const colorBarStyle = {
       opacity: isHighlighted ? 0.5 : 0.3,
-      backgroundColor: `rgb(${color.join(',')})`,
+      backgroundColor: color ? `rgb(${color.join(',')})` : null,
     };
     return (
       <div
