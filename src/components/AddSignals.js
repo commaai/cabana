@@ -88,6 +88,14 @@ export default class AddSignals extends Component {
         maxMessageBytes: DbcUtils.maxMessageSize(this.props.message),
       });
     }
+
+    if (prevProps.message.address !== this.props.message.address ||
+      prevProps.selectedMessageKey !== this.props.selectedMessageKey)
+    {
+      const signals = this.props.message.frame ? this.props.message.frame.signals : {};
+
+      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -138,16 +146,6 @@ export default class AddSignals extends Component {
     });
 
     return signalStyles;
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.message.address !== this.props.message.address ||
-      prevProps.selectedMessageKey !== this.props.selectedMessageKey)
-    {
-      const signals = this.props.message.frame ? this.props.message.frame.signals : {};
-
-      this.setState({ signals: this.copySignals(signals) }, this.updateSignalStyles);
-    }
   }
 
   signalForBit(bitIdx) {

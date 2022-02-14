@@ -37,6 +37,12 @@ export default class MessageBytes extends Component {
         this.canvas.height = Math.ceil(maxMessageBytes / 8) * 15 * window.devicePixelRatio;
       }
     }
+
+    if (prevProps.seekIndex !== this.props.seekIndex ||
+      Math.floor(prevProps.seekTime * 60) !== Math.floor(this.props.seekTime * 60))
+    {
+      this.updateCanvas();
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -49,14 +55,6 @@ export default class MessageBytes extends Component {
       return !nextLastEntry || !curLastEntry || nextLastEntry.hexData !== curLastEntry.hexData;
     }
     return nextProps.seekTime !== this.props.seekTime;
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.seekIndex !== this.props.seekIndex ||
-      Math.floor(prevProps.seekTime * 60) !== Math.floor(this.props.seekTime * 60))
-    {
-      this.updateCanvas();
-    }
   }
 
   findMostRecentMessage(seekTime) {
