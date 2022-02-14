@@ -194,7 +194,7 @@ export default class CanLog extends Component {
 
     const msgHexs = [];
     for (let i = 0; i < msgEntry.data.length; i += 8) {
-      msgHexs.push(msgEntry.hexData.substring(i, Math.min(i + 8, msgEntry.data.length)));
+      msgHexs.push(msgEntry.hexData.substring(2 * i, 2 * Math.min(i + 8, msgEntry.data.length)));
     }
 
     const row = (
