@@ -83,9 +83,6 @@ export default class EditMessageModal extends Component {
             value={this.state.messageFrame.size}
             onChange={(e) => {
               const { messageFrame } = this.state;
-              if (e.target.value > 8) {
-                return;
-              }
               messageFrame.size = parseInt(e.target.value, 10);
               this.setState({ messageFrame });
             }}

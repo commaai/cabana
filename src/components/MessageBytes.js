@@ -17,7 +17,6 @@ export default class MessageBytes extends Component {
       isVisible: true,
       lastMessageIndex: 0,
       lastSeekTime: 0,
-      maxMessageBytes: 8,
     };
 
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
@@ -31,10 +30,14 @@ export default class MessageBytes extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.message !== this.props.message) {
-      const maxMessageBytes = DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes);
-      this.setState({ maxMessageBytes: maxMessageBytes });
+      let rowCount;
+      if (this.props.message.frame && this.props.message.frame.size) {
+        rowCount = Math.ceil(this.props.message.frame.size / 8);
+      } else {
+        rowCount = Math.ceil(DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes) / 8);
+      }
       if (this.canvas) {
-        this.canvas.height = Math.ceil(maxMessageBytes / 8) * 15 * window.devicePixelRatio;
+        this.canvas.height = rowCount * 15 * window.devicePixelRatio;
       }
     }
 
@@ -130,7 +133,13 @@ export default class MessageBytes extends Component {
 
     this.canvas = ref;
     this.canvas.width = 160 * window.devicePixelRatio;
-    this.canvas.height = Math.ceil(this.state.maxMessageBytes / 8) * 15 * window.devicePixelRatio;
+    let rowCount;
+    if (this.props.message.frame && this.props.message.frame.size) {
+      rowCount = Math.ceil(this.props.message.frame.size / 8);
+    } else {
+      rowCount = Math.ceil(DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes) / 8);
+    }
+    this.canvas.height = rowCount * 15 * window.devicePixelRatio;
     const ctx = this.canvas.getContext('2d');
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   }
