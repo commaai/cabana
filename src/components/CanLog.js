@@ -191,6 +191,12 @@ export default class CanLog extends Component {
     const msgHasSignals = Object.keys(msgEntry.signals).length > 0;
     const hasSignalsClass = msgHasSignals ? 'has-signals' : null;
     const expandedClass = msgIsExpanded ? 'is-expanded' : null;
+
+    const msgHexs = [];
+    for (let i = 0; i < msgEntry.data.length; i += 8) {
+      msgHexs.push(msgEntry.hexData.substring(i, Math.min(i + 8, msgEntry.data.length)));
+    }
+
     const row = (
       <div
         key={key}
@@ -208,14 +214,10 @@ export default class CanLog extends Component {
             </strong>
           </div>
           <div className="signals-log-list-time">
-            <span>
-[
-              {msgEntry.relTime.toFixed(3)}
-]
-            </span>
+            <span>[{msgEntry.relTime.toFixed(3)}]</span>
           </div>
           <div className="signals-log-list-bytes">
-            <span className="t-mono">{msgEntry.hexData}</span>
+            { msgHexs.map((hx, i) => <span key={ i } className="t-mono">{ hx }</span> )}
           </div>
         </div>
         <div className="signals-log-list-item-body">
