@@ -29,7 +29,7 @@ export default class MessageBytes extends Component {
         this.props.message.entries.length - 1
       ];
 
-      return nextLastEntry.hexData !== curLastEntry.hexData;
+      return !nextLastEntry || !curLastEntry || nextLastEntry.hexData !== curLastEntry.hexData;
     }
     return nextProps.seekTime !== this.props.seekTime;
   }

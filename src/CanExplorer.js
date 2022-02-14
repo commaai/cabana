@@ -488,7 +488,9 @@ export default class CanExplorer extends Component {
         this.setState({ firstFrameTime });
       }
 
-      this.addMessagesToDataCache(part, newMessages, newThumbnails);
+      if (newMessages) {
+        this.addMessagesToDataCache(part, newMessages, newThumbnails);
+      }
 
       // const messages = this.addAndRehydrateMessages(
       //   newMessages,

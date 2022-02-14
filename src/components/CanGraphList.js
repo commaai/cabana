@@ -58,7 +58,7 @@ export default class CanGraphList extends Component {
       }
       return;
     }
-    const rect = this.plotListRef.getBoundingClientRect();
+    const rect = this.plotListRef.current.getBoundingClientRect();
     const draggingGraph = this.determineDraggingGraph();
     if (draggingGraph) {
       draggingGraph.ref.hidden = true;
