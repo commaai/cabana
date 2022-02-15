@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 
 import CanGraph from './CanGraph';
 
-require('element-closest');
-
 export default class CanGraphList extends Component {
   static propTypes = {
     plottedSignals: PropTypes.array.isRequired,

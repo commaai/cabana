@@ -2,7 +2,6 @@
 /* eslint-disable no-restricted-globals, no-param-reassign */
 import LogStream from '@commaai/log_reader';
 import { timeout } from 'thyming';
-import { partial } from 'ap';
 
 import { getLogPart } from '../api/rlog';
 import DbcUtils from '../utils/dbc';
@@ -177,7 +176,7 @@ async function loadData(entry) {
       }
     } else if ('Can' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
-      msg.Can.forEach(partial(insertCanMessage, entry, monoTime));
+      msg.Can.forEach((m) => insertCanMessage(entry, monoTime, m));
     } else if ('CarState' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       insertEventData(
@@ -185,28 +184,28 @@ async function loadData(entry) {
         'Ego',
         entry,
         monoTime,
-        partial(getEgoData, msg.CarState)
+        (m) => getEgoData(msg.CarState, m)
       );
       insertEventData(
         'CarState',
         'Controls',
         entry,
         monoTime,
-        partial(getCarStateControls, msg.CarState)
+        (m) => getCarStateControls(msg.CarState, m)
       );
       insertEventData(
         'CarState',
         'Flags',
         entry,
         monoTime,
-        partial(getFlags, msg.CarState)
+        (m) => getFlags(msg.CarState, m)
       );
       insertEventData(
         'CarState',
         'WheelSpeeds',
         entry,
         monoTime,
-        partial(getWheelSpeeds, msg.CarState)
+        (m) => getWheelSpeeds(msg.CarState, m)
       );
     } else if ('CarControl' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
@@ -215,7 +214,7 @@ async function loadData(entry) {
         'Actuators',
         entry,
         monoTime,
-        partial(getCarControlActuators, msg.CarControl)
+        (m) => getCarControlActuators(msg.CarControl, m)
       );
     } else if ('RadarState' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
@@ -224,14 +223,14 @@ async function loadData(entry) {
         'LeadOne',
         entry,
         monoTime,
-        partial(getRadarStateLeadOne, msg.RadarState)
+        (m) => getRadarStateLeadOne(msg.RadarState, m)
       );
        insertEventData(
         'RadarState',
         'LeadTwo',
         entry,
         monoTime,
-        partial(getRadarStateLeadTwo, msg.RadarState)
+        (m) => getRadarStateLeadTwo(msg.RadarState, m)
       );
     } else if ('UbloxGnss' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
@@ -241,7 +240,7 @@ async function loadData(entry) {
           'MeasurementReport',
           entry,
           monoTime,
-          partial(getUbloxGnss, msg.UbloxGnss.MeasurementReport)
+          (m) => getUbloxGnss(msg.UbloxGnss.MeasurementReport, m)
         );
       }
     } else if ('Health' in msg) {
@@ -251,7 +250,7 @@ async function loadData(entry) {
         'Data',
         entry,
         monoTime,
-        partial(getHealth, msg.Health)
+        (m) => getHealth(msg.Health, m)
       );
     } else if ('Thermal' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
@@ -260,21 +259,21 @@ async function loadData(entry) {
         'CPU',
         entry,
         monoTime,
-        partial(getThermalCPU, msg.Thermal)
+        (m) => getThermalCPU(msg.Thermal, m)
       );
       insertEventData(
         'Thermal',
         'Data',
         entry,
         monoTime,
-        partial(getThermalData, msg.Thermal)
+        (m) => getThermalData(msg.Thermal, m)
       );
       insertEventData(
         'Thermal',
         'FreeSpace',
         entry,
         monoTime,
-        partial(getThermalFreeSpace, msg.Thermal)
+        (m) => getThermalFreeSpace(msg.Thermal, m)
       );
     } else if ('Thumbnail' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000 - entry.options.routeInitTime;
@@ -302,8 +301,8 @@ function CacheEntry(options) {
   this.part = part;
   this.dbc = dbc;
   this.logUrls = logUrls;
-  this.sendBatch = partial(sendBatch, this);
-  this.loadData = partial(loadData, this);
+  this.sendBatch = (m) => sendBatch(this, m);
+  this.loadData = (m) => loadData(this, m);
 }
 
 function handleMessage(msg) {
