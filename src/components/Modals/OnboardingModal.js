@@ -218,7 +218,7 @@ export default class OnboardingModal extends Component {
           Don't have a
           {' '}
           <a
-            href="https://panda.comma.ai"
+            href="https://comma.ai/shop/products/panda"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -229,7 +229,7 @@ export default class OnboardingModal extends Component {
         </span>
         <span>
           <a
-            href="https://panda.comma.ai"
+            href="https://comma.ai/shop/products/panda"
             target="_blank"
             rel="noopener noreferrer"
           >
