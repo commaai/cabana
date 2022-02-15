@@ -12,8 +12,7 @@
   display: flex;
   flex: 0.5;
   flex-direction: column;
-  max-height: 100vh;
-  overflow-y: scroll;
+  height: 100%;
   &-header {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     flex-direction: row;
@@ -79,7 +78,7 @@
       padding: 11px;
     }
     &-list {
-      height: 100%;
+      padding: 8px;
       overflow-x: hidden;
       overflow-y: scroll;
       &-item {

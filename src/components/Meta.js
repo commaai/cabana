@@ -384,41 +384,37 @@ export default class Meta extends Component {
             </div>
           </div>
         </div>
-        <div className="cabana-meta-messages">
-          <div className="cabana-meta-messages-header">
-            <div
-              style={{
-                display: 'inline-block',
-                float: 'right'
-              }}
-            >
-              <h5 className="t-capline">
-                Show log events
-                <input
-                  type="checkbox"
-                  onChange={this.toggleShowLogEvents}
-                  checked={!!this.state.showLogEvents}
-                />
-              </h5>
-            </div>
-            <h5 className="t-capline">Available messages</h5>
+        <div className="cabana-meta-messages-header">
+          <div
+            style={{
+              display: 'inline-block',
+              float: 'right'
+            }}
+          >
+            <h5 className="t-capline">
+              Show log events
+              <input
+                type="checkbox"
+                onChange={this.toggleShowLogEvents}
+                checked={!!this.state.showLogEvents}
+              />
+            </h5>
           </div>
-          <div className="cabana-meta-messages-window">
-            <div className="cabana-meta-messages-filter">
-              <div className="form-field form-field--small">
-                <input
-                  type="text"
-                  value={this.state.filterText}
-                  onFocus={this.onFilterFocus}
-                  onBlur={this.onFilterUnfocus}
-                  onChange={this.onFilterChanged}
-                />
-              </div>
-            </div>
-            <div className="cabana-meta-messages-list">
-              {this.renderAvailableMessagesList()}
-            </div>
+          <h5 className="t-capline">Available messages</h5>
+        </div>
+        <div className="cabana-meta-messages-filter">
+          <div className="form-field form-field--small">
+            <input
+              type="text"
+              value={this.state.filterText}
+              onFocus={this.onFilterFocus}
+              onBlur={this.onFilterUnfocus}
+              onChange={this.onFilterChanged}
+            />
           </div>
+        </div>
+        <div className="cabana-meta-messages-list">
+          {this.renderAvailableMessagesList()}
         </div>
       </div>
     );

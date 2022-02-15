@@ -47,7 +47,6 @@ export default class RouteVideoSync extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      shouldShowJpeg: true,
       isLoading: true,
       videoElement: null,
       source: null,
@@ -114,14 +113,12 @@ export default class RouteVideoSync extends Component {
 
   onLoadStart() {
     this.setState({
-      shouldShowJpeg: true,
       isLoading: true
     });
   }
 
   onLoadEnd() {
     this.setState({
-      shouldShowJpeg: false,
       isLoading: false
     });
   }
@@ -174,24 +171,9 @@ export default class RouteVideoSync extends Component {
     return ratio * this.videoLength() + this.startTime();
   }
 
-  nearestFrameUrl() {
-    const { thumbnails } = this.props;
-    if (!this.seekTime) {
-      return '';
-    }
-    for (let i = 0, l = thumbnails.length; i < l; ++i) {
-      if (Math.abs(thumbnails[i].monoTime - this.seekTime) < 5) {
-        const data = btoa(String.fromCharCode(...thumbnails[i].data));
-        return `data:image/jpeg;base64,${data}`;
-      }
-    }
-    return '';
-  }
-
   render() {
     const {
       isLoading,
-      shouldShowJpeg,
       videoElement,
     } = this.state;
     const {
@@ -207,13 +189,6 @@ export default class RouteVideoSync extends Component {
     return (
       <div className="cabana-explorer-visuals-camera">
         {isLoading ? this.loadingOverlay() : null}
-        {shouldShowJpeg ? (
-          <img
-            src={this.nearestFrameUrl()}
-            className={css(Styles.img)}
-            alt={`Camera preview at t = ${Math.round(userSeekTime)}`}
-          />
-        ) : null}
         {this.state.source && <HLS
           className={css(Styles.hls)}
           source={this.state.source}

@@ -621,6 +621,9 @@ export default class DBC {
 
     const signalValuesByName = {};
     Object.values(frame.signals).forEach((signalSpec) => {
+      if (isNaN(signalSpec.startBit)) {
+        return;
+      }
       let value;
       if (signalSpec.size > 32) {
         value = this.valueForInt64Signal(signalSpec, hexData);
