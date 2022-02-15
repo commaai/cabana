@@ -47,7 +47,7 @@ brew install libusb
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app) v1.x, then upgraded to `react-scripts` v3.x and use [craco](http://npm.im/@craco/craco) to customize it.
 
-You can read the create react app [documentation here](https://create-react-app.dev/docs/)
+You can read the create react app [documentation here](https://create-react-app.dev/docs/getting-started)
 
 We use craco to easily add [worker-loader](https://npm.im/worker-loader).
 
