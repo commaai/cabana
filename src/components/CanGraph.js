@@ -192,7 +192,9 @@ export default class CanGraph extends Component {
     if (!this.view) {
       return true;
     }
-    if (this.state.spec !== nextState.spec) {
+    if (this.props.messages !== nextProps.messages || this.props.plottedSignal !== nextProps.plottedSignal ||
+      this.segmentIsNew(nextProps.segment) || this.state.spec !== nextState.spec)
+    {
       return true;
     }
     if (this.state.data !== nextState.data) {

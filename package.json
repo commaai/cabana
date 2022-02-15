@@ -60,9 +60,8 @@
     "stream-selector": "^0.1.1",
     "streamsaver": "^1.0.1",
     "thyming": "^0.1.1",
-    "vega": "^5.3.4",
-    "vega-lite": "^3.0.0",
-    "vega-tooltip": "^0.4.0"
+    "vega": "^5.0.0",
+    "vega-lite": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
