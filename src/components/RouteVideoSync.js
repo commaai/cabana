@@ -62,11 +62,11 @@ export default class RouteVideoSync extends Component {
   }
 
   componentDidMount() {
-    let videoApi = VideoApi(this.props.url, process.env.REACT_APP_VIDEO_CDN);
+    let videoApi = VideoApi(this.props.url);
     videoApi.getQcameraStreamIndex().then(() => {
-      this.setState({source: videoApi.getQcameraStreamIndexUrl()});
-    }).catch(() => {
-      this.setState({source: videoApi.getRearCameraStreamIndexUrl()});
+      this.setState({source: videoApi.getQcameraStreamIndexUrl() + `?s=${this.props.maxqcamera}`});
+    }).catch((err) => {
+      console.log(err);
     })
   }
 
@@ -226,6 +226,7 @@ export default class RouteVideoSync extends Component {
 
 RouteVideoSync.propTypes = {
   segment: PropTypes.array.isRequired,
+  maxqcamera: PropTypes.number,
   thumbnails: PropTypes.array,
   url: PropTypes.string.isRequired,
   playing: PropTypes.bool.isRequired,

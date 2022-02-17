@@ -186,13 +186,16 @@ export default class CanExplorer extends Component {
       );
     } else if (dongleId && name) {
       const routeName = `${dongleId}|${name}`;
-      let urlPromise;
+      let routePromise;
       let logUrlsPromise;
 
       if (this.props.url) {
-        urlPromise = Promise.resolve(this.props.url);
+        routePromise = Promise.resolve({
+          maxqcamera: null,
+          url: this.props.url,
+        });
       } else {
-        urlPromise = DrivesApi.getRouteInfo(routeName).then((route) => route.url);
+        routePromise = DrivesApi.getRouteInfo(routeName);
       }
 
       if (this.props.sig && this.props.exp) {
@@ -203,15 +206,16 @@ export default class CanExplorer extends Component {
       } else {
         logUrlsPromise = RawDataApi.getLogUrls(routeName);
       }
-      Promise.all([urlPromise, logUrlsPromise])
+      Promise.all([routePromise, logUrlsPromise])
         .then((initData) => {
-          const [url, logUrls] = initData;
+          const [route, logUrls] = initData;
           const newState = {
             route: {
               fullname: routeName,
               proclog: logUrls.length - 1,
               start_time: Moment(name, 'YYYY-MM-DD--H-m-s'),
-              url
+              url: route.url.replace('chffrprivate.blob.core.windows.net', 'chffrprivate.azureedge.net'),
+              maxqcamera: route.maxqcamera ? route.maxqcamera : logUrls.length - 1,
             },
             currentParts: [
               0,
@@ -227,7 +231,7 @@ export default class CanExplorer extends Component {
                 exp: shareSignature.exp,
                 sig: shareSignature.sig,
                 max: logUrls.length - 1,
-                url
+                url: route.url.replace('chffrprivate.blob.core.windows.net', 'chffrprivate.azureedge.net'),
               },
               remove: [GITHUB_AUTH_TOKEN_KEY]
             })
@@ -1360,6 +1364,7 @@ export default class CanExplorer extends Component {
               }
               videoOffset={ (this.state.firstFrameTime && this.state.routeInitTime) ? this.state.firstFrameTime - this.state.routeInitTime : 0 }
               partsCount={route ? route.proclog : 0}
+              maxqcamera={route ? route.maxqcamera : 0}
             />
           ) : null}
         </div>

@@ -460,6 +460,7 @@ export default class Explorer extends Component {
               <RouteVideoSync
                 message={messages[this.props.selectedMessage]}
                 segment={this.state.segment}
+                maxqcamera={this.props.maxqcamera}
                 startTime={startTime}
                 seekIndex={this.props.seekIndex}
                 userSeekIndex={this.state.userSeekIndex}
@@ -518,6 +519,7 @@ Explorer.propTypes = {
   autoplay: PropTypes.bool.isRequired,
   currentParts: PropTypes.array.isRequired,
   partsCount: PropTypes.number,
+  maxqcamera: PropTypes.number,
   startTime: PropTypes.number,
   startSegments: PropTypes.array
 };
