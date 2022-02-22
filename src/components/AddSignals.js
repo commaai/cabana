@@ -443,7 +443,7 @@ export default class AddSignals extends Component {
     for (let i = 0; i < rowCount; i++) {
       const rowBits = [];
 
-      rowBits.push(<td className={css('bit', Styles.bit, Styles.byteIndex)}>{i.toString()}</td>);
+      rowBits.push(<td key={`rowIndex${i}`} className={css(Styles.bit, Styles.byteIndex)}>{i.toString()}</td>);
 
       for (let j = 7; j >= 0; j--) {
         const bitIdx = i * 8 + j;
@@ -478,7 +478,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(<td key="hex-repr" className={css('bit', Styles.bit)}><b>{this.byteValueHex(i)}</b></td>);
+      rowBits.push(<td key="hex-repr" className={css(Styles.bit)}><b>{this.byteValueHex(i)}</b></td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
