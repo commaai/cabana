@@ -19,7 +19,7 @@ configurable in the legend.
 const Styles = StyleSheet.create({
   bit: {
     margin: 0,
-    padding: 12,
+    padding: 9,
     userSelect: 'none',
     cursor: 'pointer',
     textAlign: 'center',
