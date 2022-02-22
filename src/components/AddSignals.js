@@ -28,6 +28,9 @@ const Styles = StyleSheet.create({
   bitSelectedStyle: {
     backgroundColor: 'rgba(0,119,158,0.5)'
   },
+  byteIndex: {
+    backgroundColor: '#ededed'
+  },
   bitSignificance: {
     fontSize: 12,
     display: 'block',
@@ -439,6 +442,9 @@ export default class AddSignals extends Component {
 
     for (let i = 0; i < rowCount; i++) {
       const rowBits = [];
+
+      rowBits.push(<td className={css('bit', Styles.bit, Styles.byteIndex)}>{i.toString()}</td>);
+
       for (let j = 7; j >= 0; j--) {
         const bitIdx = i * 8 + j;
         const signal = this.signalForBit(bitIdx);
@@ -472,7 +478,7 @@ export default class AddSignals extends Component {
         );
       }
 
-      rowBits.push(<td key="hex-repr">{this.byteValueHex(i)}</td>);
+      rowBits.push(<td key="hex-repr" className={css('bit', Styles.bit)}><b>{this.byteValueHex(i)}</b></td>);
       rows.push(<tr key={i.toString()}>{rowBits}</tr>);
     }
 
