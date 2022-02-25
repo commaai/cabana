@@ -385,21 +385,6 @@ export default class Meta extends Component {
           </div>
         </div>
         <div className="cabana-meta-messages-header">
-          <div
-            style={{
-              display: 'inline-block',
-              float: 'right'
-            }}
-          >
-            <h5 className="t-capline">
-              Show log events
-              <input
-                type="checkbox"
-                onChange={this.toggleShowLogEvents}
-                checked={!!this.state.showLogEvents}
-              />
-            </h5>
-          </div>
           <h5 className="t-capline">Available messages</h5>
         </div>
         <div className="cabana-meta-messages-filter">

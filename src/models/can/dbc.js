@@ -3,7 +3,6 @@ import Signal from './signal';
 import Frame from './frame';
 import BoardUnit from './BoardUnit';
 import DbcUtils from '../../utils/dbc';
-import * as LogSignals from './logSignals';
 
 const { UINT64 } = require('cuint');
 
@@ -71,9 +70,6 @@ export default class DBC {
   }
 
   getMessageFrame(address) {
-    if (LogSignals.isLogAddress(address)) {
-      return LogSignals.frameForAddress(address);
-    }
     return this.messages.get(address);
   }
 
@@ -605,7 +601,7 @@ export default class DBC {
   }
 
   getSignalValues(messageId, data) {
-    if (!this.messages.has(messageId) && !LogSignals.isLogAddress(messageId)) {
+    if (!this.messages.has(messageId)) {
       return {};
     }
     const frame = this.getMessageFrame(messageId);
