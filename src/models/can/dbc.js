@@ -568,10 +568,10 @@ export default class DBC {
     return ival;
   }
 
-  valueForInt32Signal(signalSpec, buf) {
+  valueForInt32Signal(signalSpec, view) {
     let startBit;
     if (signalSpec.isLittleEndian) {
-      startBit = 64 - signalSpec.startBit - signalSpec.size;
+      startBit = (view.byteLength * 8) - signalSpec.startBit - signalSpec.size;
     } else {
       let bitPos = (-signalSpec.startBit - 1) % 8;
       if (bitPos < 0) {
@@ -581,18 +581,36 @@ export default class DBC {
       startBit = Math.floor(signalSpec.startBit / 8) * 8 + bitPos;
     }
 
-    let shiftAmount;
-    let signalValue;
-    const byteOffset = Math.min(4, Math.floor(signalSpec.startBit / 8));
-    if (signalSpec.isLittleEndian) {
-      signalValue = buf.readUInt32LE(byteOffset);
-      shiftAmount = signalSpec.startBit - 8 * byteOffset;
-    } else {
-      signalValue = buf.readUInt32BE(byteOffset);
-      shiftAmount = 32 - (startBit - 8 * byteOffset + signalSpec.size);
+    let readSize = Math.max(8, Math.pow(2, Math.ceil(Math.log2(signalSpec.size))));
+    if (startBit % 8 !== 0) {
+      readSize *= 2;
     }
 
-    signalValue = (signalValue >>> shiftAmount) & ((1 << signalSpec.size) - 1);
+    const byteOffset = Math.min(view.byteLength - (readSize / 8), Math.floor(signalSpec.startBit / 8));
+
+    let signalValue;
+    if (readSize === 8) {
+      signalValue = view.getUint8(byteOffset, signalSpec.isLittleEndian);
+    } else if (readSize === 16) {
+      signalValue = view.getUint16(byteOffset, signalSpec.isLittleEndian);
+    } else if (readSize === 32) {
+      signalValue = view.getUint32(byteOffset, signalSpec.isLittleEndian);
+    // } else if (readSize === 64) {
+    //    signalValue = view.getBigUint64(byteOffset, signalSpec.isLittleEndian);
+    } else {
+      console.warn('incorrect signal readSize', readSize);
+      return null;
+    }
+
+    let shiftAmount;
+    if (signalSpec.isLittleEndian) {
+      shiftAmount = signalSpec.startBit - 8 * byteOffset;
+    } else {
+      shiftAmount = readSize - (startBit - 8 * byteOffset + signalSpec.size);
+    }
+
+    const mask = signalSpec.size < 32 ? ((1 << signalSpec.size) - 1) : 4294967295;
+    signalValue = (signalValue >>> shiftAmount) & mask;
     if (signalSpec.isSigned && signalValue >>> (signalSpec.size - 1)) {
       signalValue -= 1 << signalSpec.size;
     }
@@ -606,11 +624,11 @@ export default class DBC {
     }
     const frame = this.getMessageFrame(messageId);
 
-    const buffer = Buffer.from(data);
-    let paddedBuffer = buffer;
-    if (buffer.length !== 8) {
+    const view = new DataView(data.buffer);
+    let paddedBuffer;
+    if (view.byteLength !== 8) {
       // pad data it's 64 bits long
-      const paddedDataHex = buffer.toString('hex').padEnd(16, '0');
+      const paddedDataHex = Buffer.from(data).toString('hex').padEnd(16, '0');
       paddedBuffer = Buffer.from(paddedDataHex, 'hex');
     }
     const hexData = paddedBuffer.toString('hex');
@@ -624,7 +642,7 @@ export default class DBC {
       if (signalSpec.size > 32) {
         value = this.valueForInt64Signal(signalSpec, hexData);
       } else {
-        value = this.valueForInt32Signal(signalSpec, paddedBuffer);
+        value = this.valueForInt32Signal(signalSpec, view);
       }
       signalValuesByName[signalSpec.name] = value;
     });

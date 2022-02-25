@@ -71,7 +71,7 @@ function insertCanMessage(entry, logTime, msg) {
   const msgEntry = {
     time: logTime,
     address,
-    data: msg.Dat,
+    data: new Uint8Array(msg.Dat),
     timeStart: entry.options.routeInitTime
   };
 
