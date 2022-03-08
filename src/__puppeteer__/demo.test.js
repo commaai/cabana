@@ -42,8 +42,6 @@ describe('demo mode', () => {
   });
 
   it('should load data', async () => {
-    await expect(page).toClick('.t-capline input[type="checkbox"]');
-    await delay(500);
     await expect(page).toClick('.cabana-meta-messages-list-item');
     await delay(500);
     await expect(page).toClick('.button--tiny.button--alpha');

@@ -435,7 +435,6 @@ BO_ 468 LARGE_SIGNALS: 32 VSA
 test('int64 parser produces correct values', () => {
   const dbc = new DBC(DBC_64_BIT_STUFF);
   const hex = '63d637b340535839' + 'a23f215451e52f7b' + 'a1adff50c4e8eedb' + 'fd071d2c474ac2d4';
-  // const hex = '63d637b340535839' + '0000000000000000' + 'a1adff50c4e8eedb' + '3d071d2c474ac2d4';
 
   const normal = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_NORMAL, hex).toString();
   expect(normal).toEqual("7193998697788823609");
