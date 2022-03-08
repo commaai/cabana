@@ -100,8 +100,14 @@ export default class CanLog extends Component {
   }
 
   signalValuePretty(signal, value) {
+    if (signal.name === 'NEW_SIGNAL_1') {
+      console.log(signal, value);
+    }
     if (signal.isFloat) {
       return value.toFixed(3);
+    }
+    if (typeof value === 'bigint') {
+      return value.toString();
     }
     return value;
   }
