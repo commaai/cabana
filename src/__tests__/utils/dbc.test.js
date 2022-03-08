@@ -8,7 +8,7 @@ import Signal from '../../models/can/signal';
 const SAMPLE_MESSAGE = {
   address: 0x10,
   busTime: 0,
-  data: Buffer.from('abababababababab', 'hex'),
+  data: Uint8Array.from(Buffer.from('abababababababab', 'hex')),
   bus: 1
 };
 const SAMPLE_MESSAGE_ID = '1:10';

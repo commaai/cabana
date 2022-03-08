@@ -103,6 +103,9 @@ export default class CanLog extends Component {
     if (signal.isFloat) {
       return value.toFixed(3);
     }
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
     return value;
   }
 

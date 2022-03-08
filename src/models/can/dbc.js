@@ -3,9 +3,6 @@ import Signal from './signal';
 import Frame from './frame';
 import BoardUnit from './BoardUnit';
 import DbcUtils from '../../utils/dbc';
-import * as LogSignals from './logSignals';
-
-const { UINT64 } = require('cuint');
 
 const DBC_COMMENT_RE = /^CM_ *"(.*)";/;
 const DBC_COMMENT_MULTI_LINE_RE = /^CM_ *"(.*)/;
@@ -37,6 +34,8 @@ const FOLLOW_UP_DBC_COMMENT = 'FollowUpDbcComment';
 const FOLLOW_UP_SIGNAL_COMMENT = 'FollowUpSignalComment';
 const FOLLOW_UP_MSG_COMMENT = 'FollowUpMsgComment';
 const FOLLOW_UP_BOARD_UNIT_COMMENT = 'FollowUpBoardUnitComment';
+
+/* global BigInt */
 
 function floatOrInt(numericStr) {
   if (Number.isInteger(numericStr)) {
@@ -71,9 +70,6 @@ export default class DBC {
   }
 
   getMessageFrame(address) {
-    if (LogSignals.isLogAddress(address)) {
-      return LogSignals.frameForAddress(address);
-    }
     return this.messages.get(address);
   }
 
@@ -175,7 +171,6 @@ export default class DBC {
   }
 
   createFrame(msgId, size=64) {
-    console.log(this.messages, msgId);
     const msg = new Frame({
       name: this.nextNewFrameName(),
       id: msgId,
@@ -538,99 +533,58 @@ export default class DBC {
     this.valueTables = valueTables;
   }
 
-  valueForInt64Signal(signalSpec, hexData) {
-    const blen = hexData.length * 4;
-    let value;
-    let startBit;
-    let dataBitPos;
-
+  valueForIntSignal(signalSpec, view) {
+    let sig_lsb, sig_msb;
     if (signalSpec.isLittleEndian) {
-      value = UINT64(swapOrder(hexData, 16, 2), 16);
-      startBit = signalSpec.startBit;
-      dataBitPos = UINT64(startBit);
+      sig_lsb = signalSpec.startBit;
+      sig_msb = signalSpec.startBit + signalSpec.size - 1;
     } else {
-      // big endian
-      value = UINT64(hexData, 16);
-
-      startBit = DbcUtils.bigEndianBitIndex(signalSpec.startBit);
-      dataBitPos = UINT64(blen - (startBit + signalSpec.size));
-    }
-    if (dataBitPos < 0) {
-      return null;
+      sig_lsb = DbcUtils.matrixBitNumber(DbcUtils.bigEndianBitIndex(signalSpec.startBit) + signalSpec.size - 1);
+      sig_msb = signalSpec.startBit;
     }
 
-    const rightHandAnd = UINT64(Math.pow(2, signalSpec.size) - 1);
-    let ival = value
-      .shiftr(dataBitPos)
-      .and(rightHandAnd)
-      .toNumber();
+    let ret = signalSpec.size > 32 ? 0n : 0;
+    let i = Math.floor(sig_msb / 8);
+    let bits = signalSpec.size;
+    while (i >= 0 && i < view.byteLength && bits > 0) {
+      let lsb = Math.floor(sig_lsb / 8) === i ? sig_lsb : i*8;
+      let msb = Math.floor(sig_msb / 8) === i ? sig_msb : (i+1)*8 - 1;
+      let size = msb - lsb + 1;
 
-    if (signalSpec.isSigned && ival & Math.pow(2, signalSpec.size - 1)) {
-      ival -= Math.pow(2, signalSpec.size);
-    }
-    ival = ival * signalSpec.factor + signalSpec.offset;
-    return ival;
-  }
-
-  valueForInt32Signal(signalSpec, buf) {
-    let startBit;
-    if (signalSpec.isLittleEndian) {
-      startBit = 64 - signalSpec.startBit - signalSpec.size;
-    } else {
-      let bitPos = (-signalSpec.startBit - 1) % 8;
-      if (bitPos < 0) {
-        bitPos += 8; // mimic python modulo behavior
+      let d = (view.getUint8(i) >>> (lsb - (i*8))) & ((1 << size) - 1);
+      if (signalSpec.size > 32) {
+        ret |= BigInt(d) << BigInt(bits - size);
+      } else {
+        ret |= d << (bits - size);
       }
 
-      startBit = Math.floor(signalSpec.startBit / 8) * 8 + bitPos;
+      bits -= size;
+      i = signalSpec.isLittleEndian ? i-1 : i+1;
     }
 
-    let shiftAmount;
-    let signalValue;
-    const byteOffset = Math.min(4, Math.floor(signalSpec.startBit / 8));
-    if (signalSpec.isLittleEndian) {
-      signalValue = buf.readUInt32LE(byteOffset);
-      shiftAmount = signalSpec.startBit - 8 * byteOffset;
+    if (signalSpec.size > 32) {
+      ret = signalSpec.isSigned ? BigInt.asIntN(64, ret) : ret;
+      return ret * BigInt(signalSpec.factor) + BigInt(signalSpec.offset);
     } else {
-      signalValue = buf.readUInt32BE(byteOffset);
-      shiftAmount = 32 - (startBit - 8 * byteOffset + signalSpec.size);
+      if (signalSpec.isSigned) {
+        ret -= ((ret >> (signalSpec.size-1)) & 1) ? (1 << signalSpec.size) : 0;
+      }
+      return ret * signalSpec.factor + signalSpec.offset;
     }
-
-    signalValue = (signalValue >>> shiftAmount) & ((1 << signalSpec.size) - 1);
-    if (signalSpec.isSigned && signalValue >>> (signalSpec.size - 1)) {
-      signalValue -= 1 << signalSpec.size;
-    }
-
-    return signalValue * signalSpec.factor + signalSpec.offset;
   }
 
   getSignalValues(messageId, data) {
-    if (!this.messages.has(messageId) && !LogSignals.isLogAddress(messageId)) {
+    if (!this.messages.has(messageId)) {
       return {};
     }
     const frame = this.getMessageFrame(messageId);
-
-    const buffer = Buffer.from(data);
-    let paddedBuffer = buffer;
-    if (buffer.length !== 8) {
-      // pad data it's 64 bits long
-      const paddedDataHex = buffer.toString('hex').padEnd(16, '0');
-      paddedBuffer = Buffer.from(paddedDataHex, 'hex');
-    }
-    const hexData = paddedBuffer.toString('hex');
-
+    const view = new DataView(data.buffer);
     const signalValuesByName = {};
     Object.values(frame.signals).forEach((signalSpec) => {
       if (isNaN(signalSpec.startBit)) {
         return;
       }
-      let value;
-      if (signalSpec.size > 32) {
-        value = this.valueForInt64Signal(signalSpec, hexData);
-      } else {
-        value = this.valueForInt32Signal(signalSpec, paddedBuffer);
-      }
-      signalValuesByName[signalSpec.name] = value;
+      signalValuesByName[signalSpec.name] = this.valueForIntSignal(signalSpec, view);
     });
 
     return signalValuesByName;

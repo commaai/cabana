@@ -6,21 +6,6 @@ import { timeout } from 'thyming';
 import { getLogPart } from '../api/rlog';
 import DbcUtils from '../utils/dbc';
 import DBC from '../models/can/dbc';
-import { addressForName } from '../models/can/logSignals';
-import {
-  getFlags,
-  getUbloxGnss,
-  getEgoData,
-  getCarStateControls,
-  getWheelSpeeds,
-  getCarControlActuators,
-  getRadarStateLeadOne,
-  getRadarStateLeadTwo,
-  getThermalFreeSpace,
-  getThermalData,
-  getThermalCPU,
-  getHealth
-} from './rlog-utils';
 
 const DEBOUNCE_DELAY = 100;
 
@@ -67,42 +52,6 @@ function queueBatch(entry) {
   }
 }
 
-function getPrevMsgEntry(messages, prevMsgEntries, id) {
-  if (messages[id].entries.length) {
-    return messages[id].entries[messages[id].entries.length - 1];
-  }
-  return prevMsgEntries[id] || null;
-}
-
-function insertEventData(src, part, entry, logTime, getData) {
-  const id = `${src}:${part}`;
-  const address = addressForName(id);
-
-  if (!entry.messages[id]) {
-    entry.messages[id] = DbcUtils.createMessageSpec(
-      entry.dbc,
-      address,
-      id,
-      src
-    );
-    entry.messages[id].isLogEvent = true;
-  }
-  const prevMsgEntry = getPrevMsgEntry(
-    entry.messages,
-    entry.options.prevMsgEntries,
-    id
-  );
-
-  const msgEntry = {
-    time: logTime,
-    address,
-    data: getData(),
-    timeStart: entry.options.routeInitTime
-  };
-
-  entry.messages[id].entries.push(msgEntry);
-}
-
 function insertCanMessage(entry, logTime, msg) {
   const src = msg.Src;
   const address = Number(msg.Address);
@@ -118,16 +67,11 @@ function insertCanMessage(entry, logTime, msg) {
     );
     entry.messages[id].isLogEvent = false;
   }
-  const prevMsgEntry = getPrevMsgEntry(
-    entry.messages,
-    entry.options.prevMsgEntries,
-    id
-  );
 
   const msgEntry = {
     time: logTime,
     address,
-    data: msg.Dat,
+    data: new Uint8Array(msg.Dat),
     timeStart: entry.options.routeInitTime
   };
 
@@ -177,104 +121,6 @@ async function loadData(entry) {
     } else if ('Can' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000;
       msg.Can.forEach((m) => insertCanMessage(entry, monoTime, m));
-    } else if ('CarState' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-      insertEventData(
-        'CarState',
-        'Ego',
-        entry,
-        monoTime,
-        (m) => getEgoData(msg.CarState, m)
-      );
-      insertEventData(
-        'CarState',
-        'Controls',
-        entry,
-        monoTime,
-        (m) => getCarStateControls(msg.CarState, m)
-      );
-      insertEventData(
-        'CarState',
-        'Flags',
-        entry,
-        monoTime,
-        (m) => getFlags(msg.CarState, m)
-      );
-      insertEventData(
-        'CarState',
-        'WheelSpeeds',
-        entry,
-        monoTime,
-        (m) => getWheelSpeeds(msg.CarState, m)
-      );
-    } else if ('CarControl' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-       insertEventData(
-        'CarControl',
-        'Actuators',
-        entry,
-        monoTime,
-        (m) => getCarControlActuators(msg.CarControl, m)
-      );
-    } else if ('RadarState' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-       insertEventData(
-        'RadarState',
-        'LeadOne',
-        entry,
-        monoTime,
-        (m) => getRadarStateLeadOne(msg.RadarState, m)
-      );
-       insertEventData(
-        'RadarState',
-        'LeadTwo',
-        entry,
-        monoTime,
-        (m) => getRadarStateLeadTwo(msg.RadarState, m)
-      );
-    } else if ('UbloxGnss' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-      if (msg.UbloxGnss.MeasurementReport) {
-        insertEventData(
-          'UbloxGnss',
-          'MeasurementReport',
-          entry,
-          monoTime,
-          (m) => getUbloxGnss(msg.UbloxGnss.MeasurementReport, m)
-        );
-      }
-    } else if ('Health' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-      insertEventData(
-        'Health',
-        'Data',
-        entry,
-        monoTime,
-        (m) => getHealth(msg.Health, m)
-      );
-    } else if ('Thermal' in msg) {
-      const monoTime = msg.LogMonoTime / 1000000000;
-      insertEventData(
-        'Thermal',
-        'CPU',
-        entry,
-        monoTime,
-        (m) => getThermalCPU(msg.Thermal, m)
-      );
-      insertEventData(
-        'Thermal',
-        'Data',
-        entry,
-        monoTime,
-        (m) => getThermalData(msg.Thermal, m)
-      );
-      insertEventData(
-        'Thermal',
-        'FreeSpace',
-        entry,
-        monoTime,
-        (m) => getThermalFreeSpace(msg.Thermal, m)
-      );
     } else if ('Thumbnail' in msg) {
       const monoTime = msg.LogMonoTime / 1000000000 - entry.options.routeInitTime;
       const data = new Uint8Array(msg.Thumbnail.Thumbnail);
