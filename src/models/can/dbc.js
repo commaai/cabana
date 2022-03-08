@@ -534,35 +534,6 @@ export default class DBC {
     this.valueTables = valueTables;
   }
 
-  valueForBigIntSignal(signalSpec, view) {
-    let sig_lsb, sig_msb;
-    if (signalSpec.isLittleEndian) {
-      sig_lsb = signalSpec.startBit;
-      sig_msb = signalSpec.startBit + signalSpec.size - 1;
-    } else {
-      sig_lsb = DbcUtils.matrixBitNumber(DbcUtils.bigEndianBitIndex(signalSpec.startBit) + signalSpec.size - 1);
-      sig_msb = signalSpec.startBit;
-    }
-
-    let ret = 0n;
-
-    let i = Math.floor(sig_msb / 8);
-    let bits = signalSpec.size;
-    while (i >= 0 && i < view.byteLength && bits > 0) {
-      let lsb = Math.floor(sig_lsb / 8) === i ? sig_lsb : i*8;
-      let msb = Math.floor(sig_msb / 8) === i ? sig_msb : (i+1)*8 - 1;
-      let size = msb - lsb + 1;
-
-      let d = (view.getUint8(i) >>> (lsb - (i*8))) & ((1 << size) - 1);
-      ret |= BigInt(d) << BigInt(bits - size);
-
-      bits -= size;
-      i = signalSpec.isLittleEndian ? i-1 : i+1;
-    }
-
-    return BigInt.asUintN(64, ret) * BigInt(signalSpec.factor) + BigInt(signalSpec.offset);
-  }
-
   valueForIntSignal(signalSpec, view) {
     let sig_lsb, sig_msb;
     if (signalSpec.isLittleEndian) {
@@ -573,7 +544,7 @@ export default class DBC {
       sig_msb = signalSpec.startBit;
     }
 
-    let ret = 0;
+    let ret = signalSpec.size > 32 ? 0n : 0;
     let i = Math.floor(sig_msb / 8);
     let bits = signalSpec.size;
     while (i >= 0 && i < view.byteLength && bits > 0) {
@@ -582,13 +553,25 @@ export default class DBC {
       let size = msb - lsb + 1;
 
       let d = (view.getUint8(i) >>> (lsb - (i*8))) & ((1 << size) - 1);
-      ret |= d << (bits - size);
+      if (signalSpec.size > 32) {
+        ret |= BigInt(d) << BigInt(bits - size);
+      } else {
+        ret |= d << (bits - size);
+      }
 
       bits -= size;
       i = signalSpec.isLittleEndian ? i-1 : i+1;
     }
 
-    return ret * signalSpec.factor + signalSpec.offset;
+    if (signalSpec.size > 32) {
+      ret = signalSpec.isSigned ? BigInt.asIntN(64, ret) : ret;
+      return ret * BigInt(signalSpec.factor) + BigInt(signalSpec.offset);
+    } else {
+      if (signalSpec.isSigned) {
+        ret -= ((ret >> (signalSpec.size-1)) & 1) ? (1 << signalSpec.size) : 0;
+      }
+      return ret * signalSpec.factor + signalSpec.offset;
+    }
   }
 
   getSignalValues(messageId, data) {
@@ -602,13 +585,7 @@ export default class DBC {
       if (isNaN(signalSpec.startBit)) {
         return;
       }
-      let value;
-      if (signalSpec.size > 32) {
-        value = this.valueForBigIntSignal(signalSpec, view);
-      } else {
-        value = this.valueForIntSignal(signalSpec, view);
-      }
-      signalValuesByName[signalSpec.name] = value;
+      signalValuesByName[signalSpec.name] = this.valueForIntSignal(signalSpec, view);
     });
 
     return signalValuesByName;
