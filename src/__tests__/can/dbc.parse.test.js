@@ -158,11 +158,10 @@ const steerTorqueSignal = new Signal({
   unit: ''
 });
 
-function dbcInt32SignalValue(dbc, signalSpec, hex) {
-  // expects hex string to represent 8 bytes, left-justified with zeroes if frame size is smaller
-  const buffer = Buffer.from(hex, 'hex');
-
-  return dbc.valueForInt32Signal(signalSpec, buffer);
+function dbcIntSignalValue(dbc, signalSpec, hex) {
+  const buffer = Uint8Array.from(Buffer.from(hex, 'hex'))
+  const view = new DataView(buffer.buffer);
+  return dbc.valueForIntSignal(signalSpec, view);
 }
 
 test('DBC parses steering control message', () => {
@@ -267,7 +266,7 @@ test('int32 parser produces correct value for steer torque signal', () => {
   const dbc = new DBC(DBC_MESSAGE_DEF);
 
   const hex = 'e2d62a0bd0d3b5e5';
-  const value = dbcInt32SignalValue(
+  const value = dbcIntSignalValue(
     dbc,
     dbc.getMessageFrame(228).signals.STEER_TORQUE,
     hex
@@ -280,7 +279,7 @@ test('int64 parser produces correct value for steer torque signal', () => {
   const dbc = new DBC(DBC_MESSAGE_DEF);
 
   const hex = 'e2d62a0bd0d3b5e5';
-  const value = dbc.valueForInt64Signal(steerTorqueSignal, hex);
+  const value = dbcIntSignalValue(dbc, steerTorqueSignal, hex);
 
   expect(value).toBe(-7466);
 });
@@ -289,28 +288,28 @@ test('int32 parser produces correct value for wheel speeds', () => {
   const dbc = new DBC(DBC_WHEEL_SPEEDS);
 
   const hex = '36806cd8d8f1b0b7';
-  const rearRight = dbcInt32SignalValue(
+  const rearRight = dbcIntSignalValue(
     dbc,
     dbc.getMessageFrame(464).signals.WHEEL_SPEED_RR,
     hex
   );
   expect(rearRight).toBe(69.23);
 
-  const rearLeft = dbcInt32SignalValue(
+  const rearLeft = dbcIntSignalValue(
     dbc,
     dbc.getMessageFrame(464).signals.WHEEL_SPEED_RL,
     hex
   );
   expect(rearLeft).toBe(69.42);
 
-  const frontLeft = dbcInt32SignalValue(
+  const frontLeft = dbcIntSignalValue(
     dbc,
     dbc.getMessageFrame(464).signals.WHEEL_SPEED_FL,
     hex
   );
   expect(frontLeft).toBe(69.76);
 
-  const frontRight = dbcInt32SignalValue(
+  const frontRight = dbcIntSignalValue(
     dbc,
     dbc.getMessageFrame(464).signals.WHEEL_SPEED_FR,
     hex
@@ -330,8 +329,8 @@ test('int32 parsers produces correct value for binary little endian signal', () 
   const hexDataSet = '0000000020000000';
   const hexDataNotSet = '0000000000000000';
 
-  const setValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSet, 8);
-  const notSetValue = dbcInt32SignalValue(dbc, signalSpec, hexDataNotSet, 8);
+  const setValue = dbcIntSignalValue(dbc, signalSpec, hexDataSet);
+  const notSetValue = dbcIntSignalValue(dbc, signalSpec, hexDataNotSet);
 
   expect(setValue).toEqual(1);
   expect(notSetValue).toEqual(0);
@@ -347,7 +346,7 @@ test('int32 parser produces correct value for 2-bit little endian signal spannin
 
   const hexData = '00000001f8000000';
 
-  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, 8);
+  const value = dbcIntSignalValue(dbc, signalSpec, hexData, 8);
   expect(value).toEqual(3);
 });
 
@@ -361,12 +360,12 @@ test('int32 parser produces correct value for 4-bit little endian signal', () =>
 
   // this data is symmetric, the data bits are 1111
   const hexDataSymmetric = 'f00f000000000000';
-  const symValue = dbcInt32SignalValue(dbc, signalSpec, hexDataSymmetric, 8);
+  const symValue = dbcIntSignalValue(dbc, signalSpec, hexDataSymmetric, 8);
   expect(symValue).toEqual(15);
 
   // this data is asymmetric, the data bits are 1101
   const hexDataAsymmetric = 'f002000000000000';
-  const aSymValue = dbcInt32SignalValue(dbc, signalSpec, hexDataAsymmetric, 8);
+  const aSymValue = dbcIntSignalValue(dbc, signalSpec, hexDataAsymmetric, 8);
   expect(aSymValue).toEqual(11);
 });
 
@@ -391,7 +390,7 @@ test('int32 parser produces correct value for 4-bit little endian signal within 
   const signalSpec = frame.signals.CF_Clu_AliveCnt1;
 
   const hexData = '2000662000000000';
-  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
+  const value = dbcIntSignalValue(dbc, signalSpec, hexData, frame.size);
   expect(value).toEqual(2);
 });
 
@@ -409,11 +408,11 @@ test('int32 parser produces correct value for 2-byte signed little endian signal
   const signalSpec = frame.signals.SAS_Angle;
 
   const hexData = '000000fafe000700';
-  const value = dbcInt32SignalValue(dbc, signalSpec, hexData, frame.size);
+  const value = dbcIntSignalValue(dbc, signalSpec, hexData, frame.size);
   expect(value).toEqual(0.0);
 
   const hexData2 = '0b000907d8b30000';
-  const value2 = dbcInt32SignalValue(dbc, signalSpec, hexData2, frame.size);
+  const value2 = dbcIntSignalValue(dbc, signalSpec, hexData2, frame.size);
   expect(value2).toEqual(1.1);
 });
 

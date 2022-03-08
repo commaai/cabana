@@ -171,7 +171,6 @@ export default class DBC {
   }
 
   createFrame(msgId, size=64) {
-    console.log(this.messages, msgId);
     const msg = new Frame({
       name: this.nextNewFrameName(),
       id: msgId,

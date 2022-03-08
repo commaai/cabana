@@ -7,7 +7,7 @@ import DbcUtils from '../utils/dbc';
 const window = self;
 
 function reparseEntry(entry, address, dbc, canStartTime, prevMsgEntry) {
-  const data = Buffer.from(entry.hexData, 'hex');
+  const data = Uint8Array.from(Buffer.from(entry.hexData, 'hex'));
   return DbcUtils.parseMessage(
     dbc,
     entry.time,
