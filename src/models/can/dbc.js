@@ -564,7 +564,11 @@ export default class DBC {
 
     if (signalSpec.size > 32) {
       ret = signalSpec.isSigned ? BigInt.asIntN(64, ret) : ret;
-      return ret * BigInt(signalSpec.factor) + BigInt(signalSpec.offset);
+      if (Number.isInteger(signalSpec.factor)) {
+        return ret * BigInt(signalSpec.factor) + BigInt(signalSpec.offset);
+      } else {
+        return parseFloat(ret) * signalSpec.factor + signalSpec.offset;
+      }
     } else {
       if (signalSpec.isSigned) {
         ret -= ((ret >> (signalSpec.size-1)) & 1) ? (1 << signalSpec.size) : 0;
