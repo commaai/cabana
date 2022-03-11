@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 
 import FIELDS from './FIELDS';
 import NumberField from './NumberField';
@@ -16,13 +17,15 @@ export default ({
   onSignalRemove,
   isExpanded,
   getSignalEdited,
+  fieldError,
   update
 }) => (
   <div className="signals-legend-entry-form">
     {FIELDS.map((field) => {
       const Node = FieldMap[field.type];
+      const errorClass = fieldError === field.field ? 'signals-legend-entry-form-field-error' : null;
       return (
-        <div className="signals-legend-entry-form-field" key={field.field}>
+        <div className={cx("signals-legend-entry-form-field", errorClass)} key={field.field}>
           <Node
             fieldSpec={field}
             signal={signal}

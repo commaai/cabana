@@ -29,6 +29,7 @@ export default class SignalLegendEntry extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      fieldError: null,
       signalEdited: Object.assign(Object.create(props.signal), props.signal)
     };
   }
@@ -36,6 +37,7 @@ export default class SignalLegendEntry extends Component {
   componentDidUpdate(prevProps) {
     if (!this.props.signal.equals(prevProps.signal)) {
       this.setState({
+        fieldError: null,
         signalEdited: Object.assign(
           Object.create(this.props.signal),
           this.props.signal
@@ -60,7 +62,9 @@ export default class SignalLegendEntry extends Component {
     Object.entries(signalEdited).forEach(([field, value]) => {
       signalCopy[field] = value;
     });
-    this.props.onSignalChange(signalCopy, signal);
+
+    const updated = this.props.onSignalChange(signalCopy);
+    this.setState({ fieldError: !updated ? fieldSpec.field : null });
   };
 
   toggleEditing = (e) => {
@@ -87,14 +91,15 @@ export default class SignalLegendEntry extends Component {
 
         signalCopy[field] = value;
       });
-      this.props.onSignalChange(signalCopy, signal);
+      this.props.onSignalChange(signalCopy);
     } else {
       signalEdited = signalCopy;
     }
 
     // Expand and enable signal editing
     this.setState({
-      signalEdited
+      fieldError: null,
+      signalEdited,
     });
     this.props.toggleExpandSignal(signal);
     e.stopPropagation();
@@ -148,6 +153,7 @@ export default class SignalLegendEntry extends Component {
               onSignalRemove={this.props.onSignalRemove}
               isExpanded={isExpanded}
               getSignalEdited={this.getSignalEdited}
+              fieldError={this.state.fieldError}
               update={this.updateField}
             />
           )}

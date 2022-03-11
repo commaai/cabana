@@ -95,6 +95,15 @@
   }
   &-form {
     &-field {
+      &-error {
+        input,
+        select {
+          border-color: rgb(220, 0, 0);
+          &:focus {
+            border-color: rgb(220, 0, 0);
+          }
+        }
+      }
       min-height: $input-height;
       padding: 1px 0;
       @extend %clearfix;

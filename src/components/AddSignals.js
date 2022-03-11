@@ -507,8 +507,12 @@ export default class AddSignals extends Component {
     this.setState({ signals });
   };
 
-  onSignalChange = (signal, oldSignal) => {
+  onSignalChange = (signal) => {
     const { signals } = this.state;
+
+    if (signal.name in signals && signals[signal.name].uid !== signal.uid) {
+      return false;
+    }
 
     for (const signalName in signals) {
       if (signals[signalName].uid === signal.uid) {
@@ -518,6 +522,7 @@ export default class AddSignals extends Component {
     signals[signal.name] = signal;
 
     this.setState({ signals }, this.propagateUpSignalChange);
+    return true;
   };
 
   onSignalRemove = (signal) => {
