@@ -430,21 +430,25 @@ BO_ 468 LARGE_SIGNALS: 32 VSA
  SG_ LARGE_LITTLE : 64|64@1+ (1,0) [0|1.84467E+019] "" XXX
  SG_ LARGE_SIGNED : 135|64@0- (1,0) [0|1.84467E+019] "" XXX
  SG_ LARGE_OFFSET : 197|62@0+ (1,0) [0|4.61169E+018] "" XXX
+ SG_ LARGE_FACTOR : 263|64@0+ (0.000001,0) [0|1.84467E+018] "" XXX
 `;
 
 test('int64 parser produces correct values', () => {
   const dbc = new DBC(DBC_64_BIT_STUFF);
-  const hex = '63d637b340535839' + 'a23f215451e52f7b' + 'a1adff50c4e8eedb' + 'fd071d2c474ac2d4';
+  const hex = '63d637b340535839' + 'a23f215451e52f7b' + 'a1adff50c4e8eedb' + 'fd071d2c474ac2d4' + '00e77410c9ad9b56';
 
   const normal = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_NORMAL, hex).toString();
   expect(normal).toEqual("7193998697788823609");
 
   const little = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_LITTLE, hex).toString();
-  expect(little).toBe("8876565528037113762");
+  expect(little).toEqual("8876565528037113762");
 
   const signed = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_SIGNED, hex).toString();
-  expect(signed).toBe("-6796495540266144037");
+  expect(signed).toEqual("-6796495540266144037");
 
   const offset = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_OFFSET, hex).toString();
-  expect(offset).toBe("4397515637162427092");
+  expect(offset).toEqual("4397515637162427092");
+
+  const factor = dbcIntSignalValue(dbc, dbc.getMessageFrame(468).signals.LARGE_FACTOR, hex).toString();
+  expect(factor).toEqual("65148335072.0582");  // not enough precision to be exact
 });
