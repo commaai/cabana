@@ -121,6 +121,10 @@ export default class CanGraphList extends Component {
       (s) => s.uid === signalUid
     );
 
+    if (!signal) {
+      return null;
+    }
+
     const isDragging = draggingSignal.signalUid === signalUid
       && draggingSignal.messageId === messageId;
     const canReceiveGraphDrop = graphToReceiveDrop
