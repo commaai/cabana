@@ -1,12 +1,13 @@
 export default {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "width": 400,
-  "height": 200,
+  "width": 500,
+  "height": 212,
+  "autosize": "none",
   "padding": {
     "top": 5,
-    "left": 30,
-    "right": 5,
-    "bottom": 10
+    "left": 70,
+    "right": 20,
+    "bottom": 20
   },
   "data": [
     {
@@ -121,7 +122,8 @@ export default {
     },
     {
       "orient": "left",
-      "scale": "yscale"
+      "scale": "yscale",
+      "format": ".6~g"
     }
   ],
 
