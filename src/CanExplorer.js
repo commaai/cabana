@@ -426,6 +426,10 @@ export default class CanExplorer extends Component {
         break;
       }
     }
+    if (part === -1) {
+      return;
+    }
+
     console.log('Starting worker for part', part);
     // options is object of {part, prevMsgEntries, spawnWorkerHash, prepend}
     options = options || {};
