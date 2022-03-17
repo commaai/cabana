@@ -72,11 +72,14 @@ export default class HLS extends Component {
 
   onSeeked = () => {
     if (!this.props.playing) {
-      if (this.shouldInitVideoTime) {
-        this.videoElement.currentTime = this.props.startTime;
-        this.shouldInitVideoTime = false;
-      }
       this.props.onLoadEnd();
+    }
+  };
+
+  onLoadedData = () => {
+    if (this.shouldInitVideoTime) {
+      this.videoElement.currentTime = this.props.startTime;
+      this.shouldInitVideoTime = false;
     }
   };
 
@@ -112,6 +115,7 @@ export default class HLS extends Component {
           onPlaying={this.props.onLoadEnd}
           onSeeking={this.onSeeking}
           onSeeked={this.onSeeked}
+          onLoadedData={this.onLoadedData}
         />
       </div>
     );
