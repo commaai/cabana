@@ -38,9 +38,7 @@ export default class Meta extends Component {
     this.onFilterFocus = this.onFilterFocus.bind(this);
     this.onFilterUnfocus = this.onFilterUnfocus.bind(this);
     this.canMsgFilter = this.canMsgFilter.bind(this);
-    this.logEventMsgFilter = this.logEventMsgFilter.bind(this);
     this.renderMessageBytes = this.renderMessageBytes.bind(this);
-    this.toggleShowLogEvents = this.toggleShowLogEvents.bind(this);
 
     const { dbcLastSaved } = props;
 
@@ -50,7 +48,6 @@ export default class Meta extends Component {
         dbcLastSaved !== null ? this.props.dbcLastSaved.fromNow() : null,
       hoveredMessages: [],
       orderedMessageKeys: [],
-      showLogEvents: false
     };
   }
 
@@ -134,12 +131,6 @@ export default class Meta extends Component {
     return sortedKeys;
   }
 
-  toggleShowLogEvents() {
-    this.setState({
-      showLogEvents: !this.state.showLogEvents
-    });
-  }
-
   onFilterChanged(e) {
     let val = e.target.value;
     if (val.trim() === 'Filter') val = '';
@@ -160,24 +151,6 @@ export default class Meta extends Component {
   }
 
   canMsgFilter(msg) {
-    if (msg.isLogEvent) {
-      return;
-    }
-    const { filterText } = this.state;
-    const msgName = msg.frame ? msg.frame.name : '';
-
-    return (
-      filterText === 'Filter'
-      || filterText === ''
-      || msg.id.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-      || msgName.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
-    );
-  }
-
-  logEventMsgFilter(msg) {
-    if (!msg.isLogEvent) {
-      return;
-    }
     const { filterText } = this.state;
     const msgName = msg.frame ? msg.frame.name : '';
 
@@ -248,14 +221,8 @@ export default class Meta extends Component {
           this.selectedMessageClass(msg.id)
         )}
       >
-        {msg.isLogEvent ? (
-          <td colSpan="2">{msg.id}</td>
-        ) : (
-          <>
-            <td>{msg.frame ? msg.frame.name : 'untitled'}</td>
-            <td>{msg.id}</td>
-          </>
-        )}
+        <td>{msg.frame ? msg.frame.name : 'untitled'}</td>
+        <td>{msg.id}</td>
         <td>{msg.entries.length}</td>
         <td>
           <div className="cabana-meta-messages-list-item-bytes">
@@ -278,12 +245,6 @@ export default class Meta extends Component {
       .map(this.renderMessageBytes);
   }
 
-  renderLogEventMessages() {
-    return this.orderedMessages()
-      .filter(this.logEventMsgFilter)
-      .map(this.renderMessageBytes);
-  }
-
   renderAvailableMessagesList() {
     if (Object.keys(this.props.messages).length === 0) {
       return <p>Loading messages...</p>;
@@ -291,25 +252,6 @@ export default class Meta extends Component {
     return (
       <>
         <table cellPadding="5">
-          {this.state.showLogEvents && (
-            <>
-              <thead>
-                <tr>
-                  <td colSpan="2">Name</td>
-                  <td>Count</td>
-                  <td>Bytes</td>
-                </tr>
-              </thead>
-              <tbody>
-                {this.renderLogEventMessages()}
-                <tr>
-                  <td colSpan="4">
-                    <hr />
-                  </td>
-                </tr>
-              </tbody>
-            </>
-          )}
           <thead>
             <tr>
               <td>Name</td>

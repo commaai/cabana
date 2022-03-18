@@ -65,7 +65,6 @@ function insertCanMessage(entry, logTime, msg) {
       id,
       src
     );
-    entry.messages[id].isLogEvent = false;
   }
 
   const msgEntry = {

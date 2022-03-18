@@ -564,9 +564,8 @@ export default class AddSignals extends Component {
             </p>
           </div>
         ) : null}
-        {this.props.message.isLogEvent || this.renderBitMatrix()}
+        {this.renderBitMatrix()}
         <SignalLegend
-          isLogEvent={!!this.props.message.isLogEvent}
           signals={this.state.signals}
           signalStyles={this.state.signalStyles}
           highlightedSignal={this.state.highlightedSignal}

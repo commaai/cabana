@@ -6,7 +6,6 @@ import SignalLegendEntry from './SignalLegendEntry';
 
 export default class SignalLegend extends Component {
   static propTypes = {
-    isLogEvent: PropTypes.bool,
     signals: PropTypes.object,
     signalStyles: PropTypes.object,
     highlightedSignal: PropTypes.string,
@@ -54,7 +53,6 @@ export default class SignalLegend extends Component {
 
         return (
           <SignalLegendEntry
-            isLogEvent={this.props.isLogEvent}
             key={signal.uid}
             signal={signal}
             isHighlighted={isHighlighted}
