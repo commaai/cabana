@@ -106,5 +106,10 @@ export default [
     field: 'max',
     title: 'Maximum value',
     type: 'number'
+  },
+  {
+    field: 'valueDescriptions',
+    title: 'Value descriptions',
+    type: 'map'
   }
 ];

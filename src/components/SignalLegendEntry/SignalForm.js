@@ -1,15 +1,16 @@
 import React from 'react';
-import cx from 'classnames';
 
 import FIELDS from './FIELDS';
 import NumberField from './NumberField';
 import StringField from './StringField';
 import OptionField from './OptionField';
+import MapField from './MapField';
 
 const FieldMap = {
   number: NumberField,
   option: OptionField,
-  string: StringField
+  string: StringField,
+  map: MapField,
 };
 
 export default ({
@@ -23,15 +24,16 @@ export default ({
   <div className="signals-legend-entry-form">
     {FIELDS.map((field) => {
       const Node = FieldMap[field.type];
-      const errorClass = fieldError === field.field ? 'signals-legend-entry-form-field-error' : null;
+      const valid = fieldError !== field.field;
       return (
-        <div className={cx("signals-legend-entry-form-field", errorClass)} key={field.field}>
+        <div className="signals-legend-entry-form-field" key={field.field}>
           <Node
             fieldSpec={field}
             signal={signal}
             isExpanded={isExpanded}
             signalEdited={getSignalEdited(field.field)}
             updateField={update}
+            valid={valid}
           />
         </div>
       );

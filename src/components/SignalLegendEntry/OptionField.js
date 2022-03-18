@@ -8,7 +8,8 @@ export default ({
   signal,
   isExpanded,
   signalEdited,
-  updateField
+  updateField,
+  valid
 }) => {
   let valueCol;
   const { field, title } = fieldSpec;
@@ -41,6 +42,7 @@ export default ({
     <Field
       title={typeof title === 'function' ? title(signal) : title}
       htmlFor={htmlFor}
+      valid={valid}
     >
       {valueCol}
     </Field>
