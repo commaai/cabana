@@ -180,6 +180,10 @@ a.button {
   &.button--primary {
     background: $button-background--primary;
     border-color: darken($button-background--primary, 8%);
+    &[disabled] {
+      background: $button-background--disabled;
+      border-color: $button-border--disabled;
+    }
     &:hover {
       background: darken($button-background--primary, 2%);
     }

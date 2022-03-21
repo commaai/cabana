@@ -46,9 +46,7 @@ export default class LoadDbcModal extends Component {
 
   handleSave() {
     const { dbc, dbcSource } = this.state;
-    if (dbc !== null) {
-      this.props.onDbcSelected(dbcSource, dbc);
-    }
+    this.props.onDbcSelected(dbcSource, dbc);
   }
 
   renderTabNavigation() {
@@ -58,7 +56,11 @@ export default class LoadDbcModal extends Component {
           <button
             className={cx({ 'is-active': this.state.tab === tab })}
             onClick={() => {
-              this.setState({ tab });
+              this.setState({
+                tab,
+                dbc: null,
+                dbcSource: null,
+              });
             }}
             key={tab}
           >
@@ -100,13 +102,13 @@ export default class LoadDbcModal extends Component {
     }
   }
 
-  renderActions() {
+  renderActions(disabled) {
     return (
       <div>
         <button className="button--inverted" onClick={this.props.handleClose}>
           <span>Cancel</span>
         </button>
-        <button className="button--primary" onClick={this.handleSave}>
+        <button className="button--primary" disabled={ disabled } onClick={ this.handleSave }>
           <span>Load DBC</span>
         </button>
       </div>
@@ -120,7 +122,7 @@ export default class LoadDbcModal extends Component {
         subtitle="Modify an existing DBC file with Cabana"
         handleClose={this.props.handleClose}
         navigation={this.renderTabNavigation()}
-        actions={this.renderActions()}
+        actions={this.renderActions(Boolean(this.state.dbc === null))}
       >
         {this.renderTabContent()}
       </Modal>
