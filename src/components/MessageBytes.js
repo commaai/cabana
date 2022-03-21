@@ -22,6 +22,7 @@ export default class MessageBytes extends Component {
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
     this.onCanvasRefAvailable = this.onCanvasRefAvailable.bind(this);
     this.updateCanvas = this.updateCanvas.bind(this);
+    this.canvasInView = this.canvasInView.bind(this);
   }
 
   componentDidMount() {
@@ -46,6 +47,11 @@ export default class MessageBytes extends Component {
     {
       this.updateCanvas();
     }
+  }
+
+  canvasInView() {
+    return (!window.visualViewport || !this.canvas || (this.canvas.getBoundingClientRect().y >= 270 &&
+      window.visualViewport.height >= this.canvas.getBoundingClientRect().y));
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -93,7 +99,9 @@ export default class MessageBytes extends Component {
 
   updateCanvas() {
     const { message, live, seekTime } = this.props;
-    if (!this.canvas || message.entries.length === 0) return;
+    if (!this.canvas || message.entries.length === 0 || !this.canvasInView()) {
+      return;
+    }
 
     let mostRecentMsg = message.entries[message.entries.length - 1];
     if (!live) {
@@ -140,6 +148,9 @@ export default class MessageBytes extends Component {
       rowCount = Math.ceil(DbcUtils.maxMessageSize(this.props.message, this.state.maxMessageBytes) / 8);
     }
     this.canvas.height = rowCount * 15;
+
+    const observer = new IntersectionObserver(this.updateCanvas);
+    observer.observe(this.canvas);
   }
 
   render() {
