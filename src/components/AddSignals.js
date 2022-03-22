@@ -63,6 +63,8 @@ export default class AddSignals extends Component {
       signals = this.copySignals(props.message.frame.signals);
     }
 
+    this.highlightedSignalTooltipRef = React.createRef();
+
     this.state = {
       bits: [],
       signals,
@@ -484,7 +486,10 @@ export default class AddSignals extends Component {
     }
 
     return (
-      <div className="cabana-explorer-signals-matrix">
+      <div className="cabana-explorer-signals-matrix" onMouseMove={this.matrixMouseMove}>
+        {this.state.highlightedSignal &&
+          <p ref={this.highlightedSignalTooltipRef} className="cabana-explorer-signals-matrix-tooltip" />
+        }
         <table cellSpacing={0} onMouseLeave={this.resetDragState}>
           <tbody>{rows}</tbody>
         </table>
@@ -498,6 +503,16 @@ export default class AddSignals extends Component {
       dragSignal: null,
       dragCurrentBit: null
     });
+  };
+
+  matrixMouseMove = (ev) => {
+    if (this.state.highlightedSignal && this.highlightedSignalTooltipRef.current) {
+      const tt = this.highlightedSignalTooltipRef.current;
+      const signal = this.state.signals[this.state.highlightedSignal];
+      tt.style.left = (ev.clientX + 15) + 'px';
+      tt.style.top = (ev.clientY + 5) + 'px';
+      tt.innerHTML = signal.name;
+    }
   };
 
   onTentativeSignalChange = (signal) => {
