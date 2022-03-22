@@ -104,11 +104,12 @@ export default class AddSignals extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-      nextProps.message.hexData !== this.props.message.hexData
-      || nextProps.messageIndex !== this.props.messageIndex
-      || JSON.stringify(nextProps.plottedSignalUids)
-        !== JSON.stringify(this.props.plottedSignalUids)
-      || JSON.stringify(this.state) !== JSON.stringify(nextState)
+      nextProps.selectedMessageKey !== this.props.selectedMessageKey ||
+      nextProps.message.address !== this.props.message.address ||
+      nextProps.message.hexData !== this.props.message.hexData ||
+      nextProps.messageIndex !== this.props.messageIndex ||
+      JSON.stringify(nextProps.plottedSignalUids) !== JSON.stringify(this.props.plottedSignalUids) ||
+      JSON.stringify(this.state) !== JSON.stringify(nextState)
     );
   }
 
