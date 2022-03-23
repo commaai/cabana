@@ -144,6 +144,7 @@ export default class AddSignals extends Component {
     const signalStyles = this.calcSignalStyles(this.state.signals);
 
     this.setState({ signalStyles });
+    this.matrixMouseMove();
   };
 
   calcSignalStyles(signals) {
@@ -509,9 +510,12 @@ export default class AddSignals extends Component {
     if (this.state.highlightedSignal && this.highlightedSignalTooltipRef.current) {
       const tt = this.highlightedSignalTooltipRef.current;
       const signal = this.state.signals[this.state.highlightedSignal];
-      tt.style.left = (ev.clientX + 15) + 'px';
-      tt.style.top = (ev.clientY + 5) + 'px';
+
       tt.innerHTML = signal.name;
+      if (ev) {
+        tt.style.left = (ev.clientX + 15) + 'px';
+        tt.style.top = (ev.clientY + 5) + 'px';
+      }
     }
   };
 
