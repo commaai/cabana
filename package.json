@@ -20,7 +20,7 @@
     "github-api": "^3.0.0",
     "int64-buffer": "^0.1.9",
     "lint-staged": "^9.4.0",
-    "moment": "^2.18.1",
+    "moment": "^2.29.2",
     "node-sass": "^7.0.1",
     "prop-types": "^15.8.1",
     "query-string": "^5.0.1",
