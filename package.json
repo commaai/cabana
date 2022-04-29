@@ -54,7 +54,6 @@
     "dotenv": "2.0.0",
     "env-cmd": "^8.0.2",
     "expect-puppeteer": "^5.0.4",
-    "gh-pages": "^2.1.1",
     "http-proxy-middleware": "0.17.3",
     "jest-puppeteer": "^5.0.4",
     "json-loader": "0.5.4",
