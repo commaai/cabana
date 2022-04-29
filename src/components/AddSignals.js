@@ -472,7 +472,7 @@ export default class AddSignals extends Component {
             onMouseLeave={() => this.onSignalHoverEnd(signal)}
             onMouseDown={this.onBitMouseDown.bind(this, bitIdx, signal)}
             onMouseUp={this.onBitMouseUp.bind(this, bitIdx, signal)}
-            onDoubleClick={() => this.onBitDoubleClick(bitIdx, signal)}
+            onDoubleClick={this.onBitDoubleClick.bind(this, bitIdx, signal)}
           >
             <span>{bitValue}</span>
             <span className={css(Styles.bitSignificance)}>
