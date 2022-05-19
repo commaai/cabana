@@ -4,11 +4,9 @@
 
 Cabana is a tool developed to view raw CAN data. One use for this is creating and editing [CAN Dictionaries](http://socialledge.com/sjsu/index.php/DBC_Format) (DBC files), and the tool provides direct integration with [commaai/opendbc](https://github.com/commaai/opendbc) (a collection of DBC files), allowing you to load the DBC files direct from source, and save to your fork. In addition, you can load routes from [comma connect](https://connect.comma.ai).
 
-## Usage Instructions ([openpilot wiki](https://github.com/commaai/openpilot/wiki/Cabana))
+## Usage Instructions
 
-### [Opening a Route](https://github.com/commaai/openpilot/wiki/Cabana#opening-a-route)
-### [Sharing Cabana Links](https://github.com/commaai/openpilot/wiki/Cabana#sharing-cabana-links)
-### [Reverse Engineering your Car](https://github.com/commaai/openpilot/wiki/Cabana#reverse-engineering-your-car)
+See [openpilot wiki](https://github.com/commaai/openpilot/wiki/Cabana)
 
 ## Setup
 
