@@ -199,7 +199,7 @@ export default class CanExplorer extends Component {
       }
 
       if (this.props.sig && this.props.exp) {
-        logUrlsPromise = RawDataApi.getRouteFiles(routeName, {
+        logUrlsPromise = RawDataApi.getRouteFiles(routeName, false, {
           sig: this.props.sig,
           exp: this.props.exp
         });
@@ -226,17 +226,19 @@ export default class CanExplorer extends Component {
           };
           this.setState(newState, this.initCanData);
 
-          DrivesApi.getShareSignature(routeName).then((shareSignature) => this.setState({
-            shareUrl: modifyQueryParameters({
-              add: {
-                exp: shareSignature.exp,
-                sig: shareSignature.sig,
-                max: logUrls.length - 1,
-                url: route.url.replace('chffrprivate.blob.core.windows.net', 'chffrprivate.azureedge.net'),
-              },
-              remove: [GITHUB_AUTH_TOKEN_KEY]
-            })
-          }));
+          if (!this.props.sig || !this.props.exp) {
+            DrivesApi.getShareSignature(routeName).then((shareSignature) => this.setState({
+              shareUrl: modifyQueryParameters({
+                add: {
+                  exp: shareSignature.exp,
+                  sig: shareSignature.sig,
+                  max: logUrls.length - 1,
+                  url: route.url.replace('chffrprivate.blob.core.windows.net', 'chffrprivate.azureedge.net'),
+                },
+                remove: [GITHUB_AUTH_TOKEN_KEY]
+              })
+            }));
+          }
         })
         .catch((err) => {
           console.log(err);

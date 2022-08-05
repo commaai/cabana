@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://cabana.comma.ai/",
   "dependencies": {
-    "@commaai/comma-api": "^2.1.2",
+    "@commaai/comma-api": "^2.3.2",
     "@commaai/hls.js": "^0.12.7",
     "@commaai/log_reader": "^0.5.5",
     "@commaai/my-comma-auth": "^1.4.1",
