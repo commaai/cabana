@@ -74,7 +74,7 @@ export default function init() {
     const sig = getUrlParameter('sig');
 
     if (max) {
-      props.max = max;
+      props.max = parseInt(max);
     }
     if (url) {
       props.url = url;
