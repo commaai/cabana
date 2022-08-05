@@ -199,16 +199,17 @@ export default class CanExplorer extends Component {
       }
 
       if (this.props.sig && this.props.exp) {
-        logUrlsPromise = RawDataApi.getLogUrls(routeName, {
+        logUrlsPromise = RawDataApi.getRouteFiles(routeName, {
           sig: this.props.sig,
           exp: this.props.exp
         });
       } else {
-        logUrlsPromise = RawDataApi.getLogUrls(routeName);
+        logUrlsPromise = RawDataApi.getRouteFiles(routeName);
       }
       Promise.all([routePromise, logUrlsPromise])
         .then((initData) => {
-          const [route, logUrls] = initData;
+          const [route, logFiles] = initData;
+          const logUrls = logFiles['logs'];
           const newState = {
             route: {
               fullname: routeName,
