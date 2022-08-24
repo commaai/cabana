@@ -33,7 +33,6 @@ import UnloggerClient from './api/unlogger';
 import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 import DbcUtils from './utils/dbc';
-import { demoLogUrls, demoRoute } from './demo';
 
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
@@ -150,18 +149,6 @@ export default class CanExplorer extends Component {
     const { dongleId, name } = this.props;
     if (CommaAuth.isAuthenticated() && !name) {
       this.showOnboarding();
-    } else if (this.props.isDemo) {
-      // is demo!
-
-      const logUrls = demoLogUrls;
-      const route = demoRoute;
-
-      this.setState({
-        logUrls,
-        route,
-        currentParts: [0, 2],
-        currentPart: 0
-      }, this.initCanData);
     } else if (
       this.props.max
       && this.props.url
@@ -557,7 +544,6 @@ export default class CanExplorer extends Component {
       num: part,
 
       // so that we don't try to read metadata about it...
-      isDemo: this.props.isDemo,
       isLegacyShare: this.props.isLegacyShare,
       logUrls: this.state.logUrls,
 
@@ -1353,7 +1339,6 @@ export default class CanExplorer extends Component {
             seekIndex={seekIndex}
             shareUrl={shareUrl}
             maxByteStateChangeCount={maxByteStateChangeCount}
-            isDemo={this.props.isDemo}
             live={live}
             saveLog={debounce(this.downloadLogAsCSV, 500)}
           />
