@@ -1209,10 +1209,10 @@
   dependencies:
     capnp-ts "0.2.4"
 
-"@commaai/comma-api@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-2.3.2.tgz#8e3ef4394ee845fa4c20a1675cf5a86d5297afc9"
-  integrity sha512-g8F0M68fnjUqg0LFnYZGU8h5+GhxXwSyXQpaI6NipnHmLw3jukxW32XF8yDFjxXAmmXVjTRQ1fY4xf3vd5EH9Q==
+"@commaai/comma-api@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@commaai/comma-api/-/comma-api-2.5.0.tgz#04e6a42bc6cb10d5ba59575ee0485c3ad8e90b0c"
+  integrity sha512-yIBkelU7fcAsg7YnSQS82QvNaiPcxPyuEAff87mQbQt0E/MgKmeheRrnpKMPYC6PoOg3ofAnMLQ4Z7fdxRSAFg==
   dependencies:
     babel-runtime "^6.26.0"
     joi-browser "^13.4.0"

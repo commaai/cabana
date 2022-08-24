@@ -476,6 +476,8 @@ export default class Explorer extends Component {
                 userSeekTime={this.state.userSeekTime}
                 playSpeed={this.state.playSpeed}
                 thumbnails={thumbnails}
+                route={this.props.route}
+                share={this.props.share}
               />
             </div>
           ) : null}
@@ -521,5 +523,7 @@ Explorer.propTypes = {
   partsCount: PropTypes.number,
   maxqcamera: PropTypes.number,
   startTime: PropTypes.number,
-  startSegments: PropTypes.array
+  startSegments: PropTypes.array,
+  route: PropTypes.object,
+  share: PropTypes.object,
 };

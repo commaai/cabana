@@ -82,7 +82,8 @@ export default class CanExplorer extends Component {
       isGithubAuthenticated:
         props.githubAuthToken !== null && props.githubAuthToken !== undefined,
       shareUrl: null,
-      logUrls: null
+      logUrls: null,
+      share: null,
     };
 
     this.openDbcClient = new OpenDbc(props.githubAuthToken);
@@ -228,6 +229,10 @@ export default class CanExplorer extends Component {
 
           if (!this.props.sig || !this.props.exp) {
             DrivesApi.getShareSignature(routeName).then((shareSignature) => this.setState({
+              share: {
+                exp: shareSignature.exp,
+                sig: shareSignature.sig,
+              },
               shareUrl: modifyQueryParameters({
                 add: {
                   exp: shareSignature.exp,
@@ -238,6 +243,13 @@ export default class CanExplorer extends Component {
                 remove: [GITHUB_AUTH_TOKEN_KEY]
               })
             }));
+          } else {
+            this.setState({
+              share: {
+                exp: this.props.exp,
+                sig: this.props.sig,
+              },
+            });
           }
         })
         .catch((err) => {
@@ -1289,7 +1301,8 @@ export default class CanExplorer extends Component {
       canFrameOffset,
       firstCanTime,
       currentPart,
-      partsLoaded
+      partsLoaded,
+      share,
     } = this.state;
 
     const { startTime, segments } = this.props;
@@ -1372,6 +1385,8 @@ export default class CanExplorer extends Component {
               videoOffset={ (this.state.firstFrameTime && this.state.routeInitTime) ? this.state.firstFrameTime - this.state.routeInitTime : 0 }
               partsCount={route ? route.proclog : 0}
               maxqcamera={route ? route.maxqcamera : 0}
+              route={route}
+              share={share}
             />
           ) : null}
         </div>

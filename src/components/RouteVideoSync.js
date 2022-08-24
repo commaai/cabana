@@ -62,16 +62,11 @@ export default class RouteVideoSync extends Component {
   }
 
   componentDidMount() {
-    let videoApi = VideoApi(this.props.url);
-    videoApi.getQcameraStreamIndex().then(() => {
-      this.setState({source: videoApi.getQcameraStreamIndexUrl() + `?s=${this.props.maxqcamera}`});
-    }).catch((err) => {
-      console.log(err);
-    })
+    this.componentDidUpdate({}, {});
   }
 
   componentDidUpdate(prevProps) {
-    const { userSeekTime } = this.props;
+    const { userSeekTime, route, share } = this.props;
     const { videoElement } = this.state;
 
     if (
@@ -81,6 +76,11 @@ export default class RouteVideoSync extends Component {
       if (videoElement) {
         videoElement.currentTime = userSeekTime - this.props.videoOffset;
       }
+    }
+
+    if (route && (prevProps.route?.fullname !== route.fullname || prevProps.share !== share)) {
+      const src = VideoApi.getQcameraStreamUrl(route.fullname, share?.exp, share?.sig);
+      this.setState({ source: src });
     }
   }
 
@@ -238,5 +238,7 @@ RouteVideoSync.propTypes = {
   playSpeed: PropTypes.number.isRequired,
   onVideoClick: PropTypes.func,
   segmentIndices: PropTypes.array,
-  startTime: PropTypes.number
+  startTime: PropTypes.number,
+  route: PropTypes.object,
+  share: PropTypes.object,
 };
