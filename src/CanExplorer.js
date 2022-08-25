@@ -34,6 +34,8 @@ import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 import DbcUtils from './utils/dbc';
 
+const NEW_DBC = 'New_DBC';
+
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
 const MessageParser = require('./workers/message-parser.worker');
@@ -53,6 +55,7 @@ export default class CanExplorer extends Component {
       canFrameOffset: 0,
       routeInitTime: 0,
       firstFrameTime: 0,
+      carFingerprint: null,
       firstCanTime: null,
       lastBusTime: null,
       selectedMessage: null,
@@ -68,7 +71,7 @@ export default class CanExplorer extends Component {
       editMessageModalMessage: null,
       dbc: props.dbc ? props.dbc : new DBC(),
       dbcText: props.dbc ? props.dbc.text() : new DBC().text(),
-      dbcFilename: props.dbcFilename ? props.dbcFilename : 'New_DBC',
+      dbcFilename: props.dbcFilename ? props.dbcFilename : NEW_DBC,
       dbcLastSaved: null,
       seekTime: props.seekTime || 0,
       seekIndex: 0,
@@ -485,6 +488,7 @@ export default class CanExplorer extends Component {
         isFinished,
         routeInitTime,
         firstFrameTime,
+        carParams,
       } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
@@ -496,6 +500,18 @@ export default class CanExplorer extends Component {
       }
       if (firstFrameTime && firstFrameTime !== this.state.firstFrameTime) {
         this.setState({ firstFrameTime });
+      }
+      if (carParams && carParams.CarFingerprint !== this.state.carFingerprint) {
+        this.setState({ carFingerprint: carParams.CarFingerprint });
+
+        if (this.state.dbcFilename === NEW_DBC) {
+          const dbcFilename = DbcUtils.findDbcForCar(carParams.CarFingerprint);
+          if (dbcFilename) {
+            this.openDbcClient.getDbcContents(dbcFilename + '.dbc', 'commaai/opendbc').then((dbcText) => {
+              this.onDbcSelected(dbcFilename, new DBC(dbcText));
+            });
+          }
+        }
       }
 
       if (newMessages) {

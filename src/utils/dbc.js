@@ -1,3 +1,5 @@
+const dbcDict = require('./dbc_dict.json');
+
 function findMaxByteStateChangeCount(messages) {
   return Object.values(messages)
     .map((m) => m.byteStateChangeCounts)
@@ -206,6 +208,13 @@ function maxMessageSize(message, initial = 8) {
   return max;
 }
 
+function findDbcForCar(fingerprint) {
+  if (fingerprint in dbcDict) {
+    return dbcDict[fingerprint];
+  }
+  return null;
+}
+
 export default {
   bigEndianBitIndex,
   addCanMessage,
@@ -217,4 +226,5 @@ export default {
   setMessageByteColors,
   createMessageEntry,
   maxMessageSize,
+  findDbcForCar,
 };
