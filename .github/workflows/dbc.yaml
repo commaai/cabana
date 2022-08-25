@@ -1,0 +1,36 @@
+name: update dbc json
+on:
+  # Run every day at midnight
+  schedule:
+    - cron: "0 0 * * *"
+
+  # Allows you to manually run this workflow from the Actions tab
+  workflow_dispatch:
+
+env:
+  OPENPILOT_DOCKER: ghcr.io/commaai/openpilot-prebuilt:latest
+  PR_BRANCH: update-dbc
+
+jobs:
+  update_cars:
+    name: update dbc json
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+          submodules: true
+      - name: Update DBC json
+        run: |
+          docker run -v $GITHUB_WORKSPACE:/tmp/cabana -e HOME=/home/batman $OPENPILOT_DOCKER /bin/sh -c "/tmp/cabana/scripts/update_dbc_json.sh"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@af7c021bb9c41362d0986422bd244ce51a3bf52f
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update DBC json
+          title: 'Update DBC json'
+          branch: ${{ env.PR_BRANCH }}
+          base: master
+          delete-branch: true
+          body: This is an automated PR to update the DBC mapping json
