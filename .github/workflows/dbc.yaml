@@ -23,7 +23,7 @@ jobs:
           submodules: true
       - name: Update DBC json
         run: |
-          docker run -v $GITHUB_WORKSPACE:/tmp/cabana -e HOME=/home/batman $OPENPILOT_DOCKER /bin/sh -c "/tmp/cabana/scripts/update_dbc_json.sh"
+          docker run -v $GITHUB_WORKSPACE:/tmp/cabana -e HOME=/home/batman $OPENPILOT_DOCKER /tmp/cabana/scripts/generate_dbc_json.py --out /tmp/cabana/src/utils/dbc.json
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@af7c021bb9c41362d0986422bd244ce51a3bf52f
         with:
