@@ -209,7 +209,7 @@ function maxMessageSize(message, initial = 8) {
 }
 
 function findDbcForCar(fingerprint) {
-  if (fingerprint in dbcDict) {
+  if (fingerprint in carFingerprintToDbc) {
     return carFingerprintToDbc[fingerprint];
   }
   return null;
