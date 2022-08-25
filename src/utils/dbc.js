@@ -1,4 +1,4 @@
-const dbcDict = require('./dbc_dict.json');
+const carFingerprintToDbc = require('./car_fingerprint_to_dbc.json');
 
 function findMaxByteStateChangeCount(messages) {
   return Object.values(messages)
@@ -209,8 +209,8 @@ function maxMessageSize(message, initial = 8) {
 }
 
 function findDbcForCar(fingerprint) {
-  if (fingerprint in dbcDict) {
-    return dbcDict[fingerprint];
+  if (fingerprint in carFingerprintToDbc) {
+    return carFingerprintToDbc[fingerprint];
   }
   return null;
 }
