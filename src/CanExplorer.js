@@ -501,6 +501,15 @@ export default class CanExplorer extends Component {
       }
       if (carParams && carParams.CarFingerprint !== this.state.carFingerprint) {
         this.setState({ carFingerprint: carParams.CarFingerprint });
+
+        if (this.state.dbcFilename === 'New_DBC') {
+          const dbcFilename = DbcUtils.findDbcForCar(carParams.CarFingerprint);
+          if (dbcFilename) {
+            this.openDbcClient.getDbcContents(dbcFilename + '.dbc', 'commaai/opendbc').then((dbcText) => {
+              this.onDbcSelected(dbcFilename, new DBC(dbcText));
+            });
+          }
+        }
       }
 
       if (newMessages) {
