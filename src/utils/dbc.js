@@ -1,4 +1,4 @@
-const dbcDict = require('./dbc_dict.json');
+const dbcDict = require('./dbc.json');
 
 function findMaxByteStateChangeCount(messages) {
   return Object.values(messages)
