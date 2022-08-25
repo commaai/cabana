@@ -7,10 +7,6 @@ on:
   # Allows you to manually run this workflow from the Actions tab
   workflow_dispatch:
 
-
-  # DEBUG
-  push:
-
 env:
   OPENPILOT_DOCKER: ghcr.io/commaai/openpilot-prebuilt:latest
   PR_BRANCH: update-dbc
