@@ -22,8 +22,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: master
       - name: Update DBC json
         run: |
           docker run -v $GITHUB_WORKSPACE:/tmp/cabana -e HOME=/home/batman $OPENPILOT_DOCKER /tmp/cabana/scripts/generate_dbc_json.py --out /tmp/cabana/src/utils/car_fingerprint_to_dbc.json
