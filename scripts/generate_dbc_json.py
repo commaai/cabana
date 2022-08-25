@@ -12,10 +12,10 @@ def generate_dbc_json() -> str:
 
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description="Generate mapping for all cars to DBC names and outputs json file",
+  parser = argparse.ArgumentParser(description="Generate mapping for all car fingerprints to DBC names and outputs json file",
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-  parser.add_argument("--out", required=True, help="Generated json filename")
+  parser.add_argument("--out", required=True, help="Generated json filepath")
   args = parser.parse_args()
 
   with open(args.out, 'w') as f:
