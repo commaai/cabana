@@ -34,6 +34,8 @@ import { hash } from './utils/string';
 import { modifyQueryParameters } from './utils/url';
 import DbcUtils from './utils/dbc';
 
+const NEW_DBC = 'New_DBC';
+
 const RLogDownloader = require('./workers/rlog-downloader.worker');
 const LogCSVDownloader = require('./workers/dbc-csv-downloader.worker');
 const MessageParser = require('./workers/message-parser.worker');
@@ -69,7 +71,7 @@ export default class CanExplorer extends Component {
       editMessageModalMessage: null,
       dbc: props.dbc ? props.dbc : new DBC(),
       dbcText: props.dbc ? props.dbc.text() : new DBC().text(),
-      dbcFilename: props.dbcFilename ? props.dbcFilename : 'New_DBC',
+      dbcFilename: props.dbcFilename ? props.dbcFilename : NEW_DBC,
       dbcLastSaved: null,
       seekTime: props.seekTime || 0,
       seekIndex: 0,
@@ -502,7 +504,7 @@ export default class CanExplorer extends Component {
       if (carParams && carParams.CarFingerprint !== this.state.carFingerprint) {
         this.setState({ carFingerprint: carParams.CarFingerprint });
 
-        if (this.state.dbcFilename === 'New_DBC') {
+        if (this.state.dbcFilename === NEW_DBC) {
           const dbcFilename = DbcUtils.findDbcForCar(carParams.CarFingerprint);
           if (dbcFilename) {
             this.openDbcClient.getDbcContents(dbcFilename + '.dbc', 'commaai/opendbc').then((dbcText) => {
