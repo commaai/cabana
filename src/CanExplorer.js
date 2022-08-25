@@ -53,6 +53,7 @@ export default class CanExplorer extends Component {
       canFrameOffset: 0,
       routeInitTime: 0,
       firstFrameTime: 0,
+      carFingerprint: null,
       firstCanTime: null,
       lastBusTime: null,
       selectedMessage: null,
@@ -485,6 +486,7 @@ export default class CanExplorer extends Component {
         isFinished,
         routeInitTime,
         firstFrameTime,
+        carParams,
       } = e.data;
       if (maxByteStateChangeCount > this.state.maxByteStateChangeCount) {
         this.setState({ maxByteStateChangeCount });
@@ -496,6 +498,9 @@ export default class CanExplorer extends Component {
       }
       if (firstFrameTime && firstFrameTime !== this.state.firstFrameTime) {
         this.setState({ firstFrameTime });
+      }
+      if (carParams && carParams.CarFingerprint !== this.state.carFingerprint) {
+        this.setState({ carFingerprint: carParams.CarFingerprint });
       }
 
       if (newMessages) {

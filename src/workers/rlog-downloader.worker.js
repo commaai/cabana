@@ -15,7 +15,7 @@ function sendBatch(entry) {
   entry.messages = {};
   entry.thumbnails = [];
 
-  let { maxByteStateChangeCount, routeInitTime, firstFrameTime } = entry.options;
+  let { maxByteStateChangeCount, routeInitTime, firstFrameTime, carParams } = entry.options;
   const newMaxByteStateChangeCount = DbcUtils.findMaxByteStateChangeCount(
     messages
   );
@@ -38,6 +38,7 @@ function sendBatch(entry) {
     maxByteStateChangeCount,
     routeInitTime,
     firstFrameTime,
+    carParams,
   });
 
   if (entry.ended) {
@@ -124,6 +125,10 @@ async function loadData(entry) {
       const monoTime = msg.LogMonoTime / 1000000000 - entry.options.routeInitTime;
       const data = new Uint8Array(msg.Thumbnail.Thumbnail);
       entry.thumbnails.push({ data, monoTime });
+    } else if ('CarParams' in msg) {
+      if (entry.options.carParams == null) {
+        entry.options.carParams = msg.CarParams;
+      }
     } else {
       // console.log(Object.keys(msg));
       return;
