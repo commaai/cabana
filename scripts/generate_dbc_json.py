@@ -6,9 +6,10 @@ from selfdrive.car.car_helpers import get_interface_attr
 
 
 def generate_dbc_json() -> str:
-  all_car_dbc = get_interface_attr("DBC", combine_brands=True)
-  dbc_map = {car: d['pt'] for car, d in all_car_dbc.items()}
-  return json.dumps(dbc_map, indent=2)
+  all_cars_by_brand = get_interface_attr("CAR_INFO")
+  all_dbcs_by_brand = get_interface_attr("DBC")
+  dbc_map = {car: all_dbcs_by_brand[brand][car]['pt'] for brand, cars in all_cars_by_brand.items() for car in cars if car != 'mock'}
+  return json.dumps(dict(sorted(dbc_map.items())), indent=2)
 
 
 if __name__ == "__main__":
