@@ -74,6 +74,7 @@
   "HYUNDAI SONATA 2020": "hyundai_kia_generic",
   "HYUNDAI SONATA HYBRID 2021": "hyundai_kia_generic",
   "HYUNDAI TUCSON 2019": "hyundai_kia_generic",
+  "HYUNDAI TUCSON 4TH GEN": "hyundai_canfd",
   "HYUNDAI TUCSON HYBRID 4TH GEN": "hyundai_canfd",
   "HYUNDAI VELOSTER 2019": "hyundai_kia_generic",
   "JEEP GRAND CHEROKEE 2019": "chrysler_pacifica_2017_hybrid_generated",
