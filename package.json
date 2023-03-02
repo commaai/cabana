@@ -37,7 +37,7 @@
     "socket.io-client": "^2.0.3",
     "streamsaver": "^1.0.1",
     "thyming": "^0.1.1",
-    "vega": "^5.0.0",
+    "vega": "^5.23.0",
     "vega-lite": "^4.0.0"
   },
   "devDependencies": {
